@@ -1,0 +1,10 @@
+#!/bin/sh
+#I can't belive mpc doesn't have this feature by default
+#This script queues the next song(s) using a search query
+
+if [ -n "$1" ]
+then
+    mpc search title "$1" | tee /dev/tty | mpc insert
+else
+    echo "Usage: $0 <Partial/Full Song Title>"
+fi

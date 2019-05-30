@@ -1,0 +1,19 @@
+#!/bin/sh
+#Simple script I use to move gcode files from my home directory to an SD card because I'm lazy
+
+if ! find /dev/mmcblk0* > /dev/null 2>&1
+then echo "No SD card!!"; exit 1;
+fi
+
+if [ "$( find /dev/mmcblk0* | wc -w)" -gt 2 ]
+then
+    echo "Error!! The SD Card has more than 1 partition!!"
+    exit
+fi
+
+mount /dev/mmcblk0p1 /mnt
+mv -vi "$HOME/*.gcode" /mnt
+umount /mnt
+sync
+echo "SD card ready for removal"
+

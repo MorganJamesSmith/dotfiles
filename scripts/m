@@ -1,0 +1,28 @@
+#!/bin/sh
+#Asynchronously sync all your mailboxes. I set my mail up using Luke Smith's (LukeSmith.xyz) mutt-wizard
+
+mail_refresh(){
+	i=0;
+	accounts=$(ls "$HOME/.local/share/mail");
+	for account in $accounts;
+		do (mbsync "$account" > /dev/null 2>&1) &
+			eval pid$i="$!";
+			i=$((i+1));
+	done;
+}
+
+wait_for_finish(){
+	j=0;
+	while [ $j -lt $i ]
+	do eval tail --pid=\$pid$j -f /dev/null
+		j=$((j+1));
+	done;
+	notify-send "Mail update complete"
+}
+
+
+mail_refresh;
+
+wait_for_finish &
+
+neomutt;

@@ -1,0 +1,39 @@
+#!/bin/sh
+#Simple dunst notifications for some basic stuff
+#Written by Morgan Smith :D
+#Use however you'd like! (but no warrenty, use at your own risk!)
+
+if [ -n "$1" ]
+then
+	case $1 in
+		"mute")
+			dunstify -r 1 "$( [ "$(pulsemixer --get-mute)" -ne 0 ] && echo "Muted!" || echo "Unmuted!")"
+			;;
+		"volume")
+			dunstify -r 2 "Volume: $(pulsemixer --get-volume | awk '{print $1}')%"
+			;;
+		"song")
+			dunstify -r 3 "$(mpc current)"
+			;;
+		"songstatus")
+			dunstify -r 4 "$(mpc status)"
+			;;
+		"songplaying")
+			dunstify -r 10 "$(mpc status | awk 'FNR==2{print $1}' | tr -d '[]')"
+			;;
+		"backlight")
+			dunstify -r 5 "Brightness: $(xbacklight -get | awk '{printf "%.0f", $1}')%"
+			;;
+		"trackpoint")
+			dunstify -r 6 "$(xinput --list-props "AlpsPS/2 ALPS DualPoint Stick" | grep -q "Device Enabled.*1$" && echo "Trackpoint Enabled!" || echo "Trackpoint Disabled!")"
+			;;
+		"trackpad")
+			dunstify -r 7 "$(xinput --list-props "AlpsPS/2 ALPS DualPoint TouchPad" | grep -q "Device Enabled.*1$" && echo "Trackpad Enabled!" || echo "Trackpad Disabled!")"
+			;;
+		*)
+			dunstify "$("$@")" #print out the return of the command passed
+	esac
+
+else
+	echo "Usage: $0 <Type of notification>"
+fi
