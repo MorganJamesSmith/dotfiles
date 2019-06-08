@@ -17,12 +17,17 @@ wait_for_finish(){
 	do eval tail --pid=\$pid$j -f /dev/null
 		j=$((j+1));
 	done;
-	notify-send "Mail update complete"
 }
 
 
 mail_refresh;
 
-wait_for_finish &
+if [ "$1" = "-t" ] # For when I don't have notifications (like in the framebuffer)
+then
+	wait_for_finish;
+	echo "Mail Updated";
+else
+	{ wait_for_finish; notify-send "Mail Updated"; } &
+	neomutt;
+fi
 
-neomutt;
