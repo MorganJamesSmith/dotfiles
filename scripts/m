@@ -5,8 +5,9 @@ mail_refresh(){
 	i=0;
 	accounts=$(ls "$HOME/.local/share/mail");
 	for account in $accounts;
-		do (mbsync "$account" > /dev/null 2>&1) &
-			eval pid$i="$!";
+	do (mbsync "$account" > /dev/null 2>&1; eval echo $? > "$HOME/.mailstatus$account" ) &
+			eval pid$i="$!"; #create an "array" of pids
+			eval account$i="$account"; #create an "array" of account names
 			i=$((i+1));
 	done;
 }
@@ -15,19 +16,36 @@ wait_for_finish(){
 	j=0;
 	while [ $j -lt $i ]
 	do eval tail --pid=\$pid$j -f /dev/null
+		eval acc='$'"account$j" #grab current account name
+		read -r exitvalue < "$HOME/.mailstatus${acc:?}"
+		rm "$HOME/.mailstatus$acc"
+		if [ "$exitvalue" -ne 0 ]
+		then
+			if [ -z "$error" ]
+			then
+				error=" - errors occured in account(s): $acc"
+			else error="$error, $acc"
+			fi
+		fi
 		j=$((j+1));
 	done;
 }
-
 
 mail_refresh;
 
 if [ "$1" = "-t" ] # For when I don't have notifications (like in the framebuffer)
 then
 	wait_for_finish;
-	echo "Mail Updated";
+	echo "Mail Updated$error";
 else
-	{ wait_for_finish; notify-send "Mail Updated"; } &
+	{ wait_for_finish; notify-send "Mail Updated$error"; } &
 	neomutt;
+fi
+
+if [ -z "$error" ]
+then
+	exit 0
+else
+	exit 1
 fi
 
