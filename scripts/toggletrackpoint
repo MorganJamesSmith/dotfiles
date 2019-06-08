@@ -1,3 +1,9 @@
 #!/bin/sh
 
-xinput --list-props "AlpsPS/2 ALPS DualPoint Stick" | grep -q "Device Enabled.*1$" && xinput disable "AlpsPS/2 ALPS DualPoint Stick" || xinput enable "AlpsPS/2 ALPS DualPoint Stick"
+if xinput --list-props "AlpsPS/2 ALPS DualPoint Stick" | grep -q "Device Enabled.*1$"; then
+	xinput disable "AlpsPS/2 ALPS DualPoint Stick"
+	echo "Trackpoint disabled!"
+else
+	xinput enable "AlpsPS/2 ALPS DualPoint Stick"
+	echo "Trackpoint enabled!"
+fi
