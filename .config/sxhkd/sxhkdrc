@@ -7,7 +7,7 @@ super + Return
 super + d
     dmenu_run
 super + e
-    $TERMINAL -e m
+    m & $TERMINAL -e neomutt; m
 {super + w,XF86HomePage}
     $BROWSER
 super + x

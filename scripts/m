@@ -1,6 +1,10 @@
 #!/bin/sh
 #Asynchronously sync all your mailboxes. I set my mail up using Luke Smith's (LukeSmith.xyz) mutt-wizard
 
+#Starts refreshing each mailbox in its own subshell
+#Creates an "array" of pids (pid0, pid1, pid2 ...)
+#Creates an "array" of account names (pid0, pid1, pid2 ...)
+#Creates files in ~/.mailstatus<ACCOUNT NAME> with the exit value of the sync command
 mail_refresh(){
 	i=0;
 	accounts=$(ls "$HOME/.local/share/mail");
@@ -12,10 +16,13 @@ mail_refresh(){
 	done;
 }
 
+#Waits for each pid in the pid "array" to finish
+#Checks the status of each return
+#Appends any failed accounts to an error message
 wait_for_finish(){
 	j=0;
 	while [ $j -lt $i ]
-	do eval tail --pid=\$pid$j -f /dev/null
+	do eval wait "$"pid$j # The first $ is in quotes so shellcheck doesn't complain that I havent initilized pid
 		eval acc='$'"account$j" #grab current account name
 		read -r exitvalue < "$HOME/.mailstatus${acc:?}"
 		rm "$HOME/.mailstatus$acc"
@@ -31,16 +38,24 @@ wait_for_finish(){
 	done;
 }
 
-mail_refresh;
-
-if [ "$1" = "-t" ] # For when I don't have notifications (like in the framebuffer)
+if [ -e "$HOME/.mailisupdating" ]
 then
-	wait_for_finish;
-	echo "Mail Updated$error";
-else
-	{ wait_for_finish; notify-send "Mail Updated$error"; } &
-	neomutt;
+	echo "Mail is already updating"
+	exit 1
 fi
+date -Ins > "$HOME/.mailisupdating"
+
+
+mail_refresh;
+wait_for_finish;
+echo "Mail Updated$error";
+
+if [ ! "$1" = "-t" ] # For when I don't have notifications (like in the framebuffer)
+then
+	notify-send "Mail Updated$error";
+fi
+
+rm "$HOME/.mailisupdating"
 
 if [ -z "$error" ]
 then
