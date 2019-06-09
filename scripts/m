@@ -47,6 +47,10 @@ then
 		rm "$HOME/.mailisupdating"
 	else
 		echo "Mail is already updating"
+		if [ ! "$1" = "-q" ]
+		then
+			notify-send "Mail is already updating";
+		fi
 		exit 1
 	fi
 fi
@@ -57,7 +61,7 @@ mail_refresh;
 wait_for_finish;
 echo "Mail Updated$error";
 
-if [ ! "$1" = "-q" ] # For when I don't have notifications (like in the framebuffer)
+if [ ! "$1" = "-q" ]
 then
 	notify-send "Mail Updated$error";
 fi
