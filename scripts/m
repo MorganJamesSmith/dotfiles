@@ -40,17 +40,24 @@ wait_for_finish(){
 
 if [ -e "$HOME/.mailisupdating" ]
 then
-	echo "Mail is already updating"
-	exit 1
+	read -r oldtime < "$HOME/.mailisupdating"
+	if [ "$oldtime" -le "$(( $(date +%s) - 2000 ))" ]
+	then
+		echo "Removing outdated lock file"
+		rm "$HOME/.mailisupdating"
+	else
+		echo "Mail is already updating"
+		exit 1
+	fi
 fi
-date -Ins > "$HOME/.mailisupdating"
+date +%s > "$HOME/.mailisupdating"
 
 
 mail_refresh;
 wait_for_finish;
 echo "Mail Updated$error";
 
-if [ ! "$1" = "-t" ] # For when I don't have notifications (like in the framebuffer)
+if [ ! "$1" = "-q" ] # For when I don't have notifications (like in the framebuffer)
 then
 	notify-send "Mail Updated$error";
 fi
