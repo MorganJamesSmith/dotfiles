@@ -16,7 +16,7 @@ esac done
 
 # DEFAULTS:
 [ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/morganjamessmith/dotfiles.git" && repobranch="master"
-[ -z "$progsfile" ] && progsfile="https://raw.githubusercontent.com/morganjamessmith/dotfiles/master/progs.csv"
+[ -z "$progsfile" ] && progsfile="https://raw.githubusercontent.com/morganjamessmith/dotfiles/master/.config/progs.csv"
 [ -z "$repobranch" ] && repobranch="master"
 
 ### FUNCTIONS ###

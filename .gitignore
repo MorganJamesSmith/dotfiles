@@ -4,3 +4,4 @@
 .config/bookmarks
 .config/sxhkd/sxhkdrc
 .config/wpa_supplicant/wpa_supplicant.conf
+.pal

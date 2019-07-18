@@ -1,0 +1,4 @@
+#!/bin/sh
+
+undervolt --core -90 --cache -90 --uncore -90 --analogio -90 --gpu -90
+sleep 60
