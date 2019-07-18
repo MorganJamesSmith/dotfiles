@@ -1,7 +1,7 @@
 #!/bin/sh
 # Profile file. Runs on login.
 
-export PATH="$PATH:$(du "$HOME/sync/configfiles/scripts/" | cut -f2 | tr '\n' ':' | sed 's/:*$//')"
+export PATH="$PATH:$(du "$HOME/.bin/" | cut -f2 | tr '\n' ':' | sed 's/:*$//')"
 export EDITOR="nvim"
 export TERMINAL="st"
 export BROWSER="surf"

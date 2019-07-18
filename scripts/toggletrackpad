@@ -1,9 +1,0 @@
-#!/bin/sh
-
-if xinput --list-props "AlpsPS/2 ALPS DualPoint TouchPad" | grep -q "Device Enabled.*1$"; then
-	xinput disable "AlpsPS/2 ALPS DualPoint TouchPad"
-	echo "Trackpad disabled!"
-else
-	xinput enable "AlpsPS/2 ALPS DualPoint TouchPad"
-	echo "Trackpad enabled!"
-fi

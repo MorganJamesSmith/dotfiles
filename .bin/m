@@ -61,11 +61,6 @@ mail_refresh;
 wait_for_finish;
 echo "Mail Updated$error";
 
-if [ ! "$1" = "-q" ]
-then
-	notify-send "Mail Updated$error";
-fi
-
 rm "$HOME/.mailisupdating"
 
 if [ -z "$error" ]

@@ -1,0 +1,4 @@
+#!/bin/sh
+exec 2>&1
+exec chpst -upancake:pancake -Upancake:pancake -e /home/pancake/.config/envdir runsvdir /home/pancake/.service 2>&1
+

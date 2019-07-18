@@ -1,16 +1,23 @@
 #!/bin/sh
 alias \
-    mpv="mpv --input-ipc-server=/tmp/mpvsoc$(date +%s)" \
+    mpv='mpv --input-ipc-server=/tmp/mpvsoc$(date +%s)' \
     ls="ls -hN --color=auto --group-directories-first" \
     grep="grep --color=auto" \
     diff="diff --color=auto" \
     ccat="highlight --out-format=ansi" \
     tsm="transmission-remote" \
+    tsmc="transmission-remote-cli" \
     tsmd="transmission-daemon" \
+    pal="pal --color" \
     plant="java -jar /usr/local/etc/plantuml/plantuml.jar" \
+    poweroff="sudo poweroff" \
+    reboot="sudo reboot" \
+    halt="sudo halt" \
 
     command -v nvim >/dev/null && alias vim="nvim" vimdiff="nvim -d" # Use neovim for vim if present.
 
 vf() { fzf | xargs -r -I % "$EDITOR" % ;}
 
-z() { zathura "$@" & }
+z() { nohup zathura "$@" </dev/null >/dev/null 2>&1 & }
+
+za() { for i in *.pdf; do nohup zathura "$i" </dev/null >/dev/null 2>&1; done & }

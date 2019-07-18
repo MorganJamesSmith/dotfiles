@@ -1,0 +1,63 @@
+# Programs
+
+{super + Return,XF86MyComputer}
+	$TERMINAL
+super + q
+	kill -9 `xdotool getwindowfocus getwindowpid`
+{super + a,XF86Calculator}
+	$TERMINAL -e R
+super + d
+	dmenu_run
+super + e
+	notify-send $(m) & st -e neomutt; notify-send $(m)
+{super + w,XF86HomePage}
+	$BROWSER
+super + x
+	slock
+
+# Volume/Mic
+
+{super + $MUTE_KEY ,XF86AudioMute}
+	pactl set-sink-mute 0 toggle; notify mute
+
+{_,super + } {super + $VOLUME_DOWN_KEY ,XF86AudioLowerVolume}
+	pulsemixer --change-volume -5; notify volume
+
+{shift +, shift + super +} {super + $VOLUME_DOWN_KEY ,XF86AudioLowerVolume}
+	pulsemixer --set-volume 0; notify volume
+
+{_,super + } {super + $VOLUME_UP_KEY ,XF86AudioRaiseVolume}
+	pulsemixer --change-volume +5; notify volume
+
+{shift +, shift + super +} {super + $VOLUME_UP_KEY ,XF86AudioRaiseVolume}
+	pulsemixer --set-volume 100; notify volume
+
+{XF86AudioMicMute}
+	amixer -c 0 set 'Capture' toggle; notify mic
+
+# Music
+
+{super + p,XF86AudioPlay}
+	mpc toggle; notify songplaying
+super + shift + p
+	mpc pause; notify songplaying
+super + {Left,Right}
+	mpc {prev,next}; notify song
+super + shift + slash
+	notify songstatus
+
+# Input
+
+super + c
+	dunstify -r 24242 "$(xinputtoggle "$TRACKPAD_DEVICE" "Trackpad")"
+super + shift + c
+	dunstify -r 23224 "$(xinputtoggle "$TOUCHSCREEN_DEVICE" "Touchscreen")"
+
+# Monitor
+
+{_,shift + }{super + $BRIGHTNESS_DOWN_KEY ,XF86MonBrightnessDown}
+	xbacklight -steps 1 -time 0 {-dec 10,-set 0}; notify backlight
+{_,shift + }{super + $BRIGHTNESS_UP_KEY ,XF86MonBrightnessUp}
+	xbacklight -steps 1 -time 0 {-inc 10,-set 100}; notify backlight
+{super + $DISPLAY_KEY ,XF86Display}
+	displayselect
