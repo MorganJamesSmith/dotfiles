@@ -1,6 +1,7 @@
 #!/bin/sh
-exec xbanish &
+exec unclutter &
 exec slstatus &
-exec sxhkd &
+exec cat ~/.config/sxhkd/sxhkdrcgenerator | envsubst > ~/.config/sxhkd/sxhkdrc &&
+exec sxhkd -c ~/.config/sxhkd/sxhkdrc &
 exec dunst &
 exec dwm

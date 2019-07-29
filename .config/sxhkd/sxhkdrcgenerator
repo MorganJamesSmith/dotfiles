@@ -55,9 +55,9 @@ super + shift + c
 
 # Monitor
 
-{_,shift + }{super + $BRIGHTNESS_DOWN_KEY ,XF86MonBrightnessDown}
+{_,shift + }{super + $BRIGHTNESS_DOWN_KEY, XF86MonBrightnessDown}
 	xbacklight -steps 1 -time 0 {-dec 10,-set 0}; notify backlight
-{_,shift + }{super + $BRIGHTNESS_UP_KEY ,XF86MonBrightnessUp}
+{_,shift + }{super + $BRIGHTNESS_UP_KEY, XF86MonBrightnessUp}
 	xbacklight -steps 1 -time 0 {-inc 10,-set 100}; notify backlight
 {super + $DISPLAY_KEY ,XF86Display}
 	displayselect

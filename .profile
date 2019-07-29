@@ -1,10 +1,14 @@
 #!/bin/sh
 # Profile file. Runs on login.
 
+# Adds `~/.bin` and all subdirectories to $PATH
 export PATH="$PATH:$(du "$HOME/.bin/" | cut -f2 | tr '\n' ':' | sed 's/:*$//')"
+# Adds `/opt/bin` to path
+export PATH="$PATH:/opt/bin"
 export EDITOR="nvim"
+#export TERMINAL="tabbed -c -r 2 st -w '' -e"
 export TERMINAL="st"
-export BROWSER="surf"
+export BROWSER="tabbed -c -r 2 surf -e ''"
 export READER="zathura"
 
 # less/man colors
@@ -17,9 +21,12 @@ export LESS_TERMCAP_se="$(printf '%b' '[0m')"; a="${a%_}"
 export LESS_TERMCAP_us="$(printf '%b' '[1;32m')"; a="${a%_}"
 export LESS_TERMCAP_ue="$(printf '%b' '[0m')"; a="${a%_}"
 
-export XDG_CONFIG_HOME=~/.config #config location for sxhkd
+mpc random on > /dev/null
+mpc add / > /dev/null
 
-[ ! -f ~/.config/shortcutrc ] && shortcuts >/dev/null 2>&1
+[ -f $HOME/.config/hardwareprofile ] && source "$HOME/.config/hardwareprofile"
 
-echo "$0" | grep "bash$" >/dev/null && [ -f ~/.bashrc ] && source "$HOME/.bashrc"
+[ -f ~/.config/aliasrc ] && source "$HOME/.config/aliasrc" >/dev/null 2>&1
+
+echo "$0" | grep "bash$" >/dev/null && [ -f $HOME/.bashrc ] && source "$HOME/.bashrc"
 
