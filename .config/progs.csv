@@ -99,4 +99,6 @@ G,https://github.com/lukesmithxyz/dmenu.git,"runs commands and provides a UI for
 G,https://github.com/lukesmithxyz/dwm.git,"is the window manager."
 G,https://github.com/lukesmithxyz/st.git,"is my custom build of suckless's terminal emulator."
 P,undervolt,"allows you to undervolt your computer"
-
+,libXrandr-devel,"needed to compile slock"
+,libXft-devel,"needed to compile dwm"
+G,https://github.com/aligrudi/neatroff_make,"roff replacement"
