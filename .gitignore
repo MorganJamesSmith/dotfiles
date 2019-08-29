@@ -1,14 +1,15 @@
-.Download
 .Xauthority
 .abook/
 .bash_history
 .bash_logout
 .cache
+.config/GIMP/
 .config/QtProject.conf
 .config/Signal/
 .config/VirtualBox/
 .config/bookmarks
 .config/fontforge/
+.config/glib-2.0/
 .config/gtk-2.0/
 .config/hardwareprofile
 .config/htop/
@@ -27,6 +28,7 @@
 .config/sxhkd/sxhkdrc
 .config/syncthing/
 .config/transmission-daemon/
+.config/vlc/
 .config/wpa_supplicant/wpa_supplicant.conf
 .dbus/
 .gitconfig
@@ -39,6 +41,7 @@
 .minecraft/
 .minetest/
 .mozilla/
+.msmtprc
 .multimc/
 .notmuch-config
 .pal
@@ -53,9 +56,11 @@
 .wget-hsts
 .wine/
 .wpa_cli_history
+.xournal/
 3320
 3501
 3502
+Downloads/
 drive/
 music/
 pictures/

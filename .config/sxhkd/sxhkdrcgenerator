@@ -61,3 +61,13 @@ super + shift + c
 	xbacklight -steps 1 -time 0 {-inc 10,-set 100}; notify backlight
 {super + $DISPLAY_KEY ,XF86Display}
 	displayselect
+
+# Surface Pen
+
+super + XF86Launch9
+	xournal
+super + XF86AudioMicMute
+	xdotool key shift+ctrl+p
+super + NoSymbol
+	xdotool key shift+ctrl+g
+

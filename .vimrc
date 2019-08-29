@@ -29,6 +29,7 @@ call plug#begin('~/.vim/plugged')
 	Plug 'vim-syntastic/syntastic'
 	Plug 'airblade/vim-gitgutter'
 	Plug 'ledger/vim-ledger'
+	Plug 'jamessan/vim-gnupg'
 call plug#end()
 
 set bg=light
