@@ -1,3 +1,4 @@
+.Rhistory
 .Xauthority
 .abook/
 .bash_history
@@ -36,6 +37,7 @@
 .gnuplot_history
 .grive
 .lesshst
+.lmmsrc.xml
 .local/
 .mbsyncrc
 .minecraft/

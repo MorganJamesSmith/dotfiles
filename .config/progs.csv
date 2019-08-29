@@ -60,7 +60,6 @@
 ,transmission,"A fast, easy, and free BitTorrent client"
 ,transmission-remote-cli,"Curses interface for the BitTorrent client Transmission"
 ,ts,"queues commands or files for download."
-,unclutter,"Rewrite of the popular tool unclutter using the libXfixes"
 ,unclutter-xfixes,"hides an inactive mouse."
 ,unrar,"extracts rar's."
 ,unzip,"unzips zips."
