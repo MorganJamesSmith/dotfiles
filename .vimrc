@@ -52,6 +52,7 @@ set clipboard=unnamedplus
 	set shiftwidth=4
 	set noexpandtab
 	set updatetime=100
+	set autoread
 
 " Spell-check set to <leader>o, 'o' for 'orthography':
 	map <leader>o :setlocal spell! spelllang=en_us<CR>
@@ -73,7 +74,7 @@ let g:airline#extensions#tabline#enabled = 1
 	nnoremap S :%s//g<Left><Left>
 
 " Compile document, be it groff/LaTeX/markdown/etc.
-	map <leader>c :w! \| !compiler <c-r>%<CR>
+	map <leader>c :w! \| !compiler <c-r>%<CR>:edit<CR>
 
 " Open corresponding .pdf/.html or preview
 	map <leader>p :!opout <c-r>%<CR><CR>
