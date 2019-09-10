@@ -59,6 +59,7 @@ set clipboard=unnamedplus
 	set cursorline "highlight current line
 	set listchars=trail:-,tab:-- " change the way tabs and line ends are displayed
 	set cursorline "highlight current line
+	set autoread
 
 " Spell-check set to <leader>o, 'o' for 'orthography':
 	map <leader>o :setlocal spell! spelllang=en_us<CR>
@@ -99,7 +100,7 @@ set clipboard=unnamedplus
 	nnoremap S :%s//g<Left><Left>
 
 " Compile document, be it groff/LaTeX/markdown/etc.
-	map <leader>c :w! \| !compiler <c-r>%<CR>
+	map <leader>c :w! \| !compiler <c-r>%<CR>:edit<CR>
 
 " Open corresponding .pdf/.html or preview
 	map <leader>p :!opout <c-r>%<CR><CR>
