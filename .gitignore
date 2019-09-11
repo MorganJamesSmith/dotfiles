@@ -36,6 +36,7 @@
 .gnupg
 .gnuplot_history
 .grive
+.java/
 .lesshst
 .lmmsrc.xml
 .local/
@@ -48,6 +49,7 @@
 .notmuch-config
 .pal
 .password-store/
+.python_history
 .sciminfo
 .service/mpd/supervise/
 .service/syncthing/supervise/
@@ -67,4 +69,5 @@ drive/
 music/
 pictures/
 repos/
+sent/
 sync/

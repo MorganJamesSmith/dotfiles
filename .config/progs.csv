@@ -100,5 +100,8 @@ G,https://github.com/lukesmithxyz/st.git,"is my custom build of suckless's termi
 P,undervolt,"allows you to undervolt your computer"
 ,libXrandr-devel,"needed to compile slock"
 ,libXft-devel,"needed to compile dwm"
+,splint,"checks c code for errors"
 G,https://github.com/aligrudi/neatroff_make,"roff replacement"
 G,http://git.kernel.org/pub/scm/docs/man-pages/man-pages,"extra man pages"
+,setxkbmap,""
+,xmodmap,""

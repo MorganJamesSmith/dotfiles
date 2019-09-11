@@ -26,10 +26,10 @@ call plug#begin('~/.vim/plugged')
 	Plug 'terryma/vim-multiple-cursors'
 	Plug 'tpope/vim-speeddating'
 	Plug 'vim-airline/vim-airline'
-	Plug 'vim-syntastic/syntastic'
 	Plug 'airblade/vim-gitgutter'
 	Plug 'ledger/vim-ledger'
 	Plug 'jamessan/vim-gnupg'
+	Plug 'ycm-core/YouCompleteMe'
 call plug#end()
 
 set bg=light
@@ -95,6 +95,9 @@ set clipboard=unnamedplus
 
 " Check file in shellcheck:
 	map <leader>s :!clear && shellcheck %<CR>
+
+" Check file in splint:
+	autocmd Filetype c map <leader>s :!clear && splint +posixstrictlib %<CR>
 
 " Replace all is aliased to S.
 	nnoremap S :%s//g<Left><Left>
