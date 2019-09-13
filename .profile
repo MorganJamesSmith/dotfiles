@@ -6,8 +6,7 @@ export PATH="$PATH:$(du "$HOME/.bin/" | cut -f2 | tr '\n' ':' | sed 's/:*$//')"
 # Adds `/opt/bin` to path
 export PATH="$PATH:/opt/bin"
 export EDITOR="nvim"
-#export TERMINAL="tabbed -c -r 2 st -w '' -e"
-export TERMINAL="st"
+export TERMINAL="tabbed -c -r 2 st -w '' -e"
 export BROWSER="tabbed -c -r 2 surf -e ''"
 export READER="zathura"
 

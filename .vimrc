@@ -113,3 +113,23 @@ set clipboard=unnamedplus
 
 	colorscheme apprentice
 
+	function! LoadCscope()
+	  let db = findfile("cscope.out", ".;")
+	  if (!empty(db))
+	    let path = strpart(db, 0, match(db, "/cscope.out$"))
+	    set nocscopeverbose " suppress 'duplicate connection' error
+	    exe "cs add " . db . " " . path
+	    set cscopeverbose
+		set csre "use cscope.out file location as the prefix to construct an absolute path
+	  endif
+	endfunction
+
+	autocmd Filetype c call LoadCscope()
+	autocmd Filetype cpp call LoadCscope()
+
+if ! filereadable(expand('~/.config/nvim/cscope_maps.vim'))
+	echo "Downloading cscope mappings"
+	silent !curl http://cscope.sourceforge.net/cscope_maps.vim --output ~/.config/nvim/cscope_maps.vim
+endif
+
+source ~/.config/nvim/cscope_maps.vim
