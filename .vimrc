@@ -66,6 +66,9 @@ set autoread
 set list
 set listchars=tab:!·,trail:·
 
+" Sensible way to get to normal mode in a terminal
+    tnoremap <Esc> <C-\><C-n>
+
 " Spell-check set to <leader>o, 'o' for 'orthography':
 map <leader>o :setlocal spell! spelllang=en_us<CR>
 

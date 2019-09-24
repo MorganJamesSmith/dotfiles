@@ -22,6 +22,7 @@
 .config/mutt/
 .config/nvim/autoload/
 .config/nvim/colors/
+.config/nvim/cscope_maps.vim
 .config/nvim/spell/
 .config/pulse/
 .config/scudcloud/
