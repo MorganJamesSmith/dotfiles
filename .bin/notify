@@ -7,25 +7,25 @@ if [ -n "$1" ]
 then
 	case $1 in
 		"mute")
-			dunstify -r 1 "$( [ "$(pulsemixer --get-mute)" -ne 0 ] && echo "Muted!" || echo "Unmuted!")"
+			notify-send "$( [ "$(pulsemixer --get-mute)" -ne 0 ] && echo "Muted!" || echo "Unmuted!")"
 			;;
 		"volume")
-			dunstify -r 2 "Volume: $(pulsemixer --get-volume | awk '{print $1}')%"
+			notify-send "Volume: $(pulsemixer --get-volume | awk '{print $1}')%"
 			;;
 		"mic")
-			dunstify -r 20 "$( [ "$(amixer -c 0 get 'Capture' | grep \[on\] -c)" -gt 0 ] && echo "Mic On" || echo "Mic Off")"
+			notify-send "$( [ "$(amixer -c 0 get 'Capture' | grep \[on\] -c)" -gt 0 ] && echo "Mic On" || echo "Mic Off")"
 			;;
 		"song")
-			dunstify -r 3 "$(mpc current)"
+			notify-send "$(mpc current)"
 			;;
 		"songstatus")
-			dunstify -r 3 "$(mpc status | sed 2q)"
+			notify-send "$(mpc status | sed 2q)"
 			;;
 		"songplaying")
-			dunstify -r 4 "$(mpc status | awk 'FNR==2{print $1}' | tr -d '[]')"
+			notify-send "$(mpc status | awk 'FNR==2{print $1}' | tr -d '[]')"
 			;;
 		"backlight")
-			dunstify -r 5 "Brightness: $(xbacklight -get | awk '{printf "%.0f", $1}')%"
+			notify-send "Brightness: $(xbacklight -get | awk '{printf "%.0f", $1}')%"
 			;;
 		*)
 			#print out the return of the command passed. This can be useful when mixed with dmenu

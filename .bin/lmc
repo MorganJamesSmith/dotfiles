@@ -4,18 +4,18 @@
 [ -z "$2" ] && num="2" || num="$2"
 
 case "$1" in
-	u*) pulsemixer --change-volume +"$num" ;;
-	d*) pulsemixer --change-volume -"$num" ;;
-	m*) pulsemixer --toggle-mute ;;
-	truemute) pulsemixer --mute ;;
-	play) mpc play ;;
-	n*) mpc next ;;
-	prev) mpc prev ;;
-	t*) mpc toggle ;;
+	u*) pulsemixer --change-volume +"$num" ; notify volume ;;
+	d*) pulsemixer --change-volume -"$num" ; notify volume ;;
+	m*) pulsemixer --toggle-mute ; notify mute ;;
+	truemute) pulsemixer --mute ; notify mute ;;
+	play) mpc play ; notify song ;;
+	n*) mpc next ; notify song ;;
+	prev) mpc prev ; notify song ;;
+	t*) mpc toggle ; notify songstatus ;;
 	p*) mpc pause ; pauseallmpv ;;
-	f*) mpc seek +"$num" ;;
-	b*) mpc seek -"$num" ;;
-	r*) mpc seek 0% ;;
+	f*) mpc seek +"$num" ; notify songstatus ;;
+	b*) mpc seek -"$num" ; notify songstatus ;;
+	r*) mpc seek 0% ; notify songstatus ;;
 	*) cat << EOF
 lmc: cli music interface for mpd and pulse for those with divine intellect too
 grand to remember the mpc/pamixer commands.
@@ -38,5 +38,3 @@ All of these commands, except for \`truemute\`, \`prev\` and \`play\` can be tru
 i.e. \`lmc r\` for \`lmc restart\`.
 EOF
 esac
-
-pkill -RTMIN+10 i3blocks
