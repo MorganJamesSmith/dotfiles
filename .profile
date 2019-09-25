@@ -21,8 +21,6 @@ export LESS_TERMCAP_us="$(printf '%b' '[1;32m')"; a="${a%_}"
 export LESS_TERMCAP_ue="$(printf '%b' '[0m')"; a="${a%_}"
 
 XDG_CONFIG_HOME="$HOME/.config"
-mpc random on > /dev/null
-mpc add / > /dev/null
 
 [ -f $HOME/.config/hardwareprofile ] && source "$HOME/.config/hardwareprofile"
 

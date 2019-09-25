@@ -30,7 +30,7 @@ then
 		*)
 			#print out the return of the command passed. This can be useful when mixed with dmenu
 			#ex. use dmenu to run "notify ps -a" to quickly see everything that's running
-			dunstify "$("$@")"
+			notify-send "$("$@")"
 	esac
 
 else

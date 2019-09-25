@@ -58,7 +58,6 @@ set ignorecase " ignore case when searching...
 set smartcase " ... unless pattern has uppercase character
 set autochdir "change the working directory to the directory in which the file being opened lives
 set cursorline "highlight current line
-set listchars=trail:-,tab:-- " change the way tabs and line ends are displayed
 set cursorline "highlight current line
 set autoread
 
@@ -141,3 +140,11 @@ if ! filereadable(expand('~/.config/nvim/cscope_maps.vim'))
 endif
 
 source ~/.config/nvim/cscope_maps.vim
+
+" A place for computer specific bindings
+" I use this for work bindings
+if filereadable(expand('~/.config/nvim/computer.vim'))
+	source ~/.config/nvim/computer.vim
+endif
+
+
