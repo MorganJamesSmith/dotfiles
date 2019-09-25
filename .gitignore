@@ -32,6 +32,7 @@
 .config/transmission-daemon/
 .config/vlc/
 .config/wpa_supplicant/wpa_supplicant.conf
+.cpan/
 .dbus/
 .gitconfig
 .gnupg
@@ -56,6 +57,8 @@
 .service/syncthing/supervise/
 .ssh
 .surf/
+.tetris
+.tetris_stat
 .urlview
 .vim/
 .wget-hsts

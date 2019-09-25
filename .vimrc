@@ -29,7 +29,6 @@ call plug#begin('~/.vim/plugged')
 	Plug 'airblade/vim-gitgutter'
 	Plug 'ledger/vim-ledger'
 	Plug 'jamessan/vim-gnupg'
-	Plug 'ycm-core/YouCompleteMe'
 	Plug 'vim-scripts/TeTrIs.vim'
 call plug#end()
 
@@ -104,7 +103,7 @@ cmap w!! w !sudo tee > /dev/null %
 map <leader>s :!clear && shellcheck %<CR>
 
 " Check file in splint:
-autocmd Filetype c map <leader>s :!clear && splint +posixstrictlib %<CR>
+autocmd Filetype c,cpp map <leader>s :!clear && splint +posixstrictlib %<CR>
 
 " Replace all is aliased to S.
 nnoremap S :%s//g<Left><Left>

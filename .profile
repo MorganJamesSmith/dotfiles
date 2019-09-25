@@ -20,6 +20,7 @@ export LESS_TERMCAP_se="$(printf '%b' '[0m')"; a="${a%_}"
 export LESS_TERMCAP_us="$(printf '%b' '[1;32m')"; a="${a%_}"
 export LESS_TERMCAP_ue="$(printf '%b' '[0m')"; a="${a%_}"
 
+export GPG_TTY=$(tty)
 XDG_CONFIG_HOME="$HOME/.config"
 
 [ -f $HOME/.config/hardwareprofile ] && source "$HOME/.config/hardwareprofile"
