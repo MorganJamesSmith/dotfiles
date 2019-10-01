@@ -4,6 +4,7 @@
 .bash_history
 .bash_logout
 .cache
+.config/.zcompdump
 .config/GIMP/
 .config/QtProject.conf
 .config/Signal/
@@ -15,6 +16,7 @@
 .config/hardwareprofile
 .config/htop/
 .config/libreoffice/
+.config/mimeapps.list
 .config/mpd/database
 .config/mpd/log
 .config/mpd/pid
@@ -65,6 +67,7 @@
 .wine/
 .wpa_cli_history
 .xournal/
+.zcompdump
 3320
 3501
 3502
