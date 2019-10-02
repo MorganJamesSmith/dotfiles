@@ -8,11 +8,12 @@ alias \
     tsm="transmission-remote" \
     tsmc="transmission-remote-cli" \
     tsmd="transmission-daemon" \
-    pal="pal --color" \
     plant="java -jar /usr/local/etc/plantuml/plantuml.jar" \
     poweroff="sudo poweroff" \
     reboot="sudo reboot" \
     halt="sudo halt" \
+    info="info --vi-keys" \
+
 
     command -v nvim >/dev/null && alias vim="nvim" vimdiff="nvim -d" # Use neovim for vim if present.
 

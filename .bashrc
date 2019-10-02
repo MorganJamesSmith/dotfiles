@@ -12,3 +12,6 @@ export PS1=$PS1
 
 [ -f "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
 [ -f "$HOME/.config/computerrc" ] && source "$HOME/.config/computerrc"
+
+# Use zsh if it is installed
+[ ! -z $(which zsh) ] && exec zsh

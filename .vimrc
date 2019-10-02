@@ -101,7 +101,7 @@ let g:gitgutter_max_signs = 5000 "max diff of 5000 lines
 cmap w!! w !sudo tee > /dev/null %
 
 " Syntax checker based on filetype
-autocmd Filetype sh map <leader>s :!clear && shellcheck %<CR>
+autocmd Filetype sh,bash,dash,ksh map <leader>s :!clear && shellcheck %<CR>
 autocmd Filetype c,cpp map <leader>s :!clear && splint +posixstrictlib %<CR>
 
 " Replace all is aliased to S.
