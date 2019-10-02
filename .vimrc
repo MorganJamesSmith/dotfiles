@@ -60,12 +60,12 @@ set cursorline "highlight current line
 set cursorline "highlight current line
 set autoread
 
-" Make tabs and trailing spaces visable
-set list
+" Add toggle to make tabs and trailing whitespace visable
+nnoremap <leader><tab> :set invlist<CR>
 set listchars=tab:!·,trail:·
 
 " Sensible way to get to normal mode in a terminal
-    tnoremap <Esc> <C-\><C-n>
+tnoremap <Esc> <C-\><C-n>
 
 " Spell-check set to <leader>o, 'o' for 'orthography':
 map <leader>o :setlocal spell! spelllang=en_us<CR>
@@ -86,6 +86,7 @@ nmap <leader>6 <Plug>AirlineSelectTab6
 nmap <leader>7 <Plug>AirlineSelectTab7
 nmap <leader>8 <Plug>AirlineSelectTab8
 nmap <leader>9 <Plug>AirlineSelectTab9
+nmap <leader>0 <Plug>AirlineSelectTab10
 nmap <leader>- <Plug>AirlineSelectPrevTab
 nmap <leader>+ <Plug>AirlineSelectNextTab
 
@@ -99,10 +100,8 @@ let g:gitgutter_max_signs = 5000 "max diff of 5000 lines
 " Allow saving of files as sudo when forgetting to start vim using sudo
 cmap w!! w !sudo tee > /dev/null %
 
-" Check file in shellcheck:
-map <leader>s :!clear && shellcheck %<CR>
-
-" Check file in splint:
+" Syntax checker based on filetype
+autocmd Filetype sh map <leader>s :!clear && shellcheck %<CR>
 autocmd Filetype c,cpp map <leader>s :!clear && splint +posixstrictlib %<CR>
 
 " Replace all is aliased to S.
