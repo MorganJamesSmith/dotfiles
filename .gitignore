@@ -15,7 +15,6 @@
 !.config/acpi/handler.sh
 !.config/aliasrc
 !.config/dunst/dunstrc
-!.config/envdir/HOME
 !.config/hardwareprofiles/board.bin
 !.config/hardwareprofiles/surfacego
 !.config/hardwareprofiles/surfacegowififix.sh
@@ -29,6 +28,7 @@
 !.config/systemservices/mpdsetup/run
 !.config/systemservices/pancake/run
 !.config/systemservices/undervolt/run
+!.emacs
 !.gitignore
 !.inputrc
 !.profile
