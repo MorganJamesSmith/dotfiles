@@ -1,6 +1,11 @@
 ;;; .emacs --- Emacs configuration file by Morgan Smith
 ;;
 
+(eval-when-compile
+  (add-to-list 'load-path "~/.emacs.d/use-package")
+  (require 'use-package))
+
+(require 'use-package)
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
@@ -12,29 +17,61 @@
 
 (blink-cursor-mode 0)
 
-(require 'xcscope)
-(cscope-setup)
+(use-package xcscope
+  :config
+  (cscope-setup)
+  :ensure t)
 
-(add-hook 'after-init-hook 'global-company-mode)
+(use-package company
+  :config
+  (add-hook 'after-init-hook 'global-company-mode)
+  :ensure t)
 
-(setq vertigo-cut-off 9)
+(use-package vertigo
+  :init (setq vertigo-cut-off 9)
+  :ensure t)
 
-(global-evil-leader-mode)
-(evil-leader/set-leader "<SPC>")
-(evil-leader/set-key
-  "<tab>" 'whitespace-mode
-  "o"     'ispell
-  "c"     'company-complete
-  "e"     'find-file
-  "j"     'vertigo-jump-down
-  "k"     'vertigo-jump-up)
+(use-package evil-leader
+  :config
+  (global-evil-leader-mode)
+  (evil-leader/set-leader "<SPC>")
+  (evil-leader/set-key
+    "<tab>" 'whitespace-mode
+    "o"     'ispell
+    "c"     'company-complete
+    "e"     'find-file
+    "j"     'vertigo-jump-down
+    "k"     'vertigo-jump-up)
+  :ensure t)
 
-(require 'evil)
-(evil-mode 1)
+(use-package evil
+  :config (evil-mode 1)
+  :ensure t)
 
-(require 'airline-themes)
+(use-package powerline
+  :ensure t)
 
-(global-diff-hl-mode)
+(use-package airline-themes
+  :ensure t)
+
+(use-package diff-hl
+  :config (global-diff-hl-mode)
+  :ensure t)
+
+(use-package ledger-mode
+  :init
+  (evil-define-key 'normal ledger-mode-map "]" 'ledger-navigate-next-xact-or-directive)
+  (evil-define-key 'normal ledger-mode-map "[" 'ledger-navigate-prev-xact-or-directive)
+  :ensure t)
+
+(use-package nov
+  :mode ("\\.epub\\'" . nov-mode)
+  :init
+  (evil-define-key 'normal nov-mode-map "]" 'nov-next-document)
+  (evil-define-key 'normal nov-mode-map "L" 'nov-next-document)
+  (evil-define-key 'normal nov-mode-map "[" 'nov-previous-document)
+  (evil-define-key 'normal nov-mode-map "H" 'nov-previous-document)
+  :ensure t)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -57,7 +94,7 @@
  '(initial-scratch-message nil)
  '(package-selected-packages
    (quote
-    (company xcscope vertigo evil-leader diff-hl airline-themes powerline evil)))
+    (nov ledger-mode company xcscope vertigo evil-leader diff-hl airline-themes powerline evil)))
  '(scroll-bar-mode nil)
  '(tab-width 4))
 (custom-set-faces

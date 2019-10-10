@@ -1,6 +1,8 @@
 #!/bin/sh
 # Profile file. Runs on login.
 
+(emacs --daemon &> /dev/null &)
+
 # Adds `~/.bin` and all subdirectories to $PATH
 export PATH="$PATH:$(du "$HOME/.bin/" | cut -f2 | tr '\n' ':' | sed 's/:*$//')"
 # Adds `/opt/bin` to path
