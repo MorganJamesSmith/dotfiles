@@ -46,6 +46,12 @@
 
 (use-package evil
   :config (evil-mode 1)
+  :init
+  (evil-define-key 'normal doc-view-mode-map "]" 'doc-view-next-page)
+  (evil-define-key 'normal doc-view-mode-map "[" 'doc-view-previous-page)
+  (evil-define-key 'normal doc-view-mode-map "-" 'doc-view-shrink)
+  (evil-define-key 'normal doc-view-mode-map "=" 'doc-view-enlarge)
+  (evil-define-key 'normal doc-view-mode-map "+" 'doc-view-enlarge)
   :ensure t)
 
 (use-package powerline
@@ -68,9 +74,7 @@
   :mode ("\\.epub\\'" . nov-mode)
   :init
   (evil-define-key 'normal nov-mode-map "]" 'nov-next-document)
-  (evil-define-key 'normal nov-mode-map "L" 'nov-next-document)
   (evil-define-key 'normal nov-mode-map "[" 'nov-previous-document)
-  (evil-define-key 'normal nov-mode-map "H" 'nov-previous-document)
   :ensure t)
 
 (custom-set-variables
