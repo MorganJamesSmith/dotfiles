@@ -5,11 +5,10 @@
 # | |_) | (_| \__ \ | | | | | (__
 # |_.__/ \__,_|___/_| |_|_|  \___|
 
-stty -ixon # Disable ctrl-s and ctrl-q.
 HISTSIZE=HISTFILESIZE= # Infinite history.
-PS1="\[$(tput bold)\]\[$(tput setaf 1)\][\[$(tput setaf 3)\]\u\[$(tput setaf 2)\]@\[$(tput setaf 4)\]\h \[$(tput setaf 5)\]\W\[$(tput setaf 1)\]]\[$(tput setaf 7)\]\\$ \[$(tput sgr0)\]"
+PS1="[$USER]\$"
 export PS1=$PS1
 
 
-# Use zsh if it is installed
-[ -n "$(command -v zsh)" ] && exec zsh
+# Use zsh if we're in an interactive shell and it's installed
+[[ $- == *i* ]] && [[ -n "$(command -v zsh)" ]] && exec zsh

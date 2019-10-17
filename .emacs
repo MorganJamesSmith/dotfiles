@@ -41,7 +41,8 @@
     "c"     'company-complete
     "e"     'find-file
     "j"     'vertigo-jump-down
-    "k"     'vertigo-jump-up)
+    "k"     'vertigo-jump-up
+    "a"     'shell-command)
   :ensure t)
 
 (use-package evil
@@ -52,6 +53,7 @@
   (evil-define-key 'normal doc-view-mode-map "-" 'doc-view-shrink)
   (evil-define-key 'normal doc-view-mode-map "=" 'doc-view-enlarge)
   (evil-define-key 'normal doc-view-mode-map "+" 'doc-view-enlarge)
+  (evil-define-key 'visual 'global " c" 'comment-or-uncomment-region)
   :ensure t)
 
 (use-package powerline
