@@ -79,10 +79,14 @@
   (evil-define-key 'normal doc-view-mode-map "-" 'doc-view-shrink)
   (evil-define-key 'normal doc-view-mode-map "=" 'doc-view-enlarge)
   (evil-define-key 'normal doc-view-mode-map "+" 'doc-view-enlarge)
+  (evil-define-key 'motion vc-annotate-mode-map "]" 'vc-annotate-show-log-revision-at-line)
+  (evil-define-key 'motion vc-annotate-mode-map "[" 'vc-annotate-show-diff-revision-at-line)
   (evil-define-key 'normal ledger-mode-map " r" 'ledger-report)
   (evil-define-key 'visual 'global " c" 'comment-or-uncomment-region)
   (evil-define-key 'normal 'global " q" 'compiler)
   (evil-define-key 'normal 'global " w" 'opout)
+  (setq evil-motion-state-modes (append evil-emacs-state-modes evil-motion-state-modes))
+  (setq evil-emacs-state-modes nil)
   :ensure t)
 
 (use-package powerline
@@ -107,6 +111,7 @@
   (evil-define-key 'normal nov-mode-map "]" 'nov-next-document)
   (evil-define-key 'normal nov-mode-map "[" 'nov-previous-document)
   :ensure t)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
