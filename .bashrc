@@ -10,5 +10,8 @@ PS1="[$USER]\$"
 export PS1=$PS1
 
 
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
 # Use zsh if we're in an interactive shell and it's installed
 [[ $- == *i* ]] && [[ -n "$(command -v zsh)" ]] && exec zsh

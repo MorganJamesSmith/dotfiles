@@ -112,6 +112,12 @@
   (evil-define-key 'normal nov-mode-map "[" 'nov-previous-document)
   :ensure t)
 
+(use-package fzf
+  :init
+  (if (not (eq 0 (shell-command "command -v fzf")))
+      (error "fzf is not installed!"))
+  :ensure t)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -141,7 +147,7 @@
      ("account" "%(binary) -f %(ledger-file) reg %(account)"))))
  '(package-selected-packages
    (quote
-    (nov ledger-mode company xcscope vertigo evil-leader diff-hl airline-themes powerline evil)))
+    (fzf nov ledger-mode company xcscope vertigo evil-leader diff-hl airline-themes powerline evil)))
  '(scroll-bar-mode nil)
  '(tab-width 4))
 (custom-set-faces
