@@ -17,6 +17,32 @@
 
 (blink-cursor-mode 0)
 
+(defun revert-buffer-no-confirm (&optional force-reverting)
+    "Interactive call to revert-buffer. Ignoring the auto-save
+ file and not requesting for confirmation. When the current buffer
+ is modified, the command refuses to revert it, unless you specify
+ the optional argument: force-reverting to true."
+    (interactive "P")
+    ;;(message "force-reverting value is %s" force-reverting)
+    (if (or force-reverting (not (buffer-modified-p)))
+        (revert-buffer :ignore-auto :noconfirm)
+      (error "The buffer has been modified")))
+
+
+(defun compiler ()
+  "Saves the current file, then runs the compiler command on the
+  current file. Then the buffer is reloaded from the file"
+  (interactive)
+  (save-buffer)
+  (shell-command
+   (concat "compiler " buffer-file-name))
+  (revert-buffer-no-confirm))
+
+(defun opout ()
+  (interactive)
+  (shell-command
+   (concat "opout " buffer-file-name)))
+
 (use-package xcscope
   :config
   (cscope-setup)
@@ -53,7 +79,10 @@
   (evil-define-key 'normal doc-view-mode-map "-" 'doc-view-shrink)
   (evil-define-key 'normal doc-view-mode-map "=" 'doc-view-enlarge)
   (evil-define-key 'normal doc-view-mode-map "+" 'doc-view-enlarge)
+  (evil-define-key 'normal ledger-mode-map " r" 'ledger-report)
   (evil-define-key 'visual 'global " c" 'comment-or-uncomment-region)
+  (evil-define-key 'normal 'global " q" 'compiler)
+  (evil-define-key 'normal 'global " w" 'opout)
   :ensure t)
 
 (use-package powerline
@@ -98,6 +127,13 @@
  '(inhibit-startup-screen t)
  '(initial-buffer-choice nil)
  '(initial-scratch-message nil)
+ '(ledger-reports
+   (quote
+    (("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
+     ("bal" "%(binary) -f %(ledger-file) bal")
+     ("reg" "%(binary) -f %(ledger-file) reg")
+     ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
+     ("account" "%(binary) -f %(ledger-file) reg %(account)"))))
  '(package-selected-packages
    (quote
     (nov ledger-mode company xcscope vertigo evil-leader diff-hl airline-themes powerline evil)))

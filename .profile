@@ -1,8 +1,6 @@
 #!/bin/sh
 # Profile file. Runs on login.
 
-(emacs --daemon &> /dev/null &)
-
 # Adds `~/.bin` and all subdirectories to $PATH
 export PATH="$PATH:$(du "$HOME/.bin/" | cut -f2 | tr '\n' ':' | sed 's/:*$//')"
 # Adds `/opt/bin` to path
@@ -31,4 +29,6 @@ export ZDOTDIR="$HOME/.config"
 [ -f ~/.config/aliasrc ] && source "$HOME/.config/aliasrc" >/dev/null 2>&1
 
 echo "$0" | grep "bash$" >/dev/null && [ -f $HOME/.bashrc ] && source "$HOME/.bashrc"
+
+(emacs --daemon &> /dev/null &)
 
