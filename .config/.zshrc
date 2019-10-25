@@ -4,6 +4,7 @@
 # Enable colors and change prompt:
 autoload -U colors && colors
 PS1="%B%{$fg[red]%}[%{$fg[blue]%}%n %{$fg[magenta]%}%~%{$fg[red]%}]%(1j.(%j).)%(?.%{$fg[green]%}.%{$fg[red]%})$ %b%{$reset_color%}"
+GPG_TTY=$(tty)
 
 # History in cache directory:
 HISTSIZE=10000
