@@ -2,13 +2,14 @@
 ;;
 
 (eval-when-compile
-  (add-to-list 'load-path "~/.emacs.d/use-package")
-  (require 'use-package))
+  (add-to-list 'load-path "~/.emacs.d/use-package"))
 
 (require 'use-package)
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
+
+(require 'cl)
 
 (server-start)
 
@@ -57,36 +58,36 @@
   :init (setq vertigo-cut-off 9)
   :ensure t)
 
-(use-package evil-leader
-  :config
-  (global-evil-leader-mode)
-  (evil-leader/set-leader "<SPC>")
-  (evil-leader/set-key
-    "<tab>" 'whitespace-mode
-    "o"     'ispell
-    "c"     'company-complete
-    "e"     'find-file
-    "j"     'vertigo-jump-down
-    "k"     'vertigo-jump-up
-    "a"     'shell-command)
-  :ensure t)
-
 (use-package evil
-  :config (evil-mode 1)
-  :init
+  :config
+  (defun leader (key)
+    (kbd (concat "SPC " key)))
+
   (evil-define-key 'normal doc-view-mode-map "]" 'doc-view-next-page)
   (evil-define-key 'normal doc-view-mode-map "[" 'doc-view-previous-page)
   (evil-define-key 'normal doc-view-mode-map "-" 'doc-view-shrink)
   (evil-define-key 'normal doc-view-mode-map "=" 'doc-view-enlarge)
   (evil-define-key 'normal doc-view-mode-map "+" 'doc-view-enlarge)
+
   (evil-define-key 'motion vc-annotate-mode-map "]" 'vc-annotate-show-log-revision-at-line)
   (evil-define-key 'motion vc-annotate-mode-map "[" 'vc-annotate-show-diff-revision-at-line)
-  (evil-define-key 'normal ledger-mode-map " r" 'ledger-report)
-  (evil-define-key 'visual 'global " c" 'comment-or-uncomment-region)
-  (evil-define-key 'normal 'global " q" 'compiler)
-  (evil-define-key 'normal 'global " w" 'opout)
+
+  (evil-define-key 'normal ledger-mode-map (leader "r") 'ledger-report)
+
+  (evil-define-key 'visual 'global (leader "c") 'comment-or-uncomment-region)
+  (evil-define-key 'normal 'global (leader "q") 'compiler)
+  (evil-define-key 'normal 'global (leader "w") 'opout)
+  (evil-define-key 'normal 'global (leader "TAB") 'whitespace-mode)
+  (evil-define-key 'normal 'global (leader "o") 'ispell)
+  (evil-define-key 'normal 'global (leader "e") 'find-file)
+  (evil-define-key 'normal 'global (leader "j") 'vertigo-jump-down)
+  (evil-define-key 'normal 'global (leader "k") 'vertigo-jump-up)
+
   (setq evil-motion-state-modes (append evil-emacs-state-modes evil-motion-state-modes))
-  (setq evil-emacs-state-modes nil)
+  (setq evil-emacs-state-modes '(calc-mode))
+  (setq evil-motion-state-modes (set-difference evil-motion-state-modes evil-emacs-state-modes))
+
+  (evil-mode 1)
   :ensure t)
 
 (use-package powerline
