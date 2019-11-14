@@ -10,6 +10,8 @@
 (eval-when-compile
   (add-to-list 'load-path "~/.emacs.d/use-package"))
 (require 'use-package)
+(require 'use-package-ensure)
+(setq use-package-always-ensure t) ; Always download all my packages
 
 ;; Backups
 (defvar backup-directory "~/.backups")
@@ -71,29 +73,23 @@
 
 (use-package xcscope
   :config
-  (cscope-setup)
-  :ensure t)
+  (cscope-setup))
 
 (use-package company
   :config
-  (add-hook 'after-init-hook 'global-company-mode)
-  :ensure t)
+  (add-hook 'after-init-hook 'global-company-mode))
 
 (use-package vertigo
-  :init (setq vertigo-cut-off 9)
-  :ensure t)
+  :init (setq vertigo-cut-off 9))
 
 (use-package smartparens
   :init (require 'dash)
   :config
-  (smartparens-global-mode t)
-  :ensure t)
+  (smartparens-global-mode t))
 
-(use-package undo-tree
-  :ensure t)
+(use-package undo-tree)
 
-(use-package magit
-  :ensure t)
+(use-package magit)
 
 ;; I can't figure out why this isn't working
 ;; but it's super important so I'll leave it
@@ -101,13 +97,11 @@
   :config
   (progn
     (nyan-mode)
-    (nyan-start-animation))
-  :ensure t)
+    (nyan-start-animation)))
 
 (use-package powerline
   :config
-  (powerline-default-theme)
-  :ensure t)
+  (powerline-default-theme))
 
 
 (use-package evil
@@ -144,34 +138,28 @@
   (setq evil-emacs-state-modes '(calc-mode))
   (setq evil-motion-state-modes (set-difference evil-motion-state-modes evil-emacs-state-modes))
 
-  (evil-mode 1)
-  :ensure t)
+  (evil-mode 1))
 
-(use-package airline-themes
-  :ensure t)
+(use-package airline-themes)
 
 (use-package diff-hl
-  :config (global-diff-hl-mode)
-  :ensure t)
+  :config (global-diff-hl-mode))
 
 (use-package ledger-mode
   :init
   (evil-define-key 'normal ledger-mode-map "]" 'ledger-navigate-next-xact-or-directive)
-  (evil-define-key 'normal ledger-mode-map "[" 'ledger-navigate-prev-xact-or-directive)
-  :ensure t)
+  (evil-define-key 'normal ledger-mode-map "[" 'ledger-navigate-prev-xact-or-directive))
 
 (use-package nov
   :mode ("\\.epub\\'" . nov-mode)
   :init
   (evil-define-key 'normal nov-mode-map "]" 'nov-next-document)
-  (evil-define-key 'normal nov-mode-map "[" 'nov-previous-document)
-  :ensure t)
+  (evil-define-key 'normal nov-mode-map "[" 'nov-previous-document))
 
 (use-package fzf
   :init
   (if (not (eq 0 (shell-command "command -v fzf")))
-      (error "fzf is not installed!"))
-  :ensure t)
+    (error "fzf is not installed!")))
 
 
 (custom-set-variables
