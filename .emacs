@@ -1,13 +1,32 @@
 ;;; .emacs --- Emacs configuration file by Morgan Smith
 ;;
 
-(eval-when-compile
-  (add-to-list 'load-path "~/.emacs.d/use-package"))
-
-(require 'use-package)
+;; Add and enable MELPA
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
+
+;; Get use-package
+(eval-when-compile
+  (add-to-list 'load-path "~/.emacs.d/use-package"))
+(require 'use-package)
+
+;; Backups
+(defvar backup-directory "~/.backups")
+(if (not (file-exists-p backup-directory))
+    (make-directory backup-directory t))
+(setq
+ make-backup-files t    ; backup a file the first time it is saved
+ backup-directory-alist `((".*" . ,backup-directory)) ; save backup files in ~/.backups
+ backup-by-copying t    ; copy the current file into backup directory
+ version-control t      ; version numbers for backup files
+ delete-old-versions t  ; delete unnecessary versions
+ kept-old-versions 6    ; oldest versions to keep when a new numbered backup is made (default: 2)
+ kept-new-versions 9    ; newest versions to keep when a new numbered backup is made (default: 2)
+ auto-save-default t    ; auto-save every buffer that visits a file
+ auto-save-timeout 20   ; number of seconds idle time before auto-save (default: 30)
+ auto-save-interval 200 ; number of keystrokes between auto-saves (default: 300)
+ )
 
 (require 'cl)
 
@@ -17,6 +36,12 @@
 (tool-bar-mode 0)
 
 (blink-cursor-mode 0)
+
+;; Whitespace configurations
+(setq show-trailing-whitespace t
+      mode-require-final-newline t)
+(setq-default tab-width 8
+              indent-tabs-mode nil)
 
 (defun revert-buffer-no-confirm (&optional force-reverting)
     "Interactive call to revert-buffer. Ignoring the auto-save
@@ -58,6 +83,33 @@
   :init (setq vertigo-cut-off 9)
   :ensure t)
 
+(use-package smartparens
+  :init (require 'dash)
+  :config
+  (smartparens-global-mode t)
+  :ensure t)
+
+(use-package undo-tree
+  :ensure t)
+
+(use-package magit
+  :ensure t)
+
+;; I can't figure out why this isn't working
+;; but it's super important so I'll leave it
+(use-package nyan-mode
+  :config
+  (progn
+    (nyan-mode)
+    (nyan-start-animation))
+  :ensure t)
+
+(use-package powerline
+  :config
+  (powerline-default-theme)
+  :ensure t)
+
+
 (use-package evil
   :config
   (defun leader (key)
@@ -93,9 +145,6 @@
   (setq evil-motion-state-modes (set-difference evil-motion-state-modes evil-emacs-state-modes))
 
   (evil-mode 1)
-  :ensure t)
-
-(use-package powerline
   :ensure t)
 
 (use-package airline-themes
@@ -153,7 +202,7 @@
      ("account" "%(binary) -f %(ledger-file) reg %(account)"))))
  '(package-selected-packages
    (quote
-    (fzf nov ledger-mode company xcscope vertigo evil-leader diff-hl airline-themes powerline evil)))
+    (nyan-mode magit smartparens fzf nov ledger-mode company xcscope vertigo evil-leader diff-hl airline-themes powerline evil)))
  '(scroll-bar-mode nil)
  '(tab-width 4))
 (custom-set-faces
