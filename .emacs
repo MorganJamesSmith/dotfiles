@@ -74,6 +74,11 @@
 
   (evil-define-key 'normal ledger-mode-map (leader "r") 'ledger-report)
 
+  (evil-define-key 'normal 'global (kbd "M-j") 'evil-scroll-line-down)
+  (evil-define-key 'normal 'global (kbd "M-k") 'evil-scroll-line-up)
+  (evil-define-key 'normal 'global (kbd "M-J") 'text-scale-decrease)
+  (evil-define-key 'normal 'global (kbd "M-K") 'text-scale-increase)
+
   (evil-define-key 'visual 'global (leader "c") 'comment-or-uncomment-region)
   (evil-define-key 'normal 'global (leader "q") 'compiler)
   (evil-define-key 'normal 'global (leader "w") 'opout)
