@@ -3,7 +3,7 @@
 
 # Enable colors and change prompt:
 autoload -U colors && colors
-PS1="%B%{$fg[red]%}[%{$fg[blue]%}%n %{$fg[magenta]%}%~%{$fg[red]%}]%(1j.(%j).)%(?.%{$fg[green]%}.%{$fg[red]%})$ %b%{$reset_color%}"
+PS1='%B%F{red}[%F{blue}%n %F{white}%~%F{red}]%(1j.(%j).)%(?.%F{green}.%F{red})%# %b%f'
 GPG_TTY=$(tty)
 
 # History in cache directory:
@@ -64,3 +64,14 @@ source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh &> /dev/null
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+    function myvim(){
+        printf "\e]51;E(find-file \"$@\" )\e\\"
+    }
+    alias clear='printf "\e]51;E(vterm-clear-scrollback)\e\\";tput clear'
+    alias exit='printf "\e]51;E(save-buffers-kill-terminal)\e\\"'
+    alias vim=myvim
+    alias vi=vim
+    alias v=vim
+fi
