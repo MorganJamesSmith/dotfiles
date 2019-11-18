@@ -3,6 +3,7 @@
 
 # Adds `~/.bin` and all subdirectories to $PATH
 export PATH="$PATH:$(du "$HOME/.bin/" | cut -f2 | tr '\n' ':' | sed 's/:*$//')"
+export PATH="$PATH:$HOME/.local/bin"
 # Adds `/opt/bin` to path
 export PATH="$PATH:/opt/bin"
 export EDITOR="nvim"
