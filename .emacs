@@ -30,14 +30,34 @@
  auto-save-interval 200 ; number of keystrokes between auto-saves (default: 300)
  )
 
+(setq debug-on-error t)
+
 (require 'cl)
 
 (server-start)
 
-(menu-bar-mode 0)
-(tool-bar-mode 0)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(horizontal-scroll-bar-mode -1)
 
-(blink-cursor-mode 0)
+(blink-cursor-mode -1)
+
+(setq ido-enable-flex-matching t
+      ido-everywhere t)
+(ido-mode 1)
+
+(setq tramp-default-method "ssh")
+
+
+(setq-default indent-tabs-mode nil)
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message nil)
+
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
+
+(setq-default display-line-numbers 'relative)
 
 ;; Whitespace configurations
 (setq show-trailing-whitespace t
@@ -71,39 +91,56 @@
   (shell-command
    (concat "opout " buffer-file-name)))
 
+(use-package vterm)
+
+;; Programming stuff
+(use-package flycheck)
+
 (use-package xcscope
   :config
   (cscope-setup))
+
+(use-package smartparens
+  :init
+  (require 'dash)
+  (require 'smartparens-config)
+  :config
+  (smartparens-global-mode t))
+
+(use-package magit)
+
+(use-package diff-hl
+  :config (global-diff-hl-mode))
+
+;; Python stuff
+(use-package elpy
+  :config
+  (setq python-shell-interpreter "/usr/bin/python3"
+        python-shell-interpreter-args "-i"
+        elpy-rpc-python-command "/usr/bin/python3")
+  (elpy-enable))
+(use-package blacken)
 
 (use-package company
   :config
   (add-hook 'after-init-hook 'global-company-mode))
 
-(use-package vertigo
-  :init (setq vertigo-cut-off 9))
-
-(use-package smartparens
-  :init (require 'dash)
-  :config
-  (smartparens-global-mode t))
-
 (use-package undo-tree)
 
-(use-package magit)
-
-;; I can't figure out why this isn't working
-;; but it's super important so I'll leave it
+;; Pretty stuff
 (use-package nyan-mode
   :config
-  (progn
-    (nyan-mode)
-    (nyan-start-animation)))
+  (nyan-mode)
+  (nyan-start-animation))
 
 (use-package powerline
   :config
   (powerline-default-theme))
 
+(load-theme 'tsdh-dark)
 
+
+;; Keybinding stuff
 (use-package evil
   :config
   (defun leader (key)
@@ -140,13 +177,18 @@
 
   (evil-mode 1))
 
-(use-package airline-themes)
+(use-package vertigo
+  :init (setq vertigo-cut-off 9))
 
-(use-package diff-hl
-  :config (global-diff-hl-mode))
 
 (use-package ledger-mode
-  :init
+  :config
+  (setq ledger-reports
+    '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
+      ("bal" "%(binary) -f %(ledger-file) bal")
+      ("reg" "%(binary) -f %(ledger-file) reg")
+      ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
+      ("account" "%(binary) -f %(ledger-file) reg %(account)")))
   (evil-define-key 'normal ledger-mode-map "]" 'ledger-navigate-next-xact-or-directive)
   (evil-define-key 'normal ledger-mode-map "[" 'ledger-navigate-prev-xact-or-directive))
 
@@ -161,45 +203,19 @@
   (if (not (eq 0 (shell-command "command -v fzf")))
     (error "fzf is not installed!")))
 
+(provide '.emacs)
 
+;;; .emacs ends here
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default default default italic underline success warning error])
- '(ansi-color-names-vector
-   ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
- '(c-basic-offset 4)
- '(custom-enabled-themes (quote (airline-molokai tsdh-dark)))
- '(custom-safe-themes
-   (quote
-    ("73a13a70fd111a6cd47f3d4be2260b1e4b717dbf635a9caee6442c949fad41cd" default)))
- '(display-line-numbers (quote relative))
- '(indent-tabs-mode nil)
- '(inhibit-startup-screen t)
- '(initial-buffer-choice nil)
- '(initial-scratch-message nil)
- '(ledger-reports
-   (quote
-    (("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
-     ("bal" "%(binary) -f %(ledger-file) bal")
-     ("reg" "%(binary) -f %(ledger-file) reg")
-     ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
-     ("account" "%(binary) -f %(ledger-file) reg %(account)"))))
  '(package-selected-packages
-   (quote
-    (nyan-mode magit smartparens fzf nov ledger-mode company xcscope vertigo evil-leader diff-hl airline-themes powerline evil)))
- '(scroll-bar-mode nil)
- '(tab-width 4))
+   '(vterm blacken flycheck xcscope vertigo smartparens nyan-mode nov multi-term magit ledger-mode fzf evil-leader elpy diff-hl airline-themes)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-(provide '.emacs)
-
-;;; .emacs ends here
