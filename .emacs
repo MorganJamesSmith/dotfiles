@@ -173,7 +173,8 @@
 
   (setq evil-motion-state-modes (append evil-emacs-state-modes evil-motion-state-modes))
   (setq evil-emacs-state-modes '(calc-mode))
-  (setq evil-motion-state-modes (set-difference evil-motion-state-modes evil-emacs-state-modes))
+  (setq evil-insert-state-modes '(vterm-mode))
+  (setq evil-motion-state-modes (set-difference (set-difference evil-motion-state-modes evil-emacs-state-modes) evil-insert-state-modes))
 
   (evil-mode 1))
 
