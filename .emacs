@@ -32,6 +32,8 @@
 
 (setq debug-on-error t)
 
+(setq custom-file "/dev/null") ; I don't like custom
+
 (require 'cl)
 
 (server-start)
@@ -205,18 +207,4 @@
     (error "fzf is not installed!")))
 
 (provide '.emacs)
-
 ;;; .emacs ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(vterm blacken flycheck xcscope vertigo smartparens nyan-mode nov multi-term magit ledger-mode fzf evil-leader elpy diff-hl airline-themes)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

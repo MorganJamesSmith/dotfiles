@@ -67,7 +67,7 @@ source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh &> /dev/nu
 
 if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
     function myvim(){
-        printf "\e]51;E(find-file \"$@\" )\e\\"
+        printf "\e]51;E(cd \"$(pwd)\")(find-file \"$@\" )\e\\"
     }
     alias clear='printf "\e]51;E(vterm-clear-scrollback)\e\\";tput clear'
     alias exit='printf "\e]51;E(save-buffers-kill-terminal)\e\\"'
