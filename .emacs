@@ -42,8 +42,18 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (horizontal-scroll-bar-mode -1)
-
 (blink-cursor-mode -1)
+
+;; Time
+(setq display-time-default-load-average nil
+      display-time-24hr-format t
+      display-time-day-and-date t)
+(display-time-mode)
+
+;; Battery
+(use-package fancy-battery
+  :init (setq fancy-battery-show-percentage t)
+  :config (fancy-battery-mode))
 
 (setq ido-enable-flex-matching t
       ido-everywhere t)
@@ -60,6 +70,10 @@
 (setq uniquify-buffer-name-style 'forward)
 
 (setq-default display-line-numbers 'relative)
+
+(global-hl-line-mode t)
+(global-auto-revert-mode t)
+(global-prettify-symbols-mode t)
 
 ;; Whitespace configurations
 (setq show-trailing-whitespace t
@@ -94,6 +108,17 @@
    (concat "opout " buffer-file-name)))
 
 (use-package vterm)
+
+(use-package exwm
+  :init
+  (setq exwm-workspace-number 1)
+  :config
+  (require 'exwm-config)
+  (exwm-config-default)
+  (exwm-config-ido)
+
+  (require 'exwm-systemtray)
+  (exwm-systemtray-enable))
 
 ;; Programming stuff
 (use-package flycheck)
@@ -132,8 +157,7 @@
 ;; Pretty stuff
 (use-package nyan-mode
   :config
-  (nyan-mode)
-  (nyan-start-animation))
+  (nyan-mode))
 
 (use-package powerline
   :config

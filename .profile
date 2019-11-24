@@ -31,5 +31,3 @@ export ZDOTDIR="$HOME/.config"
 
 echo "$0" | grep "bash$" >/dev/null && [ -f $HOME/.bashrc ] && source "$HOME/.bashrc"
 
-(emacs --daemon &> /dev/null &)
-
