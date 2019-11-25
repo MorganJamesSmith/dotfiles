@@ -110,15 +110,39 @@
 (use-package vterm)
 
 (use-package exwm
-  :init
-  (setq exwm-workspace-number 1)
   :config
   (require 'exwm-config)
-  (exwm-config-default)
+  ;; Make class name the buffer name
+  (add-hook 'exwm-update-class-hook
+    (lambda ()
+      (exwm-workspace-rename-buffer exwm-class-name)))
+  (setq exwm-input-global-keys
+    `(
+    ;; 's-r': Reset (to line-mode).
+    ([?\s-r] . exwm-reset)
+    ;; 's-w': Switch workspace.
+    ([?\s-w] . exwm-workspace-switch)
+    ;; 's-j/k': Switch focus.
+    ([?\s-j] . other-window)
+    ([?\s-k] . (lambda () (interactive) (other-window -1)))
+    ;; 's-d': Launch application.
+    ([?\s-d] . (lambda (command)
+                 (interactive (list (read-shell-command "$ ")))
+                   (start-process-shell-command command nil command)))
+    ;; 's-N': Switch to certain workspace.
+    ,@(mapcar (lambda (i)
+                `(,(kbd (format "s-%d" i)) .
+                   (lambda ()
+                   (interactive)
+                   (exwm-workspace-switch-create ,i))))
+        (number-sequence 0 9))))
+
   (exwm-config-ido)
 
   (require 'exwm-systemtray)
-  (exwm-systemtray-enable))
+  (exwm-systemtray-enable)
+
+  (exwm-enable))
 
 ;; Programming stuff
 (use-package flycheck)
