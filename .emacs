@@ -225,7 +225,8 @@
   (setq evil-emacs-state-modes '(calc-mode))
   (setq evil-insert-state-modes '(vterm-mode))
   (setq evil-motion-state-modes (set-difference (set-difference evil-motion-state-modes evil-emacs-state-modes) evil-insert-state-modes))
-
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-d-scroll t)
   (evil-mode 1))
 
 (use-package vertigo
@@ -245,7 +246,8 @@
 
 (use-package nov
   :mode ("\\.epub\\'" . nov-mode)
-  :init
+  :config
+  (define-key nov-mode-map "h" nil)
   (evil-define-key 'normal nov-mode-map "]" 'nov-next-document)
   (evil-define-key 'normal nov-mode-map "[" 'nov-previous-document))
 
