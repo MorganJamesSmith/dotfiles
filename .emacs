@@ -154,6 +154,18 @@
   (require 'exwm-systemtray)
   (exwm-systemtray-enable)
 
+  (require 'exwm-randr)
+  (let ((monitor-number 1)
+        (value nil))
+
+    (dolist (monitor (display-monitor-attributes-list) value)
+      (push (alist-get 'name monitor) value)
+      (push monitor-number value)
+      (setq monitor-number (1+ monitor-number)))
+
+    (setq exwm-randr-workspace-output-plist value))
+  (exwm-randr-enable)
+
   (exwm-enable))
 
 ;; Programming stuff
