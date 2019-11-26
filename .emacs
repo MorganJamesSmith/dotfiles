@@ -208,6 +208,8 @@
   (defun leader (key)
     (kbd (concat "SPC " key)))
 
+  (evil-mode 1)
+
   (evil-define-key 'normal doc-view-mode-map "]" 'doc-view-next-page)
   (evil-define-key 'normal doc-view-mode-map "[" 'doc-view-previous-page)
   (evil-define-key 'normal doc-view-mode-map "-" 'doc-view-shrink)
@@ -237,9 +239,10 @@
   (setq evil-emacs-state-modes '(calc-mode))
   (setq evil-insert-state-modes '(vterm-mode))
   (setq evil-motion-state-modes (set-difference (set-difference evil-motion-state-modes evil-emacs-state-modes) evil-insert-state-modes))
+
+  (setq evil-ex-complete-emacs-commands t)
   (setq evil-want-C-u-scroll t)
-  (setq evil-want-C-d-scroll t)
-  (evil-mode 1))
+  (setq evil-want-C-d-scroll t))
 
 (use-package vertigo
   :init (setq vertigo-cut-off 9))
