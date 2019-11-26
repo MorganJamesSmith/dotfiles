@@ -44,6 +44,12 @@
 (horizontal-scroll-bar-mode -1)
 (blink-cursor-mode -1)
 
+(setq echo-keystrokes 0.1
+      use-dialog-box nil
+      visible-bell t)
+
+(show-paren-mode t)
+
 ;; Time
 (setq display-time-default-load-average nil
       display-time-24hr-format t
@@ -125,6 +131,12 @@
     ;; 's-j/k': Switch focus.
     ([?\s-j] . other-window)
     ([?\s-k] . (lambda () (interactive) (other-window -1)))
+    ;; vterm
+    (,(kbd "<s-return>") . (lambda () (interactive)(if (get-buffer "vterm") (switch-to-buffer "vterm") (vterm))))
+    ;; 's-q': Close winow
+    ([?\s-q] . (lambda () (interactive) (if (< 1 (count-windows))
+                                       (delete-window)
+                                     (exwm-workspace-delete))))
     ;; 's-d': Launch application.
     ([?\s-d] . (lambda (command)
                  (interactive (list (read-shell-command "$ ")))
