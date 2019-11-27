@@ -115,6 +115,10 @@
 
 (use-package vterm)
 
+(use-package mpdel
+  :config
+  (mpdel-mode))
+
 (use-package exwm
   :config
   (require 'exwm-config)
@@ -124,6 +128,12 @@
       (exwm-workspace-rename-buffer exwm-class-name)))
   (setq exwm-input-global-keys
     `(
+    ;; MPDel bindings
+    ([?\s-p] . libmpdel-playback-play-pause)
+    (,(kbd "<s-up>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume +5")))
+    (,(kbd "<s-down>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume -5")))
+    (,(kbd "<s-right>") . libmpdel-playback-next)
+    (,(kbd "<s-left>") . libmpdel-playback-previous)
     ;; 's-r': Reset (to line-mode).
     ([?\s-r] . exwm-reset)
     ;; 's-w': Switch workspace.
