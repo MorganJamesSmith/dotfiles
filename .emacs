@@ -128,10 +128,12 @@
       (exwm-workspace-rename-buffer exwm-class-name)))
   (setq exwm-input-global-keys
     `(
+    ;; Lock
+    ([?\s-x] . (lambda () (interactive) (shell-command "slock")))
     ;; MPDel bindings
     ([?\s-p] . libmpdel-playback-play-pause)
-    (,(kbd "<s-up>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume +5")))
-    (,(kbd "<s-down>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume -5")))
+    (,(kbd "<s-up>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume +5 --get-volume")))
+    (,(kbd "<s-down>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume -5 --get-volume")))
     (,(kbd "<s-right>") . libmpdel-playback-next)
     (,(kbd "<s-left>") . libmpdel-playback-previous)
     ;; 's-r': Reset (to line-mode).
