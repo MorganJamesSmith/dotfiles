@@ -70,7 +70,7 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
         printf "\e]51;E(cd \"$(pwd)\")(find-file \"$@\" )\e\\"
     }
     alias clear='printf "\e]51;E(vterm-clear-scrollback)\e\\";tput clear'
-    alias exit='printf "\e]51;E(save-buffers-kill-terminal)\e\\"'
+    alias exit='printf "\e]51;E(kill-buffer (current-buffer))\e\\"'
     alias vim=myvim
     alias vi=vim
     alias v=vim

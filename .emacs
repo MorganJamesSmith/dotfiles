@@ -7,6 +7,8 @@
 (package-initialize)
 
 ;; Get use-package
+(unless (file-exists-p "~/.emacs.d/use-package")
+    (shell-command "git clone https://github.com/jwiegley/use-package ~/.emacs.d/use-package"))
 (eval-when-compile
   (add-to-list 'load-path "~/.emacs.d/use-package"))
 (require 'use-package)
@@ -15,7 +17,7 @@
 
 ;; Backups
 (defvar backup-directory "~/.backups")
-(if (not (file-exists-p backup-directory))
+(unless (file-exists-p backup-directory)
     (make-directory backup-directory t))
 (setq
  make-backup-files t    ; backup a file the first time it is saved
@@ -33,6 +35,8 @@
 (setq debug-on-error t)
 
 (setq custom-file "/dev/null") ; I don't like custom
+
+(setq browse-url-browser-function 'eww-browse-url)
 
 (require 'cl)
 
@@ -87,37 +91,10 @@
 (setq-default tab-width 8
               indent-tabs-mode nil)
 
-(defun revert-buffer-no-confirm (&optional force-reverting)
-    "Interactive call to revert-buffer. Ignoring the auto-save
- file and not requesting for confirmation. When the current buffer
- is modified, the command refuses to revert it, unless you specify
- the optional argument: force-reverting to true."
-    (interactive "P")
-    ;;(message "force-reverting value is %s" force-reverting)
-    (if (or force-reverting (not (buffer-modified-p)))
-        (revert-buffer :ignore-auto :noconfirm)
-      (error "The buffer has been modified")))
-
-
-(defun compiler ()
-  "Saves the current file, then runs the compiler command on the
-  current file. Then the buffer is reloaded from the file"
-  (interactive)
-  (save-buffer)
-  (shell-command
-   (concat "compiler " buffer-file-name))
-  (revert-buffer-no-confirm))
-
-(defun opout ()
-  (interactive)
-  (shell-command
-   (concat "opout " buffer-file-name)))
-
 (use-package vterm)
 
 (use-package mpdel
-  :config
-  (mpdel-mode))
+  :config (mpdel-mode))
 
 (use-package exwm
   :config
@@ -136,24 +113,24 @@
     (,(kbd "<s-down>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume -5 --get-volume")))
     (,(kbd "<s-right>") . libmpdel-playback-next)
     (,(kbd "<s-left>") . libmpdel-playback-previous)
-    ;; 's-r': Reset (to line-mode).
+    ;; Reset (to line-mode).
     ([?\s-r] . exwm-reset)
-    ;; 's-w': Switch workspace.
+    ;; Switch workspace.
     ([?\s-w] . exwm-workspace-switch)
-    ;; 's-j/k': Switch focus.
+    ;; Switch focus.
     ([?\s-j] . other-window)
     ([?\s-k] . (lambda () (interactive) (other-window -1)))
     ;; vterm
-    (,(kbd "<s-return>") . (lambda () (interactive)(if (get-buffer "vterm") (switch-to-buffer "vterm") (vterm))))
-    ;; 's-q': Close winow
+    (,(kbd "<s-return>") . (lambda () (interactive) (if (get-buffer "vterm") (switch-to-buffer "vterm") (vterm))))
+    ;; Close winow
     ([?\s-q] . (lambda () (interactive) (if (< 1 (count-windows))
                                        (delete-window)
                                      (exwm-workspace-delete))))
-    ;; 's-d': Launch application.
+    ;; Launch application.
     ([?\s-d] . (lambda (command)
                  (interactive (list (read-shell-command "$ ")))
                    (start-process-shell-command command nil command)))
-    ;; 's-N': Switch to certain workspace.
+    ;; Switch to certain workspace.
     ,@(mapcar (lambda (i)
                 `(,(kbd (format "s-%d" i)) .
                    (lambda ()
@@ -167,7 +144,7 @@
   (exwm-systemtray-enable)
 
   (require 'exwm-randr)
-  (let ((monitor-number 1)
+  (let ((monitor-number 0)
         (value nil))
 
     (dolist (monitor (display-monitor-attributes-list) value)
@@ -184,8 +161,7 @@
 (use-package flycheck)
 
 (use-package xcscope
-  :config
-  (cscope-setup))
+  :config (cscope-setup))
 
 (use-package smartparens
   :init
@@ -209,19 +185,16 @@
 (use-package blacken)
 
 (use-package company
-  :config
-  (add-hook 'after-init-hook 'global-company-mode))
+  :config (add-hook 'after-init-hook 'global-company-mode))
 
 (use-package undo-tree)
 
 ;; Pretty stuff
 (use-package nyan-mode
-  :config
-  (nyan-mode))
+  :config (nyan-mode))
 
 (use-package powerline
-  :config
-  (powerline-default-theme))
+  :config (powerline-default-theme))
 
 (load-theme 'tsdh-dark)
 
@@ -243,21 +216,17 @@
   (evil-define-key 'motion vc-annotate-mode-map "]" 'vc-annotate-show-log-revision-at-line)
   (evil-define-key 'motion vc-annotate-mode-map "[" 'vc-annotate-show-diff-revision-at-line)
 
-  (evil-define-key 'normal ledger-mode-map (leader "r") 'ledger-report)
-
   (evil-define-key 'normal 'global (kbd "M-j") 'evil-scroll-line-down)
   (evil-define-key 'normal 'global (kbd "M-k") 'evil-scroll-line-up)
   (evil-define-key 'normal 'global (kbd "M-J") 'text-scale-decrease)
   (evil-define-key 'normal 'global (kbd "M-K") 'text-scale-increase)
+  (evil-define-key 'normal 'global (kbd "ZQ")  (lambda () (interactive) (kill-buffer (current-buffer))))
+  (evil-define-key 'normal 'global (kbd "ZZ")  (lambda () (interactive) (save-buffer) (kill-buffer (current-buffer))))
 
   (evil-define-key 'visual 'global (leader "c") 'comment-or-uncomment-region)
-  (evil-define-key 'normal 'global (leader "q") 'compiler)
-  (evil-define-key 'normal 'global (leader "w") 'opout)
+
   (evil-define-key 'normal 'global (leader "TAB") 'whitespace-mode)
   (evil-define-key 'normal 'global (leader "o") 'ispell)
-  (evil-define-key 'normal 'global (leader "e") 'find-file)
-  (evil-define-key 'normal 'global (leader "j") 'vertigo-jump-down)
-  (evil-define-key 'normal 'global (leader "k") 'vertigo-jump-up)
 
   (setq evil-motion-state-modes (append evil-emacs-state-modes evil-motion-state-modes))
   (setq evil-emacs-state-modes '(calc-mode))
@@ -269,11 +238,16 @@
   (setq evil-want-C-d-scroll t))
 
 (use-package vertigo
-  :init (setq vertigo-cut-off 9))
+  :init
+  (setq vertigo-cut-off 9)
+  (evil-define-key 'normal 'global (leader "j") 'vertigo-jump-down)
+  (evil-define-key 'normal 'global (leader "k") 'vertigo-jump-up))
 
 
 (use-package ledger-mode
   :config
+  (evil-define-key 'normal ledger-mode-map (leader "r") 'ledger-report)
+
   (setq ledger-reports
     '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
       ("bal" "%(binary) -f %(ledger-file) bal")
@@ -291,9 +265,7 @@
   (evil-define-key 'normal nov-mode-map "[" 'nov-previous-document))
 
 (use-package fzf
-  :init
-  (if (not (eq 0 (shell-command "command -v fzf")))
-    (error "fzf is not installed!")))
+  :if (eq 0 (shell-command "command -v fzf &> /dev/null")))
 
 (provide '.emacs)
 ;;; .emacs ends here
