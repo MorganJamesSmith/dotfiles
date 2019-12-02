@@ -93,9 +93,6 @@
 
 (use-package vterm)
 
-(use-package mpdel
-  :config (mpdel-mode))
-
 (use-package exwm
   :config
   (require 'exwm-config)
@@ -107,12 +104,12 @@
     `(
     ;; Lock
     ([?\s-x] . (lambda () (interactive) (shell-command "slock")))
-    ;; MPDel bindings
-    ([?\s-p] . libmpdel-playback-play-pause)
+    ;; Music/Media bindings
+    ([?\s-p] . (lambda () (interactive) (shell-command "mpc toggle")))
     (,(kbd "<s-up>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume +5 --get-volume")))
     (,(kbd "<s-down>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume -5 --get-volume")))
-    (,(kbd "<s-right>") . libmpdel-playback-next)
-    (,(kbd "<s-left>") . libmpdel-playback-previous)
+    (,(kbd "<s-right>") . (lambda () (interactive) (shell-command "mpc next")))
+    (,(kbd "<s-left>") . (lambda () (interactive) (shell-command "mpc prev")))
     ;; Reset (to line-mode).
     ([?\s-r] . exwm-reset)
     ;; Switch workspace.
