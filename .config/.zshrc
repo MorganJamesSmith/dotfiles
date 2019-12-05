@@ -59,19 +59,26 @@ bindkey '^e' edit-command-line
 [ -f "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
 [ -f "$HOME/.config/computerrc" ] && source "$HOME/.config/computerrc"
 
-# Load zsh-syntax-highlighting; should be last.
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh &> /dev/null || \
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh &> /dev/null
-
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+
+    export EDITOR=emacsclient
+
     function myvim(){
-        printf "\e]51;E(cd \"$(pwd)\")(find-file \"$@\" )\e\\"
+        printf "\e]51;Efind-file \"$@\"\e\\"
     }
-    alias clear='printf "\e]51;E(vterm-clear-scrollback)\e\\";tput clear'
-    alias exit='printf "\e]51;E(kill-buffer (current-buffer))\e\\"'
+
+    function chpwd() {
+        printf "\e]51;A$(whoami)@$(hostname):$(pwd)\e\\";
+    }
+
     alias vim=myvim
     alias vi=vim
     alias v=vim
 fi
+
+# Load zsh-syntax-highlighting; should be last.
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh &> /dev/null || \
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh &> /dev/null
+
