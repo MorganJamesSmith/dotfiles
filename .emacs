@@ -110,6 +110,10 @@
     (,(kbd "<s-down>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume -5 --get-volume")))
     (,(kbd "<s-right>") . (lambda () (interactive) (shell-command "mpc next")))
     (,(kbd "<s-left>") . (lambda () (interactive) (shell-command "mpc prev")))
+    ;; buffer switching
+    (,(kbd "<s-tab>") . (lambda () (interactive) (switch-to-buffer (other-buffer (current-buffer) t))))
+    ([?\s-.] . switch-to-next-buffer)
+    ([?\s-,] . switch-to-prev-buffer)
     ;; Reset (to line-mode).
     ([?\s-r] . exwm-reset)
     ;; Switch workspace.
