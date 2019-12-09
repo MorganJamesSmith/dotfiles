@@ -221,41 +221,29 @@
 
 ;; Keybinding stuff
 (use-package evil
+  :init
+  (setq evil-ex-complete-emacs-commands t
+        evil-want-integration t
+        evil-want-keybinding nil)
+
   :config
+  (evil-mode 1)
   (defun leader (key)
     (kbd (concat "SPC " key)))
-
-  (evil-mode 1)
-
-  (evil-define-key 'normal doc-view-mode-map "]" 'doc-view-next-page)
-  (evil-define-key 'normal doc-view-mode-map "[" 'doc-view-previous-page)
-  (evil-define-key 'normal doc-view-mode-map "-" 'doc-view-shrink)
-  (evil-define-key 'normal doc-view-mode-map "=" 'doc-view-enlarge)
-  (evil-define-key 'normal doc-view-mode-map "+" 'doc-view-enlarge)
-
-  (evil-define-key 'motion vc-annotate-mode-map "]" 'vc-annotate-show-log-revision-at-line)
-  (evil-define-key 'motion vc-annotate-mode-map "[" 'vc-annotate-show-diff-revision-at-line)
 
   (evil-define-key 'normal 'global (kbd "M-j") 'evil-scroll-line-down)
   (evil-define-key 'normal 'global (kbd "M-k") 'evil-scroll-line-up)
   (evil-define-key 'normal 'global (kbd "M-J") 'text-scale-decrease)
   (evil-define-key 'normal 'global (kbd "M-K") 'text-scale-increase)
-  (evil-define-key 'normal 'global (kbd "ZQ")  (lambda () (interactive) (kill-buffer (current-buffer))))
-  (evil-define-key 'normal 'global (kbd "ZZ")  (lambda () (interactive) (save-buffer) (kill-buffer (current-buffer))))
 
   (evil-define-key 'visual 'global (leader "c") 'comment-or-uncomment-region)
 
   (evil-define-key 'normal 'global (leader "TAB") 'whitespace-mode)
-  (evil-define-key 'normal 'global (leader "o") 'ispell)
+  (evil-define-key 'normal 'global (leader "o") 'ispell))
 
-  (setq evil-motion-state-modes (append evil-emacs-state-modes evil-motion-state-modes))
-  (setq evil-emacs-state-modes '(calc-mode))
-  (setq evil-insert-state-modes '(vterm-mode))
-  (setq evil-motion-state-modes (set-difference (set-difference evil-motion-state-modes evil-emacs-state-modes) evil-insert-state-modes))
-
-  (setq evil-ex-complete-emacs-commands t)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-C-d-scroll t))
+(use-package evil-collection
+  :after evil
+  :config (evil-collection-init))
 
 (use-package vertigo
   :init
@@ -273,16 +261,10 @@
       ("bal" "%(binary) -f %(ledger-file) bal")
       ("reg" "%(binary) -f %(ledger-file) reg")
       ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
-      ("account" "%(binary) -f %(ledger-file) reg %(account)")))
-  (evil-define-key 'normal ledger-mode-map "]" 'ledger-navigate-next-xact-or-directive)
-  (evil-define-key 'normal ledger-mode-map "[" 'ledger-navigate-prev-xact-or-directive))
+      ("account" "%(binary) -f %(ledger-file) reg %(account)"))))
 
 (use-package nov
-  :mode ("\\.epub\\'" . nov-mode)
-  :config
-  (define-key nov-mode-map "h" nil)
-  (evil-define-key 'normal nov-mode-map "]" 'nov-next-document)
-  (evil-define-key 'normal nov-mode-map "[" 'nov-previous-document))
+  :mode ("\\.epub\\'" . nov-mode))
 
 (use-package fzf
   :if (eq 0 (shell-command "command -v fzf &> /dev/null")))
