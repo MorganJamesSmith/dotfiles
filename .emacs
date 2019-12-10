@@ -83,13 +83,26 @@
 
 (global-hl-line-mode t)
 (global-auto-revert-mode t)
-(global-prettify-symbols-mode t)
+
+(when (display-graphic-p)
+  (tooltip-mode -1))
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+(setq confirm-kill-emacs #'y-or-n-p)
 
 ;; Whitespace configurations
-(setq show-trailing-whitespace t
-      mode-require-final-newline t)
 (setq-default tab-width 8
-              indent-tabs-mode nil)
+              indent-tabs-mode nil
+              show-trailing-whitespace t)
+(setq require-final-newline t)
+(add-hook 'write-file-hooks 'delete-trailing-whitespace)
+
+(setq-default sentence-end-double-space nil)
+
+(set-terminal-coding-system 'us-ascii)
+(set-keyboard-coding-system 'us-ascii)
+(prefer-coding-system 'us-ascii)
 
 (use-package vterm)
 
@@ -171,19 +184,25 @@
   :config
   (smartparens-global-mode t))
 
+(use-package rainbow-delimiters
+  :hook 'lisp-mode-hook
+  :init
+  (require 'rainbow-delimiters)
+  (set-face-foreground 'rainbow-delimiters-depth-1-face "white")
+  (set-face-foreground 'rainbow-delimiters-depth-2-face "cyan")
+  (set-face-foreground 'rainbow-delimiters-depth-3-face "yellow")
+  (set-face-foreground 'rainbow-delimiters-depth-4-face "green")
+  (set-face-foreground 'rainbow-delimiters-depth-5-face "orange")
+  (set-face-foreground 'rainbow-delimiters-depth-6-face "purple")
+  (set-face-foreground 'rainbow-delimiters-depth-7-face "white")
+  (set-face-foreground 'rainbow-delimiters-depth-8-face "cyan")
+  (set-face-foreground 'rainbow-delimiters-depth-9-face "yellow")
+  (set-face-foreground 'rainbow-delimiters-unmatched-face "red"))
+
 (use-package magit)
 
 (use-package diff-hl
   :config (global-diff-hl-mode))
-
-;; Python stuff
-(use-package elpy
-  :config
-  (setq python-shell-interpreter "/usr/bin/python3"
-        python-shell-interpreter-args "-i"
-        elpy-rpc-python-command "/usr/bin/python3")
-  (elpy-enable))
-(use-package blacken)
 
 (use-package company
   :config (add-hook 'after-init-hook 'global-company-mode))
