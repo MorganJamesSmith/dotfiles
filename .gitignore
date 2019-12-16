@@ -25,15 +25,10 @@
 !.config/setup.sh
 !.config/sucklessconfigs/slstatusconfig.h
 !.config/sxiv/exec/key-handler
-!.config/systemservices/mpdsetup/run
-!.config/systemservices/pancake/run
-!.config/systemservices/undervolt/run
 !.emacs
 !.gitignore
 !.inputrc
 !.profile
-!.service/mpd/run
-!.service/syncthing/run
 !.vimrc
 !.xinitrc
 !.xprofile
