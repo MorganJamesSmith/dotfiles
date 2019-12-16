@@ -1,2 +1,0 @@
-#!/bin/sh
-exec syncthing --no-browser > /dev/null
