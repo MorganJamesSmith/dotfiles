@@ -135,7 +135,7 @@
     ([?\s-j] . other-window)
     ([?\s-k] . (lambda () (interactive) (other-window -1)))
     ;; vterm
-    (,(kbd "<s-return>") . (lambda () (interactive) (if (get-buffer "vterm") (switch-to-buffer "vterm") (vterm))))
+    (,(kbd "<s-return>") . (lambda () (interactive) (if (get-buffer "vterm") (switch-to-buffer "vterm") (vterm "*vterm*"))))
     ;; Close winow
     ([?\s-q] . (lambda () (interactive) (if (< 1 (count-windows))
                                        (delete-window)
@@ -268,6 +268,21 @@
 
 (use-package fzf
   :if (eq 0 (shell-command "command -v fzf &> /dev/null")))
+
+;; Packages cloned from version control
+(defun git-package (name url)
+  (unless (file-exists-p (concat "~/.emacs.d/" name))
+    (shell-command (concat "git clone " url " ~/.emacs.d/" name)))
+  (eval-when-compile
+    (add-to-list 'load-path (concat "~/.emacs.d/" name))))
+
+;; youtube-dl
+(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git")
+(require 'youtube-dl)
+
+;; nuke-buffers
+(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git")
+(require 'nuke-buffers)
 
 (defun find-first-non-ascii-char ()
   "Find the first non-ascii character from point onwards."
