@@ -6,14 +6,30 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
 
-;; Get use-package
-(unless (file-exists-p "~/.emacs.d/use-package")
-    (shell-command "git clone https://github.com/jwiegley/use-package ~/.emacs.d/use-package"))
-(eval-when-compile
-  (add-to-list 'load-path "~/.emacs.d/use-package"))
+
+;; Packages cloned from version control
+(defun git-package (package-name url)
+  "Clone a git repo to ~/.emacs.d/PACKAGE-NAME and add it to the load path"
+  (unless (file-exists-p (concat "~/.emacs.d/" package-name))
+    (shell-command (concat "git clone " url " ~/.emacs.d/" package-name)))
+  (eval-when-compile
+    (add-to-list 'load-path (concat "~/.emacs.d/" package-name))))
+
+;; use-package
+(git-package "use-package" "https://github.com/jwiegley/use-package")
 (require 'use-package)
 (require 'use-package-ensure)
 (setq use-package-always-ensure t) ; Always download all my packages
+
+;; youtube-dl
+(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git")
+(require 'youtube-dl)
+
+;; nuke-buffers
+(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git")
+(require 'nuke-buffers)
+(push "vterm" nuke-buffers-ignore)
+
 
 ;; Backups
 (defvar backup-directory "~/.backups")
@@ -72,7 +88,6 @@
 (setq tramp-default-method "ssh")
 
 
-(setq-default indent-tabs-mode nil)
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message nil)
 
@@ -87,14 +102,15 @@
 (when (display-graphic-p)
   (tooltip-mode -1))
 
+;; This alias doesn't have the usual overhead of an alias
+;; This is because I manually tell the byte-compiler to inline it
 (defalias 'yes-or-no-p 'y-or-n-p)
+(put 'yes-or-no-p 'byte-optimizer 'byte-compile-inline-expand)
 
-(setq confirm-kill-emacs #'y-or-n-p)
 
 ;; Whitespace configurations
 (setq-default tab-width 8
-              indent-tabs-mode nil
-              show-trailing-whitespace t)
+              indent-tabs-mode nil)
 (setq require-final-newline t)
 (add-hook 'write-file-hooks 'delete-trailing-whitespace)
 
@@ -135,7 +151,7 @@
     ([?\s-j] . other-window)
     ([?\s-k] . (lambda () (interactive) (other-window -1)))
     ;; vterm
-    (,(kbd "<s-return>") . (lambda () (interactive) (if (get-buffer "vterm") (switch-to-buffer "vterm") (vterm "*vterm*"))))
+    (,(kbd "<s-return>") . (lambda () (interactive) (if (get-buffer "vterm") (switch-to-buffer "vterm") (vterm))))
     ;; Close winow
     ([?\s-q] . (lambda () (interactive) (if (< 1 (count-windows))
                                        (delete-window)
@@ -197,7 +213,8 @@
   (set-face-foreground 'rainbow-delimiters-depth-7-face "white")
   (set-face-foreground 'rainbow-delimiters-depth-8-face "cyan")
   (set-face-foreground 'rainbow-delimiters-depth-9-face "yellow")
-  (set-face-foreground 'rainbow-delimiters-unmatched-face "red"))
+  (set-face-foreground 'rainbow-delimiters-unmatched-face "red")
+  :config (rainbow-delimiters-mode-enable))
 
 (use-package magit)
 
@@ -245,6 +262,10 @@
   :after evil
   :config (evil-collection-init))
 
+(use-package evil-magit
+  :after evil-collection
+  :config (require 'evil-magit))
+
 (use-package vertigo
   :init
   (setq vertigo-cut-off 9)
@@ -268,21 +289,6 @@
 
 (use-package fzf
   :if (eq 0 (shell-command "command -v fzf &> /dev/null")))
-
-;; Packages cloned from version control
-(defun git-package (name url)
-  (unless (file-exists-p (concat "~/.emacs.d/" name))
-    (shell-command (concat "git clone " url " ~/.emacs.d/" name)))
-  (eval-when-compile
-    (add-to-list 'load-path (concat "~/.emacs.d/" name))))
-
-;; youtube-dl
-(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git")
-(require 'youtube-dl)
-
-;; nuke-buffers
-(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git")
-(require 'nuke-buffers)
 
 (defun find-first-non-ascii-char ()
   "Find the first non-ascii character from point onwards."
