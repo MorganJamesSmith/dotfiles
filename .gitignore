@@ -25,6 +25,7 @@
 !.config/setup.sh
 !.config/sucklessconfigs/slstatusconfig.h
 !.config/sxiv/exec/key-handler
+!.config/bookmarks
 !.emacs
 !.gitignore
 !.inputrc
