@@ -1,15 +1,19 @@
 #!/bin/zsh
-# Luke's config for the Zoomer Shell
+# Based on Luke's config for the Zoomer Shell
 
 # Enable colors and change prompt:
 autoload -U colors && colors
-PS1='%B%F{red}[%F{blue}%n %F{white}%~%F{red}]%(1j.(%j).)%(?.%F{green}.%F{red})%# %b%f'
+PS1='%B%F{magenta}[%F{blue}%n %F{white}%~%F{magenta}]%F{blue}%(1j.(%j).)%(?.%F{green}.%F{red})%# %b%f'
 GPG_TTY=$(tty)
 
 # History in cache directory:
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.cache/zsh/history
+if [[ ! -f $HISTFILE ]]; then
+    mkdir -p "$(dirname $HISTFILE)"
+    touch $HISTFILE
+fi
 
 # Basic auto/tab complete:
 autoload -U compinit
@@ -59,13 +63,11 @@ bindkey '^e' edit-command-line
 [ -f "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
 [ -f "$HOME/.config/computerrc" ] && source "$HOME/.config/computerrc"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
 
     export EDITOR=emacsclient
 
-    function myvim(){
+    function vim(){
         printf "\e]51;Efind-file \"$@\"\e\\"
     }
 
@@ -73,12 +75,11 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
         printf "\e]51;A$(whoami)@$(hostname):$(pwd)\e\\";
     }
 
-    alias vim=myvim
-    alias vi=vim
-    alias v=vim
+    alias clear='printf "\e]51;Evterm-clear-scrollback\e\\";tput clear'
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Load zsh-syntax-highlighting; should be last.
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh &> /dev/null || \
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh &> /dev/null
-
