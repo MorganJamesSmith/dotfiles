@@ -8,25 +8,28 @@
 
 
 ;; Packages cloned from version control
-(defun git-package (package-name url)
-  "Clone a git repo to ~/.emacs.d/PACKAGE-NAME and add it to the load path"
-  (unless (file-exists-p (concat "~/.emacs.d/" package-name))
-    (shell-command (concat "git clone " url " ~/.emacs.d/" package-name)))
-  (eval-when-compile
-    (add-to-list 'load-path (concat "~/.emacs.d/" package-name))))
+(defun git-package (package-name url &optional update)
+  "Clone a git repo to ~/.emacs.d/PACKAGE-NAME and add it to the load path
+If UPDATE is non-nil, a git pull will be performed"
+
+  (let ((package-path (concat "~/.emacs.d/" package-name)))
+  (shell-command (concat "git clone " url " " package-path))
+  (if update
+      (shell-command (concat "cd " package-path "; git pull")))
+  (add-to-list 'load-path package-path)))
 
 ;; use-package
-(git-package "use-package" "https://github.com/jwiegley/use-package")
+(git-package "use-package" "https://github.com/jwiegley/use-package" t)
 (require 'use-package)
 (require 'use-package-ensure)
 (setq use-package-always-ensure t) ; Always download all my packages
 
 ;; youtube-dl
-(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git")
+(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git" t)
 (require 'youtube-dl)
 
 ;; nuke-buffers
-(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git")
+(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git" t)
 (require 'nuke-buffers)
 (push "vterm" nuke-buffers-ignore)
 
@@ -58,6 +61,7 @@
 
 (server-start)
 
+;; Visual stuff
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
@@ -102,11 +106,7 @@
 (when (display-graphic-p)
   (tooltip-mode -1))
 
-;; This alias doesn't have the usual overhead of an alias
-;; This is because I manually tell the byte-compiler to inline it
 (defalias 'yes-or-no-p 'y-or-n-p)
-(put 'yes-or-no-p 'byte-optimizer 'byte-compile-inline-expand)
-
 
 ;; Whitespace configurations
 (setq-default tab-width 8
@@ -115,10 +115,6 @@
 (add-hook 'write-file-hooks 'delete-trailing-whitespace)
 
 (setq-default sentence-end-double-space nil)
-
-(set-terminal-coding-system 'us-ascii)
-(set-keyboard-coding-system 'us-ascii)
-(prefer-coding-system 'us-ascii)
 
 (use-package vterm)
 
@@ -187,11 +183,6 @@
 
   (exwm-enable))
 
-;; Programming stuff
-(use-package flycheck)
-
-(use-package xcscope
-  :config (cscope-setup))
 
 (use-package smartparens
   :init
@@ -201,7 +192,7 @@
   (smartparens-global-mode t))
 
 (use-package rainbow-delimiters
-  :hook 'lisp-mode-hook
+  :hook (prog-mode . rainbow-delimiters-mode)
   :init
   (require 'rainbow-delimiters)
   (set-face-foreground 'rainbow-delimiters-depth-1-face "white")
@@ -213,8 +204,7 @@
   (set-face-foreground 'rainbow-delimiters-depth-7-face "white")
   (set-face-foreground 'rainbow-delimiters-depth-8-face "cyan")
   (set-face-foreground 'rainbow-delimiters-depth-9-face "yellow")
-  (set-face-foreground 'rainbow-delimiters-unmatched-face "red")
-  :config (rainbow-delimiters-mode-enable))
+  (set-face-foreground 'rainbow-delimiters-unmatched-face "red"))
 
 (use-package magit)
 
@@ -225,13 +215,6 @@
   :config (add-hook 'after-init-hook 'global-company-mode))
 
 (use-package undo-tree)
-
-;; Pretty stuff
-(use-package nyan-mode
-  :config (nyan-mode))
-
-(use-package powerline
-  :config (powerline-default-theme))
 
 (load-theme 'tsdh-dark)
 
@@ -256,7 +239,9 @@
   (evil-define-key 'visual 'global (leader "c") 'comment-or-uncomment-region)
 
   (evil-define-key 'normal 'global (leader "TAB") 'whitespace-mode)
-  (evil-define-key 'normal 'global (leader "o") 'ispell))
+  (evil-define-key 'normal 'global (leader "o") 'ispell)
+  (evil-define-key 'normal 'global (leader "g") 'magit-status)
+  (evil-define-key 'normal 'global (leader "e") #'(lambda () (interactive) (find-file "~/.emacs"))))
 
 (use-package evil-collection
   :after evil
