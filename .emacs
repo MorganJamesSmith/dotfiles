@@ -121,6 +121,7 @@ If UPDATE is non-nil, a git pull will be performed"
 (use-package exwm
   :config
   (require 'exwm-config)
+  (setq exwm-workspace-show-all-buffers t)
   ;; Make class name the buffer name
   (add-hook 'exwm-update-class-hook
     (lambda ()
@@ -146,12 +147,15 @@ If UPDATE is non-nil, a git pull will be performed"
     ;; Switch focus.
     ([?\s-j] . other-window)
     ([?\s-k] . (lambda () (interactive) (other-window -1)))
+    ;; Split window.
+    ([?\s-\\] . split-window-horizontally)
+    ([?\s-\-] . split-window-vertically)
     ;; vterm
     (,(kbd "<s-return>") . (lambda () (interactive) (if (get-buffer "vterm") (switch-to-buffer "vterm") (vterm))))
-    ;; Close winow
+    ;; Close window (not killing it, just getting it out of view)
     ([?\s-q] . (lambda () (interactive) (if (< 1 (count-windows))
                                        (delete-window)
-                                     (exwm-workspace-delete))))
+                                       (switch-to-next-buffer))))
     ;; Launch application.
     ([?\s-d] . (lambda (command)
                  (interactive (list (read-shell-command "$ ")))
@@ -231,10 +235,10 @@ If UPDATE is non-nil, a git pull will be performed"
   (defun leader (key)
     (kbd (concat "SPC " key)))
 
-  (evil-define-key 'normal 'global (kbd "M-j") 'evil-scroll-line-down)
-  (evil-define-key 'normal 'global (kbd "M-k") 'evil-scroll-line-up)
-  (evil-define-key 'normal 'global (kbd "M-J") 'text-scale-decrease)
-  (evil-define-key 'normal 'global (kbd "M-K") 'text-scale-increase)
+  (evil-define-key '(normal insert) 'global (kbd "M-j") 'evil-scroll-line-down)
+  (evil-define-key '(normal insert) 'global (kbd "M-k") 'evil-scroll-line-up)
+  (evil-define-key '(normal insert) 'global (kbd "M-J") 'text-scale-decrease)
+  (evil-define-key '(normal insert) 'global (kbd "M-K") 'text-scale-increase)
 
   (evil-define-key 'visual 'global (leader "c") 'comment-or-uncomment-region)
 
