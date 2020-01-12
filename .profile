@@ -1,14 +1,12 @@
 #!/bin/sh
 # Profile file. Runs on login.
 
-# Adds `~/.bin` and all subdirectories to $PATH
-export PATH="$PATH:$(du "$HOME/.bin/" | cut -f2 | tr '\n' ':' | sed 's/:*$//')"
-export PATH="$PATH:$HOME/.local/bin"
-# Adds `/opt/bin` to path
-export PATH="$PATH:/opt/bin"
+# Adds `~/.bin`, `~/.local/bin`, and `/opt/bin` to $PATH
+export PATH="$PATH:$HOME/.bin:$HOME/.local/bin:/opt/bin"
+
 export EDITOR="nvim"
 export TERMINAL="st"
-export BROWSER="tabbed -c -r 2 surf -e ''"
+export BROWSER="surf"
 export READER="zathura"
 
 # less/man colors
@@ -30,4 +28,3 @@ export ZDOTDIR="$HOME/.config"
 [ -f ~/.config/aliasrc ] && source "$HOME/.config/aliasrc" >/dev/null 2>&1
 
 echo "$0" | grep "bash$" >/dev/null && [ -f $HOME/.bashrc ] && source "$HOME/.bashrc"
-

@@ -274,6 +274,7 @@ If UPDATE is non-nil, a git pull will be performed"
       ("account" "%(binary) -f %(ledger-file) reg %(account)"))))
 
 (use-package nov
+  :init (setq nov-text-width 80)
   :mode ("\\.epub\\'" . nov-mode))
 
 (use-package fzf
@@ -324,6 +325,12 @@ If UPDATE is non-nil, a git pull will be performed"
                 (package-install package-desc)
                 (package-delete  old-package)))))
       (message "All packages are up to date"))))
+
+(defun root-edit ()
+  (interactive)
+  ;; open current file as root
+  (let ((tramp-file-name (concat "/sudo::" (expand-file-name (buffer-file-name)))))
+    (find-file tramp-file-name)))
 
 (provide '.emacs)
 ;;; .emacs ends here
