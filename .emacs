@@ -12,7 +12,7 @@
   "Clone a git repo to ~/.emacs.d/PACKAGE-NAME and add it to the load path
 If UPDATE is non-nil, a git pull will be performed"
 
-  (let ((package-path (concat "~/.emacs.d/" package-name)))
+  (let ((package-path (expand-file-name(concat "~/.emacs.d/" package-name))))
   (shell-command (concat "git clone " url " " package-path))
   (if update
       (shell-command (concat "cd " package-path "; git pull")))
@@ -35,7 +35,7 @@ If UPDATE is non-nil, a git pull will be performed"
 
 
 ;; Backups
-(defvar backup-directory "~/.backups")
+(defvar backup-directory (expand-file-name "~/.backups"))
 (unless (file-exists-p backup-directory)
     (make-directory backup-directory t))
 (setq
@@ -273,7 +273,7 @@ If UPDATE is non-nil, a git pull will be performed"
   (evil-define-key 'normal 'global (leader "TAB") 'whitespace-mode)
   (evil-define-key 'normal 'global (leader "o") 'ispell)
   (evil-define-key 'normal 'global (leader "g") 'magit-status)
-  (evil-define-key 'normal 'global (leader "e") #'(lambda () (interactive) (find-file "~/.emacs"))))
+  (evil-define-key 'normal 'global (leader "e") #'(lambda () (interactive) (find-file (expand-file-name "~/.emacs")))))
 
 (use-package evil-collection
   :after evil
