@@ -31,7 +31,7 @@ If UPDATE is non-nil, a git pull will be performed"
 ;; nuke-buffers
 (git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git" t)
 (require 'nuke-buffers)
-(push "vterm" nuke-buffers-ignore)
+(push "*eshell*" nuke-buffers-ignore)
 
 
 ;; Backups
@@ -116,8 +116,6 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (setq-default sentence-end-double-space nil)
 
-(use-package vterm)
-
 (use-package exwm
   :config
   (require 'exwm-config)
@@ -150,8 +148,8 @@ If UPDATE is non-nil, a git pull will be performed"
     ;; Split window.
     ([?\s-\\] . split-window-horizontally)
     ([?\s-\-] . split-window-vertically)
-    ;; vterm
-    (,(kbd "<s-return>") . (lambda () (interactive) (if (get-buffer "vterm") (switch-to-buffer "vterm") (vterm))))
+    ;; eshell
+    (,(kbd "<s-return>") . eshell)
     ;; Close window (not killing it, just getting it out of view)
     ([?\s-q] . (lambda () (interactive) (if (< 1 (count-windows))
                                        (delete-window)

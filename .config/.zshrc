@@ -63,20 +63,6 @@ bindkey '^e' edit-command-line
 [ -f "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
 [ -f "$HOME/.config/computerrc" ] && source "$HOME/.config/computerrc"
 
-if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
-
-    export EDITOR=emacsclient
-
-    function vim(){
-        printf "\e]51;Efind-file \"$@\"\e\\"
-    }
-
-    function chpwd() {
-        printf "\e]51;A$(whoami)@$(hostname):$(pwd)\e\\";
-    }
-
-    alias clear='printf "\e]51;Evterm-clear-scrollback\e\\";tput clear'
-fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
