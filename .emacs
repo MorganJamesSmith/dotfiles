@@ -1,6 +1,10 @@
 ;;; .emacs --- Emacs configuration file by Morgan Smith
 ;;
 
+;; Determine if we're connected to the internet
+(setq internet-up-p
+    (call-process "ping" nil nil nil "-c" "1" "-W" "1" "www.fsf.org"))
+
 ;; Add and enable MELPA
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
@@ -8,28 +12,32 @@
 
 
 ;; Packages cloned from version control
-(defun git-package (package-name url &optional update)
+(defun git-package (package-name url &optional update internet-up)
   "Clone a git repo to ~/.emacs.d/PACKAGE-NAME and add it to the load path
 If UPDATE is non-nil, a git pull will be performed"
-
   (let ((package-path (expand-file-name(concat "~/.emacs.d/" package-name))))
-  (shell-command (concat "git clone " url " " package-path))
-  (if update
-      (shell-command (concat "cd " package-path "; git pull")))
-  (add-to-list 'load-path package-path)))
+    (catch 'unable-to-get-package
+      (unless (file-exists-p package-path)
+        (if internet-up)
+        (shell-command (concat "git clone " url " " package-path))
+        (throw 'unable-to-get-package))
+    (add-to-list 'load-path package-path)
+    (if (and update internet-up)
+        (shell-command (concat "cd " package-path "; git pull"))))))
 
 ;; use-package
-(git-package "use-package" "https://github.com/jwiegley/use-package" t)
+(git-package "use-package" "https://github.com/jwiegley/use-package" t internet-up-p)
 (require 'use-package)
 (require 'use-package-ensure)
-(setq use-package-always-ensure t) ; Always download all my packages
+;; Download all my packages given I have internet
+(if internet-up-p (setq use-package-always-ensure t))
 
 ;; youtube-dl
-(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git" t)
+(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git" t internet-up-p)
 (require 'youtube-dl)
 
 ;; nuke-buffers
-(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git" t)
+(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git" t internet-up-p)
 (require 'nuke-buffers)
 (push "*eshell*" nuke-buffers-ignore)
 
