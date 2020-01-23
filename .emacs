@@ -18,12 +18,12 @@ If UPDATE is non-nil, a git pull will be performed"
   (let ((package-path (expand-file-name(concat "~/.emacs.d/" package-name))))
     (catch 'unable-to-get-package
       (unless (file-exists-p package-path)
-        (if internet-up)
-        (shell-command (concat "git clone " url " " package-path))
-        (throw 'unable-to-get-package))
-    (add-to-list 'load-path package-path)
-    (if (and update internet-up)
-        (shell-command (concat "cd " package-path "; git pull"))))))
+        (if internet-up
+            (shell-command (concat "git clone " url " " package-path))
+          (throw 'unable-to-get-package)))
+      (add-to-list 'load-path package-path)
+      (if (and update internet-up)
+          (shell-command (concat "cd " package-path "; git pull"))))))
 
 ;; use-package
 (git-package "use-package" "https://github.com/jwiegley/use-package" t internet-up-p)
@@ -81,8 +81,7 @@ If UPDATE is non-nil, a git pull will be performed"
 (show-paren-mode t)
 
 (use-package all-the-icons
-  :init (setq inhibit-compacting-font-caches t)
-  :config (all-the-icons-install-fonts t))
+  :init (setq inhibit-compacting-font-caches t))
 
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
