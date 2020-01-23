@@ -74,6 +74,12 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (show-paren-mode t)
 
+(use-package all-the-icons
+  :config (all-the-icons-install-fonts))
+
+(use-package all-the-icons-dired
+  :hook (dired-mode . all-the-icons-dired-mode))
+
 ;; Time
 (setq display-time-default-load-average nil
       display-time-24hr-format t
@@ -214,7 +220,31 @@ If UPDATE is non-nil, a git pull will be performed"
   :config (global-diff-hl-mode))
 
 (use-package company
-  :config (add-hook 'after-init-hook 'global-company-mode))
+  :config (global-company-mode)
+  (setq company-tooltip-align-annotations t
+	company-minimum-prefix-length 1
+	company-idle-delay 0.1)
+  ;; Use builtin faces instead of ugly ones set by company
+  (custom-set-faces
+   '(company-preview
+     ((t (:foreground "darkgray" :underline t))))
+   '(company-preview-common
+     ((t (:inherit company-preview :weight bold))))
+   '(company-tooltip
+     ((t (:inherit popup-face))))
+   '(company-scrollbar-bg
+     ((t (:inherit popup-scroll-bar-background-face))))
+   '(company-scrollbar-fg
+     ((t (:inherit popup-scroll-bar-foreground-face))))
+   '(company-tooltip-selection
+     ((t (:inherit popup-menu-selection-face))))
+   '(company-tooltip-common
+     ((((type x)) (:inherit company-tooltip :weight bold))
+      (t (:inherit company-tooltip))))
+   '(company-tooltip-common-selection
+     ((((type x)) (:inherit company-tooltip-selection :weight bold))
+      (t (:inherit company-tooltip-selection))))))
+
 
 (use-package undo-tree)
 
