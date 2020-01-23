@@ -61,8 +61,6 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (setq debug-on-error t)
 
-(setq custom-file "/dev/null") ; I don't like custom
-
 (setq browse-url-browser-function 'eww-browse-url)
 
 (require 'cl)
@@ -83,7 +81,8 @@ If UPDATE is non-nil, a git pull will be performed"
 (show-paren-mode t)
 
 (use-package all-the-icons
-  :config (all-the-icons-install-fonts))
+  :init (setq inhibit-compacting-font-caches t)
+  :config (all-the-icons-install-fonts t))
 
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
@@ -129,6 +128,23 @@ If UPDATE is non-nil, a git pull will be performed"
 (add-hook 'write-file-hooks 'delete-trailing-whitespace)
 
 (setq-default sentence-end-double-space nil)
+
+;; Windows Specific Configurations
+(if (eq system-type "windows-nt")
+    (progn
+
+(setq custom-file "nul") ; I don't like custom
+))
+;; End of Windows Specific Configurations
+
+
+;; GNU/Linux Specific Configurations
+(if (eq system-type "gnu/linux")
+    (progn
+
+(setq custom-file "/dev/null") ; I don't like custom
+
+(use-package vterm)
 
 (use-package exwm
   :config
@@ -199,6 +215,8 @@ If UPDATE is non-nil, a git pull will be performed"
 
   (exwm-enable))
 
+))
+;; End of GNU/Linux Specific Configurations
 
 (use-package smartparens
   :init
@@ -312,9 +330,6 @@ If UPDATE is non-nil, a git pull will be performed"
 (use-package nov
   :init (setq nov-text-width 80)
   :mode ("\\.epub\\'" . nov-mode))
-
-(use-package fzf
-  :if (eq 0 (shell-command "command -v fzf &> /dev/null")))
 
 (defun find-first-non-ascii-char ()
   "Find the first non-ascii character from point onwards."
