@@ -129,7 +129,7 @@ If UPDATE is non-nil, a git pull will be performed"
 (setq-default sentence-end-double-space nil)
 
 ;; Windows Specific Configurations
-(if (eq system-type "windows-nt")
+(if (string= system-type "windows-nt")
     (progn
 
 (setq custom-file "nul") ; I don't like custom
@@ -138,7 +138,7 @@ If UPDATE is non-nil, a git pull will be performed"
 
 
 ;; GNU/Linux Specific Configurations
-(if (eq system-type "gnu/linux")
+(if (string= system-type "gnu/linux")
     (progn
 
 (setq custom-file "/dev/null") ; I don't like custom
