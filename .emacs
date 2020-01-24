@@ -43,23 +43,21 @@ If UPDATE is non-nil, a git pull will be performed"
 
 
 ;; Backups
-(defvar backup-directory (expand-file-name "~/.backups"))
-(unless (file-exists-p backup-directory)
+(let ((backup-directory (expand-file-name "~/.backups")))
+  (unless (file-exists-p backup-directory)
     (make-directory backup-directory t))
-(setq
- make-backup-files t    ; backup a file the first time it is saved
- backup-directory-alist `((".*" . ,backup-directory)) ; save backup files in ~/.backups
- backup-by-copying t    ; copy the current file into backup directory
- version-control t      ; version numbers for backup files
- delete-old-versions t  ; delete unnecessary versions
- kept-old-versions 6    ; oldest versions to keep when a new numbered backup is made (default: 2)
- kept-new-versions 9    ; newest versions to keep when a new numbered backup is made (default: 2)
- auto-save-default t    ; auto-save every buffer that visits a file
- auto-save-timeout 20   ; number of seconds idle time before auto-save (default: 30)
- auto-save-interval 200 ; number of keystrokes between auto-saves (default: 300)
- )
-
-(setq debug-on-error t)
+  (setq
+   make-backup-files t    ; backup a file the first time it is saved
+   backup-directory-alist `((".*" . ,backup-directory)) ; save backup files in ~/.backups
+   backup-by-copying t    ; copy the current file into backup directory
+   version-control t      ; version numbers for backup files
+   delete-old-versions t  ; delete unnecessary versions
+   kept-old-versions 6    ; oldest versions to keep when a new numbered backup is made (default: 2)
+   kept-new-versions 9    ; newest versions to keep when a new numbered backup is made (default: 2)
+   auto-save-default t    ; auto-save every buffer that visits a file
+   auto-save-timeout 20   ; number of seconds idle time before auto-save (default: 30)
+   auto-save-interval 200 ; number of keystrokes between auto-saves (default: 300)
+   ))
 
 (setq browse-url-browser-function 'eww-browse-url)
 
@@ -78,6 +76,7 @@ If UPDATE is non-nil, a git pull will be performed"
       use-dialog-box nil
       visible-bell t)
 
+(setq show-paren-delay 0)
 (show-paren-mode t)
 
 (use-package all-the-icons
@@ -111,6 +110,7 @@ If UPDATE is non-nil, a git pull will be performed"
 (setq uniquify-buffer-name-style 'forward)
 
 (setq-default display-line-numbers 'relative)
+(column-number-mode)
 
 (global-hl-line-mode t)
 (global-auto-revert-mode t)
@@ -143,12 +143,12 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (setq custom-file "/dev/null") ; I don't like custom
 
-(use-package vterm)
-
 (use-package exwm
   :config
   (require 'exwm-config)
-  (setq exwm-workspace-show-all-buffers t)
+  (setq exwm-workspace-show-all-buffers t
+        exwm-layout-show-all-buffers t)
+
   ;; Make class name the buffer name
   (add-hook 'exwm-update-class-hook
     (lambda ()
@@ -222,7 +222,8 @@ If UPDATE is non-nil, a git pull will be performed"
   (require 'dash)
   (require 'smartparens-config)
   :config
-  (smartparens-global-mode t))
+  (smartparens-global-mode t)
+  (sp-use-smartparens-bindings))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
