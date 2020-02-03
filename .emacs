@@ -143,6 +143,8 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (setq custom-file "/dev/null") ; I don't like custom
 
+(use-package transmission)
+
 (use-package exwm
   :config
   (require 'exwm-config)
@@ -245,11 +247,24 @@ If UPDATE is non-nil, a git pull will be performed"
 (use-package diff-hl
   :config (global-diff-hl-mode))
 
+(use-package eshell
+  :ensure nil
+  :init (add-hook 'eshell-mode-hook (lambda () (setq display-line-numbers nil))))
+
+(use-package pcomplete-extension
+  :config (require 'pcomplete-extension))
+
 (use-package company
   :config (global-company-mode)
+
+  (add-hook 'eshell-mode-hook
+            (lambda ()
+              (set (make-local-variable 'company-backends)
+                   '((company-capf)))))
+
   (setq company-tooltip-align-annotations t
-	company-minimum-prefix-length 1
-	company-idle-delay 0.1)
+        company-minimum-prefix-length 1
+        company-idle-delay 0.1)
   ;; Use builtin faces instead of ugly ones set by company
   (custom-set-faces
    '(company-preview
@@ -299,7 +314,7 @@ If UPDATE is non-nil, a git pull will be performed"
   (evil-define-key 'normal 'global (leader "TAB") 'whitespace-mode)
   (evil-define-key 'normal 'global (leader "o") 'ispell)
   (evil-define-key 'normal 'global (leader "g") 'magit-status)
-  (evil-define-key 'normal 'global (leader "e") #'(lambda () (interactive) (find-file (expand-file-name "~/.emacs")))))
+  (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (expand-file-name "~/.emacs")))))
 
 (use-package evil-collection
   :after evil
