@@ -1,15 +1,28 @@
 ;;; .emacs --- Emacs configuration file by Morgan Smith
 ;;
 
+(setq debug-on-error t)
+
 ;; Determine if we're connected to the internet
 (setq internet-up-p
     (call-process "ping" nil nil nil "-c" "1" "-W" "1" "www.fsf.org"))
 
-;; Add and enable MELPA
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+;; Enable MELPA
 (package-initialize)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+(setq use-package-verbose t)
+(require 'use-package)
+(require 'use-package-ensure)
+;; Download all my packages given I have internet
+(if internet-up-p (setq use-package-always-ensure t))
+
+
+(setq load-prefer-newer t)
+(use-package auto-compile
+  :config (auto-compile-on-load-mode))
 
 ;; Packages cloned from version control
 (defun git-package (package-name url &optional update internet-up)
@@ -25,13 +38,6 @@ If UPDATE is non-nil, a git pull will be performed"
       (if (and update internet-up)
           (shell-command (concat "cd " package-path "; git pull"))))))
 
-;; use-package
-(git-package "use-package" "https://github.com/jwiegley/use-package" t internet-up-p)
-(require 'use-package)
-(require 'use-package-ensure)
-;; Download all my packages given I have internet
-(if internet-up-p (setq use-package-always-ensure t))
-
 ;; youtube-dl
 (git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git" t internet-up-p)
 (require 'youtube-dl)
@@ -42,26 +48,25 @@ If UPDATE is non-nil, a git pull will be performed"
 (push "*eshell*" nuke-buffers-ignore)
 
 
-;; Backups
-(let ((backup-directory (expand-file-name "~/.backups")))
+;; Backups and auto-saves
+(let ((backup-directory (expand-file-name "~/.emacs.d/backups"))
+      (auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
   (unless (file-exists-p backup-directory)
     (make-directory backup-directory t))
-  (setq
-   make-backup-files t    ; backup a file the first time it is saved
-   backup-directory-alist `((".*" . ,backup-directory)) ; save backup files in ~/.backups
-   backup-by-copying t    ; copy the current file into backup directory
-   version-control t      ; version numbers for backup files
-   delete-old-versions t  ; delete unnecessary versions
-   kept-old-versions 6    ; oldest versions to keep when a new numbered backup is made (default: 2)
-   kept-new-versions 9    ; newest versions to keep when a new numbered backup is made (default: 2)
-   auto-save-default t    ; auto-save every buffer that visits a file
-   auto-save-timeout 20   ; number of seconds idle time before auto-save (default: 30)
-   auto-save-interval 200 ; number of keystrokes between auto-saves (default: 300)
-   ))
+  (unless (file-exists-p auto-save-directory)
+    (make-directory auto-save-directory t))
+  (setq make-backup-files t
+        backup-directory-alist `((".*" . ,backup-directory))
+        backup-by-copying t
+        version-control t
+        vc-make-backup-files t
+        delete-old-versions -1
+        auto-save-default t
+        auto-save-timeout 20
+        auto-save-interval 200
+        auto-save-file-name-transforms `((".*" ,auto-save-directory t))))
 
 (setq browse-url-browser-function 'eww-browse-url)
-
-(require 'cl)
 
 (server-start)
 
@@ -111,6 +116,7 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (setq-default display-line-numbers 'relative)
 (column-number-mode)
+(line-number-mode)
 
 (global-hl-line-mode t)
 (global-auto-revert-mode t)
@@ -287,7 +293,12 @@ If UPDATE is non-nil, a git pull will be performed"
       (t (:inherit company-tooltip-selection))))))
 
 
-(use-package undo-tree)
+(use-package undo-tree
+  :config
+  (progn
+    (global-undo-tree-mode)
+    (setq undo-tree-visualizer-timestamps t)
+    (setq undo-tree-visualizer-diff t)))
 
 (load-theme 'tsdh-dark)
 
