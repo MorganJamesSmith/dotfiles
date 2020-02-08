@@ -126,6 +126,8 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+(setq epg-pinentry-mode 'loopback)
+
 ;; Whitespace configurations
 (setq-default tab-width 8
               indent-tabs-mode nil)
