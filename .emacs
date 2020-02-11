@@ -153,7 +153,7 @@ If UPDATE is non-nil, a git pull will be performed"
 ;; under Windows and c:\cygwin exists. Assumes that C:\cygwin\bin is
 ;; not already in your Windows Path (it generally should not be).
 ;;
-(let* ((cygwin-root "c:/cygwin")
+(let* ((cygwin-root "c:/cygwin64")
        (cygwin-bin (concat cygwin-root "/bin")))
   (when (file-readable-p cygwin-root)
 
@@ -172,6 +172,12 @@ If UPDATE is non-nil, a git pull will be performed"
     (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)))
 
 (setq custom-file null-device) ; I don't like custom
+
+(setq w32-lwindow-modifier 'super)
+(w32-register-hot-key [s-j])
+(w32-register-hot-key [s-k])
+(global-set-key (kbd "s-j") 'other-frame)
+(global-set-key (kbd "s-k") 'other-frame)
 ))
 ;; End of Windows Specific Configurations
 
