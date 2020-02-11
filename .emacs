@@ -85,6 +85,11 @@ If UPDATE is non-nil, a git pull will be performed"
 (setq show-paren-delay 0)
 (show-paren-mode t)
 
+(use-package xcscope
+  :config
+  (require 'xcscope)
+  (cscope-setup))
+
 (use-package all-the-icons
   :init (setq inhibit-compacting-font-caches t))
 
@@ -140,8 +145,33 @@ If UPDATE is non-nil, a git pull will be performed"
 ;; Windows Specific Configurations
 (if (string= system-type "windows-nt")
     (progn
+;;;;
+;;;; cygwin support
+;;;;
 
-(setq custom-file "nul") ; I don't like custom
+;; Sets your shell to use cygwin's bash, if Emacs finds it's running
+;; under Windows and c:\cygwin exists. Assumes that C:\cygwin\bin is
+;; not already in your Windows Path (it generally should not be).
+;;
+(let* ((cygwin-root "c:/cygwin")
+       (cygwin-bin (concat cygwin-root "/bin")))
+  (when (file-readable-p cygwin-root)
+
+    (setq null-device "/dev/null")
+
+    (setq exec-path (cons cygwin-bin exec-path))
+    (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
+
+    ;; NT-emacs assumes a Windows shell. Change to bash.
+    (setq shell-file-name "bash")
+    (setenv "SHELL" shell-file-name)
+    (setq explicit-shell-file-name shell-file-name)
+
+    ;; This removes unsightly ^M characters that would otherwise
+    ;; appear in the output of java applications.
+    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)))
+
+(setq custom-file null-device) ; I don't like custom
 ))
 ;; End of Windows Specific Configurations
 
@@ -337,6 +367,7 @@ If UPDATE is non-nil, a git pull will be performed"
 
   (evil-define-key 'normal 'global (leader "TAB") 'whitespace-mode)
   (evil-define-key 'normal 'global (leader "o") 'ispell)
+  (evil-define-key 'normal 'global (leader "c") 'compile)
   (evil-define-key 'normal 'global (leader "g") 'magit-status)
   (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (expand-file-name "~/.emacs")))))
 
