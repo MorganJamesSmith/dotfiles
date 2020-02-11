@@ -12,6 +12,7 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
 (unless (package-installed-p 'use-package)
+  (package-refresh-contents)
   (package-install 'use-package))
 (setq use-package-verbose t)
 (require 'use-package)
@@ -259,6 +260,14 @@ If UPDATE is non-nil, a git pull will be performed"
   :ensure nil
   :init (add-hook 'eshell-mode-hook (lambda () (setq display-line-numbers nil))))
 
+(use-package ediff
+  :ensure nil
+  :config
+  (require 'ediff)
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain
+        ediff-split-window-function 'split-window-horizontally
+        ediff-options "-w"))
+
 (use-package pcomplete-extension
   :config (require 'pcomplete-extension))
 
@@ -302,8 +311,10 @@ If UPDATE is non-nil, a git pull will be performed"
     (setq undo-tree-visualizer-timestamps t)
     (setq undo-tree-visualizer-diff t)))
 
-(load-theme 'tsdh-dark)
+(use-package modus-vivendi-theme
+  :config (load-theme 'modus-vivendi))
 
+;(load-theme 'tsdh-dark)
 
 ;; Keybinding stuff
 (use-package evil
@@ -343,6 +354,10 @@ If UPDATE is non-nil, a git pull will be performed"
   (evil-define-key 'normal 'global (leader "j") 'vertigo-jump-down)
   (evil-define-key 'normal 'global (leader "k") 'vertigo-jump-up))
 
+(use-package which-key
+  :config
+  (setq which-key-idle-secondary-delay 0.05)
+  (which-key-mode))
 
 (use-package ledger-mode
   :config
