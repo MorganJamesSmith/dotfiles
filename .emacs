@@ -72,11 +72,33 @@ If UPDATE is non-nil, a git pull will be performed"
 (server-start)
 
 ;; Visual stuff
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(horizontal-scroll-bar-mode -1)
-(blink-cursor-mode -1)
+(use-package emacs
+  :ensure nil
+  :config
+  (setq use-file-dialog nil)
+  (setq use-dialog-box nil)
+  (setq inhibit-splash-screen t)
+  (global-unset-key (kbd "C-z"))
+  (global-unset-key (kbd "C-x C-z"))
+  (global-unset-key (kbd "C-h h"))
+  :hook (after-init . (lambda ()
+                        (menu-bar-mode -1)
+                        (tool-bar-mode -1)
+                        (scroll-bar-mode -1)
+                        (horizontal-scroll-bar-mode -1)
+                        (blink-cursor-mode -1)
+                        )))
+
+(use-package minibuffer
+  :ensure nil
+  :config
+  (setq read-buffer-completion-ignore-case t)
+  (setq completion-cycle-threshold 3)
+  (setq completion-styles '(partial-completion substring flex))
+  (setq completion-category-overrides   ; flex requires >= Emacs 27
+        '((file (styles initials flex partial-completion))
+          (buffer (styles substring flex))
+          (info-menu (styles substring basic)))))
 
 (setq echo-keystrokes 0.1
       use-dialog-box nil
@@ -95,6 +117,15 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
+
+(use-package dired
+  :ensure nil
+  :config
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  (setq delete-by-moving-to-trash t)
+  (setq dired-listing-switches "-aFhlv --group-directories-first")
+  :hook ((dired-mode . dired-hide-details-mode)))
 
 ;; Time
 (setq display-time-default-load-average nil
