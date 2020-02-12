@@ -4,7 +4,7 @@
 # Adds `~/.bin`, `~/.local/bin`, and `/opt/bin` to $PATH
 export PATH="$PATH:$HOME/.bin:$HOME/.local/bin:/opt/bin"
 
-export EDITOR="nvim"
+export EDITOR="emacsclient"
 export TERMINAL="st"
 export BROWSER="surf"
 export READER="zathura"
