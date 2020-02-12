@@ -1,52 +1,54 @@
 ;;; .emacs --- Emacs configuration file by Morgan Smith
 ;;
 
-(setq debug-on-error t)
+(server-start)
 
-;; Determine if we're connected to the internet
-(setq internet-up-p
-    (call-process "ping" nil nil nil "-c" "1" "-W" "1" "www.fsf.org"))
+(setq debug-on-error t)
 
 ;; Enable MELPA
 (package-initialize)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
+; Use-package
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
-(setq use-package-verbose t)
 (require 'use-package)
 (require 'use-package-ensure)
-;; Download all my packages given I have internet
-(if internet-up-p (setq use-package-always-ensure t))
+(setq use-package-verbose t)
+(setq use-package-always-ensure t)
 
-
-(setq load-prefer-newer t)
-(use-package auto-compile
-  :config (auto-compile-on-load-mode))
 
 ;; Packages cloned from version control
-(defun git-package (package-name url &optional update internet-up)
+(defun git-package (package-name url)
   "Clone a git repo to ~/.emacs.d/PACKAGE-NAME and add it to the load path
 If UPDATE is non-nil, a git pull will be performed"
   (let ((package-path (expand-file-name(concat "~/.emacs.d/" package-name))))
-    (catch 'unable-to-get-package
-      (unless (file-exists-p package-path)
-        (if internet-up
-            (shell-command (concat "git clone " url " " package-path))
-          (throw 'unable-to-get-package)))
-      (add-to-list 'load-path package-path)
-      (if (and update internet-up)
-          (shell-command (concat "cd " package-path "; git pull"))))))
+    (unless (file-exists-p package-path)
+      (shell-command (concat "git clone " url " " package-path)))
+      (add-to-list 'load-path package-path)))
 
-;; youtube-dl
-(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git" t internet-up-p)
+; youtube-dl
+(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git")
 (require 'youtube-dl)
 
 ;; nuke-buffers
-(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git" t internet-up-p)
+(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git")
 (require 'nuke-buffers)
 (push "*eshell*" nuke-buffers-ignore)
+
+
+(setq browse-url-browser-function 'eww-browse-url)
+
+(setq-default display-line-numbers 'relative)
+
+(global-hl-line-mode t)
+
+(global-auto-revert-mode t)
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+(setq epg-pinentry-mode 'loopback)
 
 
 ;; Backups and auto-saves
@@ -67,27 +69,79 @@ If UPDATE is non-nil, a git pull will be performed"
         auto-save-interval 200
         auto-save-file-name-transforms `((".*" ,auto-save-directory t))))
 
-(setq browse-url-browser-function 'eww-browse-url)
+(setq load-prefer-newer t)
+(use-package auto-compile
+  :config (auto-compile-on-load-mode))
 
-(server-start)
+(use-package ledger-mode
+  :config
+  (evil-define-key 'normal ledger-mode-map (leader "r") 'ledger-report)
 
-;; Visual stuff
+  (setq ledger-reports
+    '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
+      ("last mon" "%(binary) -f %(ledger-file) bal -p \"last month\"")
+      ("bal" "%(binary) -f %(ledger-file) bal")
+      ("reg" "%(binary) -f %(ledger-file) reg")
+      ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
+      ("account" "%(binary) -f %(ledger-file) reg %(account)")))
+  :mode ("\\.ledger\\'" . ledger-mode))
+
+(use-package nov
+  :init (setq nov-text-width 80)
+  :mode ("\\.epub\\'" . nov-mode))
+
+(use-package eshell
+  :ensure nil
+  :init (add-hook 'eshell-mode-hook (lambda () (setq display-line-numbers nil))))
+
+(use-package dired
+  :ensure nil
+  :config
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  (setq delete-by-moving-to-trash t)
+  (setq dired-listing-switches "-aFhlv --group-directories-first")
+  :hook ((dired-mode . dired-hide-details-mode)))
+
+(use-package all-the-icons
+  :init (setq inhibit-compacting-font-caches t))
+
+(use-package all-the-icons-dired
+  :hook (dired-mode . all-the-icons-dired-mode))
+
+(use-package tramp
+  :ensure nil
+  :config (setq tramp-default-method "ssh"))
+
+(use-package modus-vivendi-theme
+  :config (load-theme 'modus-vivendi t))
+
+(use-package undo-tree
+  :config
+  (progn
+    (global-undo-tree-mode)
+    (setq undo-tree-visualizer-timestamps t)
+    (setq undo-tree-visualizer-diff t)))
+
 (use-package emacs
   :ensure nil
   :config
-  (setq use-file-dialog nil)
-  (setq use-dialog-box nil)
-  (setq inhibit-splash-screen t)
+  (setq use-file-dialog nil
+        use-dialog-box nil
+        inhibit-startup-screen t
+        initial-scratch-message nil
+        visible-bell t)
+
   (global-unset-key (kbd "C-z"))
   (global-unset-key (kbd "C-x C-z"))
   (global-unset-key (kbd "C-h h"))
-  :hook (after-init . (lambda ()
-                        (menu-bar-mode -1)
-                        (tool-bar-mode -1)
-                        (scroll-bar-mode -1)
-                        (horizontal-scroll-bar-mode -1)
-                        (blink-cursor-mode -1)
-                        )))
+
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (horizontal-scroll-bar-mode -1)
+  (blink-cursor-mode -1)
+  (tooltip-mode -1))
 
 (use-package minibuffer
   :ensure nil
@@ -100,90 +154,43 @@ If UPDATE is non-nil, a git pull will be performed"
           (buffer (styles substring flex))
           (info-menu (styles substring basic)))))
 
-(setq echo-keystrokes 0.1
-      use-dialog-box nil
-      visible-bell t)
-
-(setq show-paren-delay 0)
-(show-paren-mode t)
-
+;; Programming Section Begins
 (use-package xcscope
   :config
   (require 'xcscope)
   (cscope-setup))
+;; Programming Section Ends
 
-(use-package all-the-icons
-  :init (setq inhibit-compacting-font-caches t))
 
-(use-package all-the-icons-dired
-  :hook (dired-mode . all-the-icons-dired-mode))
-
-(use-package dired
-  :ensure nil
-  :config
-  (setq dired-recursive-copies 'always)
-  (setq dired-recursive-deletes 'always)
-  (setq delete-by-moving-to-trash t)
-  (setq dired-listing-switches "-aFhlv --group-directories-first")
-  :hook ((dired-mode . dired-hide-details-mode)))
-
-;; Time
+;; Modeline Section Begins
 (setq display-time-default-load-average nil
       display-time-24hr-format t
       display-time-day-and-date t)
 (display-time-mode)
 
-;; Battery
 (use-package fancy-battery
   :init (setq fancy-battery-show-percentage t)
   :config (fancy-battery-mode))
 
-(setq ido-enable-flex-matching t
-      ido-everywhere t)
-(ido-mode 1)
-
-(setq tramp-default-method "ssh")
-
-
-(setq inhibit-startup-screen t)
-(setq initial-scratch-message nil)
-
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'forward)
-
-(setq-default display-line-numbers 'relative)
 (column-number-mode)
 (line-number-mode)
+;; Modeline Section Ends
 
-(global-hl-line-mode t)
-(global-auto-revert-mode t)
 
-(when (display-graphic-p)
-  (tooltip-mode -1))
-
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-(setq epg-pinentry-mode 'loopback)
-
-;; Whitespace configurations
-(setq-default tab-width 8
-              indent-tabs-mode nil)
+;; Whitespace Section Begins
+(setq-default tab-width 4
+              indent-tabs-mode nil
+              sentence-end-double-space nil)
 (setq require-final-newline t)
 (add-hook 'write-file-hooks 'delete-trailing-whitespace)
+;; Whitespace Section Ends
 
-(setq-default sentence-end-double-space nil)
 
-;; Windows Specific Configurations
+;; Windows Section Begins
 (if (string= system-type "windows-nt")
     (progn
-;;;;
-;;;; cygwin support
-;;;;
 
-;; Sets your shell to use cygwin's bash, if Emacs finds it's running
-;; under Windows and c:\cygwin exists. Assumes that C:\cygwin\bin is
-;; not already in your Windows Path (it generally should not be).
-;;
+; cygwin support
 (let* ((cygwin-root "c:/cygwin64")
        (cygwin-bin (concat cygwin-root "/bin")))
   (when (file-readable-p cygwin-root)
@@ -210,11 +217,12 @@ If UPDATE is non-nil, a git pull will be performed"
 (global-set-key (kbd "s-j") 'other-frame)
 (global-set-key (kbd "s-k") 'other-frame)
 ))
-;; End of Windows Specific Configurations
+;; Windows Section Ends
 
 
-;; GNU/Linux Specific Configurations
-(if (string= system-type "gnu/linux")
+;; GNU/Linux and BSD Section Begins
+(if (or (string= system-type "gnu/linux")
+        (string= system-type "berkely-unix"))
     (progn
 
 (setq custom-file "/dev/null") ; I don't like custom
@@ -264,16 +272,7 @@ If UPDATE is non-nil, a git pull will be performed"
     ;; Launch application.
     ([?\s-d] . (lambda (command)
                  (interactive (list (read-shell-command "$ ")))
-                   (start-process-shell-command command nil command)))
-    ;; Switch to certain workspace.
-    ,@(mapcar (lambda (i)
-                `(,(kbd (format "s-%d" i)) .
-                   (lambda ()
-                   (interactive)
-                   (exwm-workspace-switch-create ,i))))
-        (number-sequence 0 9))))
-
-  (exwm-config-ido)
+                   (start-process-shell-command command nil command)))))
 
   (require 'exwm-systemtray)
   (exwm-systemtray-enable)
@@ -289,17 +288,19 @@ If UPDATE is non-nil, a git pull will be performed"
 
     (setq exwm-randr-workspace-output-plist value))
   (exwm-randr-enable)
-
+  (exwm-config-ido)
   (exwm-enable))
-
 ))
-;; End of GNU/Linux Specific Configurations
+;; GNU/Linux and BSD Section Ends
 
+
+;; Parens Section Begins
 (use-package smartparens
   :init
   (require 'dash)
   (require 'smartparens-config)
   :config
+  (show-smartparens-global-mode t)
   (smartparens-global-mode t)
   (sp-use-smartparens-bindings))
 
@@ -317,15 +318,14 @@ If UPDATE is non-nil, a git pull will be performed"
   (set-face-foreground 'rainbow-delimiters-depth-8-face "cyan")
   (set-face-foreground 'rainbow-delimiters-depth-9-face "yellow")
   (set-face-foreground 'rainbow-delimiters-unmatched-face "red"))
+;; Parens Section Ends
 
+
+;; VC/Diffs Section Begins
 (use-package magit)
 
 (use-package diff-hl
   :config (global-diff-hl-mode))
-
-(use-package eshell
-  :ensure nil
-  :init (add-hook 'eshell-mode-hook (lambda () (setq display-line-numbers nil))))
 
 (use-package ediff
   :ensure nil
@@ -334,64 +334,47 @@ If UPDATE is non-nil, a git pull will be performed"
   (setq ediff-window-setup-function 'ediff-setup-windows-plain
         ediff-split-window-function 'split-window-horizontally
         ediff-options "-w"))
+;; VC/Diffs Section Ends
+
+
+;; Autocomplete/Hints Section Begins
+(setq ido-enable-flex-matching t
+      ido-everywhere t)
+(ido-mode 1)
+
+(use-package company
+  :config
+  (global-company-mode)
+  (setq company-tooltip-align-annotations t
+        company-minimum-prefix-length 1
+        company-idle-delay 0.3
+        company-show-numbers t)
+
+  :hook (eshell-mode . (lambda ()
+                   (set (make-local-variable 'company-backends)
+                        '((company-capf))))))
+
+(use-package which-key
+  :config
+  (setq which-key-idle-secondary-delay 0.05)
+  (which-key-mode))
 
 (use-package pcomplete-extension
   :config (require 'pcomplete-extension))
-
-(use-package company
-  :config (global-company-mode)
-
-  (add-hook 'eshell-mode-hook
-            (lambda ()
-              (set (make-local-variable 'company-backends)
-                   '((company-capf)))))
-
-  (setq company-tooltip-align-annotations t
-        company-minimum-prefix-length 1
-        company-idle-delay 0.1)
-  ;; Use builtin faces instead of ugly ones set by company
-  (custom-set-faces
-   '(company-preview
-     ((t (:foreground "darkgray" :underline t))))
-   '(company-preview-common
-     ((t (:inherit company-preview :weight bold))))
-   '(company-tooltip
-     ((t (:inherit popup-face))))
-   '(company-scrollbar-bg
-     ((t (:inherit popup-scroll-bar-background-face))))
-   '(company-scrollbar-fg
-     ((t (:inherit popup-scroll-bar-foreground-face))))
-   '(company-tooltip-selection
-     ((t (:inherit popup-menu-selection-face))))
-   '(company-tooltip-common
-     ((((type x)) (:inherit company-tooltip :weight bold))
-      (t (:inherit company-tooltip))))
-   '(company-tooltip-common-selection
-     ((((type x)) (:inherit company-tooltip-selection :weight bold))
-      (t (:inherit company-tooltip-selection))))))
+;; Autocomplete/Hints Section Ends
 
 
-(use-package undo-tree
-  :config
-  (progn
-    (global-undo-tree-mode)
-    (setq undo-tree-visualizer-timestamps t)
-    (setq undo-tree-visualizer-diff t)))
-
-(use-package modus-vivendi-theme
-  :config (load-theme 'modus-vivendi))
-
-;(load-theme 'tsdh-dark)
-
-;; Keybinding stuff
+;;; Evil Section Begins
 (use-package evil
   :init
   (setq evil-ex-complete-emacs-commands t
         evil-want-integration t
-        evil-want-keybinding nil)
+        evil-want-keybinding nil
+        evil-want-C-u-scroll t
+        evil-want-C-d-scroll t)
 
   :config
-  (evil-mode 1)
+  (evil-mode t)
   (defun leader (key)
     (kbd (concat "SPC " key)))
 
@@ -402,8 +385,8 @@ If UPDATE is non-nil, a git pull will be performed"
 
   (evil-define-key 'visual 'global (leader "c") 'comment-or-uncomment-region)
 
+  (evil-define-key '(normal visual) 'global (leader "o") 'ispell)
   (evil-define-key 'normal 'global (leader "TAB") 'whitespace-mode)
-  (evil-define-key 'normal 'global (leader "o") 'ispell)
   (evil-define-key 'normal 'global (leader "c") 'compile)
   (evil-define-key 'normal 'global (leader "g") 'magit-status)
   (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (expand-file-name "~/.emacs")))))
@@ -415,32 +398,8 @@ If UPDATE is non-nil, a git pull will be performed"
 (use-package evil-magit
   :after evil-collection
   :config (require 'evil-magit))
+;;; Evil Section Ends
 
-(use-package vertigo
-  :init
-  (setq vertigo-cut-off 9)
-  (evil-define-key 'normal 'global (leader "j") 'vertigo-jump-down)
-  (evil-define-key 'normal 'global (leader "k") 'vertigo-jump-up))
-
-(use-package which-key
-  :config
-  (setq which-key-idle-secondary-delay 0.05)
-  (which-key-mode))
-
-(use-package ledger-mode
-  :config
-  (evil-define-key 'normal ledger-mode-map (leader "r") 'ledger-report)
-
-  (setq ledger-reports
-    '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
-      ("bal" "%(binary) -f %(ledger-file) bal")
-      ("reg" "%(binary) -f %(ledger-file) reg")
-      ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
-      ("account" "%(binary) -f %(ledger-file) reg %(account)"))))
-
-(use-package nov
-  :init (setq nov-text-width 80)
-  :mode ("\\.epub\\'" . nov-mode))
 
 (defun find-first-non-ascii-char ()
   "Find the first non-ascii character from point onwards."
