@@ -26,7 +26,7 @@ If UPDATE is non-nil, a git pull will be performed"
   (let ((package-path (expand-file-name(concat "~/.emacs.d/" package-name))))
     (unless (file-exists-p package-path)
       (shell-command (concat "git clone " url " " package-path)))
-      (add-to-list 'load-path package-path)))
+    (add-to-list 'load-path package-path)))
 
 ; youtube-dl
 (git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git")
@@ -92,7 +92,7 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (use-package eshell
   :ensure nil
-  :init (add-hook 'eshell-mode-hook (lambda () (setq display-line-numbers nil))))
+  :hook (eshell-mode . (lambda () (setq display-line-numbers nil))))
 
 (use-package dired
   :ensure nil
@@ -118,10 +118,9 @@ If UPDATE is non-nil, a git pull will be performed"
 
 (use-package undo-tree
   :config
-  (progn
-    (global-undo-tree-mode)
-    (setq undo-tree-visualizer-timestamps t)
-    (setq undo-tree-visualizer-diff t)))
+  (global-undo-tree-mode)
+  (setq undo-tree-visualizer-timestamps t)
+  (setq undo-tree-visualizer-diff t))
 
 (use-package emacs
   :ensure nil
@@ -187,8 +186,7 @@ If UPDATE is non-nil, a git pull will be performed"
 
 
 ;; Windows Section Begins
-(if (string= system-type "windows-nt")
-    (progn
+(when (string= system-type "windows-nt")
 
 ; cygwin support
 (let* ((cygwin-root "c:/cygwin64")
@@ -216,18 +214,18 @@ If UPDATE is non-nil, a git pull will be performed"
 (w32-register-hot-key [s-k])
 (global-set-key (kbd "s-j") 'other-frame)
 (global-set-key (kbd "s-k") 'other-frame)
-))
+)
 ;; Windows Section Ends
 
 
 ;; GNU/Linux and BSD Section Begins
-(if (or (string= system-type "gnu/linux")
+(when (or (string= system-type "gnu/linux")
         (string= system-type "berkely-unix"))
-    (progn
 
 (setq custom-file "/dev/null") ; I don't like custom
 
-(use-package transmission)
+(use-package transmission
+  :commands 'transmission)
 
 (use-package exwm
   :config
@@ -290,7 +288,7 @@ If UPDATE is non-nil, a git pull will be performed"
   (exwm-randr-enable)
   (exwm-config-ido)
   (exwm-enable))
-))
+)
 ;; GNU/Linux and BSD Section Ends
 
 
@@ -322,13 +320,18 @@ If UPDATE is non-nil, a git pull will be performed"
 
 
 ;; VC/Diffs Section Begins
-(use-package magit)
-
-(use-package diff-hl
-  :config (global-diff-hl-mode))
+(use-package magit
+  :commands 'magit-status
+  :defer 5
+  :config (use-package evil-magit
+            :after evil
+            :config (require 'evil-magit))
+  :config (use-package diff-hl
+            :config (global-diff-hl-mode)))
 
 (use-package ediff
   :ensure nil
+  :commands 'ediff
   :config
   (require 'ediff)
   (setq ediff-window-setup-function 'ediff-setup-windows-plain
@@ -394,10 +397,6 @@ If UPDATE is non-nil, a git pull will be performed"
 (use-package evil-collection
   :after evil
   :config (evil-collection-init))
-
-(use-package evil-magit
-  :after evil-collection
-  :config (require 'evil-magit))
 ;;; Evil Section Ends
 
 
