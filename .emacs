@@ -1,5 +1,17 @@
-;;; .emacs --- Emacs configuration file by Morgan Smith
+;;; .emacs -*- lexical-binding: t; -*-
 ;;
+
+(defconst IS-MAC     (eq system-type 'darwin))
+(defconst IS-LINUX   (eq system-type 'gnu/linux))
+(defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
+(defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
+
+
+;; Remove command line options that aren't relevant to our current OS; means
+;; slightly less to process at startup.
+(unless IS-MAC   (setq command-line-ns-option-alist nil))
+(unless IS-LINUX (setq command-line-x-option-alist nil))
+
 
 (server-start)
 
@@ -18,11 +30,14 @@
 (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 
+(use-package gcmh
+  :config (gcmh-mode t))
+
 
 ;; Packages cloned from version control
 (defun git-package (package-name url)
-  "Clone a git repo to ~/.emacs.d/PACKAGE-NAME and add it to the load path
-If UPDATE is non-nil, a git pull will be performed"
+  "Clone a git repo from URL and add it to the load path."
+  "The repo is cloned to ~/.emacs.d/PACKAGE-NAME"
   (let ((package-path (expand-file-name(concat "~/.emacs.d/" package-name))))
     (unless (file-exists-p package-path)
       (shell-command (concat "git clone " url " " package-path)))
@@ -51,13 +66,16 @@ If UPDATE is non-nil, a git pull will be performed"
 (setq epg-pinentry-mode 'loopback)
 
 
-;; Backups and auto-saves
+;; Backups and auto-saves and deleting
 (let ((backup-directory (expand-file-name "~/.emacs.d/backups"))
-      (auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
+      (auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list"))
+      (recycle-bin-directory (expand-file-name "~/.trash")))
   (unless (file-exists-p backup-directory)
     (make-directory backup-directory t))
   (unless (file-exists-p auto-save-directory)
     (make-directory auto-save-directory t))
+  (unless (file-exists-p recycle-bin-directory)
+    (make-directory recycle-bin-directory t))
   (setq make-backup-files t
         backup-directory-alist `((".*" . ,backup-directory))
         backup-by-copying t
@@ -67,7 +85,9 @@ If UPDATE is non-nil, a git pull will be performed"
         auto-save-default t
         auto-save-timeout 20
         auto-save-interval 200
-        auto-save-file-name-transforms `((".*" ,auto-save-directory t))))
+        auto-save-file-name-transforms `((".*" ,auto-save-directory t))
+        delete-by-moving-to-trash t
+        trash-directory recycle-bin-directory))
 
 (setq load-prefer-newer t)
 (use-package auto-compile
@@ -99,7 +119,6 @@ If UPDATE is non-nil, a git pull will be performed"
   :config
   (setq dired-recursive-copies 'always)
   (setq dired-recursive-deletes 'always)
-  (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches "-aFhlv --group-directories-first")
   :hook ((dired-mode . dired-hide-details-mode)))
 
@@ -146,12 +165,7 @@ If UPDATE is non-nil, a git pull will be performed"
   :ensure nil
   :config
   (setq read-buffer-completion-ignore-case t)
-  (setq completion-cycle-threshold 3)
-  (setq completion-styles '(partial-completion substring flex))
-  (setq completion-category-overrides   ; flex requires >= Emacs 27
-        '((file (styles initials flex partial-completion))
-          (buffer (styles substring flex))
-          (info-menu (styles substring basic)))))
+  (setq completion-cycle-threshold 3))
 
 ;; Programming Section Begins
 (use-package xcscope
@@ -186,7 +200,7 @@ If UPDATE is non-nil, a git pull will be performed"
 
 
 ;; Windows Section Begins
-(when (string= system-type "windows-nt")
+(when IS-WINDOWS
 
 ; cygwin support
 (let* ((cygwin-root "c:/cygwin64")
@@ -219,8 +233,7 @@ If UPDATE is non-nil, a git pull will be performed"
 
 
 ;; GNU/Linux and BSD Section Begins
-(when (or (string= system-type "gnu/linux")
-        (string= system-type "berkely-unix"))
+(when (or IS-LINUX IS-BSD)
 
 (setq custom-file "/dev/null") ; I don't like custom
 
@@ -284,7 +297,7 @@ If UPDATE is non-nil, a git pull will be performed"
       (push monitor-number value)
       (setq monitor-number (1+ monitor-number)))
 
-    (setq exwm-randr-workspace-output-plist value))
+    (setq exwm-randr-workspace-monitor-plist value))
   (exwm-randr-enable)
   (exwm-config-ido)
   (exwm-enable))
@@ -293,14 +306,8 @@ If UPDATE is non-nil, a git pull will be performed"
 
 
 ;; Parens Section Begins
-(use-package smartparens
-  :init
-  (require 'dash)
-  (require 'smartparens-config)
-  :config
-  (show-smartparens-global-mode t)
-  (smartparens-global-mode t)
-  (sp-use-smartparens-bindings))
+(setq show-paren-delay 0)
+(show-paren-mode t)
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
@@ -320,14 +327,10 @@ If UPDATE is non-nil, a git pull will be performed"
 
 
 ;; VC/Diffs Section Begins
-(use-package magit
-  :commands 'magit-status
-  :defer 5
-  :config (use-package evil-magit
-            :after evil
-            :config (require 'evil-magit))
-  :config (use-package diff-hl
-            :config (global-diff-hl-mode)))
+(use-package magit)
+
+(use-package diff-hl
+            :config (global-diff-hl-mode))
 
 (use-package ediff
   :ensure nil
@@ -397,6 +400,10 @@ If UPDATE is non-nil, a git pull will be performed"
 (use-package evil-collection
   :after evil
   :config (evil-collection-init))
+
+(use-package evil-magit
+  :after evil
+  :config (require 'evil-magit))
 ;;; Evil Section Ends
 
 
