@@ -6,16 +6,10 @@
 (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
 (defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
 
-
 ;; Remove command line options that aren't relevant to our current OS; means
 ;; slightly less to process at startup.
 (unless IS-MAC   (setq command-line-ns-option-alist nil))
 (unless IS-LINUX (setq command-line-x-option-alist nil))
-
-
-(server-start)
-
-(setq debug-on-error t)
 
 ;; Enable MELPA
 (package-initialize)
@@ -30,27 +24,11 @@
 (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 
+(use-package modus-vivendi-theme
+  :config (load-theme 'modus-vivendi t))
+
 (use-package gcmh
   :config (gcmh-mode t))
-
-
-;; Packages cloned from version control
-(defun git-package (package-name url)
-  "Clone a git repo from URL and add it to the load path."
-  "The repo is cloned to ~/.emacs.d/PACKAGE-NAME"
-  (let ((package-path (expand-file-name(concat "~/.emacs.d/" package-name))))
-    (unless (file-exists-p package-path)
-      (shell-command (concat "git clone " url " " package-path)))
-    (add-to-list 'load-path package-path)))
-
-; youtube-dl
-(git-package "youtube-dl" "https://github.com/skeeto/youtube-dl-emacs.git")
-(require 'youtube-dl)
-
-;; nuke-buffers
-(git-package "nuke-buffers" "https://github.com/davep/nuke-buffers.el.git")
-(require 'nuke-buffers)
-(push "*eshell*" nuke-buffers-ignore)
 
 
 (setq browse-url-browser-function 'eww-browse-url)
@@ -89,6 +67,8 @@
         delete-by-moving-to-trash t
         trash-directory recycle-bin-directory))
 
+(setq custom-file (expand-file-name "./custom-garbage" trash-directory)) ; I don't use custom
+
 (setq load-prefer-newer t)
 (use-package auto-compile
   :config (auto-compile-on-load-mode))
@@ -119,7 +99,7 @@
   :config
   (setq dired-recursive-copies 'always)
   (setq dired-recursive-deletes 'always)
-  (setq dired-listing-switches "-aFhlv --group-directories-first")
+  (setq dired-listing-switches "-aFhl")
   :hook ((dired-mode . dired-hide-details-mode)))
 
 (use-package all-the-icons
@@ -131,9 +111,6 @@
 (use-package tramp
   :ensure nil
   :config (setq tramp-default-method "ssh"))
-
-(use-package modus-vivendi-theme
-  :config (load-theme 'modus-vivendi t))
 
 (use-package undo-tree
   :config
@@ -195,7 +172,7 @@
               indent-tabs-mode nil
               sentence-end-double-space nil)
 (setq require-final-newline t)
-(add-hook 'write-file-hooks 'delete-trailing-whitespace)
+(add-hook 'write-file-functions 'delete-trailing-whitespace)
 ;; Whitespace Section Ends
 
 
@@ -221,8 +198,6 @@
     ;; appear in the output of java applications.
     (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)))
 
-(setq custom-file null-device) ; I don't like custom
-
 (setq w32-lwindow-modifier 'super)
 (w32-register-hot-key [s-j])
 (w32-register-hot-key [s-k])
@@ -234,8 +209,6 @@
 
 ;; GNU/Linux and BSD Section Begins
 (when (or IS-LINUX IS-BSD)
-
-(setq custom-file "/dev/null") ; I don't like custom
 
 (use-package transmission
   :commands 'transmission)
