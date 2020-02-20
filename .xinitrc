@@ -17,8 +17,5 @@ xset r rate 200 60
 #export QT_IM_MODULE=xim
 #export CLUTTER_IM_MODULE=xim
 
-# start compositor
-picom -b
-
 # Finally start Emacs
-exec emacs
+exec emacsclient -a "" -c
