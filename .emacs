@@ -239,8 +239,6 @@
     ([?\s-,] . switch-to-prev-buffer)
     ;; Reset (to line-mode).
     ([?\s-r] . exwm-reset)
-    ;; Switch workspace.
-    ([?\s-w] . exwm-workspace-switch)
     ;; Switch focus.
     ([?\s-j] . other-window)
     ([?\s-k] . (lambda () (interactive) (other-window -1)))
@@ -270,7 +268,18 @@
       (push monitor-number value)
       (setq monitor-number (1+ monitor-number)))
 
-    (setq exwm-randr-workspace-monitor-plist value))
+    (setq exwm-randr-workspace-monitor-plist value)
+
+    (setq exwm-workspace-number monitor-number)
+    (nconc exwm-input-global-keys
+          ;; Switch to certain workspace.
+          (mapcar (lambda (i)
+                    `(,(kbd (format "s-%d" i)) .
+                      (lambda ()
+                        (interactive)
+                        (exwm-workspace-switch (1- ,i)))))
+                  (number-sequence 1 2))))
+
   (exwm-randr-enable)
   (exwm-config-ido)
   (exwm-enable))
