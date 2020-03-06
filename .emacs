@@ -41,8 +41,18 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-(setq epg-pinentry-mode 'loopback)
+(use-package pinentry
+  :config
+  (setq epg-pinentry-mode 'loopback)
+  (pinentry-start))
 
+(setq-default c-basic-offset 4)
+
+(use-package plantuml-mode
+  :config
+  (setq plantuml-default-exec-mode 'executable)
+  (evil-define-key 'normal plantuml-mode-map (leader "c") 'plantuml-preview)
+  :mode ("\\.uml\\'" . plantuml-mode))
 
 ;; Backups and auto-saves and deleting
 (let ((backup-directory (expand-file-name "~/.emacs.d/backups"))
@@ -260,25 +270,37 @@
   (exwm-systemtray-enable)
 
   (require 'exwm-randr)
-  (let ((monitor-number 0)
-        (value nil))
 
-    (dolist (monitor (display-monitor-attributes-list) value)
-      (push (alist-get 'name monitor) value)
-      (push monitor-number value)
-      (setq monitor-number (1+ monitor-number)))
+  (defun exwm-monitor-update ()
+    ;; Update monitor order and add bindings for switching between them
+    ;; monitor 0 is the first monitor and is attached to the monitor
+    ;; whose X coordinate is 0. Other monitors are attached arbitrarily
+    (let ((monitor-number 1)
+          (value nil))
 
-    (setq exwm-randr-workspace-monitor-plist value)
+      (dolist (monitor (display-monitor-attributes-list) value)
+        (push (alist-get 'name monitor) value)
+        ;; Monitor 0 if geometry == 0, else just use an incremented number
+        (if (equal (car (alist-get 'geometry monitor)) 0)
+            (push 0 value)
+          (progn
+            (push monitor-number value)
+            (setq monitor-number (1+ monitor-number)))))
 
-    (setq exwm-workspace-number monitor-number)
-    (nconc exwm-input-global-keys
-          ;; Switch to certain workspace.
-          (mapcar (lambda (i)
-                    `(,(kbd (format "s-%d" i)) .
-                      (lambda ()
-                        (interactive)
-                        (exwm-workspace-switch (1- ,i)))))
-                  (number-sequence 1 2))))
+      (setq exwm-randr-workspace-monitor-plist value)
+
+      (mapcar (lambda (binding)
+                (exwm-input-set-key (car binding) (cdr binding)))
+              ;; Switch to certain workspace.
+              (mapcar (lambda (i)
+                        `(,(kbd (format "s-%d" i)) .
+                          ,(lambda ()
+                             (interactive)
+                             (exwm-workspace-switch-create (1- i)))))
+                      (number-sequence 1 monitor-number)))))
+  (exwm-monitor-update)
+
+  (add-hook 'exwm-randr-screen-change-hook #'exwm-monitor-update)
 
   (exwm-randr-enable)
   (exwm-config-ido)
