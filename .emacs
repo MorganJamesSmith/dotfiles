@@ -33,7 +33,7 @@
 
 (setq browse-url-browser-function 'eww-browse-url)
 
-(setq-default display-line-numbers 'relative)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (global-hl-line-mode t)
 
@@ -182,7 +182,7 @@
               indent-tabs-mode nil
               sentence-end-double-space nil)
 (setq require-final-newline t)
-(add-hook 'write-file-functions 'delete-trailing-whitespace)
+(add-hook 'write-file-functions #'delete-trailing-whitespace)
 ;; Whitespace Section Ends
 
 
@@ -206,7 +206,7 @@
 
     ;; This removes unsightly ^M characters that would otherwise
     ;; appear in the output of java applications.
-    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)))
+    (add-hook 'comint-output-filter-functions #'comint-strip-ctrl-m)))
 
 (setq w32-lwindow-modifier 'super)
 (w32-register-hot-key [s-j])
@@ -244,7 +244,7 @@
     (,(kbd "<s-right>") . (lambda () (interactive) (shell-command "mpc next")))
     (,(kbd "<s-left>") . (lambda () (interactive) (shell-command "mpc prev")))
     ;; buffer switching
-    (,(kbd "<s-tab>") . (lambda () (interactive) (switch-to-buffer (other-buffer (current-buffer) t))))
+    (,(kbd "<s-tab>") . (lambda () (interactive) (switch-to-buffer (other-buffer (current-buffer)))))
     ([?\s-.] . switch-to-next-buffer)
     ([?\s-,] . switch-to-prev-buffer)
     ;; Reset (to line-mode).
@@ -432,6 +432,41 @@
   ;; open current file as root
   (let ((tramp-file-name (concat "/sudo::" (expand-file-name (buffer-file-name)))))
     (find-file tramp-file-name)))
+
+
+(defun keyboard-quit-context+ ()
+  "Quit current context.
+
+This function is a combination of `keyboard-quit' and
+`keyboard-escape-quit' with some parts omitted and some custom
+behavior added."
+  (interactive)
+  (cond ((region-active-p)
+         ;; Avoid adding the region to the window selection.
+         (setq saved-region-selection nil)
+         (let (select-active-regions)
+           (deactivate-mark)))
+        ((eq last-command 'mode-exited) nil)
+        (current-prefix-arg
+         nil)
+        (defining-kbd-macro
+          (message
+           (substitute-command-keys
+            "Quit is ignored during macro defintion, use \\[kmacro-end-macro] if you want to stop macro definition"))
+          (cancel-kbd-macro-events))
+        ((active-minibuffer-window)
+         (when (get-buffer-window "*Completions*")
+           ;; hide completions first so point stays in active window when
+           ;; outside the minibuffer
+           (minibuffer-hide-completions))
+         (abort-recursive-edit))
+        (t
+         (when completion-in-region-mode
+           (completion-in-region-mode -1))
+         (let ((debug-on-quit nil))
+           (signal 'quit nil)))))
+
+(global-set-key [remap keyboard-quit] #'keyboard-quit-context+)
 
 (provide '.emacs)
 ;;; .emacs ends here
