@@ -13,7 +13,8 @@
 !.config/readline/inputrc
 !.config/setup.sh
 !.config/sxiv/exec/key-handler
-!.emacs
+!.emacs.d/early-init.el
+!.emacs.d/init.el
 !.gitignore
 !.profile
 !.xinitrc

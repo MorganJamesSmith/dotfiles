@@ -1,15 +1,48 @@
-;;; .emacs -*- lexical-binding: t; -*-
-;;
+;;; init.el --- My personal init file -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;; This is my personal Emacs init file.
+;; It is crafted with love, care, and stupidity.
+;; Use at your own risk.
+
+;;; Code:
 
 (defconst IS-MAC     (eq system-type 'darwin))
 (defconst IS-LINUX   (eq system-type 'gnu/linux))
 (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
 (defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
 
+;;; Optimization Section Begins
+
 ;; Remove command line options that aren't relevant to our current OS; means
 ;; slightly less to process at startup.
 (unless IS-MAC   (setq command-line-ns-option-alist nil))
 (unless IS-LINUX (setq command-line-x-option-alist nil))
+
+;; Display the bare minimum at startup
+(setq inhibit-startup-screen t
+      inhibit-startup-echo-area-message user-login-name
+      inhibit-default-init t
+      initial-major-mode 'fundamental-mode
+      initial-scratch-message nil)
+(fset #'display-startup-echo-area-message #'ignore)
+
+;; Disable bidirectional text rendering
+(setq-default bidi-display-reordering 'left-to-right
+              bidi-paragraph-direction 'left-to-right)
+
+;; Do not render cursors or regions in non-focused windows.
+(setq-default cursor-in-non-selected-windows nil)
+(setq highlight-nonselected-windows nil)
+
+(setq fast-but-imprecise-scrolling t)
+
+(setq frame-inhibit-implied-resize t)
+
+(setq auto-mode-case-fold nil)
+;;; Optimization Section Ends
+
 
 ;; Enable MELPA
 (package-initialize)
@@ -24,34 +57,50 @@
 (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 
+
+;;; Pretty Visuals Section Begins
 (use-package modus-vivendi-theme
   :config (load-theme 'modus-vivendi t))
 
-(use-package gcmh
-  :config (gcmh-mode t))
-
-
-(setq browse-url-browser-function 'eww-browse-url)
-
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(setq-default indicate-buffer-boundaries nil
+              indicate-empty-lines nil)
 
 (global-hl-line-mode t)
 
+(setq echo-keystrokes 0.02)
+
+;; I dislike gui stuff
+(setq use-file-dialog nil
+      use-dialog-box nil
+      visible-bell t)
+
+;;; Pretty Visuals Section Ends
+
+
+;;; Sensible Default Section Begins
 (global-auto-revert-mode t)
 
-(defalias 'yes-or-no-p 'y-or-n-p)
+(fset #'yes-or-no-p #'y-or-n-p)
+
+;; Use only encrypted authinfo
+(setq auth-sources (expand-file-name "~/authinfo.gpg"))
+;;; Sensible Default Section Ends
+
+(setq browse-url-browser-function 'eww-browse-url)
+
+(setq disabled-command-function nil)
 
 (use-package pinentry
   :config
   (setq epg-pinentry-mode 'loopback)
   (pinentry-start))
 
-(setq-default c-basic-offset 4)
-
 (use-package plantuml-mode
   :config
-  (setq plantuml-default-exec-mode 'executable)
-  (evil-define-key 'normal plantuml-mode-map (leader "c") 'plantuml-preview)
+  (setq plantuml-default-exec-mode 'executable
+        plantuml-indent-level 4)
+  (eval-after-load 'evil
+    (evil-define-key 'normal plantuml-mode-map (leader "c") #'plantuml-preview))
   :mode ("\\.uml\\'" . plantuml-mode))
 
 ;; Backups and auto-saves and deleting
@@ -85,7 +134,8 @@
 
 (use-package ledger-mode
   :config
-  (evil-define-key 'normal ledger-mode-map (leader "r") 'ledger-report)
+  (eval-after-load 'evil
+    (evil-define-key 'normal ledger-mode-map (leader "c") #'ledger-report))
 
   (setq ledger-reports
     '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
@@ -110,7 +160,7 @@
   (setq dired-recursive-copies 'always)
   (setq dired-recursive-deletes 'always)
   (setq dired-listing-switches "-aFhl")
-  :hook ((dired-mode . dired-hide-details-mode)))
+  :hook (dired-mode . dired-hide-details-mode))
 
 (use-package all-the-icons
   :init (setq inhibit-compacting-font-caches t))
@@ -128,45 +178,46 @@
   (setq undo-tree-visualizer-timestamps t)
   (setq undo-tree-visualizer-diff t))
 
-(use-package emacs
-  :ensure nil
-  :config
-  (setq use-file-dialog nil
-        use-dialog-box nil
-        inhibit-startup-screen t
-        initial-scratch-message nil
-        visible-bell t)
-
-  (global-unset-key (kbd "C-z"))
-  (global-unset-key (kbd "C-x C-z"))
-  (global-unset-key (kbd "C-h h"))
-
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (horizontal-scroll-bar-mode -1)
-  (blink-cursor-mode -1)
-  (tooltip-mode -1))
-
 (use-package minibuffer
   :ensure nil
   :config
   (setq read-buffer-completion-ignore-case t)
   (setq completion-cycle-threshold 3))
 
-;; Programming Section Begins
+;;; Programming Section Begins
 (use-package xcscope
   :config
-  (require 'xcscope)
   (cscope-setup))
-;; Programming Section Ends
+
+;; Save all buffers on compile automatically
+(setq compilation-ask-about-save nil)
+
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+(setq-default c-basic-offset 4)
+
+;; Many major modes do no highlighting of number literals, so we do it for them
+(use-package highlight-numbers
+  :hook ((prog-mode conf-mode) . highlight-numbers-mode)
+  :config (setq highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
+
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
+(use-package eldoc-eval
+  :config (eldoc-in-minibuffer-mode 1))
+;;; Programming Section Ends
 
 
-;; Modeline Section Begins
-(setq display-time-default-load-average nil
-      display-time-24hr-format t
-      display-time-day-and-date t)
-(display-time-mode)
+;;; Modeline Section Begins
+(use-package time
+  :ensure nil
+  :config
+  (setq display-time-default-load-average nil
+        display-time-24hr-format t
+        display-time-day-and-date t)
+  (display-time-mode))
 
 (use-package fancy-battery
   :init (setq fancy-battery-show-percentage t)
@@ -174,19 +225,21 @@
 
 (column-number-mode)
 (line-number-mode)
-;; Modeline Section Ends
+;;; Modeline Section Ends
 
 
-;; Whitespace Section Begins
+;;; Whitespace Section Begins
 (setq-default tab-width 4
               indent-tabs-mode nil
               sentence-end-double-space nil)
 (setq require-final-newline t)
-(add-hook 'write-file-functions #'delete-trailing-whitespace)
-;; Whitespace Section Ends
+
+(use-package ws-butler
+  :config (ws-butler-global-mode))
+;;; Whitespace Section Ends
 
 
-;; Windows Section Begins
+;;; Windows Section Begins
 (when IS-WINDOWS
 
 ; cygwin support
@@ -214,63 +267,23 @@
 (global-set-key (kbd "s-j") 'other-frame)
 (global-set-key (kbd "s-k") 'other-frame)
 )
-;; Windows Section Ends
+;;; Windows Section Ends
 
 
-;; GNU/Linux and BSD Section Begins
+;;; GNU/Linux Section Begins
+(when IS-LINUX
+  (use-package vterm))
+;;; GNU/Linux Section Ends
+
+
+;;; GNU/Linux and BSD Section Begins
 (when (or IS-LINUX IS-BSD)
 
 (use-package transmission
   :commands 'transmission)
 
 (use-package exwm
-  :config
-  (require 'exwm-config)
-  (setq exwm-workspace-show-all-buffers t
-        exwm-layout-show-all-buffers t)
-
-  ;; Make class name the buffer name
-  (add-hook 'exwm-update-class-hook
-    (lambda ()
-      (exwm-workspace-rename-buffer exwm-class-name)))
-  (setq exwm-input-global-keys
-    `(
-    ;; Lock
-    ([?\s-x] . (lambda () (interactive) (shell-command "slock")))
-    ;; Music/Media bindings
-    ([?\s-p] . (lambda () (interactive) (shell-command "mpc toggle")))
-    (,(kbd "<s-up>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume +5 --get-volume")))
-    (,(kbd "<s-down>") . (lambda () (interactive) (shell-command "pulsemixer --change-volume -5 --get-volume")))
-    (,(kbd "<s-right>") . (lambda () (interactive) (shell-command "mpc next")))
-    (,(kbd "<s-left>") . (lambda () (interactive) (shell-command "mpc prev")))
-    ;; buffer switching
-    (,(kbd "<s-tab>") . (lambda () (interactive) (switch-to-buffer (other-buffer (current-buffer)))))
-    ([?\s-.] . switch-to-next-buffer)
-    ([?\s-,] . switch-to-prev-buffer)
-    ;; Reset (to line-mode).
-    ([?\s-r] . exwm-reset)
-    ;; Switch focus.
-    ([?\s-j] . other-window)
-    ([?\s-k] . (lambda () (interactive) (other-window -1)))
-    ;; Split window.
-    ([?\s-\\] . split-window-horizontally)
-    ([?\s-\-] . split-window-vertically)
-    ;; eshell
-    (,(kbd "<s-return>") . eshell)
-    ;; Close window (not killing it, just getting it out of view)
-    ([?\s-q] . (lambda () (interactive) (if (< 1 (count-windows))
-                                       (delete-window)
-                                       (switch-to-next-buffer))))
-    ;; Launch application.
-    ([?\s-d] . (lambda (command)
-                 (interactive (list (read-shell-command "$ ")))
-                   (start-process-shell-command command nil command)))))
-
-  (require 'exwm-systemtray)
-  (exwm-systemtray-enable)
-
-  (require 'exwm-randr)
-
+  :init
   (defun exwm-monitor-update ()
     ;; Update monitor order and add bindings for switching between them
     ;; monitor 0 is the first monitor and is attached to the monitor
@@ -287,6 +300,7 @@
             (push monitor-number value)
             (setq monitor-number (1+ monitor-number)))))
 
+      (require 'exwm-randr)
       (setq exwm-randr-workspace-monitor-plist value)
 
       (mapcar (lambda (binding)
@@ -297,20 +311,70 @@
                           ,(lambda ()
                              (interactive)
                              (exwm-workspace-switch-create (1- i)))))
-                      (number-sequence 1 monitor-number)))))
+                      (number-sequence 1 9)))))
+  :config
+  (require 'exwm-config)
+  (setq exwm-workspace-show-all-buffers t
+        exwm-layout-show-all-buffers t)
+
+  ;; Make class name the buffer name
+  (add-hook 'exwm-update-class-hook
+    (lambda ()
+      (exwm-workspace-rename-buffer exwm-class-name)))
+  (setq exwm-input-global-keys
+    `(
+    ;; Lock
+    ([?\s-x] . ,(lambda () (interactive) (shell-command "slock")))
+    ;; Music/Media bindings
+    ([?\s-p] . ,(lambda () (interactive) (shell-command "mpc toggle")))
+    (,(kbd "<s-up>") . ,(lambda () (interactive) (shell-command "pulsemixer --change-volume +5 --get-volume")))
+    (,(kbd "<s-down>") . ,(lambda () (interactive) (shell-command "pulsemixer --change-volume -5 --get-volume")))
+    (,(kbd "<s-right>") . ,(lambda () (interactive) (shell-command "mpc next")))
+    (,(kbd "<s-left>") . ,(lambda () (interactive) (shell-command "mpc prev")))
+    ;; buffer switching
+    (,(kbd "<s-tab>") . ,(lambda () (interactive) (switch-to-buffer (other-buffer (current-buffer)))))
+    ([?\s-.] . switch-to-next-buffer)
+    ([?\s-,] . switch-to-prev-buffer)
+    ;; Reset (to line-mode).
+    ([?\s-r] . exwm-reset)
+    ;; Switch focus.
+    ([?\s-j] . other-window)
+    ([?\s-k] . ,(lambda () (interactive) (other-window -1)))
+    ;; Split window.
+    ([?\s-\\] . split-window-horizontally)
+    ([?\s-\-] . split-window-vertically)
+    ;; eshell
+    (,(kbd "<s-return>") . eshell)
+    ;; Close window (not killing it, just getting it out of view)
+    ([?\s-q] . ,(lambda () (interactive) (if (< 1 (count-windows))
+                                             (delete-window)
+                                           (switch-to-next-buffer))))
+    ;; Launch application.
+    ([?\s-d] . ,(lambda (command)
+                  (interactive (list (read-shell-command "$ ")))
+                  (start-process-shell-command command nil command)))))
+
+  (require 'exwm-systemtray)
+  (exwm-systemtray-enable)
+
+  (require 'exwm-randr)
+
   (exwm-monitor-update)
 
   (add-hook 'exwm-randr-screen-change-hook #'exwm-monitor-update)
 
   (exwm-randr-enable)
   (exwm-config-ido)
-  (exwm-enable))
-)
-;; GNU/Linux and BSD Section Ends
+  (exwm-enable)))
+;;; GNU/Linux and BSD Section Ends
 
 
-;; Parens Section Begins
-(setq show-paren-delay 0)
+;;; Parens Section Begins
+(require 'paren)
+(setq show-paren-delay 0
+      show-paren-highlight-openparen t
+      show-paren-when-point-inside-paren t
+      show-paren-when-point-in-periphery t)
 (show-paren-mode t)
 
 (use-package rainbow-delimiters
@@ -327,10 +391,10 @@
   (set-face-foreground 'rainbow-delimiters-depth-8-face "cyan")
   (set-face-foreground 'rainbow-delimiters-depth-9-face "yellow")
   (set-face-foreground 'rainbow-delimiters-unmatched-face "red"))
-;; Parens Section Ends
+;;; Parens Section Ends
 
 
-;; VC/Diffs Section Begins
+;;; VC/Diffs Section Begins
 (use-package magit)
 
 (use-package diff-hl
@@ -340,14 +404,12 @@
   :ensure nil
   :commands 'ediff
   :config
-  (require 'ediff)
   (setq ediff-window-setup-function 'ediff-setup-windows-plain
-        ediff-split-window-function 'split-window-horizontally
-        ediff-options "-w"))
-;; VC/Diffs Section Ends
+        ediff-split-window-function 'split-window-horizontally))
+;;; VC/Diffs Section Ends
 
 
-;; Autocomplete/Hints Section Begins
+;;; Autocomplete/Hints Section Begins
 (setq ido-enable-flex-matching t
       ido-everywhere t)
 (ido-mode 1)
@@ -361,8 +423,8 @@
         company-show-numbers t)
 
   :hook (eshell-mode . (lambda ()
-                   (set (make-local-variable 'company-backends)
-                        '((company-capf))))))
+                         (set (make-local-variable 'company-backends)
+                              '((company-capf))))))
 
 (use-package which-key
   :config
@@ -370,36 +432,38 @@
   (which-key-mode))
 
 (use-package pcomplete-extension
-  :config (require 'pcomplete-extension))
-;; Autocomplete/Hints Section Ends
-
+  :config (require 'pcomplete-extension)
+  (fset #'pcomplete/doas #'pcomplete/sudo))
+;;; Autocomplete/Hints Section Ends
 
 ;;; Evil Section Begins
+(defun leader (key)
+  "Add the leader key on front of KEY."
+  (kbd (concat "SPC " key)))
+
 (use-package evil
   :init
   (setq evil-ex-complete-emacs-commands t
         evil-want-integration t
-        evil-want-keybinding nil
-        evil-want-C-u-scroll t
-        evil-want-C-d-scroll t)
+        evil-want-keybinding nil)
 
   :config
   (evil-mode t)
-  (defun leader (key)
-    (kbd (concat "SPC " key)))
+  (evil-define-key '(normal insert) 'global (kbd "M-j") #'evil-scroll-line-down)
+  (evil-define-key '(normal insert) 'global (kbd "M-k") #'evil-scroll-line-up)
+  (evil-define-key '(normal insert) 'global (kbd "M-J") #'text-scale-decrease)
+  (evil-define-key '(normal insert) 'global (kbd "M-K") #'text-scale-increase)
 
-  (evil-define-key '(normal insert) 'global (kbd "M-j") 'evil-scroll-line-down)
-  (evil-define-key '(normal insert) 'global (kbd "M-k") 'evil-scroll-line-up)
-  (evil-define-key '(normal insert) 'global (kbd "M-J") 'text-scale-decrease)
-  (evil-define-key '(normal insert) 'global (kbd "M-K") 'text-scale-increase)
+  (evil-define-key 'normal 'global (kbd "C-u") #'evil-scroll-up)
+  (evil-define-key 'normal 'global (kbd "C-d") #'evil-scroll-down)
 
-  (evil-define-key 'visual 'global (leader "c") 'comment-or-uncomment-region)
+  (evil-define-key 'visual 'global (leader "c") #'comment-or-uncomment-region)
 
-  (evil-define-key '(normal visual) 'global (leader "o") 'ispell)
-  (evil-define-key 'normal 'global (leader "TAB") 'whitespace-mode)
-  (evil-define-key 'normal 'global (leader "c") 'compile)
-  (evil-define-key 'normal 'global (leader "g") 'magit-status)
-  (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (expand-file-name "~/.emacs")))))
+  (evil-define-key '(normal visual) 'global (leader "o") #'ispell)
+  (evil-define-key 'normal 'global (leader "TAB") #'whitespace-mode)
+  (evil-define-key 'normal 'global (leader "c") #'compile)
+  (evil-define-key 'normal 'global (leader "g") #'magit-status)
+  (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/init.el")))))
 
 (use-package evil-collection
   :after evil
@@ -410,6 +474,8 @@
   :config (require 'evil-magit))
 ;;; Evil Section Ends
 
+(use-package gcmh
+  :config (gcmh-mode t))
 
 (defun find-first-non-ascii-char ()
   "Find the first non-ascii character from point onwards."
@@ -428,8 +494,8 @@
       (message "No non-ascii characters."))))
 
 (defun root-edit ()
+  "Open current file as root."
   (interactive)
-  ;; open current file as root
   (let ((tramp-file-name (concat "/sudo::" (expand-file-name (buffer-file-name)))))
     (find-file tramp-file-name)))
 
@@ -468,5 +534,5 @@ behavior added."
 
 (global-set-key [remap keyboard-quit] #'keyboard-quit-context+)
 
-(provide '.emacs)
-;;; .emacs ends here
+(provide 'init.el)
+;;; init.el ends here
