@@ -1,30 +1,26 @@
 #!/bin/sh
 # Profile file. Runs on login.
 
-# Adds `~/.bin`, `~/.local/bin`, and `/opt/bin` to $PATH
-export PATH="$PATH:$HOME/.bin:$HOME/.local/bin:/opt/bin"
-
 export EDITOR="emacsclient"
 export TERMINAL="st"
 export BROWSER="surf"
 export READER="zathura"
 
-# less/man colors
-export LESS=-R
-export LESS_TERMCAP_mb="$(printf '%b' '[1;31m')"; a="${a%_}"
-export LESS_TERMCAP_md="$(printf '%b' '[1;36m')"; a="${a%_}"
-export LESS_TERMCAP_me="$(printf '%b' '[0m')"; a="${a%_}"
-export LESS_TERMCAP_so="$(printf '%b' '[01;44;33m')"; a="${a%_}"
-export LESS_TERMCAP_se="$(printf '%b' '[0m')"; a="${a%_}"
-export LESS_TERMCAP_us="$(printf '%b' '[1;32m')"; a="${a%_}"
-export LESS_TERMCAP_ue="$(printf '%b' '[0m')"; a="${a%_}"
+export XDG_CONFIG_HOME="$HOME"/.config
+export XDG_CACHE_HOME="$HOME"/.cache
+export XDG_DATA_HOME="$HOME"/.local/share
 
 export GPG_TTY=$(tty)
-export XDG_CONFIG_HOME="$HOME/.config"
-export ZDOTDIR="$HOME/.config"
+export GNUPGHOME="$XDG_DATA_HOME"/gnupg
 
-[ -f $HOME/.config/hardwareprofile ] && source "$HOME/.config/hardwareprofile"
+export ZDOTDIR="$HOME"/.config
 
-[ -f ~/.config/aliasrc ] && source "$HOME/.config/aliasrc" >/dev/null 2>&1
+export HISTFILE="$XDG_DATA_HOME"/shell/history
 
-echo "$0" | grep "bash$" >/dev/null && [ -f $HOME/.bashrc ] && source "$HOME/.bashrc"
+export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
+
+[ -f "$HOME"/.config/hardwareprofile ] && . "$HOME/.config/hardwareprofile"
+
+[ -f ~/.config/aliasrc ] && . "$HOME/.config/aliasrc" >/dev/null 2>&1
+
+echo "$0" | grep "bash$" >/dev/null && [ -f "$HOME"/.bashrc ] && . "$HOME/.bashrc"
