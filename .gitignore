@@ -4,6 +4,8 @@
 !.config/.zshrc
 !.config/aliasrc
 !.config/bookmarks
+!.config/emacs/early-init.el
+!.config/emacs/init.el
 !.config/hardwareprofiles/board.bin
 !.config/hardwareprofiles/surfacego
 !.config/hardwareprofiles/surfacegowififix.sh
@@ -13,8 +15,6 @@
 !.config/readline/inputrc
 !.config/setup.sh
 !.config/sxiv/exec/key-handler
-!.emacs.d/early-init.el
-!.emacs.d/init.el
 !.gitignore
 !.profile
 !.xinitrc

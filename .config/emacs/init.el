@@ -45,6 +45,7 @@
 
 
 ;; Enable MELPA
+(setq package-user-dir (expand-file-name "packages" user-emacs-directory))
 (package-initialize)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
@@ -104,9 +105,9 @@
   :mode ("\\.uml\\'" . plantuml-mode))
 
 ;; Backups and auto-saves and deleting
-(let ((backup-directory (expand-file-name "~/.emacs.d/backups"))
-      (auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list"))
-      (recycle-bin-directory (expand-file-name "~/.trash")))
+(let ((backup-directory (expand-file-name "backups" user-emacs-directory))
+      (auto-save-directory (expand-file-name "auto-save-list" user-emacs-directory))
+      (recycle-bin-directory (expand-file-name "trash" user-emacs-directory)))
   (unless (file-exists-p backup-directory)
     (make-directory backup-directory t))
   (unless (file-exists-p auto-save-directory)
