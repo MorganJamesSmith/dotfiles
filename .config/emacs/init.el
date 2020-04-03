@@ -58,6 +58,7 @@
 (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 
+(use-package delight)
 
 ;;; Pretty Visuals Section Begins
 (use-package modus-vivendi-theme
@@ -84,8 +85,15 @@
 (fset #'yes-or-no-p #'y-or-n-p)
 
 ;; Use only encrypted authinfo
-(setq auth-sources (expand-file-name "~/authinfo.gpg"))
+(setq auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
 ;;; Sensible Default Section Ends
+
+
+(use-package flyspell
+  :ensure nil
+  :hook
+  (prog-mode . flyspell-prog-mode)
+  (text-mode . flyspell-mode))
 
 (setq browse-url-browser-function 'eww-browse-url)
 
@@ -123,7 +131,7 @@
         auto-save-default t
         auto-save-timeout 20
         auto-save-interval 200
-        auto-save-file-name-transforms `((".*" ,auto-save-directory t))
+        auto-save-file-name-transforms `((".*" ,(file-name-as-directory auto-save-directory) t))
         delete-by-moving-to-trash t
         trash-directory recycle-bin-directory))
 
@@ -167,7 +175,8 @@
   :init (setq inhibit-compacting-font-caches t))
 
 (use-package all-the-icons-dired
-  :hook (dired-mode . all-the-icons-dired-mode))
+  :hook (dired-mode . all-the-icons-dired-mode)
+  :delight)
 
 (use-package tramp
   :ensure nil
@@ -177,7 +186,8 @@
   :config
   (global-undo-tree-mode)
   (setq undo-tree-visualizer-timestamps t)
-  (setq undo-tree-visualizer-diff t))
+  (setq undo-tree-visualizer-diff t)
+  :delight)
 
 (use-package minibuffer
   :ensure nil
@@ -196,6 +206,10 @@
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (setq-default c-basic-offset 4)
+(semantic-mode 1)
+
+;; TODO: add evil bindings
+(use-package ascii-table)
 
 ;; Many major modes do no highlighting of number literals, so we do it for them
 (use-package highlight-numbers
@@ -207,7 +221,8 @@
   :init (global-flycheck-mode))
 
 (use-package eldoc-eval
-  :config (eldoc-in-minibuffer-mode 1))
+  :config (eldoc-in-minibuffer-mode 1)
+  :delight eldoc-mode)
 ;;; Programming Section Ends
 
 
@@ -236,7 +251,8 @@
 (setq require-final-newline t)
 
 (use-package ws-butler
-  :config (ws-butler-global-mode))
+  :config (ws-butler-global-mode)
+  :delight)
 ;;; Whitespace Section Ends
 
 
@@ -253,7 +269,7 @@
     (setq exec-path (cons cygwin-bin exec-path))
     (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
 
-    ;; NT-emacs assumes a Windows shell. Change to bash.
+    ;; NT-Emacs assumes a Windows shell. Change to bash.
     (setq shell-file-name "bash")
     (setenv "SHELL" shell-file-name)
     (setq explicit-shell-file-name shell-file-name)
@@ -410,7 +426,8 @@
 ;;; VC/Diffs Section Ends
 
 
-;;; Autocomplete/Hints Section Begins
+;;; Auto-complete/Hints Section Begins
+(require 'ido)
 (setq ido-enable-flex-matching t
       ido-everywhere t)
 (ido-mode 1)
@@ -425,17 +442,21 @@
 
   :hook (eshell-mode . (lambda ()
                          (set (make-local-variable 'company-backends)
-                              '((company-capf))))))
+                              '((company-capf)))))
+  :delight)
 
 (use-package which-key
   :config
   (setq which-key-idle-secondary-delay 0.05)
-  (which-key-mode))
+  (which-key-mode)
+  :delight)
 
 (use-package pcomplete-extension
+  :functions pcomplete/doas
   :config (require 'pcomplete-extension)
   (fset #'pcomplete/doas #'pcomplete/sudo))
-;;; Autocomplete/Hints Section Ends
+;;; Auto-complete/Hints Section Ends
+
 
 ;;; Evil Section Begins
 (defun leader (key)
