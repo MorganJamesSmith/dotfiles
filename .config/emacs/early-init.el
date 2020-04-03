@@ -1,4 +1,12 @@
-;; -*- lexical-binding: t; -*-
+;; early-init --- My personal early-init file -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;; This is my personal Emacs early-init file.
+;; It is crafted with love, care, and stupidity.
+;; Use at your own risk.
+
+;;; Code:
 
 ;; Defer garbage collection
 (setq gc-cons-threshold most-positive-fixnum)
@@ -15,3 +23,6 @@
 
 ;; Ignore X resources
 (advice-add #'x-apply-session-resources :override #'ignore)
+
+(provide 'early-init)
+;;; early-init.el ends here
