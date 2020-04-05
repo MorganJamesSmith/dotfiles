@@ -161,7 +161,8 @@
 
 (use-package eshell
   :ensure nil
-  :hook (eshell-mode . (lambda () (setq display-line-numbers nil))))
+  :config (setq eshell-history-size nil
+                eshell-history-file-name nil))
 
 (use-package dired
   :ensure nil
