@@ -1,15 +1,7 @@
 *
-!.bash_profile
-!.bashrc
-!.config/.zshrc
-!.config/aliasrc
 !.config/bookmarks
 !.config/emacs/early-init.el
 !.config/emacs/init.el
-!.config/hardwareprofiles/board.bin
-!.config/hardwareprofiles/surfacego
-!.config/hardwareprofiles/surfacegowififix.sh
-!.config/hardwareprofiles/thinkpadE550
 !.config/mpd/mpd.conf
 !.config/progs.csv
 !.config/readline/inputrc
