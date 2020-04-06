@@ -2,14 +2,12 @@
 !.config/bookmarks
 !.config/emacs/early-init.el
 !.config/emacs/init.el
+!.config/git/config
 !.config/mpd/mpd.conf
 !.config/progs.csv
 !.config/readline/inputrc
 !.config/setup.sh
-!.config/sxiv/exec/key-handler
 !.gitignore
 !.profile
 !.xinitrc
-!.xprofile
-!.zprofile
 !LICENSE
