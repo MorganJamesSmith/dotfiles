@@ -8,6 +8,9 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 # Set default cursor.
 xsetroot -cursor_name left_ptr
 
+# no beeping please
+xset -b
+
 # Set keyboard repeat rate.
 xset r rate 200 60
 
