@@ -345,8 +345,8 @@
     ([?\s-x] . ,(lambda () (interactive) (shell-command "slock")))
     ;; Music/Media bindings
     ([?\s-p] . ,(lambda () (interactive) (shell-command "mpc toggle")))
-    (,(kbd "<s-up>") . ,(lambda () (interactive) (shell-command "pulsemixer --change-volume +5 --get-volume")))
-    (,(kbd "<s-down>") . ,(lambda () (interactive) (shell-command "pulsemixer --change-volume -5 --get-volume")))
+    (,(kbd "<s-up>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%+")))
+    (,(kbd "<s-down>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%-")))
     (,(kbd "<s-right>") . ,(lambda () (interactive) (shell-command "mpc next")))
     (,(kbd "<s-left>") . ,(lambda () (interactive) (shell-command "mpc prev")))
     ;; buffer switching

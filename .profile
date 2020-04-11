@@ -13,6 +13,9 @@ export HISTSIZE=100000
 # history time stamps
 export HISTTIMEFORMAT="[%F %T] "
 
+# configure audio
+( sh "$HOME"/.local/bin/jack.sh & ) > /dev/null 2>&1
+
 # no beeping please
 setterm -blength 0
 amixer set Beep 0% mute &> /dev/null

@@ -1,4 +1,5 @@
 *
+!.asoundrc
 !.config/bookmarks
 !.config/emacs/early-init.el
 !.config/emacs/init.el
@@ -7,7 +8,10 @@
 !.config/progs.csv
 !.config/readline/inputrc
 !.config/setup.sh
+!.config/system-files/modprobe.d/sound.conf
+!.config/system-files/modules-load.d/sound.conf
 !.gitignore
+!.local/bin/jack.sh
 !.profile
 !.xinitrc
 !LICENSE
