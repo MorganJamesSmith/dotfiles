@@ -426,16 +426,17 @@
   :config
   (magit-wip-mode 1)
   (setq magit-no-confirm 'safe-with-wip
+        magit-wip-merge-branch t
+        magit-diff-refine-hunk 'all
         magit-save-repository-buffers 'dontask
-        magit-auto-revert-immediately t
-        vc-handled-backends nil)
+        magit-auto-revert-immediately t)
 
   (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
   (add-hook 'magit-process-find-password-functions
             'magit-process-password-auth-source))
 
 (use-package diff-hl
-            :config (global-diff-hl-mode))
+  :hook (vc-dir-mode . turn-on-diff-hl-mode))
 
 (use-package ediff
   :ensure nil
