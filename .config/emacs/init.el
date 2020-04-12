@@ -99,9 +99,14 @@
 
 (setq disabled-command-function nil)
 
+(use-package gdb-mi
+  :ensure nil
+  :config (setq gdb-many-windows t))
+
 (use-package pinentry
   :config
-  (setq epg-pinentry-mode 'loopback)
+  (setq epg-pinentry-mode 'loopback
+        epg-gpg-home-directory (getenv "GNUPGHOME"))
   (pinentry-start))
 
 (use-package plantuml-mode
@@ -161,8 +166,10 @@
 
 (use-package eshell
   :ensure nil
-  :config (setq eshell-history-size nil
-                eshell-history-file-name nil))
+  :config
+  (setq eshell-history-size nil
+        eshell-history-file-name nil)
+  (setenv "PAGER" (executable-find "cat")))
 
 (use-package dired
   :ensure nil
@@ -177,6 +184,10 @@
 
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode)
+  :delight)
+
+(use-package persistent-scratch
+  :config (persistent-scratch-setup-default)
   :delight)
 
 (use-package tramp
@@ -218,7 +229,6 @@
   :config (setq highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
 
 (use-package flycheck
-  :ensure t
   :init (global-flycheck-mode))
 
 (use-package eldoc-eval
@@ -318,7 +328,6 @@
             (push monitor-number value)
             (setq monitor-number (1+ monitor-number)))))
 
-      (require 'exwm-randr)
       (setq exwm-randr-workspace-monitor-plist value)
 
       (mapcar (lambda (binding)
@@ -333,7 +342,8 @@
   :config
   (require 'exwm-config)
   (setq exwm-workspace-show-all-buffers t
-        exwm-layout-show-all-buffers t)
+        exwm-layout-show-all-buffers t
+        exwm-workspace-number 9)
 
   ;; Make class name the buffer name
   (add-hook 'exwm-update-class-hook
@@ -349,10 +359,6 @@
     (,(kbd "<s-down>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%-")))
     (,(kbd "<s-right>") . ,(lambda () (interactive) (shell-command "mpc next")))
     (,(kbd "<s-left>") . ,(lambda () (interactive) (shell-command "mpc prev")))
-    ;; buffer switching
-    (,(kbd "<s-tab>") . ,(lambda () (interactive) (switch-to-buffer (other-buffer (current-buffer)))))
-    ([?\s-.] . switch-to-next-buffer)
-    ([?\s-,] . switch-to-prev-buffer)
     ;; Reset (to line-mode).
     ([?\s-r] . exwm-reset)
     ;; Switch focus.
@@ -413,7 +419,17 @@
 
 
 ;;; VC/Diffs Section Begins
-(use-package magit)
+(use-package magit
+  :config
+  (magit-wip-mode 1)
+  (setq magit-no-confirm 'safe-with-wip
+        magit-save-repository-buffers 'dontask
+        magit-auto-revert-immediately t
+        vc-handled-backends nil)
+
+  (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
+  (add-hook 'magit-process-find-password-functions
+            'magit-process-password-auth-source))
 
 (use-package diff-hl
             :config (global-diff-hl-mode))
@@ -483,14 +499,14 @@
   (evil-define-key 'visual 'global (leader "c") #'comment-or-uncomment-region)
 
   (evil-define-key '(normal visual) 'global (leader "o") #'ispell)
-  (evil-define-key 'normal 'global (leader "TAB") #'whitespace-mode)
-  (evil-define-key 'normal 'global (leader "c") #'compile)
-  (evil-define-key 'normal 'global (leader "g") #'magit-status)
-  (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/init.el")))))
 
 (use-package evil-collection
   :after evil
   :config (evil-collection-init))
+  (evil-define-key 'normal 'global (leader "TAB") #'whitespace-mode)
+  (evil-define-key 'normal 'global (leader "c")   #'compile)
+  (evil-define-key 'normal 'global (leader "g")   #'magit-status)
+  (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))))
 
 (use-package evil-magit
   :after evil
@@ -498,7 +514,8 @@
 ;;; Evil Section Ends
 
 (use-package gcmh
-  :config (gcmh-mode t))
+  :config (gcmh-mode t)
+  :delight)
 
 (defun find-first-non-ascii-char ()
   "Find the first non-ascii character from point onwards."
