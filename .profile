@@ -64,3 +64,10 @@ export HISTFILE="$XDG_DATA_HOME"/shell/history
 mkdir -p "$XDG_DATA_HOME"/shell
 
 ### XDG Section End
+
+# make SSH use gpg-agent
+eval $(ssh-agent -s -a $(gpgconf --list-dirs agent-ssh-socket))
+
+# start gpg-agent with moved homedir
+eval $(gpg-agent --homedir $GNUPGHOME --daemon -s)
+

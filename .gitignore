@@ -12,6 +12,7 @@
 !.config/system-files/modules-load.d/sound.conf
 !.gitignore
 !.local/bin/jack.sh
+!.local/share/gnupg/gpg-agent.conf
 !.profile
 !.xinitrc
 !LICENSE
