@@ -1,39 +1,28 @@
-pcm.loophw00 {
-    type hw
-    card Loopback
-    device 0
-    format S32_LE
-    rate 96000   subdevice 0
-}
-
-# Playback
-pcm.amix {
-    type dmix
-    ipc_key 219345
-    slave {
-        pcm loophw00
-        period_size 4096
-        periods 2
-   }
-}
-
-
-pcm.loophw01 {
-    type hw
-    card Loopback
-    device 0
-    subdevice 1
-}
-
-# duplex device combining our PCM devices defined above
+# A duplex interface attached to the loopback device
 pcm.aduplex {
     type asym
-    playback.pcm "amix"
-    capture.pcm "loophw01"
+    playback.pcm {
+        type dmix
+        ipc_key 219345
+        slave {
+            pcm "hw:Loopback,0,0"
+            period_size 4096
+            periods 2
+            format S32_LE
+            rate 96000
+        }
+    }
+    capture.pcm {
+        type hw
+        card Loopback
+        device 0
+        subdevice 1
+    }
 }
 
-# ------------------------------------------------------
-# for jack alsa_in and alsa_out: looped-back signal at other ends
+
+# Attaches system:capture to the loopback device
+# This is for input devices like microphones
 pcm.ploop {
     type hw
     card Loopback
@@ -41,6 +30,8 @@ pcm.ploop {
     subdevice 1
 }
 
+# Attaches system:playback to the loopback device
+# This is for output devices like speakers
 pcm.cloop {
     type hw
     card Loopback
@@ -56,5 +47,9 @@ pcm.cloop {
 pcm.!default {
     type plug
     slave.pcm "aduplex"
+    hint {
+        show on
+        description "ALSA -> JACK audio"
+    }
 }
 
