@@ -63,6 +63,10 @@ mkdir -p "$XDG_CONFIG_HOME"/aspell
 export HISTFILE="$XDG_DATA_HOME"/shell/history
 mkdir -p "$XDG_DATA_HOME"/shell
 
+## wget
+export WGETRC="$XDG_CONFIG_HOME"/wget/wgetrc
+mkdir -p "$XDG_DATA_HOME"/wget
+
 ### XDG Section End
 
 # make SSH use gpg-agent
