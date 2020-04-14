@@ -14,7 +14,7 @@ export HISTSIZE=100000
 export HISTTIMEFORMAT="[%F %T] "
 
 # configure audio
-( sh "$HOME"/.local/bin/jack.sh & ) > /dev/null 2>&1
+( jack_control start & ) > /dev/null 2>&1
 
 # no beeping please
 setterm -blength 0
