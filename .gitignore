@@ -10,6 +10,7 @@
 !.config/setup.sh
 !.config/system-files/modprobe.d/sound.conf
 !.config/system-files/modules-load.d/sound.conf
+!.config/user-dirs.dirs
 !.config/wget/wgetrc
 !.gitignore
 !.local/bin/jack.sh
