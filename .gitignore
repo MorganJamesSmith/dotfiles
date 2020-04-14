@@ -4,6 +4,7 @@
 !.config/emacs/early-init.el
 !.config/emacs/init.el
 !.config/git/config
+!.config/mimeapps.list
 !.config/mpd/mpd.conf
 !.config/progs.csv
 !.config/readline/inputrc
@@ -14,6 +15,8 @@
 !.config/wget/wgetrc
 !.gitignore
 !.local/bin/jack.sh
+!.local/share/applications/emacsclient.desktop
+!.local/share/applications/transmission.desktop
 !.local/share/gnupg/gpg-agent.conf
 !.profile
 !.xinitrc
