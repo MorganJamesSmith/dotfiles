@@ -82,6 +82,9 @@
 ;;; Sensible Default Section Begins
 (global-auto-revert-mode t)
 
+;; Replace the info command with something more useful
+(global-set-key (kbd "C-h i") 'info-display-manual)
+
 (fset #'yes-or-no-p #'y-or-n-p)
 
 ;; Use only encrypted authinfo
@@ -163,6 +166,9 @@
       ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
       ("account" "%(binary) -f %(ledger-file) reg %(account)")))
   :mode ("\\.ledger\\'" . ledger-mode))
+
+(use-package pdf-tools
+  :config (pdf-tools-install))
 
 (use-package nov
   :init (setq nov-text-width 80)
@@ -426,7 +432,7 @@
 (use-package magit
   :config
   (magit-wip-mode 1)
-  (setq magit-no-confirm 'safe-with-wip
+  (setq magit-no-confirm '(safe-with-wip)
         magit-wip-merge-branch t
         magit-diff-refine-hunk 'all
         magit-save-repository-buffers 'dontask
@@ -437,7 +443,7 @@
             'magit-process-password-auth-source))
 
 (use-package diff-hl
-  :hook (vc-dir-mode . turn-on-diff-hl-mode))
+  :config (global-diff-hl-mode))
 
 (use-package ediff
   :ensure nil
