@@ -110,6 +110,7 @@
     str))
   (setq epg-pinentry-mode 'loopback
         epg-gpg-home-directory (getenv "GNUPGHOME"))
+  (setenv "INSIDE_EMACS" emacs-version)
   (pinentry-start))
 
 (use-package plantuml-mode
