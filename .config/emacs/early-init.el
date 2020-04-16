@@ -24,5 +24,8 @@
 ;; Ignore X resources
 (advice-add #'x-apply-session-resources :override #'ignore)
 
+;; Disable package as I use straight
+(setq package-enable-at-startup nil)
+
 (provide 'early-init)
 ;;; early-init.el ends here

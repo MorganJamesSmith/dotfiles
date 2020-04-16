@@ -43,20 +43,22 @@
 (setq auto-mode-case-fold nil)
 ;;; Optimization Section Ends
 
+;; straight package manager setup
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+(setq straight-use-package-by-default t)
 
-;; Enable MELPA
-(setq package-user-dir (expand-file-name "packages" user-emacs-directory))
-(package-initialize)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-
-; Use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(require 'use-package)
-(require 'use-package-ensure)
-(setq use-package-verbose t)
-(setq use-package-always-ensure t)
+(straight-use-package 'use-package)
 
 (use-package delight)
 
@@ -93,7 +95,7 @@
 
 
 (use-package flyspell
-  :ensure nil
+  :straight nil
   :hook
   (prog-mode . flyspell-prog-mode)
   (text-mode . flyspell-mode))
@@ -103,7 +105,7 @@
 (setq disabled-command-function nil)
 
 (use-package gdb-mi
-  :ensure nil
+  :straight nil
   :config (setq gdb-many-windows t))
 
 (use-package pinentry
@@ -175,14 +177,14 @@
   :mode ("\\.epub\\'" . nov-mode))
 
 (use-package eshell
-  :ensure nil
+  :straight nil
   :config
   (setq eshell-history-size nil
         eshell-history-file-name nil)
   (setenv "PAGER" (executable-find "cat")))
 
 (use-package dired
-  :ensure nil
+  :straight nil
   :config
   (setq dired-recursive-copies 'always)
   (setq dired-recursive-deletes 'always)
@@ -201,7 +203,7 @@
   :delight)
 
 (use-package tramp
-  :ensure nil
+  :straight nil
   :config (setq tramp-default-method "ssh"))
 
 (use-package undo-tree
@@ -212,7 +214,7 @@
   :delight)
 
 (use-package minibuffer
-  :ensure nil
+  :straight nil
   :config
   (setq read-buffer-completion-ignore-case t)
   (setq completion-cycle-threshold 3))
@@ -249,7 +251,7 @@
 
 ;;; Modeline Section Begins
 (use-package time
-  :ensure nil
+  :straight nil
   :config
   (setq display-time-default-load-average nil
         display-time-24hr-format t
@@ -446,7 +448,7 @@
   :config (global-diff-hl-mode))
 
 (use-package ediff
-  :ensure nil
+  :straight nil
   :commands 'ediff
   :config
   (setq ediff-window-setup-function 'ediff-setup-windows-plain
