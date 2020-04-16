@@ -424,18 +424,17 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
-  :init
-  (require 'rainbow-delimiters)
-  (set-face-foreground 'rainbow-delimiters-depth-1-face "white")
-  (set-face-foreground 'rainbow-delimiters-depth-2-face "cyan")
-  (set-face-foreground 'rainbow-delimiters-depth-3-face "yellow")
-  (set-face-foreground 'rainbow-delimiters-depth-4-face "green")
-  (set-face-foreground 'rainbow-delimiters-depth-5-face "orange")
-  (set-face-foreground 'rainbow-delimiters-depth-6-face "purple")
-  (set-face-foreground 'rainbow-delimiters-depth-7-face "white")
-  (set-face-foreground 'rainbow-delimiters-depth-8-face "cyan")
-  (set-face-foreground 'rainbow-delimiters-depth-9-face "yellow")
-  (set-face-foreground 'rainbow-delimiters-unmatched-face "red"))
+  :custom-face
+  (rainbow-delimiters-depth-1-face   ((t (:foreground "white"))))
+  (rainbow-delimiters-depth-2-face   ((t (:foreground "cyan"))))
+  (rainbow-delimiters-depth-3-face   ((t (:foreground "yellow"))))
+  (rainbow-delimiters-depth-4-face   ((t (:foreground "green"))))
+  (rainbow-delimiters-depth-5-face   ((t (:foreground "orange"))))
+  (rainbow-delimiters-depth-6-face   ((t (:foreground "purple"))))
+  (rainbow-delimiters-depth-7-face   ((t (:foreground "white"))))
+  (rainbow-delimiters-depth-8-face   ((t (:foreground "cyan"))))
+  (rainbow-delimiters-depth-9-face   ((t (:foreground "yellow"))))
+  (rainbow-delimiters-unmatched-face ((t (:foreground "red")))))
 ;;; Parens Section Ends
 
 
