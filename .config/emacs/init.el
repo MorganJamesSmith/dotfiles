@@ -21,11 +21,11 @@
 (unless IS-LINUX (setq command-line-x-option-alist nil))
 
 ;; Display the bare minimum at startup
-(setq inhibit-startup-screen t
-      inhibit-startup-echo-area-message user-login-name
-      inhibit-default-init t
-      initial-major-mode 'fundamental-mode
-      initial-scratch-message nil)
+(customize-set-variable 'inhibit-startup-screen t)
+(customize-set-variable 'inhibit-startup-echo-area-message user-login-name)
+(customize-set-variable 'inhibit-default-init t)
+(customize-set-variable 'initial-major-mode 'fundamental-mode)
+(customize-set-variable 'initial-scratch-message nil)
 (fset #'display-startup-echo-area-message #'ignore)
 
 ;; Disable bidirectional text rendering
@@ -33,14 +33,14 @@
               bidi-paragraph-direction 'left-to-right)
 
 ;; Do not render cursors or regions in non-focused windows.
-(setq-default cursor-in-non-selected-windows nil)
-(setq highlight-nonselected-windows nil)
+(customize-set-variable 'cursor-in-non-selected-windows nil)
+(customize-set-variable 'highlight-nonselected-windows nil)
 
-(setq fast-but-imprecise-scrolling t)
+(customize-set-variable 'fast-but-imprecise-scrolling t)
 
-(setq frame-inhibit-implied-resize t)
+(customize-set-variable 'frame-inhibit-implied-resize t)
 
-(setq auto-mode-case-fold nil)
+(customize-set-variable 'auto-mode-case-fold nil)
 ;;; Optimization Section Ends
 
 ;; straight package manager setup
@@ -56,7 +56,7 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
-(setq straight-use-package-by-default t)
+(customize-set-variable 'straight-use-package-by-default t)
 
 (straight-use-package 'use-package)
 
@@ -64,19 +64,18 @@
 
 ;;; Pretty Visuals Section Begins
 (use-package modus-vivendi-theme
-  :config (load-theme 'modus-vivendi t))
-
-(setq-default indicate-buffer-boundaries nil
-              indicate-empty-lines nil)
+  :custom
+  (custom-safe-themes t "All themes are now safe")
+  (custom-enabled-themes '(modus-vivendi) "Pretty cool dark theme"))
 
 (global-hl-line-mode t)
 
-(setq echo-keystrokes 0.02)
+(customize-set-variable 'echo-keystrokes 0.02)
 
 ;; I dislike gui stuff
-(setq use-file-dialog nil
-      use-dialog-box nil
-      visible-bell t)
+(customize-set-variable 'use-file-dialog nil)
+(customize-set-variable 'use-dialog-box nil)
+(customize-set-variable 'visible-bell t)
 
 ;;; Pretty Visuals Section Ends
 
@@ -90,7 +89,7 @@
 (fset #'yes-or-no-p #'y-or-n-p)
 
 ;; Use only encrypted authinfo
-(setq auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
+(customize-set-variable 'auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
 ;;; Sensible Default Section Ends
 
 
@@ -100,28 +99,30 @@
   (prog-mode . flyspell-prog-mode)
   (text-mode . flyspell-mode))
 
-(setq browse-url-browser-function 'eww-browse-url)
+(customize-set-variable 'browse-url-browser-function 'eww-browse-url)
 
 (setq disabled-command-function nil)
 
 (use-package gdb-mi
   :straight nil
-  :config (setq gdb-many-windows t))
+  :custom (gdb-many-windows t))
 
 (use-package pinentry
+  :custom
+  (epg-pinentry-mode 'loopback)
+  (epg-gpg-home-directory (getenv "GNUPGHOME"))
   :config
   (defun pinentry-emacs (desc prompt ok error)
     (let ((str (read-passwd (concat (replace-regexp-in-string "%22" "\"" (replace-regexp-in-string "%0A" "\n" desc)) prompt ": "))))
     str))
-  (setq epg-pinentry-mode 'loopback
-        epg-gpg-home-directory (getenv "GNUPGHOME"))
   (setenv "INSIDE_EMACS" emacs-version)
   (pinentry-start))
 
 (use-package plantuml-mode
+  :custom
+  (plantuml-default-exec-mode 'executable)
+  (plantuml-indent-level 4)
   :config
-  (setq plantuml-default-exec-mode 'executable
-        plantuml-indent-level 4)
   (eval-after-load 'evil
     (evil-define-key 'normal plantuml-mode-map (leader "c") #'plantuml-preview))
   :mode ("\\.uml\\'" . plantuml-mode))
@@ -136,22 +137,22 @@
     (make-directory auto-save-directory t))
   (unless (file-exists-p recycle-bin-directory)
     (make-directory recycle-bin-directory t))
-  (setq make-backup-files t
-        backup-directory-alist `((".*" . ,backup-directory))
-        backup-by-copying t
-        version-control t
-        vc-make-backup-files t
-        delete-old-versions -1
-        auto-save-default t
-        auto-save-timeout 20
-        auto-save-interval 200
-        auto-save-file-name-transforms `((".*" ,(file-name-as-directory auto-save-directory) t))
-        delete-by-moving-to-trash t
-        trash-directory recycle-bin-directory))
+  (customize-set-variable 'make-backup-files t)
+  (customize-set-variable 'backup-directory-alist `((".*" . ,backup-directory)))
+  (customize-set-variable 'backup-by-copying t)
+  (customize-set-variable 'version-control t)
+  (customize-set-variable 'vc-make-backup-files t)
+  (customize-set-variable 'delete-old-versions -1)
+  (customize-set-variable 'auto-save-default t)
+  (customize-set-variable 'auto-save-timeout 20)
+  (customize-set-variable 'auto-save-interval 200)
+  (customize-set-variable 'auto-save-file-name-transforms `((".*" ,(file-name-as-directory auto-save-directory) t)))
+  (customize-set-variable 'delete-by-moving-to-trash t)
+  (customize-set-variable 'trash-directory recycle-bin-directory))
 
-(setq custom-file (expand-file-name "./custom-garbage" trash-directory)) ; I don't use custom
+(customize-set-variable 'custom-file (expand-file-name "./custom-garbage" trash-directory) "Goodbye Custom")
 
-(setq load-prefer-newer t)
+(customize-set-variable 'load-prefer-newer t)
 (use-package auto-compile
   :config (auto-compile-on-load-mode))
 
@@ -159,8 +160,8 @@
   :config
   (eval-after-load 'evil
     (evil-define-key 'normal ledger-mode-map (leader "c") #'ledger-report))
-
-  (setq ledger-reports
+  :custom
+  (ledger-reports
     '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
       ("last mon" "%(binary) -f %(ledger-file) bal -p \"last month\"")
       ("bal" "%(binary) -f %(ledger-file) bal")
@@ -173,26 +174,27 @@
   :config (pdf-tools-install))
 
 (use-package nov
-  :init (setq nov-text-width 80)
+  :custom (nov-text-width 80)
   :mode ("\\.epub\\'" . nov-mode))
 
 (use-package eshell
   :straight nil
+  :custom
+  (eshell-history-size nil "Pull history size from environment variables")
+  (eshell-history-file-name nil "Pull history file from environment variables")
   :config
-  (setq eshell-history-size nil
-        eshell-history-file-name nil)
   (setenv "PAGER" (executable-find "cat")))
 
 (use-package dired
   :straight nil
-  :config
-  (setq dired-recursive-copies 'always)
-  (setq dired-recursive-deletes 'always)
-  (setq dired-listing-switches "-aFhl")
+  :custom
+  (dired-recursive-copies 'always)
+  (dired-recursive-deletes 'always)
+  (dired-listing-switches "-aFhl")
   :hook (dired-mode . dired-hide-details-mode))
 
 (use-package all-the-icons
-  :init (setq inhibit-compacting-font-caches t))
+  :custom (inhibit-compacting-font-caches t))
 
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode)
@@ -204,20 +206,21 @@
 
 (use-package tramp
   :straight nil
-  :config (setq tramp-default-method "ssh"))
+  :custom (tramp-default-method "ssh"))
 
 (use-package undo-tree
   :config
   (global-undo-tree-mode)
-  (setq undo-tree-visualizer-timestamps t)
-  (setq undo-tree-visualizer-diff t)
+  :custom
+  (undo-tree-visualizer-timestamps t)
+  (undo-tree-visualizer-diff t)
   :delight)
 
 (use-package minibuffer
   :straight nil
-  :config
-  (setq read-buffer-completion-ignore-case t)
-  (setq completion-cycle-threshold 3))
+  :custom
+  (read-buffer-completion-ignore-case t)
+  (completion-cycle-threshold 3))
 
 ;;; Programming Section Begins
 (use-package xcscope
@@ -225,11 +228,11 @@
   (cscope-setup))
 
 ;; Save all buffers on compile automatically
-(setq compilation-ask-about-save nil)
+(customize-set-variable 'compilation-ask-about-save nil)
 
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
-(setq-default c-basic-offset 4)
+(customize-set-variable 'c-basic-offset 4)
 (semantic-mode 1)
 
 ;; TODO: add evil bindings
@@ -238,7 +241,7 @@
 ;; Many major modes do no highlighting of number literals, so we do it for them
 (use-package highlight-numbers
   :hook ((prog-mode conf-mode) . highlight-numbers-mode)
-  :config (setq highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
+  :custom (highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
 
 (use-package flycheck
   :init (global-flycheck-mode))
@@ -252,10 +255,11 @@
 ;;; Modeline Section Begins
 (use-package time
   :straight nil
+  :custom
+  (display-time-default-load-average nil)
+  (display-time-24hr-format t)
+  (display-time-day-and-date t)
   :config
-  (setq display-time-default-load-average nil
-        display-time-24hr-format t
-        display-time-day-and-date t)
   (display-time-mode))
 
 (use-package fancy-battery
@@ -268,10 +272,10 @@
 
 
 ;;; Whitespace Section Begins
-(setq-default tab-width 4
-              indent-tabs-mode nil
-              sentence-end-double-space nil)
-(setq require-final-newline t)
+(customize-set-variable 'tab-width 4)
+(customize-set-variable 'indent-tabs-mode nil)
+(customize-set-variable 'sentence-end-double-space nil)
+(customize-set-variable 'require-final-newline t)
 
 (use-package ws-butler
   :config (ws-butler-global-mode)
@@ -323,6 +327,39 @@
   :commands 'transmission)
 
 (use-package exwm
+  :custom
+  (exwm-workspace-show-all-buffers t)
+  (exwm-layout-show-all-buffers t)
+  (exwm-workspace-number 9)
+
+  (exwm-input-global-keys
+   `(
+     ;; Lock
+     ([?\s-x] . ,(lambda () (interactive) (shell-command "slock")))
+     ;; Music/Media bindings
+     ([?\s-p] . ,(lambda () (interactive) (shell-command "mpc toggle")))
+     (,(kbd "<s-up>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%+")))
+     (,(kbd "<s-down>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%-")))
+     (,(kbd "<s-right>") . ,(lambda () (interactive) (shell-command "mpc next")))
+     (,(kbd "<s-left>") . ,(lambda () (interactive) (shell-command "mpc prev")))
+     ;; Reset (to line-mode).
+     ([?\s-r] . exwm-reset)
+     ;; Switch focus.
+     ([?\s-j] . other-window)
+     ([?\s-k] . ,(lambda () (interactive) (other-window -1)))
+     ;; Split window.
+     ([?\s-\\] . split-window-horizontally)
+     ([?\s-\-] . split-window-vertically)
+     ;; eshell
+     (,(kbd "<s-return>") . eshell)
+     ;; Close window (not killing it, just getting it out of view)
+     ([?\s-q] . ,(lambda () (interactive) (if (< 1 (count-windows))
+                                              (delete-window)
+                                            (switch-to-next-buffer))))
+     ;; Launch application.
+     ([?\s-d] . ,(lambda (command)
+                   (interactive (list (read-shell-command "$ ")))
+                   (start-process-shell-command command nil command)))))
   :init
   (defun exwm-monitor-update ()
     ;; Update monitor order and add bindings for switching between them
@@ -353,42 +390,11 @@
                       (number-sequence 1 9)))))
   :config
   (require 'exwm-config)
-  (setq exwm-workspace-show-all-buffers t
-        exwm-layout-show-all-buffers t
-        exwm-workspace-number 9)
 
   ;; Make class name the buffer name
   (add-hook 'exwm-update-class-hook
     (lambda ()
       (exwm-workspace-rename-buffer exwm-class-name)))
-  (setq exwm-input-global-keys
-    `(
-    ;; Lock
-    ([?\s-x] . ,(lambda () (interactive) (shell-command "slock")))
-    ;; Music/Media bindings
-    ([?\s-p] . ,(lambda () (interactive) (shell-command "mpc toggle")))
-    (,(kbd "<s-up>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%+")))
-    (,(kbd "<s-down>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%-")))
-    (,(kbd "<s-right>") . ,(lambda () (interactive) (shell-command "mpc next")))
-    (,(kbd "<s-left>") . ,(lambda () (interactive) (shell-command "mpc prev")))
-    ;; Reset (to line-mode).
-    ([?\s-r] . exwm-reset)
-    ;; Switch focus.
-    ([?\s-j] . other-window)
-    ([?\s-k] . ,(lambda () (interactive) (other-window -1)))
-    ;; Split window.
-    ([?\s-\\] . split-window-horizontally)
-    ([?\s-\-] . split-window-vertically)
-    ;; eshell
-    (,(kbd "<s-return>") . eshell)
-    ;; Close window (not killing it, just getting it out of view)
-    ([?\s-q] . ,(lambda () (interactive) (if (< 1 (count-windows))
-                                             (delete-window)
-                                           (switch-to-next-buffer))))
-    ;; Launch application.
-    ([?\s-d] . ,(lambda (command)
-                  (interactive (list (read-shell-command "$ ")))
-                  (start-process-shell-command command nil command)))))
 
   (require 'exwm-systemtray)
   (exwm-systemtray-enable)
@@ -406,12 +412,15 @@
 
 
 ;;; Parens Section Begins
-(require 'paren)
-(setq show-paren-delay 0
-      show-paren-highlight-openparen t
-      show-paren-when-point-inside-paren t
-      show-paren-when-point-in-periphery t)
-(show-paren-mode t)
+(use-package paren
+  :straight nil
+  :custom
+  (show-paren-delay 0)
+  (show-paren-highlight-openparen t)
+  (show-paren-when-point-inside-paren t)
+  (show-paren-when-point-in-periphery t)
+  :config
+  (show-paren-mode t))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
@@ -432,13 +441,14 @@
 
 ;;; VC/Diffs Section Begins
 (use-package magit
+  :custom
+  (magit-no-confirm '(safe-with-wip))
+  (magit-wip-merge-branch t)
+  (magit-diff-refine-hunk 'all)
+  (magit-save-repository-buffers 'dontask)
+  (magit-auto-revert-immediately t)
   :config
   (magit-wip-mode 1)
-  (setq magit-no-confirm '(safe-with-wip)
-        magit-wip-merge-branch t
-        magit-diff-refine-hunk 'all
-        magit-save-repository-buffers 'dontask
-        magit-auto-revert-immediately t)
 
   (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
   (add-hook 'magit-process-find-password-functions
@@ -450,35 +460,37 @@
 (use-package ediff
   :straight nil
   :commands 'ediff
-  :config
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain
-        ediff-split-window-function 'split-window-horizontally))
+  :custom
+  (ediff-window-setup-function 'ediff-setup-windows-plain)
+  (ediff-split-window-function 'split-window-horizontally))
 ;;; VC/Diffs Section Ends
 
 
 ;;; Auto-complete/Hints Section Begins
-(require 'ido)
-(setq ido-enable-flex-matching t
-      ido-everywhere t)
-(ido-mode 1)
+(use-package ido
+  :straight nil
+  :custom
+  (ido-enable-flex-matching t)
+  (ido-everywhere t)
+  :config
+  (ido-mode 1))
 
 (use-package company
+  :custom
+  (company-tooltip-align-annotations t)
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.3)
+  (company-show-numbers t)
   :config
   (global-company-mode)
-  (setq company-tooltip-align-annotations t
-        company-minimum-prefix-length 1
-        company-idle-delay 0.3
-        company-show-numbers t)
-
   :hook (eshell-mode . (lambda ()
                          (set (make-local-variable 'company-backends)
                               '((company-capf)))))
   :delight)
 
 (use-package which-key
-  :config
-  (setq which-key-idle-secondary-delay 0.05)
-  (which-key-mode)
+  :custom (which-key-idle-secondary-delay 0.05)
+  :config (which-key-mode)
   :delight)
 
 (use-package pcomplete-extension
@@ -494,10 +506,10 @@
   (kbd (concat "SPC " key)))
 
 (use-package evil
-  :init
-  (setq evil-ex-complete-emacs-commands t
-        evil-want-integration t
-        evil-want-keybinding nil)
+  :custom
+  (evil-ex-complete-emacs-commands t)
+  (evil-want-integration t)
+  (evil-want-keybinding nil)
 
   :config
   (evil-mode t)
@@ -513,13 +525,14 @@
 
   (evil-define-key '(normal visual) 'global (leader "o") #'ispell)
 
-(use-package evil-collection
-  :after evil
-  :config (evil-collection-init))
   (evil-define-key 'normal 'global (leader "TAB") #'whitespace-mode)
   (evil-define-key 'normal 'global (leader "c")   #'compile)
   (evil-define-key 'normal 'global (leader "g")   #'magit-status)
   (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))))
+
+(use-package evil-collection
+  :after evil
+  :config (evil-collection-init))
 
 (use-package evil-magit
   :after evil
