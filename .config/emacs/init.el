@@ -59,6 +59,8 @@
 (customize-set-variable 'straight-use-package-by-default t)
 
 (straight-use-package 'use-package)
+(eval-when-compile
+  (require 'use-package))
 
 (use-package delight)
 
@@ -225,8 +227,7 @@
 
 ;;; Programming Section Begins
 (use-package xcscope
-  :config
-  (cscope-setup))
+  :config (cscope-setup))
 
 ;; Save all buffers on compile automatically
 (customize-set-variable 'compilation-ask-about-save nil)
@@ -237,7 +238,8 @@
 (semantic-mode 1)
 
 ;; TODO: add evil bindings
-(use-package ascii-table)
+(use-package ascii-table
+  :commands ascii-table)
 
 ;; Many major modes do no highlighting of number literals, so we do it for them
 (use-package highlight-numbers
@@ -245,6 +247,7 @@
   :custom (highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
 
 (use-package flycheck
+  :custom (flycheck-emacs-lisp-load-path 'inherit)
   :init (global-flycheck-mode))
 
 (use-package eldoc-eval
@@ -286,7 +289,8 @@
 
 ;;; GNU/Linux Section Begins
 (when IS-LINUX
-  (use-package vterm))
+  (use-package vterm
+    :commands (vterm vterm-other-window)))
 ;;; GNU/Linux Section Ends
 
 
@@ -428,7 +432,7 @@
 
 (use-package ediff
   :straight nil
-  :commands 'ediff
+  :commands ediff
   :custom
   (ediff-window-setup-function 'ediff-setup-windows-plain)
   (ediff-split-window-function 'split-window-horizontally))
@@ -504,8 +508,7 @@
   :config (evil-collection-init))
 
 (use-package evil-magit
-  :after evil
-  :config (require 'evil-magit))
+  :after (evil magit))
 ;;; Evil Section Ends
 
 (use-package gcmh
