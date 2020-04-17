@@ -280,37 +280,6 @@
 ;;; Whitespace Section Ends
 
 
-;;; Windows Section Begins
-(when IS-WINDOWS
-
-; cygwin support
-(let* ((cygwin-root "c:/cygwin64")
-       (cygwin-bin (concat cygwin-root "/bin")))
-  (when (file-readable-p cygwin-root)
-
-    (setq null-device "/dev/null")
-
-    (setq exec-path (cons cygwin-bin exec-path))
-    (setenv "PATH" (concat cygwin-bin ";" (getenv "PATH")))
-
-    ;; NT-Emacs assumes a Windows shell. Change to bash.
-    (setq shell-file-name "bash")
-    (setenv "SHELL" shell-file-name)
-    (setq explicit-shell-file-name shell-file-name)
-
-    ;; This removes unsightly ^M characters that would otherwise
-    ;; appear in the output of java applications.
-    (add-hook 'comint-output-filter-functions #'comint-strip-ctrl-m)))
-
-(setq w32-lwindow-modifier 'super)
-(w32-register-hot-key [s-j])
-(w32-register-hot-key [s-k])
-(global-set-key (kbd "s-j") 'other-frame)
-(global-set-key (kbd "s-k") 'other-frame)
-)
-;;; Windows Section Ends
-
-
 ;;; GNU/Linux Section Begins
 (when IS-LINUX
   (use-package vterm))
