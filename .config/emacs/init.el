@@ -96,12 +96,16 @@
 (use-package flyspell
   :straight nil
   :hook
-  (prog-mode . flyspell-prog-mode)
-  (text-mode . flyspell-mode))
+  ((prog-mode . flyspell-prog-mode)
+   (text-mode . flyspell-mode)))
 
 (customize-set-variable 'browse-url-browser-function 'eww-browse-url)
 
 (setq disabled-command-function nil)
+
+(use-package org
+  :straight nil
+  :custom (org-log-done 'time))
 
 (use-package gdb-mi
   :straight nil
