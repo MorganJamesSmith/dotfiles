@@ -18,7 +18,7 @@ export HISTTIMEFORMAT="[%F %T] "
 
 # no beeping please
 setterm -blength 0
-amixer set Beep 0% mute &> /dev/null
+amixer set Beep 0% mute > /dev/null 2>&1
 
 ### XDG Section
 #
@@ -47,7 +47,8 @@ export PASSWORD_STORE_DIR="$XDG_DATA_HOME"/password-store
 mkdir -p "$PASSWORD_STORE_DIR"
 
 ## GnuPG
-export GPG_TTY=$(tty)
+GPG_TTY=$(tty)
+export GPG_TTY
 export GNUPGHOME="$XDG_DATA_HOME"/gnupg
 mkdir -p "$GNUPGHOME"
 
@@ -70,8 +71,7 @@ mkdir -p "$XDG_DATA_HOME"/wget
 ### XDG Section End
 
 # make SSH use gpg-agent
-eval $(ssh-agent -s -a $(gpgconf --list-dirs agent-ssh-socket))
+eval "$(ssh-agent -s -a "$(gpgconf --list-dirs agent-ssh-socket)")"
 
 # start gpg-agent with moved homedir
-eval $(gpg-agent --homedir $GNUPGHOME --daemon -s)
-
+eval "$(gpg-agent --homedir "$GNUPGHOME" --daemon -s)"
