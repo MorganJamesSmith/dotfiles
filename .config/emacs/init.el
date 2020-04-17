@@ -112,9 +112,6 @@
   (epg-pinentry-mode 'loopback)
   (epg-gpg-home-directory (getenv "GNUPGHOME"))
   :config
-  (defun pinentry-emacs (desc prompt ok error)
-    (let ((str (read-passwd (concat (replace-regexp-in-string "%22" "\"" (replace-regexp-in-string "%0A" "\n" desc)) prompt ": "))))
-    str))
   (setenv "INSIDE_EMACS" emacs-version)
   (pinentry-start))
 
