@@ -13,6 +13,8 @@
 (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
 (defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
 
+(customize-set-variable 'user-full-name "Morgan Smith")
+
 ;;; Optimization Section Begins
 
 ;; Remove command line options that aren't relevant to our current OS; means
@@ -90,12 +92,39 @@
 
 (fset #'yes-or-no-p #'y-or-n-p)
 
-(customize-set-variable 'gnus-init-file "~/.config/emacs/gnus")
+(use-package gnus
+  :straight nil
+  :custom
+  (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
+  (gnus-home-directory (file-name-as-directory (expand-file-name "gnus-files" user-emacs-directory)))
+  (gnus-directory (file-name-as-directory (expand-file-name "News" gnus-home-directory))))
 
 ;; Use only encrypted authinfo
 (customize-set-variable 'auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
+(customize-set-variable 'auth-source-gpg-encrypt-to '("Morgan.J.Smith@outlook.com"))
+(customize-set-variable 'auth-source-netrc-use-gpg-tokens t)
 ;;; Sensible Default Section Ends
 
+(use-package auth-source-pass
+  :straight nil
+  :custom (auth-source-pass-filename "~/.local/share/password-store")
+  :config (auth-source-pass-enable))
+
+(use-package auth-source-xoauth2
+  :straight (auth-source-xoauth2 :type git :host github :repo "ccrusius/auth-source-xoauth2")
+  :config
+  (defun my-xoauth2-get-secrets (host user port)
+    (when (string= user (auth-source-pass-get 'secret "email/work/address"))
+      (list
+       :token-url "https://accounts.google.com/o/oauth2/token"
+       :client-id (auth-source-pass-get 'secret "email/work/client-id")
+       :client-secret (auth-source-pass-get 'secret "email/work/client-secret")
+       :refresh-token (auth-source-pass-get 'secret "email/work/refresh-token"))))
+  (setq auth-source-xoauth2-creds 'my-xoauth2-get-secrets)
+
+  (with-eval-after-load 'smtpmail
+    (add-to-list 'smtpmail-auth-supported 'xoauth2))
+  (auth-source-xoauth2-enable))
 
 (use-package flyspell
   :straight nil

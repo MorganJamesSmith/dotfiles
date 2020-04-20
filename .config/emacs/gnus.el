@@ -1,4 +1,4 @@
-;; .gnus.el --- My gnus config -*- lexical-binding: t; -*-
+;; gnus.el --- My gnus config -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -21,113 +21,140 @@
           (gnus-group-exit)))))
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
-(setq user-mail-address "Morgan.J.Smith@outlook.com"
-      user-full-name    "Morgan Smith")
+(customize-set-variable 'send-mail-function         'smtpmail-send-it) ; not for gnus
+(customize-set-variable 'message-send-mail-function 'smtpmail-send-it)
 
-(setq send-mail-function         'smtpmail-send-it ; not for gnus
-      message-send-mail-function 'smtpmail-send-it
-      smtpmail-stream-type       nil
-      smtpmail-smtp-server       "smtp-mail.outlook.com"
-      smtpmail-smtp-service      587)
+(customize-set-variable 'gnus-cache-enter-articles '(ticked dormant unread read))
+(customize-set-variable 'gnus-cache-remove-articles nil)
+(customize-set-variable 'gnus-cacheable-groups ".*")
+(customize-set-variable 'gnus-use-cache t)
 
-(setq smtpmail-debug-info t
-      smtpmail-debug-verb t)
+(customize-set-variable 'gnus-asynchronous t)
+(customize-set-variable 'gnus-async-prefetch-article-p (lambda (article) t))
+(customize-set-variable 'gnus-prefetched-article-deletion-strategy nil)
+(customize-set-variable 'gnus-use-article-prefetch t)
+(customize-set-variable 'gnus-use-header-prefetch t)
 
-(setq mail-source-delete-incoming nil)
+(customize-set-variable 'mail-source-directory (file-name-as-directory (expand-file-name "Mail" gnus-home-directory)))
+
+(customize-set-variable 'mail-source-delete-incoming nil)
 
 ;; I don't want to use a .newsrc file
-(setq gnus-save-newsrc-file nil
-      gnus-read-newsrc-file nil)
+(customize-set-variable 'gnus-save-newsrc-file nil)
+(customize-set-variable 'gnus-read-newsrc-file nil)
 
 
-(setq gnus-inhibit-user-auto-expire t)
+(customize-set-variable 'gnus-inhibit-user-auto-expire t)
 
-(setq gnus-summary-goto-unread 'never)
 
 ;; Select first article instead of first unread
-(setq gnus-auto-select-subject 'first)
-
+(customize-set-variable 'gnus-auto-select-subject 'first)
+(customize-set-variable 'gnus-summary-goto-unread 'never)
 
 ;; All groups are new each time gnus is run
-(setq gnus-save-killed-list nil)
+(customize-set-variable 'gnus-save-killed-list nil)
+
+(customize-set-variable 'gnus-ignored-newsgroups nil)
 
 ;; Subscribe to new groups alphabetically
-(setq gnus-subscribe-newsgroup-method #'gnus-subscribe-alphabetically)
+(customize-set-variable 'gnus-subscribe-newsgroup-method #'gnus-subscribe-alphabetically)
 
-;(add-to-list 'gnus-newsgroup-variables 'message-from-style)
-(setq gnus-parameters '((".*" (display . all))
-                        (".*morganjsmith.*"
-                         (expiry-target . "nnmaildir+morganjsmith:Deleted")
-                         (user-mail-address . "Morgan.J.Smith@outlook.com")
-                         (smtpmail-mail-address . "Morgan.J.Smith@outlook.com")
-                         (smtpmail-smtp-server . "smtp-mail.outlook.com")
-                         (smtpmail-smtp-service . 587))
-                        (".*morganjsmith:emacs.*"
-                         (to-list . "emacs-devel@gnu.org"))
-                        (".*cmail.*"
-                         (expiry-target . "nnmaildir+cmail:Trash")
-                         (user-mail-address . "MorganSmith@cmail.carleton.ca")
-                         (smtpmail-smtp-server . "smtp-mail.outlook.com")
-                         (smtpmail-smtp-service . 587))
-                        (".*grommin.*"
-                         (expiry-target . "nnmaildir+grommin:Deleted")
-                         (user-mail-address . "grommin@hotmail.com")
-                         (smtpmail-smtp-server . "smtp-mail.outlook.com")
-                         (smtpmail-smtp-service . 587))
-                        (".*hotbutterypancake.*"
-                         (expiry-target . "nnmaildir+hotbutterypancake:[Gmail].Trash")
-                         (user-mail-address . "hotbutterypancake@gmail.com")
-                         (smtpmail-smtp-server . "smtp.gmail.com")
-                         (smtpmail-smtp-service . 587))))
+(customize-set-variable 'gnus-message-archive-group nil)
 
-(setq gnus-permanently-visible-groups ".*")
-
-(setq gnus-use-cache t)
+;; Encrypt email by default and also encrypt to self
+(add-hook 'message-setup-hook 'mml-secure-message-encrypt)
+(customize-set-variable 'mml-secure-openpgp-encrypt-to-self t)
 
 
-(setq gnus-select-method '(nnnil ""))
-(setq gnus-secondary-select-methods
-      '((nnmaildir "morganjsmith"
-                   (directory "~/.local/share/mail/morganjsmith/"))
-        (nnmaildir "cmail"
-                   (directory "~/.local/share/mail/cmail/"))
-        (nnmaildir "grommin"
-                   (directory "~/.local/share/mail/grommin/"))
-        (nnmaildir "hotbutterpancake"
-                   (directory "~/.local/share/mail/hotbutterypancake/"))))
+;; Always show all my groups
+(customize-set-variable 'gnus-permanently-visible-groups ".*")
+
+
+(defvar user-mail-address)
+(defvar smtpmail-smtp-user)
+(defvar smtpmail-smtp-server)
+(defvar smtpmail-smtp-service)
+(setq gnus-newsgroup-variables '(user-mail-address smtpmail-smtp-user smtpmail-smtp-server smtpmail-smtp-service))
+(customize-set-variable 'gnus-parameters
+                        `((".*" (display . all))
+                          (".*work.*"
+                           (user-mail-address ,(auth-source-pass-get 'secret "email/work/address"))
+                           (smtpmail-smtp-user ,(auth-source-pass-get 'secret "email/work/address"))
+                           (smtpmail-smtp-server ,(auth-source-pass-get 'secret "email/work/smtp-server"))
+                           (smtpmail-smtp-service  ,(string-to-number (auth-source-pass-get 'secret "email/work/smtp-service"))))
+                          (".*morganjsmith.*"
+                           (user-mail-address "Morgan.J.Smith@outlook.com")
+                           (smtpmail-mail-address "Morgan.J.Smith@outlook.com")
+                           (smtpmail-smtp-server "smtp-mail.outlook.com")
+                           (smtpmail-smtp-service 587))
+                          (".*morganjsmith:emacs.*"
+                           (to-list . "emacs-devel@gnu.org"))
+                          (".*cmail.*"
+                           (user-mail-address "MorganSmith@cmail.carleton.ca")
+                           (smtpmail-mail-address "MorganSmith@cmail.carleton.ca")
+                           (smtpmail-smtp-server "smtp-mail.outlook.com")
+                           (smtpmail-smtp-service 587))
+                          (".*grommin.*"
+                           (user-mail-address "grommin@hotmail.com")
+                           (smtpmail-mail-address "grommin@hotmail.com")
+                           (smtpmail-smtp-server "smtp-mail.outlook.com")
+                           (smtpmail-smtp-service 587))
+                          (".*hotbutterypancake.*"
+                           (user-mail-address "hotbutterypancake@gmail.com")
+                           (smtpmail-mail-address "hotbutterypancake@gmail.com")
+                           (smtpmail-smtp-server "smtp.gmail.com")
+                           (smtpmail-smtp-service 587))))
+
+
+(customize-set-variable 'gnus-select-method '(nnnil ""))
+(customize-set-variable 'gnus-secondary-select-methods
+                        `((nnmaildir "morganjsmith"
+                                     (directory "~/.local/share/mail/morganjsmith/"))
+                          (nnmaildir "cmail"
+                                     (directory "~/.local/share/mail/cmail/"))
+                          (nnmaildir "grommin"
+                                     (directory "~/.local/share/mail/grommin/"))
+                          (nnmaildir "hotbutterpancake"
+                                     (directory "~/.local/share/mail/hotbutterypancake/"))
+                          (nnimap "work"
+                                  (nnimap-user ,(auth-source-pass-get 'secret "email/work/address"))
+                                  (nnimap-address ,(auth-source-pass-get 'secret "email/work/imap-server"))
+                                  (nnimap-server-port ,(string-to-number (auth-source-pass-get 'secret "email/work/imap-port")))
+                                  (nnimap-authenticator xoauth2))))
+
 
 
 ;; Make stuff pretty section
 
  ;; Split windows horizontally instead of vertically when reading articles
 
-(when window-system
-    (setq gnus-sum-thread-tree-indent "  ")
-    (setq gnus-sum-thread-tree-root "● ")
-    (setq gnus-sum-thread-tree-false-root "◯ ")
-    (setq gnus-sum-thread-tree-single-indent "◎ ")
-    (setq gnus-sum-thread-tree-vertical        "│")
-    (setq gnus-sum-thread-tree-leaf-with-other "├─► ")
-    (setq gnus-sum-thread-tree-single-leaf     "╰─► "))
+(when (display-graphic-p)
+    (customize-set-variable 'gnus-sum-thread-tree-indent "  ")
+    (customize-set-variable 'gnus-sum-thread-tree-root "● ")
+    (customize-set-variable 'gnus-sum-thread-tree-false-root "◯ ")
+    (customize-set-variable 'gnus-sum-thread-tree-single-indent "◎ ")
+    (customize-set-variable 'gnus-sum-thread-tree-vertical        "│")
+    (customize-set-variable 'gnus-sum-thread-tree-leaf-with-other "├─► ")
+    (customize-set-variable 'gnus-sum-thread-tree-single-leaf     "╰─► "))
 
-(setq gnus-summary-line-format
-      (concat
-       "%0{%U%R%z%}"
-       "%3{│%}" "%1{%&user-date;%}" "%3{│%}" ;; date
-       "  "
-       "%4{%-20,20f%}"             ;; name
-       "  "
-       "%3{│%}"
-       " "
-       "%1{%B%}"
-       "%s\n"))
+(customize-set-variable 'gnus-summary-line-format
+                        (concat
+                         "%0{%U%R%z%}"
+                         "%3{│%}" "%1{%&user-date;%}" "%3{│%}" ;; date
+                         "  "
+                         "%4{%-20,20f%}"             ;; name
+                         "  "
+                         "%3{│%}"
+                         " "
+                         "%1{%B%}"
+                         "%s\n"))
 
-(setq gnus-user-date-format-alist
-      '((t . "%d-%b %Y, %H:%M")))
+(customize-set-variable 'gnus-user-date-format-alist
+                        '((t . "%d-%b %Y, %H:%M")))
 
-(setq gnus-group-line-format "%M%S%p%P%5y%5R:%B%(%c%)\n")
+(customize-set-variable 'gnus-group-line-format "%M%S%p%P%5y%5R:%B%(%c%)\n")
 
-(setq gnus-summary-display-arrow t)
+(customize-set-variable 'gnus-summary-display-arrow t)
 
-(provide '.gnus.el)
-;;; .gnus.el ends here
+(provide 'my-gnus.el)
+;;; gnus.el ends here
