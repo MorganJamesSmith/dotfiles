@@ -90,6 +90,8 @@
 
 (fset #'yes-or-no-p #'y-or-n-p)
 
+(customize-set-variable 'gnus-init-file "~/.config/emacs/gnus")
+
 ;; Use only encrypted authinfo
 (customize-set-variable 'auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
 ;;; Sensible Default Section Ends
