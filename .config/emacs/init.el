@@ -66,6 +66,20 @@
 
 (use-package delight)
 
+(use-package erc
+  :straight nil
+  :commands (erc erc-tls)
+  :custom
+  (erc-server "irc.freenode.net")
+  (erc-port 6667)
+  (erc-nick "butterypancake")
+  (erc-password (auth-source-pass-get 'secret "irc"))
+  (erc-user-full-name user-full-name)
+  (erc-log-channels-directory (file-name-as-directory (expand-file-name "erc-logs" user-emacs-directory)))
+  (erc-save-buffer-on-part t)
+  :config
+  (add-to-list 'erc-modules 'log))
+
 ;;; Pretty Visuals Section Begins
 (use-package modus-vivendi-theme
   :custom
@@ -136,6 +150,11 @@
 
 (setq disabled-command-function nil)
 
+(use-package vlf)
+
+;; No mouse gang
+(mouse-avoidance-mode 'banish)
+
 (use-package org
   :straight nil
   :custom (org-log-done 'time))
@@ -157,9 +176,13 @@
   (plantuml-default-exec-mode 'executable)
   (plantuml-indent-level 4)
   :config
-  (eval-after-load 'evil
+  (with-eval-after-load 'evil
     (evil-define-key 'normal plantuml-mode-map (leader "c") #'plantuml-preview))
   :mode ("\\.uml\\'" . plantuml-mode))
+
+(use-package flycheck-plantuml
+  :after (flycheck plantuml)
+  :config (flycheck-plantuml-setup))
 
 ;; Backups and auto-saves and deleting
 (let ((backup-directory (expand-file-name "backups" user-emacs-directory))
@@ -192,7 +215,7 @@
 
 (use-package ledger-mode
   :config
-  (eval-after-load 'evil
+  (with-eval-after-load 'evil
     (evil-define-key 'normal ledger-mode-map (leader "c") #'ledger-report))
   :custom
   (ledger-reports
@@ -204,8 +227,15 @@
       ("account" "%(binary) -f %(ledger-file) reg %(account)")))
   :mode ("\\.ledger\\'" . ledger-mode))
 
+(use-package evil-ledger
+  :after ledger-mode)
+
+(use-package flycheck-ledger
+  :after (ledger-mode flycheck))
+
 (use-package pdf-tools
-  :config (pdf-tools-install))
+  :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
+  :config (pdf-tools-install t))
 
 (use-package nov
   :custom (nov-text-width 80)
@@ -303,6 +333,9 @@
 
 (column-number-mode)
 (line-number-mode)
+
+(use-package simple-modeline
+  :hook (after-init . simple-modeline-mode))
 ;;; Modeline Section Ends
 
 
@@ -335,6 +368,7 @@
   :custom
   (exwm-workspace-show-all-buffers t)
   (exwm-layout-show-all-buffers t)
+  (exwm-manage-force-tiling t)
   (exwm-workspace-number 9)
 
   (exwm-input-global-keys
@@ -456,7 +490,8 @@
 
   (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
   (add-hook 'magit-process-find-password-functions
-            'magit-process-password-auth-source))
+            'magit-process-password-auth-source)
+  :delight magit-wip-mode)
 
 (use-package diff-hl
   :config (global-diff-hl-mode))
@@ -465,6 +500,7 @@
   :straight nil
   :commands ediff
   :custom
+  (ediff-diff-options "-w")
   (ediff-window-setup-function 'ediff-setup-windows-plain)
   (ediff-split-window-function 'split-window-horizontally))
 ;;; VC/Diffs Section Ends
@@ -487,20 +523,12 @@
   (company-show-numbers t)
   :config
   (global-company-mode)
-  :hook (eshell-mode . (lambda ()
-                         (set (make-local-variable 'company-backends)
-                              '((company-capf)))))
   :delight)
 
 (use-package which-key
   :custom (which-key-idle-secondary-delay 0.05)
   :config (which-key-mode)
   :delight)
-
-(use-package pcomplete-extension
-  :functions pcomplete/doas
-  :config (require 'pcomplete-extension)
-  (fset #'pcomplete/doas #'pcomplete/sudo))
 ;;; Auto-complete/Hints Section Ends
 
 
