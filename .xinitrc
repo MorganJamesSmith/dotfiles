@@ -20,6 +20,8 @@ xset r rate 200 60
 #export QT_IM_MODULE=xim
 #export CLUTTER_IM_MODULE=xim
 
+picom -b
+
 # This lets ssh-agent know what screen I'm using
 gpg-connect-agent "UPDATESTARTUPTTY" /bye
 
