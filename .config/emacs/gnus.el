@@ -26,7 +26,7 @@
 
 (customize-set-variable 'gnus-cache-enter-articles '(ticked dormant unread read))
 (customize-set-variable 'gnus-cache-remove-articles nil)
-(customize-set-variable 'gnus-cacheable-groups ".*")
+(customize-set-variable 'gnus-cacheable-groups "^nnimap")
 (customize-set-variable 'gnus-use-cache t)
 
 (customize-set-variable 'gnus-asynchronous t)
@@ -36,6 +36,9 @@
 (customize-set-variable 'gnus-use-header-prefetch t)
 
 (customize-set-variable 'mail-source-directory (file-name-as-directory (expand-file-name "Mail" gnus-home-directory)))
+(customize-set-variable 'nnml-directory "~/.config/emacs/gnus-files/News/cache/")
+(unless (file-exists-p mail-source-directory)
+  (make-directory mail-source-directory t))
 
 (customize-set-variable 'mail-source-delete-incoming nil)
 
@@ -152,7 +155,7 @@
 (customize-set-variable 'gnus-user-date-format-alist
                         '((t . "%d-%b %Y, %H:%M")))
 
-(customize-set-variable 'gnus-group-line-format "%M%S%p%P%5y%5R:%B%(%c%)\n")
+(customize-set-variable 'gnus-group-line-format "%M%S%p%P%5y:%B%(%c%)\n")
 
 (customize-set-variable 'gnus-summary-display-arrow t)
 
