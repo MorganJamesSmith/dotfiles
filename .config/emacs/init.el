@@ -15,6 +15,17 @@
 
 (customize-set-variable 'user-full-name "Morgan Smith")
 
+(defun expand-create-directory-name (dir &optional default-dir)
+  "Return DIR as a directory and create DIR if it doesn't already exist.
+If DIR is relative, it will be relative to DEFAULT-DIR
+If DEFAULT-DIR isn't provided, DIR is relative to ~"
+  (unless default-dir
+    (setq default-dir "~"))
+  (let ((directory (file-name-as-directory (expand-file-name dir default-dir))))
+    (unless (file-exists-p directory)
+      (make-directory directory))
+    directory))
+
 ;;; Optimization Section Begins
 
 ;; Remove command line options that aren't relevant to our current OS; means
@@ -75,7 +86,7 @@
   (erc-nick "butterypancake")
   (erc-password (auth-source-pass-get 'secret "irc"))
   (erc-user-full-name user-full-name)
-  (erc-log-channels-directory (file-name-as-directory (expand-file-name "erc-logs" user-emacs-directory)))
+  (erc-log-channels-directory (expand-create-directory-name "erc-logs" user-emacs-directory))
   (erc-save-buffer-on-part t)
   :config
   (add-to-list 'erc-modules 'log))
@@ -110,8 +121,8 @@
   :straight nil
   :custom
   (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
-  (gnus-home-directory (file-name-as-directory (expand-file-name "gnus-files" user-emacs-directory)))
-  (gnus-directory (file-name-as-directory (expand-file-name "News" gnus-home-directory))))
+  (gnus-home-directory (expand-create-directory-name "gnus-files" user-emacs-directory))
+  (gnus-directory (expand-create-directory-name "News" gnus-home-directory)))
 
 ;; Use only encrypted authinfo
 (customize-set-variable 'auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
@@ -185,29 +196,23 @@
   :config (flycheck-plantuml-setup))
 
 ;; Backups and auto-saves and deleting
-(let ((backup-directory (expand-file-name "backups" user-emacs-directory))
-      (auto-save-directory (expand-file-name "auto-save-list" user-emacs-directory))
-      (recycle-bin-directory (expand-file-name "trash" user-emacs-directory)))
-  (unless (file-exists-p backup-directory)
-    (make-directory backup-directory t))
-  (unless (file-exists-p auto-save-directory)
-    (make-directory auto-save-directory t))
-  (unless (file-exists-p recycle-bin-directory)
-    (make-directory recycle-bin-directory t))
-  (customize-set-variable 'make-backup-files t)
-  (customize-set-variable 'backup-directory-alist `((".*" . ,backup-directory)))
-  (customize-set-variable 'backup-by-copying t)
-  (customize-set-variable 'version-control t)
-  (customize-set-variable 'vc-make-backup-files t)
-  (customize-set-variable 'delete-old-versions -1)
-  (customize-set-variable 'auto-save-default t)
-  (customize-set-variable 'auto-save-timeout 20)
-  (customize-set-variable 'auto-save-interval 200)
-  (customize-set-variable 'auto-save-file-name-transforms `((".*" ,(file-name-as-directory auto-save-directory) t)))
-  (customize-set-variable 'delete-by-moving-to-trash t)
-  (customize-set-variable 'trash-directory recycle-bin-directory))
+(use-package files
+  :straight nil
+  :custom
+  (backup-directory-alist `((".*" . ,(expand-create-directory-name "backups" user-emacs-directory))))
+  (auto-save-file-name-transforms `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
+  (trash-directory (expand-create-directory-name "trash" user-emacs-directory))
+  (make-backup-files t)
+  (backup-by-copying t)
+  (version-control t)
+  (vc-make-backup-files t)
+  (delete-old-versions -1)
+  (auto-save-default t)
+  (auto-save-timeout 20)
+  (auto-save-interval 200)
+  (delete-by-moving-to-trash t))
 
-(customize-set-variable 'custom-file (expand-file-name "./custom-garbage" trash-directory) "Goodbye Custom")
+(customize-set-variable 'custom-file (expand-file-name "custom-garbage" trash-directory) "Goodbye Custom")
 
 (customize-set-variable 'load-prefer-newer t)
 (use-package auto-compile
