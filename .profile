@@ -31,6 +31,14 @@ export XDG_CACHE_HOME="$HOME"/.cache
 mkdir -p "$XDG_CACHE_HOME"
 export XDG_DATA_HOME="$HOME"/.local/share
 mkdir -p "$XDG_DATA_HOME"
+export XDG_DESKTOP_DIR="$HOME/"
+export XDG_DOWNLOAD_DIR="$HOME/downloads"
+export XDG_MUSIC_DIR="$HOME/music"
+export XDG_PICTURES_DIR="$HOME/pictures"
+export XDG_TEMPLATES_DIR="$HOME/"
+export XDG_PUBLICSHARE_DIR="$HOME/"
+export XDG_DOCUMENTS_DIR="$HOME/documents"
+export XDG_VIDEOS_DIR="$HOME/"
 
 ## Xauthority/ICEauthority
 export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
