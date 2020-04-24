@@ -1,5 +1,5 @@
 *
-!.config/bookmarks
+!.config/emacs/eww-bookmarks
 !.config/emacs/early-init.el
 !.config/emacs/gnus.el
 !.config/emacs/init.el
