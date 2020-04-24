@@ -86,6 +86,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (erc-nick "butterypancake")
   (erc-password (auth-source-pass-get 'secret "irc"))
   (erc-user-full-name user-full-name)
+  (erc-anonymous-login t)
   (erc-log-channels-directory (expand-create-directory-name "erc-logs" user-emacs-directory))
   (erc-save-buffer-on-part t)
   :config
@@ -124,6 +125,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (gnus-home-directory (expand-create-directory-name "gnus-files" user-emacs-directory))
   (gnus-directory (expand-create-directory-name "News" gnus-home-directory)))
 
+(use-package youtube-dl
+  :custom
+  (youtube-dl-directory (expand-create-directory-name (getenv "XDG_DOWNLOAD_DIR"))))
+
 ;; Use only encrypted authinfo
 (customize-set-variable 'auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
 (customize-set-variable 'auth-source-gpg-encrypt-to '("Morgan.J.Smith@outlook.com"))
@@ -132,7 +137,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package auth-source-pass
   :straight nil
-  :custom (auth-source-pass-filename "~/.local/share/password-store")
+  :custom (auth-source-pass-filename (expand-file-name "password-store" (getenv "XDG_DATA_HOME")))
   :config (auth-source-pass-enable))
 
 (use-package auth-source-xoauth2
@@ -156,8 +161,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :hook
   ((prog-mode . flyspell-prog-mode)
    (text-mode . flyspell-mode)))
-
-(customize-set-variable 'browse-url-browser-function 'eww-browse-url)
 
 (setq disabled-command-function nil)
 
@@ -219,9 +222,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config (auto-compile-on-load-mode))
 
 (use-package ledger-mode
-  :config
-  (with-eval-after-load 'evil
-    (evil-define-key 'normal ledger-mode-map (leader "c") #'ledger-report))
   :custom
   (ledger-reports
     '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
@@ -233,7 +233,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :mode ("\\.ledger\\'" . ledger-mode))
 
 (use-package evil-ledger
-  :after ledger-mode)
+  :after (ledger-mode evil)
+  :config
+  (evil-define-key 'normal ledger-mode-map (leader "c") #'ledger-report))
 
 (use-package flycheck-ledger
   :after (ledger-mode flycheck))
@@ -498,6 +500,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
             'magit-process-password-auth-source)
   :delight magit-wip-mode)
 
+(use-package magit-repos
+  :straight nil
+  :after magit
+  :commands magit-list-repositories
+  :custom
+  (magit-repository-directories
+   `(("~/repos" . 1)
+     (,(expand-create-directory-name "straight/repos" user-emacs-directory) . 1)
+     ("~" . 0))))
+
 (use-package diff-hl
   :config (global-diff-hl-mode))
 
@@ -509,6 +521,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (ediff-window-setup-function 'ediff-setup-windows-plain)
   (ediff-split-window-function 'split-window-horizontally))
 ;;; VC/Diffs Section Ends
+
+(use-package shr
+  :commands (eww eww-browse-url)
+  :custom
+  (browse-url-browser-function 'eww-browse-url)
+  (eww-bookmarks '())
+  (shr-use-colors nil)
+  (shr-max-image-proportion 0.5))
 
 
 ;;; Auto-complete/Hints Section Begins
