@@ -79,12 +79,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package erc
   :straight nil
-  :commands (erc erc-tls)
   :custom
   (erc-server "irc.freenode.net")
   (erc-port 6667)
   (erc-nick "butterypancake")
-  (erc-password (auth-source-pass-get 'secret "irc"))
   (erc-user-full-name user-full-name)
   (erc-anonymous-login t)
   (erc-log-channels-directory (expand-create-directory-name "erc-logs" user-emacs-directory))
@@ -123,7 +121,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :custom
   (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
   (gnus-home-directory (expand-create-directory-name "gnus-files" user-emacs-directory))
-  (gnus-directory (expand-create-directory-name "News" gnus-home-directory)))
+  (gnus-directory (expand-create-directory-name "News" gnus-home-directory))
+  (mail-source-directory (expand-create-directory-name "Mail" gnus-home-directory)))
 
 (use-package youtube-dl
   :custom
@@ -132,7 +131,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Use only encrypted authinfo
 (customize-set-variable 'auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
 (customize-set-variable 'auth-source-gpg-encrypt-to '("Morgan.J.Smith@outlook.com"))
-(customize-set-variable 'auth-source-netrc-use-gpg-tokens t)
 ;;; Sensible Default Section Ends
 
 (use-package auth-source-pass
@@ -142,6 +140,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package auth-source-xoauth2
   :straight (auth-source-xoauth2 :type git :host github :repo "ccrusius/auth-source-xoauth2")
+  :after smtpmail
   :config
   (defun my-xoauth2-get-secrets (host user port)
     (when (string= user (auth-source-pass-get 'secret "email/work/address"))
@@ -152,8 +151,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        :refresh-token (auth-source-pass-get 'secret "email/work/refresh-token"))))
   (setq auth-source-xoauth2-creds 'my-xoauth2-get-secrets)
 
-  (with-eval-after-load 'smtpmail
-    (add-to-list 'smtpmail-auth-supported 'xoauth2))
+  (add-to-list 'smtpmail-auth-supported 'xoauth2)
   (auth-source-xoauth2-enable))
 
 (use-package flyspell
@@ -341,8 +339,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (column-number-mode)
 (line-number-mode)
 
-(use-package simple-modeline
-  :hook (after-init . simple-modeline-mode))
+(use-package doom-modeline
+  :custom
+  (doom-modeline-gnus t)
+  (doom-modeline-gnus-excluded-groups '("nnimap+morganjsmith:emacs"))
+  (doom-modeline-irc nil)
+  :init (doom-modeline-mode 1))
 ;;; Modeline Section Ends
 
 
@@ -526,7 +528,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :commands (eww eww-browse-url)
   :custom
   (browse-url-browser-function 'eww-browse-url)
-  (eww-bookmarks '())
   (shr-use-colors nil)
   (shr-max-image-proportion 0.5))
 
