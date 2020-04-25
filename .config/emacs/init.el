@@ -524,12 +524,48 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (ediff-split-window-function 'split-window-horizontally))
 ;;; VC/Diffs Section Ends
 
+
+;;; EWW Section Begins
 (use-package shr
-  :commands (eww eww-browse-url)
+  :straight nil
   :custom
   (browse-url-browser-function 'eww-browse-url)
   (shr-use-colors nil)
   (shr-max-image-proportion 0.5))
+
+(use-package shrface
+  :straight (shrface :type git :host github :repo "chenyanming/shrface")
+  :after shr
+  :config
+  (require 'shrface)
+  (shrface-basic)
+  (shrface-trial)
+  (setq shrface-href-versatile t)
+  (with-eval-after-load 'eww
+    (add-hook 'eww-after-render-hook #'shrface-mode)
+    (evil-define-key '(normal) eww-mode-map
+      (kbd "<tab>") 'org-cycle
+      (kbd "<S-tab>") 'org-shifttab
+      (kbd "C-j") 'outline-next-visible-heading
+      (kbd "C-k") 'outline-previous-visible-heading))
+  (with-eval-after-load 'nov
+    ;; reset nov-shr-rendering-functions, in case the list get bigger and bigger
+    (setq nov-shr-rendering-functions '((img . nov-render-img)
+                                        (title . nov-render-title)))
+    (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
+    (add-hook 'nov-mode-hook 'shrface-mode)
+    (evil-define-key '(normal) nov-mode-map
+      (kbd "<tab>") 'org-cycle
+      (kbd "<S-tab>") 'org-shifttab
+      (kbd "C-j") 'outline-next-visible-heading
+      (kbd "C-k") 'outline-previous-visible-heading)))
+
+(use-package shr-tag-pre-highlight
+  :after shr
+  :config
+  (add-to-list 'shr-external-rendering-functions
+               '(pre . shr-tag-pre-highlight)))
+;;; EWW Section Ends
 
 
 ;;; Auto-complete/Hints Section Begins
@@ -557,6 +593,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :delight)
 ;;; Auto-complete/Hints Section Ends
 
+(use-package helpful
+  :bind
+  (("C-h f" . helpful-callable)
+   ("C-h v" . helpful-variable)
+   ("C-h k" . helpful-key)
+   ("C-c C-d" . helpful-at-point)))
 
 ;;; Evil Section Begins
 (defun leader (key)
