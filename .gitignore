@@ -6,6 +6,7 @@
 !.config/git/config
 !.config/mimeapps.list
 !.config/mpd/mpd.conf
+!.config/mpv/input.conf
 !.config/progs.csv
 !.config/pulse/daemon.conf
 !.config/readline/inputrc
