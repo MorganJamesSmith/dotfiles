@@ -54,6 +54,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'frame-inhibit-implied-resize t)
 
 (customize-set-variable 'auto-mode-case-fold nil)
+
+(customize-set-variable 'create-lockfiles nil) ; Only matters on multi-user systems
 ;;; Optimization Section Ends
 
 ;; straight package manager setup
@@ -88,7 +90,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (erc-log-channels-directory (expand-create-directory-name "erc-logs" user-emacs-directory))
   (erc-save-buffer-on-part t)
   :config
-  (add-to-list 'erc-modules 'log))
+  (add-to-list 'erc-modules 'log)
+  (add-to-list 'erc-modules 'keep-place))
+
+(use-package debbugs)
 
 ;;; Pretty Visuals Section Begins
 (use-package modus-vivendi-theme
@@ -105,6 +110,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'use-dialog-box nil)
 (customize-set-variable 'visible-bell t)
 
+(blink-cursor-mode 0)
 ;;; Pretty Visuals Section Ends
 
 
@@ -158,7 +164,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :straight nil
   :hook
   ((prog-mode . flyspell-prog-mode)
-   (text-mode . flyspell-mode)))
+   ((text-mode text-mode message-mode) . flyspell-mode)))
 
 (setq disabled-command-function nil)
 
@@ -351,12 +357,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Whitespace Section Begins
 (customize-set-variable 'tab-width 4)
 (customize-set-variable 'indent-tabs-mode nil)
-(customize-set-variable 'sentence-end-double-space nil)
-(customize-set-variable 'require-final-newline t)
 
 (use-package ws-butler
   :config (ws-butler-global-mode)
   :delight)
+
+(add-hook 'text-mode-hook 'turn-on-auto-fill)
+(add-hook 'org-mode-hook 'turn-on-auto-fill)
+(add-hook 'message-mode-hook 'turn-on-auto-fill)
 ;;; Whitespace Section Ends
 
 
@@ -535,7 +543,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package shrface
   :straight (shrface :type git :host github :repo "chenyanming/shrface")
-  :after shr
   :config
   (require 'shrface)
   (shrface-basic)
@@ -543,25 +550,26 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (setq shrface-href-versatile t)
   (with-eval-after-load 'eww
     (add-hook 'eww-after-render-hook #'shrface-mode)
-    (evil-define-key '(normal) eww-mode-map
-      (kbd "<tab>") 'org-cycle
-      (kbd "<S-tab>") 'org-shifttab
-      (kbd "C-j") 'outline-next-visible-heading
-      (kbd "C-k") 'outline-previous-visible-heading))
+    (with-eval-after-load 'evil
+      (evil-define-key '(normal) eww-mode-map
+        (kbd "<tab>") 'org-cycle
+        (kbd "<S-tab>") 'org-shifttab
+        (kbd "C-j") 'outline-next-visible-heading
+        (kbd "C-k") 'outline-previous-visible-heading)))
   (with-eval-after-load 'nov
     ;; reset nov-shr-rendering-functions, in case the list get bigger and bigger
     (setq nov-shr-rendering-functions '((img . nov-render-img)
                                         (title . nov-render-title)))
     (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
     (add-hook 'nov-mode-hook 'shrface-mode)
-    (evil-define-key '(normal) nov-mode-map
-      (kbd "<tab>") 'org-cycle
-      (kbd "<S-tab>") 'org-shifttab
-      (kbd "C-j") 'outline-next-visible-heading
-      (kbd "C-k") 'outline-previous-visible-heading)))
+    (with-eval-after-load 'evil
+      (evil-define-key '(normal) nov-mode-map
+        (kbd "<tab>") 'org-cycle
+        (kbd "<S-tab>") 'org-shifttab
+        (kbd "C-j") 'outline-next-visible-heading
+        (kbd "C-k") 'outline-previous-visible-heading))))
 
 (use-package shr-tag-pre-highlight
-  :after shr
   :config
   (add-to-list 'shr-external-rendering-functions
                '(pre . shr-tag-pre-highlight)))
@@ -586,6 +594,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (global-company-mode)
   :delight)
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
+(use-package company-quickhelp
+  :hook (global-company-mode . company-quickhelp-mode))
 
 (use-package which-key
   :custom (which-key-idle-secondary-delay 0.05)
