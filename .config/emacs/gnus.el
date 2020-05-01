@@ -22,6 +22,11 @@
           (gnus-group-exit)))))
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
+;; Perfer plain text email
+(with-eval-after-load "mm-decode"
+  (add-to-list 'mm-discouraged-alternatives "text/html")
+  (add-to-list 'mm-discouraged-alternatives "text/richtext"))
+
 (customize-set-variable 'send-mail-function         'smtpmail-send-it) ; not for gnus
 (customize-set-variable 'message-send-mail-function 'smtpmail-send-it)
 
@@ -53,9 +58,21 @@
 ;; Add articles I look at to the cache
 (add-hook 'gnus-select-article-hook #'gnus-agent-fetch-selected-article)
 
+;; Make sure we don't expire anything
+(customize-set-variable 'gnus-agent-enable-expiration 'DISABLE)
+
+(customize-set-variable 'gnus-agent-consider-all-articles t)
+(customize-set-variable 'gnus-agent-synchronize-flags t)
+
 ;; Encrypt email by default and also encrypt to self
 (add-hook 'message-setup-hook 'mml-secure-message-encrypt)
 (customize-set-variable 'mml-secure-openpgp-encrypt-to-self t)
+(customize-set-variable 'mml-secure-smime-encrypt-to-self t)
+
+;; Always decrypt messages without asking me
+(customize-set-variable 'mm-decrypt-option 'always)
+
+(customize-set-variable 'gnus-completing-read-function #'gnus-ido-completing-read)
 
 
 ;; Always show all my groups
@@ -131,7 +148,7 @@
 
     (setq smtpmail-smtp-user account)
     (compose-mail)))
-(bind-key "C-x m" #'compose-mail-choose-account)
+(global-set-key (kbd "C-x m") #'compose-mail-choose-account)
 
 ;; Make stuff pretty section
 
