@@ -40,9 +40,10 @@ export XDG_PUBLICSHARE_DIR="$HOME/"
 export XDG_DOCUMENTS_DIR="$HOME/documents"
 export XDG_VIDEOS_DIR="$HOME/"
 
-## Xauthority/ICEauthority
-export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
-export ICEAUTHORITY="$XDG_RUNTIME_DIR"/ICEauthority
+# Can't change when profile is called from xsession from gdm
+### Xauthority/ICEauthority
+#export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
+#export ICEAUTHORITY="$XDG_RUNTIME_DIR"/ICEauthority
 
 ## less
 export LESSKEY="$XDG_CONFIG_HOME"/less/lesskey
