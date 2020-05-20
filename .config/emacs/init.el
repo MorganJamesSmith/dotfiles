@@ -13,6 +13,33 @@
 (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
 (defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
 
+;; straight package manager setup
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+(customize-set-variable 'straight-use-package-by-default t)
+
+(straight-use-package 'use-package)
+(eval-when-compile
+  (require 'use-package))
+
+;; Add type validation to customize-set-variable function
+(use-package validate
+  :config
+  (defun validate-value-variable (symbol value &optional _comment)
+    "Validate the SYMBOL can be set to VALUE by checking SYMBOL's type."
+    (validate-value value (custom-variable-type symbol)))
+  (advice-add #'customize-set-variable :before #'validate-value-variable))
+
 (customize-set-variable 'user-full-name "Morgan Smith")
 
 (defun expand-create-directory-name (dir &optional default-dir)
@@ -57,25 +84,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (customize-set-variable 'create-lockfiles nil) ; Only matters on multi-user systems
 ;;; Optimization Section Ends
-
-;; straight package manager setup
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-(customize-set-variable 'straight-use-package-by-default t)
-
-(straight-use-package 'use-package)
-(eval-when-compile
-  (require 'use-package))
 
 (use-package delight)
 
