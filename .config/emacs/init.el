@@ -109,9 +109,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (custom-safe-themes t "All themes are now safe")
   (custom-enabled-themes '(modus-vivendi) "Pretty cool dark theme"))
 
-(global-hl-line-mode t)
-
-(customize-set-variable 'echo-keystrokes 0.02)
+(use-package org-beautify-theme
+  :if (display-graphic-p)
+  :config
+  (enable-theme 'org-beautify))
 
 ;; I dislike gui stuff
 (customize-set-variable 'use-file-dialog nil)
@@ -124,11 +125,21 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Sensible Default Section Begins
 (global-auto-revert-mode t)
+(customize-set-variable 'revert-without-query '(".*"))
 
 ;; Replace the info command with something more useful
 (global-set-key (kbd "C-h i") 'info-display-manual)
 
 (fset #'yes-or-no-p #'y-or-n-p)
+
+(use-package bluetooth)
+
+(use-package disk-usage)
+
+(use-package guix
+  :if (executable-find "guix"))
+
+(use-package nginx-mode)
 
 (use-package gnus
   :straight nil
@@ -153,10 +164,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config (auth-source-pass-enable))
 
 (use-package auth-source-xoauth2
-  :straight (auth-source-xoauth2 :type git :host github :repo "ccrusius/auth-source-xoauth2")
   :after smtpmail
   :config
-  (defun my-xoauth2-get-secrets (host user port)
+  (defun my-xoauth2-get-secrets (_host user _port)
     (when (string= user (auth-source-pass-get 'secret "email/work/address"))
       (list
        :token-url "https://accounts.google.com/o/oauth2/token"
@@ -165,6 +175,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        :refresh-token (auth-source-pass-get 'secret "email/work/refresh-token"))))
   (setq auth-source-xoauth2-creds 'my-xoauth2-get-secrets)
 
+  (eval-when-compile
+    (require 'smtpmail))
   (add-to-list 'smtpmail-auth-supported 'xoauth2)
   (auth-source-xoauth2-enable))
 
@@ -183,7 +195,35 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package org
   :straight nil
-  :custom (org-log-done 'time))
+  :custom
+  (org-log-done 'time)
+  (org-adapt-indentation nil)
+  (org-edit-src-content-indentation 0)
+  (org-html-validation-link nil)
+  :config
+  (org-indent-mode -1))
+
+(use-package org-roam
+  :hook (after-init . org-roam-mode)
+  :custom
+  (org-roam-directory "~/documents/"))
+
+(use-package deft
+  :custom
+  (deft-recursive t)
+  (deft-use-filter-string-for-filename t)
+  (deft-default-extension "org")
+  (deft-extensions '("org"))
+  (deft-directory "~/documents/")
+  (deft-recursive-ignore-dir-regexp
+    (concat "\\(?:"
+            "\\."
+            "\\|\\.\\."
+            "\\|\\.stfolder"   ;; Syncthing folder
+            "\\|\\.stversions" ;; Syncthing folder
+            "\\)$")))
+
+(use-package htmlize)
 
 (use-package gdb-mi
   :straight nil
@@ -277,19 +317,25 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :hook (dired-mode . dired-hide-details-mode))
 
 (use-package all-the-icons
+  :if (display-graphic-p)
   :custom (inhibit-compacting-font-caches t))
 
 (use-package all-the-icons-dired
+  :if (display-graphic-p)
   :hook (dired-mode . all-the-icons-dired-mode)
-  :delight)
-
-(use-package persistent-scratch
-  :config (persistent-scratch-setup-default)
   :delight)
 
 (use-package tramp
   :straight nil
-  :custom (tramp-default-method "ssh"))
+  :custom
+  (tramp-default-method "ssh")
+  (remote-file-name-inhibit-cache nil)
+  (tramp-completion-reread-directory-timeout nil)
+  (tramp-use-ssh-controlmaster-options nil "Use system settings")
+  (vc-ignore-dir-regexp
+   (format "%s\\|%s"
+           vc-ignore-dir-regexp
+           tramp-file-name-regexp)))
 
 (use-package undo-tree
   :config
@@ -350,6 +396,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :init (setq fancy-battery-show-percentage t)
   :config (fancy-battery-mode))
 
+(size-indication-mode)
 (column-number-mode)
 (line-number-mode)
 
@@ -358,6 +405,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (doom-modeline-gnus t)
   (doom-modeline-gnus-excluded-groups '("nnimap+morganjsmith:emacs"))
   (doom-modeline-irc nil)
+  (doom-modeline-enable-word-count t)
   :init (doom-modeline-mode 1))
 ;;; Modeline Section Ends
 
@@ -365,6 +413,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Whitespace Section Begins
 (customize-set-variable 'tab-width 4)
 (customize-set-variable 'indent-tabs-mode nil)
+(electric-indent-mode 1)
 
 (use-package ws-butler
   :config (ws-butler-global-mode)
@@ -379,7 +428,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; GNU/Linux Section Begins
 (when IS-LINUX
   (use-package vterm
-    :commands (vterm vterm-other-window)))
+    :commands vterm vterm-other-window))
 ;;; GNU/Linux Section Ends
 
 
@@ -387,9 +436,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (when (or IS-LINUX IS-BSD)
 
 (use-package transmission
-  :commands 'transmission)
+  :commands transmission transmission-add
+  :custom
+  (transmission-refresh-modes '(transmission-mode
+                                transmission-files-mode
+                                transmission-info-mode
+                                transmission-peers-mode)))
 
 (use-package exwm
+  :if (display-graphic-p)
   :custom
   (exwm-workspace-show-all-buffers t)
   (exwm-layout-show-all-buffers t)
@@ -402,10 +457,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      ([?\s-x] . ,(lambda () (interactive) (shell-command "slock")))
      ;; Music/Media bindings
      ([?\s-p] . ,(lambda () (interactive) (shell-command "mpc toggle")))
+     ([?\s-?] . ,(lambda () (interactive) (shell-command "mpc status")))
      (,(kbd "<s-up>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%+")))
      (,(kbd "<s-down>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%-")))
      (,(kbd "<s-right>") . ,(lambda () (interactive) (shell-command "mpc next")))
      (,(kbd "<s-left>") . ,(lambda () (interactive) (shell-command "mpc prev")))
+     ;; Char mode
+     ([?\s-i] . exwm-input-release-keyboard)
      ;; Reset (to line-mode).
      ([?\s-r] . exwm-reset)
      ;; Switch focus.
@@ -416,10 +474,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      ([?\s-\-] . split-window-vertically)
      ;; eshell
      (,(kbd "<s-return>") . eshell)
-     ;; Close window (not killing it, just getting it out of view)
-     ([?\s-q] . ,(lambda () (interactive) (if (< 1 (count-windows))
-                                              (delete-window)
-                                            (switch-to-next-buffer))))
      ;; Launch application.
      ([?\s-d] . ,(lambda (command)
                    (interactive (list (read-shell-command "$ ")))
@@ -535,7 +589,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :straight nil
   :commands ediff
   :custom
-  (ediff-diff-options "-w")
+  (ediff-diff-options "-w"))
+
+(use-package ediff-wind
+  :straight nil
+  :after ediff
   (ediff-window-setup-function 'ediff-setup-windows-plain)
   (ediff-split-window-function 'split-window-horizontally))
 ;;; VC/Diffs Section Ends
@@ -595,19 +653,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package company
   :custom
-  (company-tooltip-align-annotations t)
   (company-minimum-prefix-length 1)
-  (company-idle-delay 0.3)
-  (company-show-numbers t)
+  (company-show-numbers ''t)
   :config
   (global-company-mode)
   :delight)
 
-(use-package company-box
-  :hook (company-mode . company-box-mode))
-
 (use-package company-quickhelp
-  :hook (global-company-mode . company-quickhelp-mode))
+  :after company
+  :config (company-quickhelp-mode))
 
 (use-package which-key
   :custom (which-key-idle-secondary-delay 0.05)
@@ -629,9 +683,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package evil
   :custom
-  (evil-ex-complete-emacs-commands t)
-  (evil-want-integration t)
   (evil-want-keybinding nil)
+  (evil-want-integration t)
+  (evil-ex-complete-emacs-commands t)
+  (evil-want-C-u-scroll t)
+  (evil-want-Y-yank-to-eol t)
 
   :config
   (evil-mode t)
@@ -639,9 +695,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (evil-define-key '(normal insert) 'global (kbd "M-k") #'evil-scroll-line-up)
   (evil-define-key '(normal insert) 'global (kbd "M-J") #'text-scale-decrease)
   (evil-define-key '(normal insert) 'global (kbd "M-K") #'text-scale-increase)
-
-  (evil-define-key 'normal 'global (kbd "C-u") #'evil-scroll-up)
-  (evil-define-key 'normal 'global (kbd "C-d") #'evil-scroll-down)
 
   (evil-define-key 'visual 'global (leader "c") #'comment-or-uncomment-region)
 
