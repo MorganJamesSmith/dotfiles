@@ -13,6 +13,10 @@
 (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
 (defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
 
+;; This is non-nil for instances of Emacs started from within an
+;; instance of Emacs
+(defconst IS-INSIDE-EMACS   (getenv "INSIDE_EMACS"))
+
 ;; straight package manager setup
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -230,6 +234,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :custom (gdb-many-windows t))
 
 (use-package pinentry
+  :if (not IS-INSIDE-EMACS)
   :custom
   (epg-pinentry-mode 'loopback)
   (epg-gpg-home-directory (getenv "GNUPGHOME"))
@@ -444,7 +449,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                                 transmission-peers-mode)))
 
 (use-package exwm
-  :if (display-graphic-p)
+  :if (and (display-graphic-p) (not IS-INSIDE-EMACS))
   :custom
   (exwm-workspace-show-all-buffers t)
   (exwm-layout-show-all-buffers t)
