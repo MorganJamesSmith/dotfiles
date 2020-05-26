@@ -51,8 +51,6 @@
 ;; If you get a new newsgroup, manually run M-x gnus-find-new-newsgroups
 (customize-set-variable 'gnus-check-new-newsgroups nil)
 
-(customize-set-variable 'gnus-ignored-newsgroups nil)
-
 (customize-set-variable 'gnus-message-archive-group nil)
 
 ;; Add articles I look at to the cache
@@ -60,6 +58,7 @@
 
 ;; Make sure we don't expire anything
 (customize-set-variable 'gnus-agent-enable-expiration 'DISABLE)
+(customize-set-variable 'gnus-agent-expire-days most-positive-fixnum)
 
 (customize-set-variable 'gnus-agent-consider-all-articles t)
 (customize-set-variable 'gnus-agent-synchronize-flags t)
