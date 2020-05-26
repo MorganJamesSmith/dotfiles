@@ -36,8 +36,6 @@
 (eval-when-compile
   (require 'use-package))
 
-(use-package delight)
-
 ;; Add type validation to customize-set-variable function
 (use-package validate
   :config
@@ -133,8 +131,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package all-the-icons-dired
   :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode)
-  :delight)
+  :hook (dired-mode . all-the-icons-dired-mode))
 
 ;; I dislike gui stuff
 (customize-set-variable 'use-file-dialog nil)
@@ -155,9 +152,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (display-time-mode))
 
-(use-package fancy-battery
-  :init (setq fancy-battery-show-percentage t)
-  :config (fancy-battery-mode))
+(display-battery-mode)
 
 (size-indication-mode)
 (column-number-mode)
@@ -167,7 +162,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :custom
   (doom-modeline-gnus t)
   (doom-modeline-gnus-excluded-groups '("nnimap+morganjsmith:emacs"))
-  (doom-modeline-irc nil)
   (doom-modeline-enable-word-count t)
   :init (doom-modeline-mode 1))
 ;;; Modeline Section Ends
@@ -277,8 +271,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :init (global-flycheck-mode))
 
 (use-package eldoc-eval
-  :config (eldoc-in-minibuffer-mode 1)
-  :delight eldoc-mode)
+  :config (eldoc-in-minibuffer-mode 1))
 
 (use-package debbugs)
 
@@ -301,8 +294,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
   (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
   (add-hook 'magit-process-find-password-functions
-            'magit-process-password-auth-source)
-  :delight magit-wip-mode)
+            'magit-process-password-auth-source))
 
 (use-package evil-magit
   :after (evil magit))
@@ -367,8 +359,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (electric-indent-mode 1)
 
 (use-package ws-butler
-  :config (ws-butler-global-mode)
-  :delight)
+  :config (ws-butler-global-mode))
 
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'org-mode-hook 'turn-on-auto-fill)
@@ -390,8 +381,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (company-minimum-prefix-length 1)
   (company-show-numbers ''t)
   :config
-  (global-company-mode)
-  :delight)
+  (global-company-mode))
 
 (use-package company-quickhelp
   :after company
@@ -399,8 +389,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package which-key
   :custom (which-key-idle-secondary-delay 0.05)
-  :config (which-key-mode)
-  :delight)
+  :config (which-key-mode))
 
 (use-package helpful
   :bind
@@ -685,10 +674,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (global-undo-tree-mode)
   :custom
   (undo-tree-visualizer-timestamps t)
-  (undo-tree-visualizer-diff t)
-  :delight)
+  (undo-tree-visualizer-diff t))
 
 (use-package youtube-dl
+  :commands youtube-dl youtube-dl-list
   :custom
   (youtube-dl-directory (expand-create-directory-name (getenv "XDG_DOWNLOAD_DIR"))))
 
@@ -721,24 +710,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config (auto-compile-on-load-mode))
 
 (use-package gcmh
-  :config (gcmh-mode t)
-  :delight)
-
-(defun find-first-non-ascii-char ()
-  "Find the first non-ascii character from point onwards."
-  (interactive)
-  (let (point)
-    (save-excursion
-      (setq point
-            (catch 'non-ascii
-              (while (not (eobp))
-                (or (eq (char-charset (following-char))
-                        'ascii)
-                    (throw 'non-ascii (point)))
-                (forward-char 1)))))
-    (if point
-        (goto-char point)
-      (message "No non-ascii characters."))))
+  :config (gcmh-mode t))
 
 (defun root-edit ()
   "Open current file as root."
