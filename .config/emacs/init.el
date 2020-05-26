@@ -216,7 +216,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package org-roam
   :hook (after-init . org-roam-mode)
   :custom
-  (org-roam-directory "~/documents/"))
+  (org-roam-directory "~/documents/")
+  (org-roam-db-location (expand-file-name "org-roam.db" user-emacs-directory)))
 
 ;; source code highlighting for HTML org export
 (use-package htmlize)
