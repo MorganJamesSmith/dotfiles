@@ -12,6 +12,7 @@
 !.config/readline/inputrc
 !.config/setup.sh
 !.config/shepherd/init.d/syncthing.scm
+!.config/shepherd/init.d/transmission.scm
 !.config/shepherd/init.scm
 !.config/user-dirs.dirs
 !.config/wget/wgetrc
