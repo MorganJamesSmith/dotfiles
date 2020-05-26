@@ -84,3 +84,5 @@ eval "$(ssh-agent -s -a "$(gpgconf --list-dirs agent-ssh-socket)")"
 
 # start gpg-agent with moved homedir
 eval "$(gpg-agent --homedir "$GNUPGHOME" --daemon -s)"
+
+command -v shepherd && shepherd
