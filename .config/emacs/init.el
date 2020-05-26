@@ -36,6 +36,8 @@
 (eval-when-compile
   (require 'use-package))
 
+(use-package delight)
+
 ;; Add type validation to customize-set-variable function
 (use-package validate
   :config
@@ -89,23 +91,30 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'create-lockfiles nil) ; Only matters on multi-user systems
 ;;; Optimization Section Ends
 
-(use-package delight)
 
-(use-package erc
+;;; Sensible Default Section Begins
+(global-auto-revert-mode t)
+(customize-set-variable 'revert-without-query '(".*"))
+
+;; Replace the info command with something more useful
+(global-set-key (kbd "C-h i") 'info-display-manual)
+
+(fset #'yes-or-no-p #'y-or-n-p)
+
+;; Move gnus folders to the `user-emacs-directory'
+(use-package gnus
   :straight nil
   :custom
-  (erc-server "irc.freenode.net")
-  (erc-port 6667)
-  (erc-nick "butterypancake")
-  (erc-user-full-name user-full-name)
-  (erc-anonymous-login t)
-  (erc-log-channels-directory (expand-create-directory-name "erc-logs" user-emacs-directory))
-  (erc-save-buffer-on-part t)
-  :config
-  (add-to-list 'erc-modules 'log)
-  (add-to-list 'erc-modules 'keep-place))
+  (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
+  (gnus-home-directory (expand-create-directory-name "gnus-files" user-emacs-directory))
+  (gnus-directory (expand-create-directory-name "News" gnus-home-directory))
+  (mail-source-directory (expand-create-directory-name "Mail" gnus-home-directory)))
 
-(use-package debbugs)
+;; Use only encrypted authinfo
+(customize-set-variable 'auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
+(customize-set-variable 'auth-source-gpg-encrypt-to '("Morgan.J.Smith@outlook.com"))
+;;; Sensible Default Section Ends
+
 
 ;;; Pretty Visuals Section Begins
 (use-package modus-vivendi-theme
@@ -118,209 +127,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (enable-theme 'org-beautify))
 
-;; I dislike gui stuff
-(customize-set-variable 'use-file-dialog nil)
-(customize-set-variable 'use-dialog-box nil)
-(customize-set-variable 'visible-bell t)
-
-(blink-cursor-mode 0)
-;;; Pretty Visuals Section Ends
-
-
-;;; Sensible Default Section Begins
-(global-auto-revert-mode t)
-(customize-set-variable 'revert-without-query '(".*"))
-
-;; Replace the info command with something more useful
-(global-set-key (kbd "C-h i") 'info-display-manual)
-
-(fset #'yes-or-no-p #'y-or-n-p)
-
-(use-package bluetooth)
-
-(use-package disk-usage)
-
-(use-package guix
-  :if (executable-find "guix"))
-
-(use-package nginx-mode)
-
-(use-package gnus
-  :straight nil
-  :custom
-  (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
-  (gnus-home-directory (expand-create-directory-name "gnus-files" user-emacs-directory))
-  (gnus-directory (expand-create-directory-name "News" gnus-home-directory))
-  (mail-source-directory (expand-create-directory-name "Mail" gnus-home-directory)))
-
-(use-package youtube-dl
-  :custom
-  (youtube-dl-directory (expand-create-directory-name (getenv "XDG_DOWNLOAD_DIR"))))
-
-;; Use only encrypted authinfo
-(customize-set-variable 'auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
-(customize-set-variable 'auth-source-gpg-encrypt-to '("Morgan.J.Smith@outlook.com"))
-;;; Sensible Default Section Ends
-
-(use-package auth-source-pass
-  :straight nil
-  :custom (auth-source-pass-filename (expand-file-name "password-store" (getenv "XDG_DATA_HOME")))
-  :config (auth-source-pass-enable))
-
-(use-package auth-source-xoauth2
-  :after smtpmail
-  :config
-  (defun my-xoauth2-get-secrets (_host user _port)
-    (when (string= user (auth-source-pass-get 'secret "email/work/address"))
-      (list
-       :token-url "https://accounts.google.com/o/oauth2/token"
-       :client-id (auth-source-pass-get 'secret "email/work/client-id")
-       :client-secret (auth-source-pass-get 'secret "email/work/client-secret")
-       :refresh-token (auth-source-pass-get 'secret "email/work/refresh-token"))))
-  (setq auth-source-xoauth2-creds 'my-xoauth2-get-secrets)
-
-  (eval-when-compile
-    (require 'smtpmail))
-  (add-to-list 'smtpmail-auth-supported 'xoauth2)
-  (auth-source-xoauth2-enable))
-
-(use-package flyspell
-  :straight nil
-  :hook
-  ((prog-mode . flyspell-prog-mode)
-   ((text-mode text-mode message-mode) . flyspell-mode)))
-
-(setq disabled-command-function nil)
-
-(use-package vlf)
-
-;; No mouse gang
-(mouse-avoidance-mode 'banish)
-
-(use-package org
-  :straight nil
-  :custom
-  (org-log-done 'time)
-  (org-adapt-indentation nil)
-  (org-edit-src-content-indentation 0)
-  (org-html-validation-link nil)
-  :config
-  (org-indent-mode -1))
-
-(use-package org-roam
-  :hook (after-init . org-roam-mode)
-  :custom
-  (org-roam-directory "~/documents/"))
-
-(use-package deft
-  :custom
-  (deft-recursive t)
-  (deft-use-filter-string-for-filename t)
-  (deft-default-extension "org")
-  (deft-extensions '("org"))
-  (deft-directory "~/documents/")
-  (deft-recursive-ignore-dir-regexp
-    (concat "\\(?:"
-            "\\."
-            "\\|\\.\\."
-            "\\|\\.stfolder"   ;; Syncthing folder
-            "\\|\\.stversions" ;; Syncthing folder
-            "\\)$")))
-
-(use-package htmlize)
-
-(use-package gdb-mi
-  :straight nil
-  :custom (gdb-many-windows t))
-
-(use-package pinentry
-  :if (not IS-INSIDE-EMACS)
-  :custom
-  (epg-pinentry-mode 'loopback)
-  (epg-gpg-home-directory (getenv "GNUPGHOME"))
-  :config
-  (setenv "INSIDE_EMACS" emacs-version)
-  (pinentry-start))
-
-(use-package plantuml-mode
-  :custom
-  (plantuml-default-exec-mode 'executable)
-  (plantuml-indent-level 4)
-  :config
-  (with-eval-after-load 'evil
-    (evil-define-key 'normal plantuml-mode-map (leader "c") #'plantuml-preview))
-  :mode ("\\.uml\\'" . plantuml-mode))
-
-(use-package flycheck-plantuml
-  :after (flycheck plantuml)
-  :config (flycheck-plantuml-setup))
-
-;; Backups and auto-saves and deleting
-(use-package files
-  :straight nil
-  :custom
-  (backup-directory-alist `((".*" . ,(expand-create-directory-name "backups" user-emacs-directory))))
-  (auto-save-file-name-transforms `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
-  (trash-directory (expand-create-directory-name "trash" user-emacs-directory))
-  (make-backup-files t)
-  (backup-by-copying t)
-  (version-control t)
-  (vc-make-backup-files t)
-  (delete-old-versions -1)
-  (auto-save-default t)
-  (auto-save-timeout 20)
-  (auto-save-interval 200)
-  (delete-by-moving-to-trash t))
-
-(customize-set-variable 'custom-file (expand-file-name "custom-garbage" trash-directory) "Goodbye Custom")
-
-(customize-set-variable 'load-prefer-newer t)
-(use-package auto-compile
-  :config (auto-compile-on-load-mode))
-
-(use-package ledger-mode
-  :custom
-  (ledger-reports
-    '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
-      ("last mon" "%(binary) -f %(ledger-file) bal -p \"last month\"")
-      ("bal" "%(binary) -f %(ledger-file) bal")
-      ("reg" "%(binary) -f %(ledger-file) reg")
-      ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
-      ("account" "%(binary) -f %(ledger-file) reg %(account)")))
-  :mode ("\\.ledger\\'" . ledger-mode))
-
-(use-package evil-ledger
-  :after (ledger-mode evil)
-  :config
-  (evil-define-key 'normal ledger-mode-map (leader "c") #'ledger-report))
-
-(use-package flycheck-ledger
-  :after (ledger-mode flycheck))
-
-(use-package pdf-tools
-  :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
-  :config (pdf-tools-install t))
-
-(use-package nov
-  :custom (nov-text-width 80)
-  :mode ("\\.epub\\'" . nov-mode))
-
-(use-package eshell
-  :straight nil
-  :custom
-  (eshell-history-size nil "Pull history size from environment variables")
-  (eshell-history-file-name nil "Pull history file from environment variables")
-  :config
-  (setenv "PAGER" (executable-find "cat")))
-
-(use-package dired
-  :straight nil
-  :custom
-  (dired-recursive-copies 'always)
-  (dired-recursive-deletes 'always)
-  (dired-listing-switches "-aFhl")
-  :hook (dired-mode . dired-hide-details-mode))
-
 (use-package all-the-icons
   :if (display-graphic-p)
   :custom (inhibit-compacting-font-caches t))
@@ -330,61 +136,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :hook (dired-mode . all-the-icons-dired-mode)
   :delight)
 
-(use-package tramp
-  :straight nil
-  :custom
-  (tramp-default-method "ssh")
-  (remote-file-name-inhibit-cache nil)
-  (tramp-completion-reread-directory-timeout nil)
-  (tramp-use-ssh-controlmaster-options nil "Use system settings")
-  (vc-ignore-dir-regexp
-   (format "%s\\|%s"
-           vc-ignore-dir-regexp
-           tramp-file-name-regexp)))
+;; I dislike gui stuff
+(customize-set-variable 'use-file-dialog nil)
+(customize-set-variable 'use-dialog-box nil)
+(customize-set-variable 'visible-bell t)
 
-(use-package undo-tree
-  :config
-  (global-undo-tree-mode)
-  :custom
-  (undo-tree-visualizer-timestamps t)
-  (undo-tree-visualizer-diff t)
-  :delight)
-
-(use-package minibuffer
-  :straight nil
-  :custom
-  (read-buffer-completion-ignore-case t)
-  (completion-cycle-threshold 3))
-
-;;; Programming Section Begins
-(use-package xcscope
-  :config (cscope-setup))
-
-;; Save all buffers on compile automatically
-(customize-set-variable 'compilation-ask-about-save nil)
-
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-
-(customize-set-variable 'c-basic-offset 4)
-(semantic-mode 1)
-
-;; TODO: add evil bindings
-(use-package ascii-table
-  :commands ascii-table)
-
-;; Many major modes do no highlighting of number literals, so we do it for them
-(use-package highlight-numbers
-  :hook ((prog-mode conf-mode) . highlight-numbers-mode)
-  :custom (highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
-
-(use-package flycheck
-  :custom (flycheck-emacs-lisp-load-path 'inherit)
-  :init (global-flycheck-mode))
-
-(use-package eldoc-eval
-  :config (eldoc-in-minibuffer-mode 1)
-  :delight eldoc-mode)
-;;; Programming Section Ends
+(blink-cursor-mode 0)
+;;; Pretty Visuals Section Ends
 
 
 ;;; Modeline Section Begins
@@ -415,6 +173,194 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Modeline Section Ends
 
 
+;;; Evil Section Begins
+(defun leader (key)
+  "Add the leader key on front of KEY."
+  (kbd (concat "SPC " key)))
+
+(use-package evil
+  :custom
+  (evil-want-keybinding nil)
+  (evil-want-integration t)
+  (evil-ex-complete-emacs-commands t)
+  (evil-want-C-u-scroll t)
+  (evil-want-Y-yank-to-eol t)
+
+  :config
+  (evil-mode t)
+  (evil-define-key '(normal insert) 'global (kbd "M-j") #'evil-scroll-line-down)
+  (evil-define-key '(normal insert) 'global (kbd "M-k") #'evil-scroll-line-up)
+  (evil-define-key '(normal insert) 'global (kbd "M-J") #'text-scale-decrease)
+  (evil-define-key '(normal insert) 'global (kbd "M-K") #'text-scale-increase)
+
+  (evil-define-key 'visual 'global (leader "c") #'comment-or-uncomment-region)
+
+  (evil-define-key '(normal visual) 'global (leader "o") #'ispell)
+
+  (evil-define-key 'normal 'global (leader "TAB") #'whitespace-mode)
+  (evil-define-key 'normal 'global (leader "c")   #'compile)
+  (evil-define-key 'normal 'global (leader "g")   #'magit-status)
+  (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))))
+
+(use-package evil-collection
+  :after evil
+  :config (evil-collection-init))
+;;; Evil Section Ends
+
+
+;;; Org Section Begins
+(use-package org
+  :straight nil
+  :custom
+  (org-log-done 'time)
+  (org-adapt-indentation nil)
+  (org-edit-src-content-indentation 0)
+  (org-html-validation-link nil)
+  :config
+  (org-indent-mode -1))
+
+(use-package org-roam
+  :hook (after-init . org-roam-mode)
+  :custom
+  (org-roam-directory "~/documents/"))
+
+;; source code highlighting for HTML org export
+(use-package htmlize)
+;;; Org Section Ends
+
+
+;;; Ledger Mode Section Begins
+(use-package ledger-mode
+  :custom
+  (ledger-reports
+    '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
+      ("last mon" "%(binary) -f %(ledger-file) bal -p \"last month\"")
+      ("bal" "%(binary) -f %(ledger-file) bal")
+      ("reg" "%(binary) -f %(ledger-file) reg")
+      ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
+      ("account" "%(binary) -f %(ledger-file) reg %(account)")))
+  :mode ("\\.ledger\\'" . ledger-mode))
+
+(use-package evil-ledger
+  :after (ledger-mode evil)
+  :config
+  (evil-define-key 'normal ledger-mode-map (leader "c") #'ledger-report))
+
+(use-package flycheck-ledger
+  :after (ledger-mode flycheck))
+;;; Ledger Mode Section Ends
+
+
+;;; Programming Section Begins
+(use-package xcscope
+  :config (cscope-setup))
+
+;; Save all buffers on compile automatically
+(customize-set-variable 'compilation-ask-about-save nil)
+
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+(customize-set-variable 'c-basic-offset 4)
+(semantic-mode 1)
+
+;; TODO: add evil bindings
+(use-package ascii-table
+  :commands ascii-table)
+
+;; Many major modes do no highlighting of number literals, so we do it for them
+(use-package highlight-numbers
+  :hook ((prog-mode conf-mode) . highlight-numbers-mode)
+  :custom (highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
+
+(use-package flycheck
+  :custom (flycheck-emacs-lisp-load-path 'inherit)
+  :init (global-flycheck-mode))
+
+(use-package eldoc-eval
+  :config (eldoc-in-minibuffer-mode 1)
+  :delight eldoc-mode)
+
+(use-package debbugs)
+
+(use-package gdb-mi
+  :straight nil
+  :custom (gdb-many-windows t))
+;;; Programming Section Ends
+
+
+;;; VC/Diffs Section Begins
+(use-package magit
+  :custom
+  (magit-no-confirm '(safe-with-wip))
+  (magit-wip-merge-branch t)
+  (magit-diff-refine-hunk 'all)
+  (magit-save-repository-buffers 'dontask)
+  (magit-auto-revert-immediately t)
+  :config
+  (magit-wip-mode 1)
+
+  (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
+  (add-hook 'magit-process-find-password-functions
+            'magit-process-password-auth-source)
+  :delight magit-wip-mode)
+
+(use-package evil-magit
+  :after (evil magit))
+
+(use-package magit-repos
+  :straight nil
+  :after magit
+  :commands magit-list-repositories
+  :custom
+  (magit-repository-directories
+   `(("~/repos" . 1)
+     (,(expand-create-directory-name "straight/repos" user-emacs-directory) . 1)
+     ("~" . 0))))
+
+(use-package diff-hl
+  :config (global-diff-hl-mode))
+
+(use-package ediff
+  :straight nil
+  :commands ediff
+  :custom
+  (ediff-diff-options "-w"))
+
+(use-package ediff-wind
+  :straight nil
+  :after ediff
+  (ediff-window-setup-function 'ediff-setup-windows-plain)
+  (ediff-split-window-function 'split-window-horizontally))
+;;; VC/Diffs Section Ends
+
+
+;;; Parens Section Begins
+(use-package paren
+  :straight nil
+  :custom
+  (show-paren-delay 0)
+  (show-paren-highlight-openparen t)
+  (show-paren-when-point-inside-paren t)
+  (show-paren-when-point-in-periphery t)
+  :config
+  (show-paren-mode t))
+
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode)
+  :custom-face
+  (rainbow-delimiters-depth-1-face   ((t (:foreground "white"))))
+  (rainbow-delimiters-depth-2-face   ((t (:foreground "cyan"))))
+  (rainbow-delimiters-depth-3-face   ((t (:foreground "yellow"))))
+  (rainbow-delimiters-depth-4-face   ((t (:foreground "green"))))
+  (rainbow-delimiters-depth-5-face   ((t (:foreground "orange"))))
+  (rainbow-delimiters-depth-6-face   ((t (:foreground "purple"))))
+  (rainbow-delimiters-depth-7-face   ((t (:foreground "white"))))
+  (rainbow-delimiters-depth-8-face   ((t (:foreground "cyan"))))
+  (rainbow-delimiters-depth-9-face   ((t (:foreground "yellow"))))
+  (rainbow-delimiters-unmatched-face ((t (:foreground "red")))))
+;;; Parens Section Ends
+
+
 ;;; Whitespace Section Begins
 (customize-set-variable 'tab-width 4)
 (customize-set-variable 'indent-tabs-mode nil)
@@ -430,26 +376,193 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Whitespace Section Ends
 
 
-;;; GNU/Linux Section Begins
-(when IS-LINUX
-  (use-package vterm
-    :commands vterm vterm-other-window))
-;;; GNU/Linux Section Ends
-
-
-;;; GNU/Linux and BSD Section Begins
-(when (or IS-LINUX IS-BSD)
-
-(use-package transmission
-  :commands transmission transmission-add
+;;; Auto-complete/Hints Section Begins
+(use-package ido
+  :straight nil
   :custom
-  (transmission-refresh-modes '(transmission-mode
-                                transmission-files-mode
-                                transmission-info-mode
-                                transmission-peers-mode)))
+  (ido-enable-flex-matching t)
+  (ido-everywhere t)
+  :config
+  (ido-mode 1))
+
+(use-package company
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-show-numbers ''t)
+  :config
+  (global-company-mode)
+  :delight)
+
+(use-package company-quickhelp
+  :after company
+  :config (company-quickhelp-mode))
+
+(use-package which-key
+  :custom (which-key-idle-secondary-delay 0.05)
+  :config (which-key-mode)
+  :delight)
+
+(use-package helpful
+  :bind
+  (("C-h f" . helpful-callable)
+   ("C-h v" . helpful-variable)
+   ("C-h k" . helpful-key)
+   ("C-c C-d" . helpful-at-point)))
+;;; Auto-complete/Hints Section Ends
+
+
+;;; EWW Section Begins
+(use-package shr
+  :straight nil
+  :custom
+  (browse-url-browser-function 'eww-browse-url)
+  (shr-use-colors nil)
+  (shr-max-image-proportion 0.5))
+
+(use-package shrface
+  :straight (shrface :type git :host github :repo "chenyanming/shrface")
+  :config
+  (require 'shrface)
+  (shrface-basic)
+  (shrface-trial)
+  (setq shrface-href-versatile t)
+  (with-eval-after-load 'eww
+    (add-hook 'eww-after-render-hook #'shrface-mode)
+    (with-eval-after-load 'evil
+      (evil-define-key '(normal) eww-mode-map
+        (kbd "<tab>") 'org-cycle
+        (kbd "<S-tab>") 'org-shifttab
+        (kbd "C-j") 'outline-next-visible-heading
+        (kbd "C-k") 'outline-previous-visible-heading)))
+  (with-eval-after-load 'nov
+    ;; reset nov-shr-rendering-functions, in case the list get bigger and bigger
+    (setq nov-shr-rendering-functions '((img . nov-render-img)
+                                        (title . nov-render-title)))
+    (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
+    (add-hook 'nov-mode-hook 'shrface-mode)
+    (with-eval-after-load 'evil
+      (evil-define-key '(normal) nov-mode-map
+        (kbd "<tab>") 'org-cycle
+        (kbd "<S-tab>") 'org-shifttab
+        (kbd "C-j") 'outline-next-visible-heading
+        (kbd "C-k") 'outline-previous-visible-heading))))
+
+(use-package shr-tag-pre-highlight
+  :config
+  (add-to-list 'shr-external-rendering-functions
+               '(pre . shr-tag-pre-highlight)))
+;;; EWW Section Ends
+
+
+;;; auth Section Begins
+(use-package auth-source-pass
+  :straight nil
+  :custom (auth-source-pass-filename (expand-file-name "password-store" (getenv "XDG_DATA_HOME"))))
+
+(use-package auth-source-xoauth2
+  :after smtpmail
+  :config
+  (defun my-xoauth2-get-secrets (_host user _port)
+    (when (string= user (auth-source-pass-get 'secret "email/work/address"))
+      (list
+       :token-url "https://accounts.google.com/o/oauth2/token"
+       :client-id (auth-source-pass-get 'secret "email/work/client-id")
+       :client-secret (auth-source-pass-get 'secret "email/work/client-secret")
+       :refresh-token (auth-source-pass-get 'secret "email/work/refresh-token"))))
+  (setq auth-source-xoauth2-creds 'my-xoauth2-get-secrets)
+
+  (eval-when-compile
+    (require 'smtpmail))
+  (add-to-list 'smtpmail-auth-supported 'xoauth2)
+  (auth-source-xoauth2-enable))
+
+(use-package pinentry
+  :if (not IS-INSIDE-EMACS)
+  :custom
+  (epg-pinentry-mode 'loopback)
+  (epg-gpg-home-directory (getenv "GNUPGHOME"))
+  :config
+  (setenv "INSIDE_EMACS" emacs-version)
+  (pinentry-start))
+;;; auth Section Ends
+
+
+(use-package erc
+  :straight nil
+  :custom
+  (erc-server "irc.freenode.net")
+  (erc-port 6667)
+  (erc-nick "butterypancake")
+  (erc-user-full-name user-full-name)
+  (erc-anonymous-login t)
+  (erc-log-channels-directory (expand-create-directory-name "erc-logs" user-emacs-directory))
+  (erc-save-buffer-on-part t)
+  :config
+  (add-to-list 'erc-modules 'log)
+  (add-to-list 'erc-modules 'keep-place))
+
+(use-package flyspell
+  :straight nil
+  :hook
+  ((prog-mode . flyspell-prog-mode)
+   ((text-mode text-mode message-mode) . flyspell-mode)))
+
+;; Backups and auto-saves and deleting
+(use-package files
+  :straight nil
+  :custom
+  (backup-directory-alist `((".*" . ,(expand-create-directory-name "backups" user-emacs-directory))))
+  (auto-save-file-name-transforms `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
+  (trash-directory (expand-create-directory-name "trash" user-emacs-directory))
+  (make-backup-files t)
+  (backup-by-copying t)
+  (version-control t)
+  (vc-make-backup-files t)
+  (delete-old-versions -1)
+  (auto-save-default t)
+  (auto-save-timeout 20)
+  (auto-save-interval 200)
+  (delete-by-moving-to-trash t))
+
+(customize-set-variable 'custom-file (expand-file-name "custom-garbage" trash-directory) "Goodbye Custom")
+
+(use-package eshell
+  :straight nil
+  :custom
+  (eshell-history-size nil "Pull history size from environment variables")
+  (eshell-history-file-name nil "Pull history file from environment variables")
+  :config
+  (setenv "PAGER" (executable-find "cat")))
+
+(use-package dired
+  :straight nil
+  :custom
+  (dired-recursive-copies 'always)
+  (dired-recursive-deletes 'always)
+  (dired-listing-switches "-aFhl")
+  :hook (dired-mode . dired-hide-details-mode))
+
+(use-package tramp
+  :straight nil
+  :custom
+  (tramp-default-method "ssh")
+  (remote-file-name-inhibit-cache nil)
+  (tramp-completion-reread-directory-timeout nil)
+  (tramp-use-ssh-controlmaster-options nil "Use system settings")
+  (vc-ignore-dir-regexp
+   (format "%s\\|%s"
+           vc-ignore-dir-regexp
+           tramp-file-name-regexp)))
+
+(use-package minibuffer
+  :straight nil
+  :custom
+  (read-buffer-completion-ignore-case t)
+  (completion-cycle-threshold 3))
+
 
 (use-package exwm
-  :if (and (display-graphic-p) (not IS-INSIDE-EMACS))
+  :if (and (display-graphic-p) (not IS-INSIDE-EMACS) (or IS-LINUX IS-BSD))
   :custom
   (exwm-workspace-show-all-buffers t)
   (exwm-layout-show-all-buffers t)
@@ -530,193 +643,82 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
   (exwm-randr-enable)
   (exwm-config-ido)
-  (exwm-enable)))
-;;; GNU/Linux and BSD Section Ends
+  (exwm-enable))
 
+(use-package bluetooth)
 
-;;; Parens Section Begins
-(use-package paren
-  :straight nil
+(use-package disk-usage)
+
+(use-package guix
+  :if (executable-find "guix"))
+
+(use-package nginx-mode)
+
+(use-package vlf)
+
+;; No mouse gang
+(mouse-avoidance-mode 'banish)
+
+(use-package plantuml-mode
   :custom
-  (show-paren-delay 0)
-  (show-paren-highlight-openparen t)
-  (show-paren-when-point-inside-paren t)
-  (show-paren-when-point-in-periphery t)
+  (plantuml-default-exec-mode 'executable)
+  (plantuml-indent-level 4)
   :config
-  (show-paren-mode t))
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal plantuml-mode-map (leader "c") #'plantuml-preview))
+  :mode ("\\.uml\\'" . plantuml-mode))
 
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode)
-  :custom-face
-  (rainbow-delimiters-depth-1-face   ((t (:foreground "white"))))
-  (rainbow-delimiters-depth-2-face   ((t (:foreground "cyan"))))
-  (rainbow-delimiters-depth-3-face   ((t (:foreground "yellow"))))
-  (rainbow-delimiters-depth-4-face   ((t (:foreground "green"))))
-  (rainbow-delimiters-depth-5-face   ((t (:foreground "orange"))))
-  (rainbow-delimiters-depth-6-face   ((t (:foreground "purple"))))
-  (rainbow-delimiters-depth-7-face   ((t (:foreground "white"))))
-  (rainbow-delimiters-depth-8-face   ((t (:foreground "cyan"))))
-  (rainbow-delimiters-depth-9-face   ((t (:foreground "yellow"))))
-  (rainbow-delimiters-unmatched-face ((t (:foreground "red")))))
-;;; Parens Section Ends
+(use-package flycheck-plantuml
+  :after (flycheck plantuml)
+  :config (flycheck-plantuml-setup))
 
+(use-package pdf-tools
+  :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
+  :config (pdf-tools-install t))
 
-;;; VC/Diffs Section Begins
-(use-package magit
-  :custom
-  (magit-no-confirm '(safe-with-wip))
-  (magit-wip-merge-branch t)
-  (magit-diff-refine-hunk 'all)
-  (magit-save-repository-buffers 'dontask)
-  (magit-auto-revert-immediately t)
+(use-package nov
+  :custom (nov-text-width 80)
+  :mode ("\\.epub\\'" . nov-mode))
+
+(use-package undo-tree
   :config
-  (magit-wip-mode 1)
-
-  (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
-  (add-hook 'magit-process-find-password-functions
-            'magit-process-password-auth-source)
-  :delight magit-wip-mode)
-
-(use-package magit-repos
-  :straight nil
-  :after magit
-  :commands magit-list-repositories
+  (global-undo-tree-mode)
   :custom
-  (magit-repository-directories
-   `(("~/repos" . 1)
-     (,(expand-create-directory-name "straight/repos" user-emacs-directory) . 1)
-     ("~" . 0))))
-
-(use-package diff-hl
-  :config (global-diff-hl-mode))
-
-(use-package ediff
-  :straight nil
-  :commands ediff
-  :custom
-  (ediff-diff-options "-w"))
-
-(use-package ediff-wind
-  :straight nil
-  :after ediff
-  (ediff-window-setup-function 'ediff-setup-windows-plain)
-  (ediff-split-window-function 'split-window-horizontally))
-;;; VC/Diffs Section Ends
-
-
-;;; EWW Section Begins
-(use-package shr
-  :straight nil
-  :custom
-  (browse-url-browser-function 'eww-browse-url)
-  (shr-use-colors nil)
-  (shr-max-image-proportion 0.5))
-
-(use-package shrface
-  :straight (shrface :type git :host github :repo "chenyanming/shrface")
-  :config
-  (require 'shrface)
-  (shrface-basic)
-  (shrface-trial)
-  (setq shrface-href-versatile t)
-  (with-eval-after-load 'eww
-    (add-hook 'eww-after-render-hook #'shrface-mode)
-    (with-eval-after-load 'evil
-      (evil-define-key '(normal) eww-mode-map
-        (kbd "<tab>") 'org-cycle
-        (kbd "<S-tab>") 'org-shifttab
-        (kbd "C-j") 'outline-next-visible-heading
-        (kbd "C-k") 'outline-previous-visible-heading)))
-  (with-eval-after-load 'nov
-    ;; reset nov-shr-rendering-functions, in case the list get bigger and bigger
-    (setq nov-shr-rendering-functions '((img . nov-render-img)
-                                        (title . nov-render-title)))
-    (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
-    (add-hook 'nov-mode-hook 'shrface-mode)
-    (with-eval-after-load 'evil
-      (evil-define-key '(normal) nov-mode-map
-        (kbd "<tab>") 'org-cycle
-        (kbd "<S-tab>") 'org-shifttab
-        (kbd "C-j") 'outline-next-visible-heading
-        (kbd "C-k") 'outline-previous-visible-heading))))
-
-(use-package shr-tag-pre-highlight
-  :config
-  (add-to-list 'shr-external-rendering-functions
-               '(pre . shr-tag-pre-highlight)))
-;;; EWW Section Ends
-
-
-;;; Auto-complete/Hints Section Begins
-(use-package ido
-  :straight nil
-  :custom
-  (ido-enable-flex-matching t)
-  (ido-everywhere t)
-  :config
-  (ido-mode 1))
-
-(use-package company
-  :custom
-  (company-minimum-prefix-length 1)
-  (company-show-numbers ''t)
-  :config
-  (global-company-mode)
+  (undo-tree-visualizer-timestamps t)
+  (undo-tree-visualizer-diff t)
   :delight)
 
-(use-package company-quickhelp
-  :after company
-  :config (company-quickhelp-mode))
-
-(use-package which-key
-  :custom (which-key-idle-secondary-delay 0.05)
-  :config (which-key-mode)
-  :delight)
-;;; Auto-complete/Hints Section Ends
-
-(use-package helpful
-  :bind
-  (("C-h f" . helpful-callable)
-   ("C-h v" . helpful-variable)
-   ("C-h k" . helpful-key)
-   ("C-c C-d" . helpful-at-point)))
-
-;;; Evil Section Begins
-(defun leader (key)
-  "Add the leader key on front of KEY."
-  (kbd (concat "SPC " key)))
-
-(use-package evil
+(use-package youtube-dl
   :custom
-  (evil-want-keybinding nil)
-  (evil-want-integration t)
-  (evil-ex-complete-emacs-commands t)
-  (evil-want-C-u-scroll t)
-  (evil-want-Y-yank-to-eol t)
+  (youtube-dl-directory (expand-create-directory-name (getenv "XDG_DOWNLOAD_DIR"))))
 
-  :config
-  (evil-mode t)
-  (evil-define-key '(normal insert) 'global (kbd "M-j") #'evil-scroll-line-down)
-  (evil-define-key '(normal insert) 'global (kbd "M-k") #'evil-scroll-line-up)
-  (evil-define-key '(normal insert) 'global (kbd "M-J") #'text-scale-decrease)
-  (evil-define-key '(normal insert) 'global (kbd "M-K") #'text-scale-increase)
+(use-package transmission
+  :if (executable-find "transmission-daemon")
+  :commands transmission transmission-add
+  :custom
+  (transmission-refresh-modes '(transmission-mode
+                                transmission-files-mode
+                                transmission-info-mode
+                                transmission-peers-mode)))
 
-  (evil-define-key 'visual 'global (leader "c") #'comment-or-uncomment-region)
+(use-package deft
+  :custom
+  (deft-recursive t)
+  (deft-use-filter-string-for-filename t)
+  (deft-default-extension "org")
+  (deft-extensions '("org"))
+  (deft-directory "~/documents/")
+  (deft-recursive-ignore-dir-regexp
+    (concat "\\(?:"
+            "\\."
+            "\\|\\.\\."
+            "\\|\\.stfolder"   ;; Syncthing folder
+            "\\|\\.stversions" ;; Syncthing folder
+            "\\)$")))
 
-  (evil-define-key '(normal visual) 'global (leader "o") #'ispell)
-
-  (evil-define-key 'normal 'global (leader "TAB") #'whitespace-mode)
-  (evil-define-key 'normal 'global (leader "c")   #'compile)
-  (evil-define-key 'normal 'global (leader "g")   #'magit-status)
-  (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))))
-
-(use-package evil-collection
-  :after evil
-  :config (evil-collection-init))
-
-(use-package evil-magit
-  :after (evil magit))
-;;; Evil Section Ends
+(customize-set-variable 'load-prefer-newer t)
+(use-package auto-compile
+  :config (auto-compile-on-load-mode))
 
 (use-package gcmh
   :config (gcmh-mode t)
