@@ -11,6 +11,7 @@
 !.config/pulse/daemon.conf
 !.config/readline/inputrc
 !.config/setup.sh
+!.config/shepherd/init.d/mpd.scm
 !.config/shepherd/init.d/syncthing.scm
 !.config/shepherd/init.d/transmission.scm
 !.config/shepherd/init.scm
