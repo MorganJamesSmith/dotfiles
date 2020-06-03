@@ -167,6 +167,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Modeline Section Ends
 
 
+;; Unbind keys I don't use
+(dolist (key '("\C-z"      ; Suspend frame
+               "\C-x\C-z"  ; Suspend frame
+               "\C-x\C-d"  ; List directory
+               "\M-o"      ; Facemenu stuff
+               ))
+  (global-unset-key key))
+
+
 ;;; Evil Section Begins
 (defun leader (key)
   "Add the leader key on front of KEY."
@@ -204,13 +213,30 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Org Section Begins
 (use-package org
-  :straight nil
+  :demand
+  :bind ("C-c a" . org-agenda)
   :custom
+  (org-directory "~/documents/")
+  (org-agenda-files `(,(expand-file-name "timetracking.org" org-directory)))
+  (org-default-notes-file (expand-file-name "notes.org" org-directory))
+  (org-clock-persist t)
+  (org-clock-mode-line-total 'current)
+  (org-clock-out-switch-to-state #'org-clock-out-state)
+  (org-log-note-clock-out t)
   (org-log-done 'time)
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
-  (org-html-validation-link nil)
+  (org-html-postamble nil)
   :config
+  (defun org-clock-out-state (state)
+    (if (string= state "HABIT")
+        "DONE"
+      state))
+
+  ;; This assignment doesn't pass my type checker. I'm not sure why
+  (setq org-todo-keywords '((sequence "TODO" "DONE") (sequence "HABIT" "DONE")))
+
+  (org-clock-persistence-insinuate)
   (org-indent-mode -1))
 
 (use-package org-roam
@@ -218,6 +244,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :custom
   (org-roam-directory "~/documents/")
   (org-roam-db-location (expand-file-name "org-roam.db" user-emacs-directory)))
+
+(use-package evil-org
+  :after org
+  :config
+  (add-hook 'org-mode-hook 'evil-org-mode)
+  (add-hook 'evil-org-mode-hook
+            (lambda ()
+              (evil-org-set-key-theme)))
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
 
 ;; source code highlighting for HTML org export
 (use-package htmlize)
