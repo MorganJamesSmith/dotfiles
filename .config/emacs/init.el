@@ -216,30 +216,53 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :demand
   :bind ("C-c a" . org-agenda)
   :custom
+  (org-pretty-entities t)
   (org-directory "~/documents/")
   (org-agenda-files `(,(expand-file-name "timetracking.org" org-directory)))
   (org-default-notes-file (expand-file-name "notes.org" org-directory))
-  (org-clock-persist t)
-  (org-clock-mode-line-total 'current)
-  (org-clock-out-switch-to-state #'org-clock-out-state)
-  (org-log-note-clock-out t)
   (org-log-done 'time)
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
   (org-html-postamble nil)
+  :config
+
+  ;; This assignment doesn't pass my type checker. I'm not sure why
+  (setq org-todo-keywords '((sequence "TODO" "DONE") (sequence "HABIT" "DONE")))
+
+  (org-indent-mode -1))
+
+(use-package org-clock
+  :demand
+  :after org
+  :straight nil
+  :bind
+  ("C-c I" . (lambda () (interactive) (org-clock-in '(4))))
+  ("C-c O" . org-clock-out)
+  :custom
+  (org-agenda-clock-consistency-checks '(:max-gap "0:00"))
+  (org-clock-continuously t)
+  (org-clock-history-length 20)
+  (org-clock-in-resume t)
+  (org-clock-mode-line-total 'current)
+  (org-clock-out-remove-zero-time-clocks t)
+  (org-clock-out-switch-to-state #'org-clock-out-state)
+  (org-clock-persist t)
+  (org-clock-persist-query-resume nil)
+  (org-log-note-clock-out t)
   :config
   (defun org-clock-out-state (state)
     (if (string= state "HABIT")
         "DONE"
       state))
 
-  ;; This assignment doesn't pass my type checker. I'm not sure why
-  (setq org-todo-keywords '((sequence "TODO" "DONE") (sequence "HABIT" "DONE")))
+  (org-clock-persistence-insinuate))
 
-  (org-clock-persistence-insinuate)
-  (org-indent-mode -1))
+;; I load org-habit here so my agenda view is correct
+(use-package org-habit
+  :straight nil)
 
 (use-package org-roam
+  :after org
   :hook (after-init . org-roam-mode)
   :custom
   (org-roam-directory "~/documents/")
