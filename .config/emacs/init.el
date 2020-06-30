@@ -99,6 +99,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (fset #'yes-or-no-p #'y-or-n-p)
 
+(fido-mode 1)
+
 ;; Move gnus folders to the `user-emacs-directory'
 (use-package gnus
   :straight nil
@@ -125,6 +127,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (enable-theme 'org-beautify))
 
+(use-package org-bullets
+  :if (display-graphic-p)
+  :config (org-bullets-mode))
+
 (use-package all-the-icons
   :if (display-graphic-p)
   :custom (inhibit-compacting-font-caches t))
@@ -137,6 +143,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'use-file-dialog nil)
 (customize-set-variable 'use-dialog-box nil)
 (customize-set-variable 'visible-bell t)
+(tool-bar-mode -1)
 
 (blink-cursor-mode 0)
 ;;; Pretty Visuals Section Ends
@@ -184,26 +191,26 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package evil
   :custom
   (evil-want-keybinding nil)
-  (evil-want-integration t)
-  (evil-ex-complete-emacs-commands t)
   (evil-want-C-u-scroll t)
   (evil-want-Y-yank-to-eol t)
 
   :config
   (evil-mode t)
-  (evil-define-key '(normal insert) 'global (kbd "M-j") #'evil-scroll-line-down)
-  (evil-define-key '(normal insert) 'global (kbd "M-k") #'evil-scroll-line-up)
-  (evil-define-key '(normal insert) 'global (kbd "M-J") #'text-scale-decrease)
-  (evil-define-key '(normal insert) 'global (kbd "M-K") #'text-scale-increase)
+  (evil-define-key '(normal insert) 'global
+    (kbd "M-j") #'evil-scroll-line-down
+    (kbd "M-k") #'evil-scroll-line-up
+    (kbd "M-J") #'text-scale-decrease
+    (kbd "M-K") #'text-scale-increase)
 
   (evil-define-key 'visual 'global (leader "c") #'comment-or-uncomment-region)
 
   (evil-define-key '(normal visual) 'global (leader "o") #'ispell)
 
-  (evil-define-key 'normal 'global (leader "TAB") #'whitespace-mode)
-  (evil-define-key 'normal 'global (leader "c")   #'compile)
-  (evil-define-key 'normal 'global (leader "g")   #'magit-status)
-  (evil-define-key 'normal 'global (leader "e") (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))))
+  (evil-define-key 'normal 'global
+    (leader "TAB") #'whitespace-mode
+    (leader "c")   #'compile
+    (leader "g")   #'magit-status
+    (leader "e") (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))))
 
 (use-package evil-collection
   :after evil
@@ -241,6 +248,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :custom
   (org-agenda-clock-consistency-checks '(:max-gap "0:00"))
   (org-clock-continuously t)
+  (org-clock-display-default-range 'untilnow)
   (org-clock-history-length 20)
   (org-clock-in-resume t)
   (org-clock-mode-line-total 'current)
@@ -248,6 +256,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-clock-out-switch-to-state #'org-clock-out-state)
   (org-clock-persist t)
   (org-clock-persist-query-resume nil)
+  (org-clock-report-include-clocking-task t)
   (org-log-note-clock-out t)
   :config
   (defun org-clock-out-state (state)
@@ -263,10 +272,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package org-roam
   :after org
-  :hook (after-init . org-roam-mode)
+  :hook ((org-mode . org-roam-mode))
   :custom
-  (org-roam-directory "~/documents/")
+  (org-roam-completion-system 'ido)
+  (org-roam-directory org-directory)
   (org-roam-db-location (expand-file-name "org-roam.db" user-emacs-directory)))
+
+(use-package company-org-roam
+  :after (company org-roam))
 
 (use-package evil-org
   :after org
@@ -318,8 +331,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (semantic-mode 1)
 
 ;; TODO: add evil bindings
-(use-package ascii-table
-  :commands ascii-table)
+(use-package ascii-table)
 
 ;; Many major modes do no highlighting of number literals, so we do it for them
 (use-package highlight-numbers
@@ -535,6 +547,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (pinentry-start))
 ;;; auth Section Ends
 
+(use-package literate-calc-mode)
 
 (use-package erc
   :straight nil
@@ -590,6 +603,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (dired-recursive-deletes 'always)
   (dired-listing-switches "-aFhl")
   :hook (dired-mode . dired-hide-details-mode))
+
+(use-package dired-x
+  :straight nil
+  :custom
+  (dired-guess-shell-alist-user `((,(regexp-opt '(".mp4" ".mkv")) "mpv")
+                                  (,(regexp-opt '(".pdf")) "zathura"))))
 
 (use-package tramp
   :straight nil
@@ -737,6 +756,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (undo-tree-visualizer-diff t))
 
 (use-package youtube-dl
+  :if (executable-find "youtube-dl")
   :commands youtube-dl youtube-dl-list
   :custom
   (youtube-dl-directory (expand-create-directory-name (getenv "XDG_DOWNLOAD_DIR"))))
@@ -771,6 +791,24 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package gcmh
   :config (gcmh-mode t))
+
+(defun download-file (&optional file-link)
+  "Downloads a file.
+Uses either youtube-dl or transmission.  Downloads either
+FILE-LINK, the URL at current point, or the URL in the clipboard"
+  (interactive)
+  (let ((link (url-encode-url
+               (or file-link
+                   (thing-at-point 'url)
+                   (when interprogram-paste-function
+                     (funcall interprogram-paste-function))))))
+    (if (string-match "^magnet" link)
+        (transmission-add link)
+      (youtube-dl link))
+    (message "Downloading link: %S" link)))
+
+(global-set-key (kbd "C-c d") #'download-file)
+
 
 (defun root-edit ()
   "Open current file as root."

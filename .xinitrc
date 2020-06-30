@@ -26,4 +26,4 @@ picom -b
 gpg-connect-agent "UPDATESTARTUPTTY" /bye
 
 # Finally start Emacs
-exec emacs -f server-start
+exec emacs --fullscreen -f server-start
