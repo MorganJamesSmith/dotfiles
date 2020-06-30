@@ -4,3 +4,7 @@
 	signingKey = 177A078751DC4BFE55E6C6E752D93416EEAA45A6
 [commit]
 	gpgSign = true
+[color]
+	ui = always
+[pull]
+	rebase = true
