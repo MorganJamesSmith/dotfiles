@@ -34,6 +34,12 @@
 (customize-set-variable 'gnus-save-newsrc-file nil)
 (customize-set-variable 'gnus-read-newsrc-file nil)
 
+;; Read the entire active file because I would like everything
+(customize-set-variable 'gnus-read-active-file t)
+
+;; Update marks on the server as well
+(customize-set-variable 'gnus-use-backend-marks t)
+
 ;; Don't ask how many messages I want to see. I want them all
 (customize-set-variable 'gnus-large-newsgroup nil)
 
@@ -48,8 +54,16 @@
 ;; All groups are new each time gnus is run
 (customize-set-variable 'gnus-save-killed-list nil)
 
-;; If you get a new newsgroup, manually run M-x gnus-find-new-newsgroups
+;; If you get a new newsgroup, manually run M-x
+;; gnus-find-new-newsgroups. New groups will be subscribed to
+;; alphabetically
 (customize-set-variable 'gnus-check-new-newsgroups nil)
+(customize-set-variable 'gnus-subscribe-newsgroup-method #'gnus-subscribe-alphabetically)
+
+(customize-set-variable 'gnus-ignored-newsgroups
+                        (regexp-opt
+                         '("Notes" "Outbox" "Scheduled" "Calendar" "Contacts"
+                           "Conversation" "Clutter" "Journal" "Tasks")))
 
 (customize-set-variable 'gnus-message-archive-group nil)
 
