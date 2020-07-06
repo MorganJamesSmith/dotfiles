@@ -45,6 +45,7 @@
   (advice-add #'customize-set-variable :before #'validate-value-variable))
 
 (customize-set-variable 'user-full-name "Morgan Smith")
+(customize-set-variable 'user-mail-address "Morgan.J.Smith@outlook.com")
 
 (defun expand-create-directory-name (dir &optional default-dir)
   "Return DIR as a directory and create DIR if it doesn't already exist.
@@ -144,6 +145,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'use-dialog-box nil)
 (customize-set-variable 'visible-bell t)
 (tool-bar-mode -1)
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
 
 (blink-cursor-mode 0)
 ;;; Pretty Visuals Section Ends
@@ -204,13 +207,22 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
   (evil-define-key 'visual 'global (leader "c") #'comment-or-uncomment-region)
 
-  (evil-define-key '(normal visual) 'global (leader "o") #'ispell)
+  (evil-define-key '(normal motion visual) 'global
+    (leader "o") #'ispell)
 
-  (evil-define-key 'normal 'global
+  (evil-define-key '(normal motion) 'global
     (leader "TAB") #'whitespace-mode
     (leader "c")   #'compile
     (leader "g")   #'magit-status
-    (leader "e") (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))))
+    (leader "e") (lambda () (interactive) (find-file (locate-user-emacs-file "init.el"))))
+
+  (evil-define-key '(normal motion) 'global
+    (kbd "g b") #'switch-to-buffer
+    (kbd "g B") #'list-buffers
+    (kbd "g d") #'kill-this-buffer
+    (kbd "g D") #'kill-buffer
+    (kbd "g h") #'counsel-org-goto
+    (kbd "g H") #'counsel-org-goto-all))
 
 (use-package evil-collection
   :after evil
@@ -345,11 +357,40 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package eldoc-eval
   :config (eldoc-in-minibuffer-mode 1))
 
-(use-package debbugs)
+(use-package debbugs
+  :custom
+  (debbugs-gnu-default-packages '("emacs" "guix" "guix-patches")))
 
 (use-package gdb-mi
   :straight nil
   :custom (gdb-many-windows t))
+
+;; Guix development
+(use-package geiser
+  :custom
+  (geiser-active-implementations '(guile))
+  (geiser-repl-history-filename (expand-file-name "geiser_history" user-emacs-directory))
+  :config
+  (with-eval-after-load 'geiser-guile
+    (eval-when-compile
+      (require 'geiser-guile))
+    (add-to-list 'geiser-guile-load-path "~/src/guix")))
+
+(use-package flycheck-guile
+  :after (flycheck geiser))
+
+(use-package yasnippet
+  :config
+  (add-to-list 'yas-snippet-dirs "~/src/guix/etc/snippets")
+  (yas-global-mode 1))
+
+(use-package copyright
+  :straight nil
+  :custom
+  (copyright-names-regexp (format "%s <%s>" user-full-name user-mail-address)))
+
+(if (file-exists-p "~/src/guix/etc/copyright.el")
+      (load-file "~/src/guix/etc/copyright.el"))
 ;;; Programming Section Ends
 
 
@@ -559,6 +600,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (erc-anonymous-login t)
   (erc-log-channels-directory (expand-create-directory-name "erc-logs" user-emacs-directory))
   (erc-save-buffer-on-part t)
+  (erc-header-line-format nil)
   :config
   (add-to-list 'erc-modules 'log)
   (add-to-list 'erc-modules 'keep-place))
@@ -769,6 +811,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                                 transmission-files-mode
                                 transmission-info-mode
                                 transmission-peers-mode)))
+
+(use-package counsel)
 
 (use-package deft
   :custom
