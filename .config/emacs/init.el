@@ -123,15 +123,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (custom-safe-themes t "All themes are now safe")
   (custom-enabled-themes '(modus-vivendi) "Pretty cool dark theme"))
 
-(use-package org-beautify-theme
-  :if (display-graphic-p)
-  :config
-  (enable-theme 'org-beautify))
-
-(use-package org-bullets
-  :if (display-graphic-p)
-  :config (org-bullets-mode))
-
 (use-package all-the-icons
   :if (display-graphic-p)
   :custom (inhibit-compacting-font-caches t))
@@ -236,8 +227,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :bind ("C-c a" . org-agenda)
   :custom
   (org-pretty-entities t)
-  (org-directory "~/documents/")
-  (org-agenda-files `(,(expand-file-name "timetracking.org" org-directory)))
+  (org-directory "~/wiki/")
   (org-default-notes-file (expand-file-name "notes.org" org-directory))
   (org-log-done 'time)
   (org-adapt-indentation nil)
@@ -249,6 +239,48 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (setq org-todo-keywords '((sequence "TODO" "DONE") (sequence "HABIT" "DONE")))
 
   (org-indent-mode -1))
+
+(use-package org-agenda
+  :straight nil
+  :custom
+  (org-agenda-files (list (expand-file-name "daily.org" org-directory)
+                          (expand-file-name "events.org" org-directory)
+                          (expand-file-name "habits.org" org-directory)
+                          (expand-file-name "timetracking.org" org-directory)
+                          (expand-file-name "drill.org" org-directory)))
+  (org-agenda-category-icon-alist `(("drill" ,(list (all-the-icons-fileicon "brain")))
+                                    ("journal" ,(list (all-the-icons-faicon "book")))
+                                    ("language" ,(list (all-the-icons-faicon "language")))
+                                    ("medication" ,(list (all-the-icons-material "wb_sunny")))
+                                    ("teeth" ,(list (all-the-icons-material "brush")))))
+
+  (org-agenda-custom-commands
+   '(("o" "My Agenda"
+      ((todo "TODO" ((org-agenda-overriding-header "\nDue Today:\n")
+                     (org-agenda-remove-tags t)
+                     (org-agenda-prefix-format " %-2i %-15b")
+                     (org-agenda-todo-keyword-format "")
+                     (org-agenda-todo-ignore-scheduled 'future)))
+       (todo "HABIT" ((org-agenda-overriding-header "\nToday's Habits:\n")
+                      (org-agenda-remove-tags t)
+                      (org-agenda-prefix-format " %-2i")
+                      (org-agenda-todo-keyword-format "")
+                      (org-agenda-todo-ignore-scheduled 'future)))
+       (todo "TODO" ((org-agenda-overriding-header "\nDue:\n")
+                     (org-agenda-remove-tags t)
+                     (org-agenda-prefix-format "%-2i %-8c %-8b %-5t ")
+                     (org-agenda-todo-keyword-format "")
+                     (org-agenda-todo-ignore-scheduled 'past)))
+       (agenda "" ((org-agenda-overriding-header "Schedule:\n")
+                   (org-agenda-remove-tags t)
+                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("HABIT")))
+                   (org-agenda-tag-filter-preset '("-drill"))
+                   (org-agenda-start-day "+0d")
+                   (org-agenda-span 7)
+                   (org-agenda-prefix-format "%-2i %-8c %-8b %-5t ")
+                   (org-agenda-todo-keyword-format "[ ]")
+                   (org-agenda-time-grid nil))))))))
+
 
 (use-package org-clock
   :demand
@@ -302,6 +334,22 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
               (evil-org-set-key-theme)))
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
+
+(use-package org-beautify-theme
+  :if (display-graphic-p)
+  :config
+  (enable-theme 'org-beautify))
+
+(use-package org-bullets
+  :if (display-graphic-p)
+  :config (org-bullets-mode))
+
+(use-package org-drill
+  :custom
+  (org-drill-use-visible-cloze-face-p t)
+  (org-drill-hide-item-headings-p t)
+  (org-drill-save-buffers-after-drill-sessions-p nil)
+  (org-drill-add-random-noise-to-intervals-p t))
 
 ;; source code highlighting for HTML org export
 (use-package htmlize)
