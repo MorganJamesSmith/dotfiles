@@ -190,6 +190,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
   :config
   (evil-mode t)
+  (evil-define-key 'motion 'global (kbd "SPC") nil)
+
   (evil-define-key '(normal insert) 'global
     (kbd "M-j") #'evil-scroll-line-down
     (kbd "M-k") #'evil-scroll-line-up
