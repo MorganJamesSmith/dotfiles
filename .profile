@@ -75,7 +75,11 @@ mkdir -p "$XDG_DATA_HOME"/shell
 
 ## wget
 export WGETRC="$XDG_CONFIG_HOME"/wget/wgetrc
-mkdir -p "$XDG_DATA_HOME"/wget
+mkdir -p "$XDG_CONFIG_HOME"/wget
+
+## rust
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+mkdir -p "$CARGO_HOME"
 
 ### XDG Section End
 
