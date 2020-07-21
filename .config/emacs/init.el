@@ -112,7 +112,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (mail-source-directory (expand-create-directory-name "Mail" gnus-home-directory)))
 
 ;; Use only encrypted authinfo
-(customize-set-variable 'auth-sources `(,(expand-file-name "authinfo.gpg" user-emacs-directory)))
+(customize-set-variable 'auth-sources (list (expand-file-name "authinfo.gpg" user-emacs-directory)))
 (customize-set-variable 'auth-source-gpg-encrypt-to '("Morgan.J.Smith@outlook.com"))
 ;;; Sensible Default Section Ends
 
@@ -229,7 +229,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :bind ("C-c a" . org-agenda)
   :custom
   (org-pretty-entities t)
-  (org-directory "~/wiki/")
+  (org-directory "~/documents/")
   (org-default-notes-file (expand-file-name "notes.org" org-directory))
   (org-log-done 'time)
   (org-adapt-indentation nil)
@@ -245,43 +245,45 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package org-agenda
   :straight nil
   :custom
+  (org-agenda-time-leading-zero t)
+  (org-agenda-start-on-weekday nil)
+  (org-agenda-remove-tags t)
+  (org-agenda-time-grid nil)
+  (org-agenda-scheduled-leaders '("" ""))
+
   (org-agenda-files (list (expand-file-name "daily.org" org-directory)
                           (expand-file-name "events.org" org-directory)
                           (expand-file-name "habits.org" org-directory)
                           (expand-file-name "timetracking.org" org-directory)
                           (expand-file-name "drill.org" org-directory)))
-  (org-agenda-category-icon-alist `(("drill" ,(list (all-the-icons-fileicon "brain")))
-                                    ("journal" ,(list (all-the-icons-faicon "book")))
-                                    ("language" ,(list (all-the-icons-faicon "language")))
-                                    ("medication" ,(list (all-the-icons-material "wb_sunny")))
-                                    ("teeth" ,(list (all-the-icons-material "brush")))))
+  (org-agenda-category-icon-alist
+   `(("drill" ,(list (all-the-icons-fileicon "brain")))
+     ("journal" ,(list (all-the-icons-faicon "book")))
+     ("language" ,(list (all-the-icons-faicon "language")))
+     ("medication" ,(list (all-the-icons-material "wb_sunny")))
+     ("teeth" ,(list (all-the-icons-material "brush")))))
 
   (org-agenda-custom-commands
    '(("o" "My Agenda"
       ((todo "TODO" ((org-agenda-overriding-header "\nDue Today:\n")
-                     (org-agenda-remove-tags t)
-                     (org-agenda-prefix-format " %-2i %-15b")
                      (org-agenda-todo-keyword-format "")
                      (org-agenda-todo-ignore-scheduled 'future)))
        (todo "HABIT" ((org-agenda-overriding-header "\nToday's Habits:\n")
-                      (org-agenda-remove-tags t)
                       (org-agenda-prefix-format " %-2i")
                       (org-agenda-todo-keyword-format "")
                       (org-agenda-todo-ignore-scheduled 'future)))
-       (todo "TODO" ((org-agenda-overriding-header "\nDue:\n")
-                     (org-agenda-remove-tags t)
-                     (org-agenda-prefix-format "%-2i %-8c %-8b %-5t ")
-                     (org-agenda-todo-keyword-format "")
-                     (org-agenda-todo-ignore-scheduled 'past)))
+       (agenda "" ((org-agenda-overriding-header "\nDue Later:\n")
+                   (org-agenda-span 100)
+                   (org-agenda-show-all-dates nil)
+                   (org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'nottodo '("TODO")))
+                   (org-agenda-todo-keyword-format "")
+                   (org-agenda-todo-ignore-scheduled 'past)))
        (agenda "" ((org-agenda-overriding-header "Schedule:\n")
-                   (org-agenda-remove-tags t)
-                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("HABIT")))
+                   (org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'todo '("*")))
                    (org-agenda-tag-filter-preset '("-drill"))
-                   (org-agenda-start-day "+0d")
-                   (org-agenda-span 7)
-                   (org-agenda-prefix-format "%-2i %-8c %-8b %-5t ")
-                   (org-agenda-todo-keyword-format "[ ]")
-                   (org-agenda-time-grid nil))))))))
+                   (org-agenda-span 14))))))))
 
 
 (use-package org-clock
@@ -390,6 +392,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (customize-set-variable 'c-basic-offset 4)
+
 (semantic-mode 1)
 
 ;; TODO: add evil bindings
@@ -756,7 +759,19 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      ([?\s-d] . ,(lambda (command)
                    (interactive (list (read-shell-command "$ ")))
                    (start-process-shell-command command nil command)))))
-  :init
+  :config
+  (require 'exwm-config)
+
+  ;; Make class name the buffer name
+  (add-hook 'exwm-update-class-hook
+    (lambda ()
+      (exwm-workspace-rename-buffer exwm-class-name)))
+
+  (require 'exwm-systemtray)
+  (exwm-systemtray-enable)
+
+  (require 'exwm-randr)
+
   (defun exwm-monitor-update ()
     ;; Update monitor order and add bindings for switching between them
     ;; monitor 0 is the first monitor and is attached to the monitor
@@ -773,7 +788,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
             (push monitor-number value)
             (setq monitor-number (1+ monitor-number)))))
 
-      (setq exwm-randr-workspace-monitor-plist value)
+      (customize-set-variable 'exwm-randr-workspace-monitor-plist value)
 
       (mapcar (lambda (binding)
                 (exwm-input-set-key (car binding) (cdr binding)))
@@ -784,18 +799,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                              (interactive)
                              (exwm-workspace-switch-create (1- i)))))
                       (number-sequence 1 9)))))
-  :config
-  (require 'exwm-config)
-
-  ;; Make class name the buffer name
-  (add-hook 'exwm-update-class-hook
-    (lambda ()
-      (exwm-workspace-rename-buffer exwm-class-name)))
-
-  (require 'exwm-systemtray)
-  (exwm-systemtray-enable)
-
-  (require 'exwm-randr)
 
   (exwm-monitor-update)
 
@@ -862,6 +865,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                                 transmission-info-mode
                                 transmission-peers-mode)))
 
+(use-package disk-usage)
+
 (use-package counsel)
 
 (use-package deft
@@ -879,12 +884,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
             "\\|\\.stversions" ;; Syncthing folder
             "\\)$")))
 
-(customize-set-variable 'load-prefer-newer t)
-(use-package auto-compile
-  :config (auto-compile-on-load-mode))
-
-(use-package gcmh
-  :config (gcmh-mode t))
 
 (defun download-file (&optional file-link)
   "Downloads a file.
