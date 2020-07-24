@@ -4,6 +4,8 @@
 !.config/emacs/gnus.el
 !.config/emacs/init.el
 !.config/git/config
+!.config/guix/config.scm
+!.config/guix/manifest.scm
 !.config/mimeapps.list
 !.config/mpd/mpd.conf
 !.config/mpv/input.conf

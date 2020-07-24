@@ -17,33 +17,6 @@
 ;; instance of Emacs
 (defconst IS-INSIDE-EMACS   (getenv "INSIDE_EMACS"))
 
-;; straight package manager setup
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-(customize-set-variable 'straight-use-package-by-default t)
-
-(straight-use-package 'use-package)
-(eval-when-compile
-  (require 'use-package))
-
-;; Add type validation to customize-set-variable function
-(use-package validate
-  :config
-  (defun validate-value-variable (symbol value &optional _comment)
-    "Validate the SYMBOL can be set to VALUE by checking SYMBOL's type."
-    (validate-value value (custom-variable-type symbol)))
-  (advice-add #'customize-set-variable :before #'validate-value-variable))
-
 (customize-set-variable 'user-full-name "Morgan Smith")
 (customize-set-variable 'user-mail-address "Morgan.J.Smith@outlook.com")
 
@@ -100,11 +73,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (fset #'yes-or-no-p #'y-or-n-p)
 
-(fido-mode 1)
-
 ;; Move gnus folders to the `user-emacs-directory'
 (use-package gnus
-  :straight nil
+  :ensure nil
   :custom
   (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
   (gnus-home-directory (expand-create-directory-name "gnus-files" user-emacs-directory))
@@ -145,7 +116,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Modeline Section Begins
 (use-package time
-  :straight nil
+  :ensure nil
   :custom
   (display-time-default-load-average nil)
   (display-time-24hr-format t)
@@ -243,7 +214,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-indent-mode -1))
 
 (use-package org-agenda
-  :straight nil
+  :ensure nil
   :custom
   (org-agenda-time-leading-zero t)
   (org-agenda-start-on-weekday nil)
@@ -289,7 +260,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package org-clock
   :demand
   :after org
-  :straight nil
+  :ensure nil
   :bind
   ("C-c I" . (lambda () (interactive) (org-clock-in '(4))))
   ("C-c O" . org-clock-out)
@@ -316,7 +287,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; I load org-habit here so my agenda view is correct
 (use-package org-habit
-  :straight nil)
+  :ensure nil)
 
 (use-package org-roam
   :after org
@@ -325,9 +296,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-roam-completion-system 'ido)
   (org-roam-directory org-directory)
   (org-roam-db-location (expand-file-name "org-roam.db" user-emacs-directory)))
-
-(use-package company-org-roam
-  :after (company org-roam))
 
 (use-package evil-org
   :after org
@@ -372,11 +340,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       ("account" "%(binary) -f %(ledger-file) reg %(account)")))
   :mode ("\\.ledger\\'" . ledger-mode))
 
-(use-package evil-ledger
-  :after (ledger-mode evil)
-  :config
-  (evil-define-key 'normal ledger-mode-map (leader "c") #'ledger-report))
-
 (use-package flycheck-ledger
   :after (ledger-mode flycheck))
 ;;; Ledger Mode Section Ends
@@ -415,7 +378,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (debbugs-gnu-default-packages '("emacs" "guix" "guix-patches")))
 
 (use-package gdb-mi
-  :straight nil
+  :ensure nil
   :custom (gdb-many-windows t))
 
 ;; Guix development
@@ -438,7 +401,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (yas-global-mode 1))
 
 (use-package copyright
-  :straight nil
+  :ensure nil
   :custom
   (copyright-names-regexp (format "%s <%s>" user-full-name user-mail-address)))
 
@@ -466,26 +429,25 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :after (evil magit))
 
 (use-package magit-repos
-  :straight nil
+  :ensure nil
   :after magit
   :commands magit-list-repositories
   :custom
   (magit-repository-directories
    `(("~/repos" . 1)
-     (,(expand-create-directory-name "straight/repos" user-emacs-directory) . 1)
      ("~" . 0))))
 
 (use-package diff-hl
   :config (global-diff-hl-mode))
 
 (use-package ediff
-  :straight nil
+  :ensure nil
   :commands ediff
   :custom
   (ediff-diff-options "-w"))
 
 (use-package ediff-wind
-  :straight nil
+  :ensure nil
   :after ediff
   (ediff-window-setup-function 'ediff-setup-windows-plain)
   (ediff-split-window-function 'split-window-horizontally))
@@ -494,7 +456,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Parens Section Begins
 (use-package paren
-  :straight nil
+  :ensure nil
   :custom
   (show-paren-delay 0)
   (show-paren-highlight-openparen t)
@@ -535,7 +497,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Auto-complete/Hints Section Begins
 (use-package ido
-  :straight nil
+  :ensure nil
   :custom
   (ido-enable-flex-matching t)
   (ido-everywhere t)
@@ -568,68 +530,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; EWW Section Begins
 (use-package shr
-  :straight nil
+  :ensure nil
   :custom
   (browse-url-browser-function 'eww-browse-url)
   (shr-use-colors nil)
   (shr-max-image-proportion 0.5))
-
-(use-package shrface
-  :straight (shrface :type git :host github :repo "chenyanming/shrface")
-  :config
-  (require 'shrface)
-  (shrface-basic)
-  (shrface-trial)
-  (setq shrface-href-versatile t)
-  (with-eval-after-load 'eww
-    (add-hook 'eww-after-render-hook #'shrface-mode)
-    (with-eval-after-load 'evil
-      (evil-define-key '(normal) eww-mode-map
-        (kbd "<tab>") 'org-cycle
-        (kbd "<S-tab>") 'org-shifttab
-        (kbd "C-j") 'outline-next-visible-heading
-        (kbd "C-k") 'outline-previous-visible-heading)))
-  (with-eval-after-load 'nov
-    ;; reset nov-shr-rendering-functions, in case the list get bigger and bigger
-    (setq nov-shr-rendering-functions '((img . nov-render-img)
-                                        (title . nov-render-title)))
-    (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
-    (add-hook 'nov-mode-hook 'shrface-mode)
-    (with-eval-after-load 'evil
-      (evil-define-key '(normal) nov-mode-map
-        (kbd "<tab>") 'org-cycle
-        (kbd "<S-tab>") 'org-shifttab
-        (kbd "C-j") 'outline-next-visible-heading
-        (kbd "C-k") 'outline-previous-visible-heading))))
-
-(use-package shr-tag-pre-highlight
-  :config
-  (add-to-list 'shr-external-rendering-functions
-               '(pre . shr-tag-pre-highlight)))
 ;;; EWW Section Ends
 
 
 ;;; auth Section Begins
 (use-package auth-source-pass
-  :straight nil
+  :ensure nil
   :custom (auth-source-pass-filename (expand-file-name "password-store" (getenv "XDG_DATA_HOME"))))
-
-(use-package auth-source-xoauth2
-  :after smtpmail
-  :config
-  (defun my-xoauth2-get-secrets (_host user _port)
-    (when (string= user (auth-source-pass-get 'secret "email/work/address"))
-      (list
-       :token-url "https://accounts.google.com/o/oauth2/token"
-       :client-id (auth-source-pass-get 'secret "email/work/client-id")
-       :client-secret (auth-source-pass-get 'secret "email/work/client-secret")
-       :refresh-token (auth-source-pass-get 'secret "email/work/refresh-token"))))
-  (setq auth-source-xoauth2-creds 'my-xoauth2-get-secrets)
-
-  (eval-when-compile
-    (require 'smtpmail))
-  (add-to-list 'smtpmail-auth-supported 'xoauth2)
-  (auth-source-xoauth2-enable))
 
 (use-package pinentry
   :if (not IS-INSIDE-EMACS)
@@ -644,7 +556,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package literate-calc-mode)
 
 (use-package erc
-  :straight nil
+  :ensure nil
   :custom
   (erc-server "irc.freenode.net")
   (erc-port 6667)
@@ -659,14 +571,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-to-list 'erc-modules 'keep-place))
 
 (use-package flyspell
-  :straight nil
+  :ensure nil
   :hook
   ((prog-mode . flyspell-prog-mode)
    ((text-mode text-mode message-mode) . flyspell-mode)))
 
 ;; Backups and auto-saves and deleting
 (use-package files
-  :straight nil
+  :ensure nil
   :custom
   (backup-directory-alist `((".*" . ,(expand-create-directory-name "backups" user-emacs-directory))))
   (auto-save-file-name-transforms `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
@@ -684,7 +596,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'custom-file (expand-file-name "custom-garbage" trash-directory) "Goodbye Custom")
 
 (use-package eshell
-  :straight nil
+  :ensure nil
   :custom
   (eshell-history-size nil "Pull history size from environment variables")
   (eshell-history-file-name nil "Pull history file from environment variables")
@@ -692,7 +604,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (setenv "PAGER" (executable-find "cat")))
 
 (use-package dired
-  :straight nil
+  :ensure nil
   :custom
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
@@ -700,13 +612,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :hook (dired-mode . dired-hide-details-mode))
 
 (use-package dired-x
-  :straight nil
+  :ensure nil
   :custom
   (dired-guess-shell-alist-user `((,(regexp-opt '(".mp4" ".mkv")) "mpv")
                                   (,(regexp-opt '(".pdf")) "zathura"))))
 
 (use-package tramp
-  :straight nil
+  :ensure nil
   :custom
   (tramp-default-method "ssh")
   (remote-file-name-inhibit-cache nil)
@@ -718,7 +630,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
            tramp-file-name-regexp)))
 
 (use-package minibuffer
-  :straight nil
+  :ensure nil
   :custom
   (read-buffer-completion-ignore-case t)
   (completion-cycle-threshold 3))
@@ -817,8 +729,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package nginx-mode)
 
-(use-package vlf)
-
 ;; No mouse gang
 (mouse-avoidance-mode 'banish)
 
@@ -830,10 +740,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (with-eval-after-load 'evil
     (evil-define-key 'normal plantuml-mode-map (leader "c") #'plantuml-preview))
   :mode ("\\.uml\\'" . plantuml-mode))
-
-(use-package flycheck-plantuml
-  :after (flycheck plantuml)
-  :config (flycheck-plantuml-setup))
 
 (use-package pdf-tools
   :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
