@@ -9,6 +9,7 @@
 !.config/mimeapps.list
 !.config/mpd/mpd.conf
 !.config/mpv/input.conf
+!.config/nyxt/init.lisp
 !.config/progs.csv
 !.config/pulse/daemon.conf
 !.config/readline/inputrc
