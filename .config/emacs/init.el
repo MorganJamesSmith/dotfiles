@@ -718,7 +718,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
   (exwm-randr-enable)
   (exwm-config-ido)
-  (exwm-enable))
+  (exwm-enable)
+
+  ;; Tell gpg what screen to use for pinentry
+  (shell-command "gpg-connect-agent \"UPDATESTARTUPTTY\" /bye"))
 
 (use-package bluetooth)
 
