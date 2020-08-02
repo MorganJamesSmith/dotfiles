@@ -1,6 +1,6 @@
 (specifications->manifest
- '("alsa-utils"
-   "aspell"
+ '("alsa-utils" ; alsamixer
+   "aspell" ; spellchecker
    "aspell-dict-en"
    "emacs"
    "emacs-all-the-icons"
@@ -51,34 +51,39 @@
    "emacs-ws-butler"
    "emacs-yasnippet"
    "emacs-youtube-dl"
-   "file"
+   "file" ; Determine filetype of a file
    "font-dejavu"
+   "font-wqy-zenhei" ; Chinese, Japanese, and more
+   "fontconfig" ; `fc-cache -rv' to update font cache
    "git"
    "git:send-email"
+   "glibc-locales"
    "gnupg"
+   "gst-libav"         ; Video support in nyxt
+   "gst-plugins-bad"   ; Video support in nyxt
+   "gst-plugins-base"  ; Video support in nyxt
+   "gst-plugins-good"  ; Video support in nyxt
+   "gst-plugins-ugly"  ; Video support in nyxt
    "guile"
    "guix"
    "htop"
    "icecat"
-   "mpd"
-   "mpd-mpc"
-   "mpv"
-   "nyxt"
+   "icedove"
+   "mpd"     ; Music Playing Daemon
+   "mpd-mpc" ; Music Playing Daemon CLI
+   "mpv" ; Video Player
+   "nyxt" ; Web Browser
    "openssh"
    "password-store"
-   "picom"
+   "picom" ; Compositor
    "pinentry-emacs"
    "pulsemixer"
+   "rsync"
    "shellcheck"
-   "st"
    "sxiv"
    "syncthing"
    "texinfo"
-   "transmission"
-   "tree"
+   "transmission" ; Torrent Client
    "unzip"
-   "vim"
    "wget"
-   "xinit"
-   "youtube-dl"
-   "zlib"))
+   "youtube-dl"))
