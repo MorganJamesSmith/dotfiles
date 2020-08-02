@@ -14,13 +14,10 @@ xset -b
 # Set keyboard repeat rate.
 xset r rate 200 60
 
-# Uncomment the following block to use the exwm-xim module.
-#export XMODIFIERS=@im=exwm-xim
-#export GTK_IM_MODULE=xim
-#export QT_IM_MODULE=xim
-#export CLUTTER_IM_MODULE=xim
+xset +fp $(dirname $(readlink -f ~/.guix-profile/share/fonts/truetype/fonts.dir))
 
-picom -b
+# A compositor (optional)
+command -v picom && picom -b
 
 # This lets ssh-agent know what screen I'm using
 gpg-connect-agent "UPDATESTARTUPTTY" /bye
