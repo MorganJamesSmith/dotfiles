@@ -11,6 +11,10 @@
   (host-name "guix")
   (timezone "America/New_York")
 
+  (kernel-arguments (append
+                     '("modprobe.blacklist=pcspkr")
+                     %default-kernel-arguments))
+
   (issue "Morgan's GNU Guix Machine\n\n")
 
   ;; Use the UEFI variant of GRUB with the EFI System
