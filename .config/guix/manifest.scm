@@ -1,89 +1,108 @@
+(define audio
+  '("alsa-utils" ; alsamixer
+    "pulsemixer"
+    "mpd"       ; Music Playing Daemon
+    "mpd-mpc")) ; Music Playing Daemon CLI
+
+(define downloaders
+  '("curl"
+    "transmission" ; Torrent Client
+    "unoconv" ; allows emacs to preview .doc files
+    "wget"
+    "youtube-dl")) ; Downloads more than just YouTube
+
+(define emacs-packages
+  (append!
+   '("emacs-next"
+     "pinentry-emacs"
+     "xinit") ; emacs-exwm needs this
+   (map
+    (lambda (x) (string-append "emacs-" x))
+    '("all-the-icons"
+      "all-the-icons-dired"
+      "bluetooth"
+      "company"
+      "company-quickhelp"
+      "counsel"
+      "debbugs"
+      "deft"
+      "diff-hl"
+      "disk-usage"
+      "doom-modeline"
+      "evil"
+      "evil-collection"
+      "evil-magit"
+      "evil-org"
+      "exwm"
+      "flycheck"
+      "flycheck-guile"
+      "flycheck-ledger"
+      "geiser"
+      "guix"
+      "helpful"
+      "highlight-numbers"
+      "htmlize"
+      "ledger-mode"
+      "literate-calc-mode"
+      "magit"
+      "modus-vivendi-theme"
+      "nginx-mode"
+      "nov-el"
+      "org"
+      "org-beautify-theme"
+      "org-bullets"
+      "org-drill"
+      "pdf-tools"
+      "pinentry"
+      "plantuml-mode"
+      "rainbow-delimiters"
+      "transmission"
+      "undo-tree"
+      "use-package"
+      "vterm"
+      "which-key"
+      "ws-butler"
+      "yasnippet"
+      "youtube-dl"))))
+
+(define programming
+  '("git"
+    "git:send-email"
+    "guile"
+    "shellcheck"))
+
+(define web-browsing
+  '("icecat"            ; browser
+    "nyxt"              ; browser
+    "gst-libav"         ; video support in nyxt
+    "gst-plugins-bad"   ; video support in nyxt
+    "gst-plugins-base"  ; video support in nyxt
+    "gst-plugins-good"  ; video support in nyxt
+    "gst-plugins-ugly")); video support in nyxt
+
 (specifications->manifest
- '("alsa-utils" ; alsamixer
-   "aspell" ; spellchecker
-   "aspell-dict-en"
-   "emacs"
-   "emacs-all-the-icons"
-   "emacs-all-the-icons-dired"
-   "emacs-bluetooth"
-   "emacs-company"
-   "emacs-company-quickhelp"
-   "emacs-counsel"
-   "emacs-debbugs"
-   "emacs-deft"
-   "emacs-diff-hl"
-   "emacs-disk-usage"
-   "emacs-doom-modeline"
-   "emacs-evil"
-   "emacs-evil-collection"
-   "emacs-evil-magit"
-   "emacs-evil-org"
-   "emacs-exwm"
-   "emacs-flycheck"
-   "emacs-flycheck-guile"
-   "emacs-flycheck-ledger"
-   "emacs-geiser"
-   "emacs-guix"
-   "emacs-helpful"
-   "emacs-highlight-numbers"
-   "emacs-htmlize"
-   "emacs-ledger-mode"
-   "emacs-literate-calc-mode"
-   "emacs-magit"
-   "emacs-modus-vivendi-theme"
-   "emacs-nginx-mode"
-   "emacs-nov-el"
-   "emacs-org"
-   "emacs-org-beautify-theme"
-   "emacs-org-bullets"
-   "emacs-org-drill"
-   "emacs-org-roam"
-   "emacs-pdf-tools"
-   "emacs-pinentry"
-   "emacs-plantuml-mode"
-   "emacs-rainbow-delimiters"
-   "emacs-transmission"
-   "emacs-undo-tree"
-   "emacs-use-package"
-   "emacs-validate"
-   "emacs-vterm"
-   "emacs-which-key"
-   "emacs-ws-butler"
-   "emacs-yasnippet"
-   "emacs-youtube-dl"
-   "file" ; Determine filetype of a file
-   "font-dejavu"
-   "font-wqy-zenhei" ; Chinese, Japanese, and more
-   "fontconfig" ; `fc-cache -rv' to update font cache
-   "git"
-   "git:send-email"
-   "glibc-locales"
-   "gnupg"
-   "gst-libav"         ; Video support in nyxt
-   "gst-plugins-bad"   ; Video support in nyxt
-   "gst-plugins-base"  ; Video support in nyxt
-   "gst-plugins-good"  ; Video support in nyxt
-   "gst-plugins-ugly"  ; Video support in nyxt
-   "guile"
-   "guix"
-   "htop"
-   "icecat"
-   "icedove"
-   "mpd"     ; Music Playing Daemon
-   "mpd-mpc" ; Music Playing Daemon CLI
-   "mpv" ; Video Player
-   "nyxt" ; Web Browser
-   "openssh"
-   "password-store"
-   "picom" ; Compositor
-   "pinentry-emacs"
-   "pulsemixer"
-   "rsync"
-   "shellcheck"
-   "sxiv"
-   "syncthing"
-   "texinfo"
-   "transmission" ; Torrent Client
-   "unzip"
-   "wget"
-   "youtube-dl"))
+ (append!
+  audio
+  downloaders
+  emacs-packages
+  programming
+  web-browsing
+  '("aspell" ; spellchecker
+    "aspell-dict-en"
+    "file" ; filetype checker
+    "font-dejavu"
+    "font-wqy-zenhei" ; Chinese, Japanese, and more
+    "fontconfig" ; `fc-cache -rv' to update font cache
+    "glibc-locales"
+    "gnupg"
+    "guix"
+    "htop"
+    "icedove" ; email client
+    "mpv" ; video player
+    "openscad" ; 3D modeling program
+    "openssh"
+    "picom" ; compositor
+    "rsync"
+    "sxiv"
+    "syncthing"
+    "unzip")))
