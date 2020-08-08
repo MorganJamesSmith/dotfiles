@@ -289,14 +289,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package org-habit
   :ensure nil)
 
-(use-package org-roam
-  :after org
-  :hook ((org-mode . org-roam-mode))
-  :custom
-  (org-roam-completion-system 'ido)
-  (org-roam-directory org-directory)
-  (org-roam-db-location (expand-file-name "org-roam.db" user-emacs-directory)))
-
 (use-package evil-org
   :after org
   :config
