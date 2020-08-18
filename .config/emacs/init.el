@@ -207,6 +207,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-edit-src-content-indentation 0)
   (org-html-postamble nil)
   :config
+  (push 'org-habit org-modules)
 
   ;; This assignment doesn't pass my type checker. I'm not sure why
   (setq org-todo-keywords '((sequence "TODO" "DONE") (sequence "HABIT" "DONE")))
@@ -226,35 +227,47 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                           (expand-file-name "events.org" org-directory)
                           (expand-file-name "habits.org" org-directory)
                           (expand-file-name "timetracking.org" org-directory)
-                          (expand-file-name "drill.org" org-directory)))
-  (org-agenda-category-icon-alist
-   `(("drill" ,(list (all-the-icons-fileicon "brain")))
-     ("journal" ,(list (all-the-icons-faicon "book")))
-     ("language" ,(list (all-the-icons-faicon "language")))
-     ("medication" ,(list (all-the-icons-material "wb_sunny")))
-     ("teeth" ,(list (all-the-icons-material "brush")))))
+                          (expand-file-name "todo.org" org-directory)))
 
   (org-agenda-custom-commands
    '(("o" "My Agenda"
-      ((todo "TODO" ((org-agenda-overriding-header "\nDue Today:\n")
-                     (org-agenda-todo-keyword-format "")
-                     (org-agenda-todo-ignore-scheduled 'future)))
-       (todo "HABIT" ((org-agenda-overriding-header "\nToday's Habits:\n")
-                      (org-agenda-prefix-format " %-2i")
-                      (org-agenda-todo-keyword-format "")
-                      (org-agenda-todo-ignore-scheduled 'future)))
-       (agenda "" ((org-agenda-overriding-header "\nDue Later:\n")
-                   (org-agenda-span 100)
-                   (org-agenda-show-all-dates nil)
-                   (org-agenda-skip-function
-                    '(org-agenda-skip-entry-if 'nottodo '("TODO")))
-                   (org-agenda-todo-keyword-format "")
-                   (org-agenda-todo-ignore-scheduled 'past)))
-       (agenda "" ((org-agenda-overriding-header "Schedule:\n")
-                   (org-agenda-skip-function
-                    '(org-agenda-skip-entry-if 'todo '("*")))
-                   (org-agenda-tag-filter-preset '("-drill"))
-                   (org-agenda-span 14))))))))
+      ((todo
+        "TODO"
+        ((org-agenda-overriding-header "\nDue Today:\n")
+         (org-agenda-todo-keyword-format "")
+         (org-agenda-todo-ignore-timestamp 'future)
+         (org-agenda-todo-ignore-scheduled 'future)
+         (org-agenda-todo-ignore-deadlines 'future)
+         (org-agenda-skip-function
+          '(org-agenda-skip-entry-if 'nottimestamp))))
+       (todo
+        "HABIT"
+        ((org-agenda-overriding-header "\nToday's Habits:\n")
+         (org-agenda-prefix-format "")
+         (org-agenda-todo-keyword-format "")
+         (org-agenda-todo-ignore-scheduled 'future)))
+       (agenda
+        ""
+        ((org-agenda-overriding-header "\nDue Later:\n")
+         (org-agenda-todo-keyword-format "")
+         (org-agenda-prefix-format "%?-12t %s")
+         (org-agenda-span 100)
+         (org-agenda-show-all-dates nil)
+         (org-agenda-start-day "+1d")
+         (org-agenda-skip-function
+          '(org-agenda-skip-entry-if 'nottodo '("TODO")))))
+       (agenda
+        ""
+        ((org-agenda-overriding-header "\nSchedule:\n")
+         (org-agenda-skip-function
+          '(org-agenda-skip-entry-if 'todo '("*")))
+         (org-agenda-span 14)))
+       (agenda
+        ""
+        ((org-agenda-overriding-header "\nTime Tracking:\n")
+         (org-agenda-show-log 'clockcheck)
+         (org-agenda-show-all-dates nil)
+         (org-agenda-prefix-format "%s | %t | "))))))))
 
 
 (use-package org-clock
@@ -284,10 +297,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       state))
 
   (org-clock-persistence-insinuate))
-
-;; I load org-habit here so my agenda view is correct
-(use-package org-habit
-  :ensure nil)
 
 (use-package evil-org
   :after org
