@@ -141,6 +141,7 @@
   ;; This is where we specify system-wide packages.
   (packages (cons*
              curl
+             dash
              git
              glibc-utf8-locales
              nss-certs
@@ -150,7 +151,8 @@
               (lambda (package)
                 (memq package
                       (map specification->package
-                           '("bash-completion"
+                           '("bash"
+                             "bash-completion"
                              "info-reader"
                              "nano"
                              "zile"))))
@@ -176,6 +178,10 @@
          (lambda (service)
            (eq? (service-kind service) gdm-service-type))
          %desktop-services)
+      (special-files-service-type
+       c =>
+       `(("/bin/sh" ,(file-append dash "/bin/dash"))
+         ("/usr/bin/env" ,(file-append coreutils "/bin/env"))))
       (udev-service-type
        c =>
        (udev-configuration
