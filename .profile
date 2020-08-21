@@ -13,13 +13,6 @@ export HISTSIZE=100000
 # history time stamps
 export HISTTIMEFORMAT="[%F %T] "
 
-# configure audio
-( jack_control start & ) > /dev/null 2>&1
-
-# no beeping please
-setterm -blength 0
-amixer set Beep 0% mute > /dev/null 2>&1
-
 ### XDG Section
 #
 # This is only here to keep stuff out of my home directory
@@ -40,10 +33,9 @@ export XDG_PUBLICSHARE_DIR="$HOME/"
 export XDG_DOCUMENTS_DIR="$HOME/documents"
 export XDG_VIDEOS_DIR="$HOME/"
 
-# Can't change when profile is called from xsession from gdm
-### Xauthority/ICEauthority
-#export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
-#export ICEAUTHORITY="$XDG_RUNTIME_DIR"/ICEauthority
+## Xauthority/ICEauthority
+export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
+export ICEAUTHORITY="$XDG_RUNTIME_DIR"/ICEauthority
 
 ## less
 export LESSKEY="$XDG_CONFIG_HOME"/less/lesskey
@@ -90,3 +82,5 @@ eval "$(ssh-agent -s -a "$(gpgconf --list-dirs agent-ssh-socket)")"
 eval "$(gpg-agent --homedir "$GNUPGHOME" --daemon -s)"
 
 command -v shepherd && shepherd
+
+alias startx="xinit ~/.xsession -- /run/setuid-programs/*startx vt1"
