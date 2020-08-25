@@ -733,9 +733,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package nginx-mode)
 
-;; No mouse gang
-(mouse-avoidance-mode 'banish)
-
 (use-package plantuml-mode
   :custom
   (plantuml-default-exec-mode 'executable)

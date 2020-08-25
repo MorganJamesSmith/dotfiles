@@ -57,6 +57,7 @@
       "plantuml-mode"
       "rainbow-delimiters"
       "transmission"
+      "unclutter"
       "undo-tree"
       "use-package"
       "vterm"
