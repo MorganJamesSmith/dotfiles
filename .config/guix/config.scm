@@ -1,12 +1,13 @@
 (use-modules
  ((srfi srfi-1) #:select (remove))
+ ((nongnu packages linux) #:select (linux linux-firmware))
+ ((nongnu system linux-initrd) #:select (microcode-initrd))
  (gnu)
  ((gnu packages admin) #:select (opendoas))
  ((gnu packages base) #:select (glibc-utf8-locales))
  ((gnu packages certs) #:select (nss-certs))
  ((gnu packages curl) #:select (curl))
  ((gnu packages gl) #:select (mesa))
- ((gnu packages linux) #:select (linux-libre-5.4))
  ((gnu packages rsync) #:select (rsync))
  ((gnu packages shells) #:select (dash))
  ((gnu packages suckless) #:select (slock))
@@ -79,6 +80,9 @@
 (operating-system
   (host-name host-name)
   (timezone "America/New_York")
+  (kernel linux)
+  (initrd microcode-initrd)
+  (firmware (list linux-firmware))
 
   ;; US keyboard but replace caps with ctrl
   (keyboard-layout my-keyboard-layout)
@@ -147,16 +151,7 @@
              nss-certs
              rsync
              wget
-             (remove
-              (lambda (package)
-                (memq package
-                      (map specification->package
-                           '("bash"
-                             "bash-completion"
-                             "info-reader"
-                             "nano"
-                             "zile"))))
-              %base-packages)))
+             %base-packages))
 
   (services
    (cons*
@@ -178,16 +173,20 @@
          (lambda (service)
            (eq? (service-kind service) gdm-service-type))
          %desktop-services)
+
+      ;; Use dash for /bin/sh instead of bash
       (special-files-service-type
        c =>
        `(("/bin/sh" ,(file-append dash "/bin/dash"))
          ("/usr/bin/env" ,(file-append coreutils "/bin/env"))))
+
+      ;; For xorg sans display manager (gentoo wiki)
       (udev-service-type
        c =>
        (udev-configuration
         (inherit c)
         (rules
-         `(,(udev-rule ; For xorg sans display manager (gentoo wiki)
+         `(,(udev-rule
              "99-dev-input-group.rules"
              "SUBSYSTEM==\"input\", ACTION==\"add\", GROUP=\"input\"")
            ,@(udev-configuration-rules c)))))))))
