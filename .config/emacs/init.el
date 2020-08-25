@@ -559,17 +559,25 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package erc
   :ensure nil
   :custom
+  (erc-nick "pancak3")
   (erc-server "irc.freenode.net")
   (erc-port 6667)
-  (erc-nick "butterypancake")
-  (erc-user-full-name user-full-name)
   (erc-anonymous-login t)
+  (erc-prompt-for-nickserv-password nil)
   (erc-log-channels-directory (expand-create-directory-name "erc-logs" user-emacs-directory))
   (erc-save-buffer-on-part t)
   (erc-header-line-format nil)
+  (erc-autojoin-timing 'ident)
+  (erc-autojoin-channels-alist '(("freenode.net" "#emacs" "#gnu" "#guix" "#guile")))
+  (erc-pals '("nckx" "mbakke" "apteryx"))
+  (erc-kill-buffer-on-part t)
   :config
+  (add-to-list 'erc-modules 'keep-place)
   (add-to-list 'erc-modules 'log)
-  (add-to-list 'erc-modules 'keep-place))
+  (add-to-list 'erc-modules 'notifications)
+  (add-to-list 'erc-modules 'spelling)
+  (erc-services-mode 1)
+  (erc-update-modules))
 
 (use-package flyspell
   :ensure nil
