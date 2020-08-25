@@ -225,7 +225,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
   (org-agenda-files (list (expand-file-name "daily.org" org-directory)
                           (expand-file-name "events.org" org-directory)
-                          (expand-file-name "habits.org" org-directory)
                           (expand-file-name "timetracking.org" org-directory)
                           (expand-file-name "todo.org" org-directory)))
 
@@ -356,8 +355,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (customize-set-variable 'c-basic-offset 4)
-
-(semantic-mode 1)
 
 ;; TODO: add evil bindings
 (use-package ascii-table)
@@ -607,6 +604,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package eshell
   :ensure nil
   :custom
+  (eshell-banner-message "")
   (eshell-history-size nil "Pull history size from environment variables")
   (eshell-history-file-name nil "Pull history file from environment variables")
   :config
