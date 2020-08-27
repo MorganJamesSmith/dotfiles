@@ -219,13 +219,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-log-done 'time)
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
+  (org-src-window-setup 'current-window)
   (org-html-postamble nil)
+  (org-todo-keywords
+   '((sequence "TODO" "DONE")
+     (sequence "HABIT" "DONE")
+     (sequence "DAYOF" "DONE")))
   :config
   (push 'org-habit org-modules)
-
-  ;; This assignment doesn't pass my type checker. I'm not sure why
-  (setq org-todo-keywords '((sequence "TODO" "DONE") (sequence "HABIT" "DONE")))
-
   (org-indent-mode -1))
 
 (use-package org-agenda
@@ -245,7 +246,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-agenda-custom-commands
    '(("o" "My Agenda"
       ((todo
-        "TODO"
+        "TODO|DAYOF"
         ((org-agenda-overriding-header "\nDue Today:\n")
          (org-agenda-todo-keyword-format "")
          (org-agenda-todo-ignore-timestamp 'future)
@@ -280,7 +281,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         ((org-agenda-overriding-header "\nTime Tracking:\n")
          (org-agenda-show-log 'clockcheck)
          (org-agenda-show-all-dates nil)
-         (org-agenda-prefix-format "%s | %t | "))))))))
+         (org-agenda-prefix-format "%-18s | %t | "))))))))
 
 
 (use-package org-clock
@@ -335,7 +336,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-drill-use-visible-cloze-face-p t)
   (org-drill-hide-item-headings-p t)
   (org-drill-save-buffers-after-drill-sessions-p nil)
-  (org-drill-add-random-noise-to-intervals-p t))
+  (org-drill-add-random-noise-to-intervals-p t)
+  (org-drill-leech-method nil))
 
 ;; source code highlighting for HTML org export
 (use-package htmlize)
@@ -362,6 +364,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Programming Section Begins
 (use-package xcscope
   :config (cscope-setup))
+
+(use-package flymake
+  :demand
+  :ensure nil
+  :bind (("M-n" . flymake-goto-next-error)
+         ("M-p" . flymake-goto-prev-error))
+  :config
+  (add-hook 'prog-mode-hook #'flymake-mode))
 
 ;; Save all buffers on compile automatically
 (customize-set-variable 'compilation-ask-about-save nil)
@@ -635,8 +645,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package dired-x
   :ensure nil
   :custom
-  (dired-guess-shell-alist-user `((,(regexp-opt '(".mp4" ".mkv")) "mpv")
-                                  (,(regexp-opt '(".pdf")) "zathura"))))
+  (dired-guess-shell-alist-user
+   `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm")) "mpv")
+     (,(regexp-opt '(".pdf")) "zathura"))))
 
 (use-package tramp
   :ensure nil
@@ -814,7 +825,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (defun download-file (&optional file-link)
   "Downloads a file.
-Uses either youtube-dl or transmission.  Downloads either
+Uses either `youtube-dl' or `transmission'.  Downloads either
 FILE-LINK, the URL at current point, or the URL in the clipboard"
   (interactive)
   (let ((link (url-encode-url
