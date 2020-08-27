@@ -100,7 +100,21 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package all-the-icons-dired
   :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode))
+  :hook (dired-mode . all-the-icons-dired-mode)
+  :config
+  ;; Disable package while renaming files as it wrecks havoc otherwise
+  (defun all-the-icons-dired-mode-enable ()
+    "Enable all-the-icons-dired-mode"
+    (all-the-icons-dired-mode 1))
+  (defun all-the-icons-dired-mode-disable ()
+    "Disable all-the-icons-dired-mode"
+    (all-the-icons-dired-mode 0))
+  (advice-add 'wdired-change-to-wdired-mode
+              :before #'all-the-icons-dired-mode-disable)
+  (advice-add 'wdired-finish-edit
+              :after #'all-the-icons-dired-mode-enable)
+  (advice-add 'wdired-abort-changes
+              :after #'all-the-icons-dired-mode-enable))
 
 ;; I dislike gui stuff
 (customize-set-variable 'use-file-dialog nil)
