@@ -57,7 +57,6 @@
       "plantuml-mode"
       "rainbow-delimiters"
       "transmission"
-      "unclutter"
       "undo-tree"
       "use-package"
       "vterm"
@@ -103,7 +102,9 @@
     "openscad" ; 3D modeling program
     "openssh"
     "picom" ; compositor
+    "pwgen" ; Password Generator
     "rsync"
     "sxiv"
     "syncthing"
+    "unclutter"
     "unzip")))
