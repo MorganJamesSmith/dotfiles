@@ -160,15 +160,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (dolist (key '("\C-z"      ; Suspend frame
                "\C-x\C-z"  ; Suspend frame
                "\C-x\C-d"  ; List directory
-               "\M-o"      ; Facemenu stuff
-               ))
+               "\M-o"))    ; Facemenu stuff
   (global-unset-key key))
 
-
 ;;; Evil Section Begins
+(defvar leader "SPC"
+  "Key to use as leader.")
+
 (defun leader (key)
   "Add the leader key on front of KEY."
-  (kbd (concat "SPC " key)))
+  (kbd (concat leader " " key)))
 
 (use-package evil
   :custom
@@ -177,33 +178,44 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (evil-want-Y-yank-to-eol t)
 
   :config
-  (evil-mode t)
-  (evil-define-key 'motion 'global (kbd "SPC") nil)
 
-  (evil-define-key '(normal insert) 'global
-    (kbd "M-j") #'evil-scroll-line-down
-    (kbd "M-k") #'evil-scroll-line-up
-    (kbd "M-J") #'text-scale-decrease
-    (kbd "M-K") #'text-scale-increase)
+  ;; `my-intercept-mode' is used to override default evil bindings
+  (defvar my-intercept-mode-map (make-sparse-keymap)
+    "High precedence keymap.")
 
-  (evil-define-key 'visual 'global (leader "c") #'comment-or-uncomment-region)
+  (define-minor-mode my-intercept-mode
+    "Global minor mode for higher precedence evil keybindings."
+    :global t)
 
-  (evil-define-key '(normal motion visual) 'global
-    (leader "o") #'ispell)
+  (my-intercept-mode)
 
-  (evil-define-key '(normal motion) 'global
+  (dolist (state '(normal visual insert))
+    (evil-make-intercept-map
+     (evil-get-auxiliary-keymap my-intercept-mode-map state t t)
+     state))
+
+  (evil-define-key '(normal motion visual) 'my-intercept-mode-map
+    (kbd leader) nil
     (leader "TAB") #'whitespace-mode
     (leader "c")   #'compile
+    (leader "e")   (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))
     (leader "g")   #'magit-status
-    (leader "e") (lambda () (interactive) (find-file (locate-user-emacs-file "init.el"))))
+    (leader "o")   #'ispell
 
-  (evil-define-key '(normal motion) 'global
+    (kbd "g") nil
     (kbd "g b") #'switch-to-buffer
     (kbd "g B") #'list-buffers
     (kbd "g d") #'kill-this-buffer
     (kbd "g D") #'kill-buffer
     (kbd "g h") #'counsel-org-goto
-    (kbd "g H") #'counsel-org-goto-all))
+    (kbd "g H") #'counsel-org-goto-all)
+
+  (global-set-key (kbd "M-j") #'evil-scroll-line-down)
+  (global-set-key (kbd "M-k") #'evil-scroll-line-up)
+  (global-set-key (kbd "M-J") #'text-scale-decrease)
+  (global-set-key (kbd "M-K") #'text-scale-increase)
+
+  (evil-mode t))
 
 (use-package evil-collection
   :after evil
