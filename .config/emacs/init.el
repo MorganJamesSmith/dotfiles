@@ -85,6 +85,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Use only encrypted authinfo
 (customize-set-variable 'auth-sources (list (expand-file-name "authinfo.gpg" user-emacs-directory)))
 (customize-set-variable 'auth-source-gpg-encrypt-to '("Morgan.J.Smith@outlook.com"))
+
+;; Date should always be big to small (year/month/day)
+(customize-set-variable 'calendar-date-style 'iso)
 ;;; Sensible Default Section Ends
 
 
@@ -232,11 +235,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package org-agenda
   :ensure nil
   :custom
-  (org-agenda-time-leading-zero t)
-  (org-agenda-start-on-weekday nil)
+  (org-agenda-prefix-format "")
   (org-agenda-remove-tags t)
-  (org-agenda-time-grid nil)
   (org-agenda-scheduled-leaders '("" ""))
+  (org-agenda-start-on-weekday nil)
+  (org-agenda-time-grid nil)
+  (org-agenda-time-leading-zero t)
+  (org-agenda-todo-keyword-format "")
 
   (org-agenda-files (list (expand-file-name "daily.org" org-directory)
                           (expand-file-name "events.org" org-directory)
@@ -248,41 +253,46 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       ((todo
         "TODO|DAYOF"
         ((org-agenda-overriding-header "\nDue Today:\n")
-         (org-agenda-todo-keyword-format "")
-         (org-agenda-todo-ignore-timestamp 'future)
-         (org-agenda-todo-ignore-scheduled 'future)
          (org-agenda-todo-ignore-deadlines 'future)
-         (org-agenda-skip-function
-          '(org-agenda-skip-entry-if 'nottimestamp))))
+         (org-agenda-todo-ignore-scheduled 'future)
+         (org-agenda-todo-ignore-timestamp 'future)))
        (todo
         "HABIT"
         ((org-agenda-overriding-header "\nToday's Habits:\n")
-         (org-agenda-prefix-format "")
-         (org-agenda-todo-keyword-format "")
-         (org-agenda-todo-ignore-scheduled 'future)))
+         (org-agenda-todo-ignore-timestamp 'future)))
        (agenda
         ""
         ((org-agenda-overriding-header "\nDue Later:\n")
-         (org-agenda-todo-keyword-format "")
          (org-agenda-prefix-format "%?-12t %s")
-         (org-agenda-span 100)
          (org-agenda-show-all-dates nil)
+         (org-agenda-span 100)
          (org-agenda-start-day "+1d")
          (org-agenda-skip-function
           '(org-agenda-skip-entry-if 'nottodo '("TODO")))))
        (agenda
         ""
         ((org-agenda-overriding-header "\nSchedule:\n")
+         (org-agenda-prefix-format "    %-12t| %s")
+         (org-agenda-span 'fortnight)
          (org-agenda-skip-function
-          '(org-agenda-skip-entry-if 'todo '("*")))
-         (org-agenda-span 14)))
+          '(org-agenda-skip-entry-if 'todo '("*")))))
        (agenda
         ""
         ((org-agenda-overriding-header "\nTime Tracking:\n")
-         (org-agenda-show-log 'clockcheck)
+         (org-agenda-prefix-format "%-18s | %t | ")
          (org-agenda-show-all-dates nil)
-         (org-agenda-prefix-format "%-18s | %t | "))))))))
-
+         (org-agenda-show-log 'clockcheck)))))))
+  :config
+  (defun dairy-last-work-day-of-month (&optional mark)
+    "Used to schedule an item for the last work day of the month"
+    (with-no-warnings (defvar date) (defvar entry))
+    (let* ((dayname (calendar-day-of-week date))
+           (day (calendar-extract-day date))
+           (month (calendar-extract-month date))
+           (year (calendar-extract-year date))
+           (lastday (calendar-last-day-of-month month year)))
+      (or (and (= day lastday) (memq dayname '(1 2 3 4 5)))
+          (and (<= day (- lastday 2)) (= dayname 5))))))
 
 (use-package org-clock
   :demand
