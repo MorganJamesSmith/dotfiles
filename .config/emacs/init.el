@@ -229,10 +229,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-agenda-prefix-format "")
   (org-agenda-remove-tags t)
   (org-agenda-scheduled-leaders '("" ""))
+  (org-agenda-deadline-leaders '("" ""))
   (org-agenda-start-on-weekday nil)
   (org-agenda-time-grid nil)
   (org-agenda-time-leading-zero t)
   (org-agenda-todo-keyword-format "")
+  (org-agenda-window-setup 'current-window)
 
   (org-agenda-files (list (expand-file-name "daily.org" org-directory)
                           (expand-file-name "events.org" org-directory)
@@ -243,18 +245,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
    '(("o" "My Agenda"
       ((todo
         "TODO|DAYOF"
-        ((org-agenda-overriding-header "\nDue Today:\n")
+        ((org-agenda-overriding-header "Due Today:\n")
          (org-agenda-todo-ignore-deadlines 'future)
          (org-agenda-todo-ignore-scheduled 'future)
          (org-agenda-todo-ignore-timestamp 'future)))
        (todo
         "HABIT"
         ((org-agenda-overriding-header "\nToday's Habits:\n")
-         (org-agenda-todo-ignore-timestamp 'future)))
+         (org-agenda-todo-ignore-scheduled 'future)))
        (agenda
         ""
         ((org-agenda-overriding-header "\nDue Later:\n")
-         (org-agenda-prefix-format "%?-12t %s")
+         (org-agenda-prefix-format "%-12t%?T%s")
          (org-agenda-show-all-dates nil)
          (org-agenda-span 100)
          (org-agenda-start-day "+1d")
