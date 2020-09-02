@@ -724,7 +724,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      ;; Launch application.
      ([?\s-d] . ,(lambda (command)
                    (interactive (list (read-shell-command "$ ")))
-                   (start-process-shell-command command nil command)))))
+                   (start-process-shell-command command nil command)))
+     ;; Switch to workspace
+     ,@(mapcar (lambda (i)
+                 `(,(kbd (format "s-%d" i)) .
+                   (lambda ()
+                     (interactive)
+                     (exwm-workspace-switch ,(1- i)))))
+               (number-sequence 1 9))))
   :config
   (require 'exwm-config)
 
@@ -754,21 +761,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
             (push monitor-number value)
             (setq monitor-number (1+ monitor-number)))))
 
-      (customize-set-variable 'exwm-randr-workspace-monitor-plist value)
-
-      (mapcar (lambda (binding)
-                (exwm-input-set-key (car binding) (cdr binding)))
-              ;; Switch to certain workspace.
-              (mapcar (lambda (i)
-                        `(,(kbd (format "s-%d" i)) .
-                          ,(lambda ()
-                             (interactive)
-                             (exwm-workspace-switch-create (1- i)))))
-                      (number-sequence 1 9)))))
-
-  (exwm-monitor-update)
+      (customize-set-variable 'exwm-randr-workspace-monitor-plist value)))
 
   (add-hook 'exwm-randr-screen-change-hook #'exwm-monitor-update)
+  (add-hook 'exwm-init-hook #'exwm-monitor-update)
 
   (exwm-randr-enable)
   (exwm-config-ido)
