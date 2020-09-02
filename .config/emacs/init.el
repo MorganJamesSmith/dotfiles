@@ -172,9 +172,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     (kbd leader) nil
     (leader "TAB") #'whitespace-mode
     (leader "c")   #'compile
-    (leader "e")   (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))
     (leader "g")   #'magit-status
     (leader "o")   #'ispell
+    (leader "e")   (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))
+    (leader "a")   (lambda ()
+                     (interactive)
+                     (if (get-buffer "*Org Agenda*")
+                         (progn
+                           (switch-to-buffer "*Org Agenda*")
+                           (org-agenda-redo))
+                       (org-agenda nil "o")))
 
     (kbd "g") nil
     (kbd "g b") #'switch-to-buffer
@@ -199,8 +206,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Org Section Begins
 (use-package org
-  :demand
-  :bind ("C-c a" . org-agenda)
   :custom
   (org-pretty-entities t)
   (org-directory "~/documents/")
