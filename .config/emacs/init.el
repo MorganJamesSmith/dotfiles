@@ -902,14 +902,6 @@ FILE-LINK, the URL at current point, or the URL in the clipboard"
 
 (global-set-key (kbd "C-c d") #'download-file)
 
-
-(defun root-edit ()
-  "Open current file as root."
-  (interactive)
-  (let ((tramp-file-name (concat "/sudo::" (expand-file-name (buffer-file-name)))))
-    (find-file tramp-file-name)))
-
-
 (defun keyboard-quit-context+ ()
   "Quit current context.
 
