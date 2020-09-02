@@ -31,6 +31,17 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       (make-directory directory))
     directory))
 
+;; Make buffers appear where I want them to
+(customize-set-variable
+ 'display-buffer-alist
+ '(("*Org Note*"     display-buffer-reuse-window)
+   ("*Warnings*"     display-buffer-reuse-window)
+   ("magit: "        display-buffer-reuse-window)
+   ("*Completions*" display-buffer-at-bottom)
+   ("" display-buffer-same-window)))
+(customize-set-variable 'switch-to-buffer-obey-display-actions t)
+
+
 ;;; Optimization Section Begins
 
 ;; Remove command line options that aren't relevant to our current OS; means
