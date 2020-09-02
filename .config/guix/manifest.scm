@@ -28,7 +28,6 @@
       "deft"
       "diff-hl"
       "disk-usage"
-      "doom-modeline"
       "evil"
       "evil-collection"
       "evil-magit"

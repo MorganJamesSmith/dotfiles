@@ -126,34 +126,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
-
-(blink-cursor-mode 0)
+(blink-cursor-mode -1)
 ;;; Pretty Visuals Section Ends
-
-
-;;; Modeline Section Begins
-(use-package time
-  :ensure nil
-  :custom
-  (display-time-default-load-average nil)
-  (display-time-24hr-format t)
-  (display-time-day-and-date t)
-  :config
-  (display-time-mode))
-
-(display-battery-mode)
-
-(size-indication-mode)
-(column-number-mode)
-(line-number-mode)
-
-(use-package doom-modeline
-  :custom
-  (doom-modeline-gnus t)
-  (doom-modeline-gnus-excluded-groups '("nnimap+morganjsmith:emacs"))
-  (doom-modeline-enable-word-count t)
-  :init (doom-modeline-mode 1))
-;;; Modeline Section Ends
 
 
 ;; Unbind keys I don't use
@@ -364,6 +338,69 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; source code highlighting for HTML org export
 (use-package htmlize)
 ;;; Org Section Ends
+
+
+;;; Modeline Section Begins
+(use-package time
+  :custom
+  (display-time-default-load-average nil)
+  (display-time-24hr-format t)
+  (display-time-day-and-date t)
+  :config
+  (display-time-mode))
+
+(display-battery-mode)
+(size-indication-mode)
+(column-number-mode)
+(line-number-mode)
+
+(defun simple-mode-line-render (left right)
+  "Return a string of `window-width' length.
+Containing LEFT, and RIGHT aligned respectively."
+  (let ((available-width
+         (- (window-total-width)
+            (+ (length (format-mode-line left))
+               (length (format-mode-line right))))))
+    (append left
+            (list (format (format "%%%ds" available-width) ""))
+            right)))
+
+(customize-set-variable
+ 'mode-line-format
+ '((:eval
+    (simple-mode-line-render
+     (list
+      "%e"
+      mode-line-front-space
+      mode-line-mule-info
+      mode-line-client
+      mode-line-modified
+      mode-line-remote
+      mode-line-frame-identification
+      mode-line-buffer-identification
+      " "
+      mode-line-position
+      evil-mode-line-tag
+      '(vc-mode vc-mode)
+      "    "
+      '(:eval
+        (propertize
+         (concat "#" (format-mode-line mode-name))
+         'face '(:weight bold)))
+      mode-line-process)
+
+     (list
+      org-mode-line-string
+      "    "
+      display-time-string
+      "  "
+      mode-line-end-spaces)))))
+
+(add-hook
+ 'org-clock-out-hook
+ '(lambda ()
+    (setq org-mode-line-string "")))
+;;; Modeline Section Ends
 
 
 ;;; Ledger Mode Section Begins
