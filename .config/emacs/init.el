@@ -895,9 +895,9 @@ FILE-LINK, the URL at current point, or the URL in the clipboard"
                    (thing-at-point 'url)
                    (when interprogram-paste-function
                      (funcall interprogram-paste-function))))))
-    (if (string-match "^magnet" link)
-        (transmission-add link)
-      (youtube-dl link))
+    (cond ((string-match "^magnet" link) (transmission-add link))
+          ((youtube-dl-item-id (youtube-dl link)) nil)
+          (t (error "Can't download link: %S" link)))
     (message "Downloading link: %S" link)))
 
 (global-set-key (kbd "C-c d") #'download-file)
