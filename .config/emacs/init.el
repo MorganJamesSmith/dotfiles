@@ -501,11 +501,12 @@ Containing LEFT, and RIGHT aligned respectively."
 ;;; VC/Diffs Section Begins
 (use-package magit
   :custom
-  (magit-no-confirm '(safe-with-wip))
-  (magit-wip-merge-branch t)
-  (magit-diff-refine-hunk 'all)
-  (magit-save-repository-buffers 'dontask)
   (magit-auto-revert-immediately t)
+  (magit-diff-refine-hunk t)
+  (magit-log-margin-show-committer-date t)
+  (magit-no-confirm '(safe-with-wip))
+  (magit-save-repository-buffers 'dontask)
+  (magit-wip-merge-branch t)
   :config
   (magit-wip-mode 1)
 
