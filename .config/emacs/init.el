@@ -31,6 +31,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       (make-directory directory))
     directory))
 
+(customize-set-variable 'use-package-always-demand t)
+
 ;; Make buffers appear where I want them to
 (customize-set-variable
  'display-buffer-alist
@@ -86,7 +88,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; Move gnus folders to the `user-emacs-directory'
 (use-package gnus
-  :ensure nil
   :custom
   (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
   (gnus-home-directory (expand-create-directory-name "gnus-files" user-emacs-directory))
@@ -235,7 +236,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-indent-mode -1))
 
 (use-package org-agenda
-  :ensure nil
   :custom
   (org-agenda-prefix-format "")
   (org-agenda-remove-tags t)
@@ -299,9 +299,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           (and (<= day (- lastday 2)) (= dayname 5))))))
 
 (use-package org-clock
-  :demand
   :after org
-  :ensure nil
   :bind
   ("C-c I" . (lambda () (interactive) (org-clock-in '(4))))
   ("C-c O" . org-clock-out)
@@ -443,8 +441,6 @@ Containing LEFT, and RIGHT aligned respectively."
   :config (cscope-setup))
 
 (use-package flymake
-  :demand
-  :ensure nil
   :bind (("M-n" . flymake-goto-next-error)
          ("M-p" . flymake-goto-prev-error))
   :config
@@ -477,7 +473,6 @@ Containing LEFT, and RIGHT aligned respectively."
   (debbugs-gnu-default-packages '("emacs" "guix" "guix-patches")))
 
 (use-package gdb-mi
-  :ensure nil
   :custom (gdb-many-windows t))
 
 ;; Guix development
@@ -500,7 +495,6 @@ Containing LEFT, and RIGHT aligned respectively."
   (yas-global-mode 1))
 
 (use-package copyright
-  :ensure nil
   :custom
   (copyright-names-regexp (format "%s <%s>" user-full-name user-mail-address)))
 
@@ -529,7 +523,6 @@ Containing LEFT, and RIGHT aligned respectively."
   :after (evil magit))
 
 (use-package magit-repos
-  :ensure nil
   :after magit
   :commands magit-list-repositories
   :custom
@@ -541,13 +534,11 @@ Containing LEFT, and RIGHT aligned respectively."
   :config (global-diff-hl-mode))
 
 (use-package ediff
-  :ensure nil
   :commands ediff
   :custom
   (ediff-diff-options "-w"))
 
 (use-package ediff-wind
-  :ensure nil
   :after ediff
   (ediff-window-setup-function 'ediff-setup-windows-plain)
   (ediff-split-window-function 'split-window-horizontally))
@@ -556,7 +547,6 @@ Containing LEFT, and RIGHT aligned respectively."
 
 ;;; Parens Section Begins
 (use-package paren
-  :ensure nil
   :custom
   (show-paren-delay 0)
   (show-paren-highlight-openparen t)
@@ -597,7 +587,6 @@ Containing LEFT, and RIGHT aligned respectively."
 
 ;;; Auto-complete/Hints Section Begins
 (use-package ido
-  :ensure nil
   :custom
   (ido-enable-flex-matching t)
   (ido-everywhere t)
@@ -630,7 +619,6 @@ Containing LEFT, and RIGHT aligned respectively."
 
 ;;; EWW Section Begins
 (use-package shr
-  :ensure nil
   :custom
   (browse-url-browser-function 'eww-browse-url)
   (shr-use-colors nil)
@@ -640,7 +628,6 @@ Containing LEFT, and RIGHT aligned respectively."
 
 ;;; auth Section Begins
 (use-package auth-source-pass
-  :ensure nil
   :custom (auth-source-pass-filename (expand-file-name "password-store" (getenv "XDG_DATA_HOME"))))
 
 (use-package pinentry
@@ -656,7 +643,6 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package literate-calc-mode)
 
 (use-package erc
-  :ensure nil
   :custom
   (erc-nick "pancak3")
   (erc-server "irc.freenode.net")
@@ -679,14 +665,12 @@ Containing LEFT, and RIGHT aligned respectively."
   (erc-update-modules))
 
 (use-package flyspell
-  :ensure nil
   :hook
   ((prog-mode . flyspell-prog-mode)
    ((text-mode text-mode message-mode) . flyspell-mode)))
 
 ;; Backups and auto-saves and deleting
 (use-package files
-  :ensure nil
   :custom
   (backup-directory-alist `((".*" . ,(expand-create-directory-name "backups" user-emacs-directory))))
   (auto-save-file-name-transforms `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
@@ -704,7 +688,6 @@ Containing LEFT, and RIGHT aligned respectively."
 (customize-set-variable 'custom-file (expand-file-name "custom-garbage" trash-directory) "Goodbye Custom")
 
 (use-package eshell
-  :ensure nil
   :custom
   (eshell-banner-message "")
   (eshell-history-size nil "Pull history size from environment variables")
@@ -713,7 +696,6 @@ Containing LEFT, and RIGHT aligned respectively."
   (setenv "PAGER" (executable-find "cat")))
 
 (use-package dired
-  :ensure nil
   :custom
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
@@ -721,14 +703,12 @@ Containing LEFT, and RIGHT aligned respectively."
   :hook (dired-mode . dired-hide-details-mode))
 
 (use-package dired-x
-  :ensure nil
   :custom
   (dired-guess-shell-alist-user
    `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm")) "mpv")
      (,(regexp-opt '(".pdf")) "zathura"))))
 
 (use-package tramp
-  :ensure nil
   :custom
   (tramp-default-method "ssh")
   (remote-file-name-inhibit-cache nil)
@@ -740,7 +720,6 @@ Containing LEFT, and RIGHT aligned respectively."
            tramp-file-name-regexp)))
 
 (use-package minibuffer
-  :ensure nil
   :custom
   (read-buffer-completion-ignore-case t)
   (completion-cycle-threshold 3))
