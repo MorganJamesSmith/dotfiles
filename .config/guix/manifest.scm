@@ -20,6 +20,7 @@
     (lambda (x) (string-append "emacs-" x))
     '("all-the-icons"
       "all-the-icons-dired"
+      "auth-source-xoauth2"
       "bluetooth"
       "company"
       "company-quickhelp"

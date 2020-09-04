@@ -927,5 +927,22 @@ behavior added."
 
 (global-set-key [remap keyboard-quit] #'keyboard-quit-context+)
 
+(use-package auth-source-xoauth2
+  :after smtpmail
+  :config
+  (defun my-xoauth2-get-secrets (_host user _port)
+    (when (string= user (auth-source-pass-get 'secret "email/work/address"))
+      (list
+       :token-url "https://accounts.google.com/o/oauth2/token"
+       :client-id (auth-source-pass-get 'secret "email/work/client-id")
+       :client-secret (auth-source-pass-get 'secret "email/work/client-secret")
+       :refresh-token (auth-source-pass-get 'secret "email/work/refresh-token"))))
+  (setq auth-source-xoauth2-creds 'my-xoauth2-get-secrets)
+
+  (eval-when-compile
+    (require 'smtpmail))
+  (add-to-list 'smtpmail-auth-supported 'xoauth2)
+  (auth-source-xoauth2-enable))
+
 (provide 'init.el)
 ;;; init.el ends here
