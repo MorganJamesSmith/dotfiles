@@ -377,40 +377,42 @@ Containing LEFT, and RIGHT aligned respectively."
          (- (window-total-width)
             (+ (length (format-mode-line left))
                (length (format-mode-line right))))))
-    (append left
-            (list (format (format "%%%ds" available-width) ""))
-            right)))
+    (list left
+          (list (format (format "%%%ds" available-width) ""))
+          right)))
 
 (customize-set-variable
  'mode-line-format
  '((:eval
     (simple-mode-line-render
-     (list
-      "%e"
-      mode-line-front-space
-      mode-line-mule-info
-      mode-line-client
-      mode-line-modified
-      mode-line-remote
-      mode-line-frame-identification
-      mode-line-buffer-identification
-      " "
-      mode-line-position
-      evil-mode-line-tag
-      '(vc-mode vc-mode)
-      "    "
-      '(:eval
+     '(""
+       "%e"
+       mode-line-front-space
+       mode-line-mule-info
+       mode-line-client
+       mode-line-modified
+       mode-line-remote
+       mode-line-frame-identification
+       mode-line-buffer-identification
+       " "
+       mode-line-position
+       evil-mode-line-tag
+       (vc-mode vc-mode)
+       " "
+       (:eval
         (propertize
          (concat "#" (format-mode-line mode-name))
          'face '(:weight bold)))
-      mode-line-process)
+       mode-line-process)
 
-     (list
-      org-mode-line-string
-      "    "
-      display-time-string
-      "  "
-      mode-line-end-spaces)))))
+     '(""
+       org-mode-line-string
+       " "
+       battery-mode-line-string
+       " "
+       display-time-string
+       " "
+       mode-line-end-spaces)))))
 
 (add-hook
  'org-clock-out-hook
