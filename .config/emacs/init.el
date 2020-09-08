@@ -201,12 +201,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     (kbd "g d") #'kill-this-buffer
     (kbd "g D") #'kill-buffer
     (kbd "g h") #'counsel-org-goto
-    (kbd "g H") #'counsel-org-goto-all)
+    (kbd "g H") #'counsel-org-goto-all
 
-  (global-set-key (kbd "M-j") #'evil-scroll-line-down)
-  (global-set-key (kbd "M-k") #'evil-scroll-line-up)
-  (global-set-key (kbd "M-J") #'text-scale-decrease)
-  (global-set-key (kbd "M-K") #'text-scale-increase)
+    (kbd "M-j") #'evil-scroll-line-down
+    (kbd "M-k") #'evil-scroll-line-up
+    (kbd "M-J") #'text-scale-decrease
+    (kbd "M-K") #'text-scale-increase)
 
   (evil-mode t))
 
@@ -296,7 +296,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
            (year (calendar-extract-year date))
            (lastday (calendar-last-day-of-month month year)))
       (or (and (= day lastday) (memq dayname '(1 2 3 4 5)))
-          (and (<= day (- lastday 2)) (= dayname 5))))))
+          (and (>= day (- lastday 2)) (= dayname 5))))))
 
 (use-package org-clock
   :after org
@@ -323,6 +323,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       state))
 
   (org-clock-persistence-insinuate))
+
+(use-package org-edna
+  :config (org-edna-mode))
 
 (use-package evil-org
   :after org
@@ -365,6 +368,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (display-time-mode))
 
+(customize-set-variable 'battery-mode-line-format "[%L %p%%]")
 (display-battery-mode)
 (size-indication-mode)
 (column-number-mode)
@@ -609,13 +613,6 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package which-key
   :custom (which-key-idle-secondary-delay 0.05)
   :config (which-key-mode))
-
-(use-package helpful
-  :bind
-  (("C-h f" . helpful-callable)
-   ("C-h v" . helpful-variable)
-   ("C-h k" . helpful-key)
-   ("C-c C-d" . helpful-at-point)))
 ;;; Auto-complete/Hints Section Ends
 
 
@@ -655,8 +652,6 @@ Containing LEFT, and RIGHT aligned respectively."
   (erc-save-buffer-on-part t)
   (erc-header-line-format nil)
   (erc-autojoin-timing 'ident)
-  (erc-autojoin-channels-alist '(("freenode.net" "#emacs" "#gnu" "#guix" "#guile")))
-  (erc-pals '("nckx" "mbakke" "apteryx"))
   (erc-kill-buffer-on-part t)
   :config
   (add-to-list 'erc-modules 'keep-place)
@@ -862,22 +857,6 @@ Containing LEFT, and RIGHT aligned respectively."
 
 (use-package counsel)
 
-(use-package deft
-  :custom
-  (deft-recursive t)
-  (deft-use-filter-string-for-filename t)
-  (deft-default-extension "org")
-  (deft-extensions '("org"))
-  (deft-directory "~/documents/")
-  (deft-recursive-ignore-dir-regexp
-    (concat "\\(?:"
-            "\\."
-            "\\|\\.\\."
-            "\\|\\.stfolder"   ;; Syncthing folder
-            "\\|\\.stversions" ;; Syncthing folder
-            "\\)$")))
-
-
 (defun download-file (&optional file-link)
   "Downloads a file.
 Uses either `youtube-dl' or `transmission'.  Downloads either
@@ -945,6 +924,9 @@ behavior added."
     (require 'smtpmail))
   (add-to-list 'smtpmail-auth-supported 'xoauth2)
   (auth-source-xoauth2-enable))
+
+(use-package explain-pause-mode
+  :config (explain-pause-mode))
 
 (provide 'init.el)
 ;;; init.el ends here

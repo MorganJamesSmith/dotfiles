@@ -93,6 +93,8 @@
 
 (customize-set-variable 'gnus-parameters '((".*" (display . all))))
 
+(customize-set-variable 'gnus-visible-headers (concat gnus-visible-headers "\\|^Message-ID:"))
+
 ;; Receiving email stuff
 
 (customize-set-variable 'gnus-select-method '(nnnil ""))

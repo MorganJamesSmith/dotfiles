@@ -26,13 +26,13 @@
       "company-quickhelp"
       "counsel"
       "debbugs"
-      "deft"
       "diff-hl"
       "disk-usage"
       "evil"
       "evil-collection"
       "evil-magit"
       "evil-org"
+      "explain-pause-mode"
       "exwm"
       "flycheck"
       "flycheck-guile"
@@ -52,6 +52,7 @@
       "org-beautify-theme"
       "org-bullets"
       "org-drill"
+      "org-edna"
       "pdf-tools"
       "pinentry"
       "plantuml-mode"
@@ -101,6 +102,7 @@
     "mpv" ; video player
     "openscad" ; 3D modeling program
     "openssh"
+    "password-store"
     "picom" ; compositor
     "pwgen" ; Password Generator
     "rsync"
