@@ -142,6 +142,79 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Pretty Visuals Section Ends
 
 
+;;; Modeline Section Begins
+(use-package time
+  :custom
+  (display-time-default-load-average nil)
+  (display-time-24hr-format t)
+  (display-time-day-and-date t)
+  :config
+  (display-time-mode))
+
+(customize-set-variable 'battery-mode-line-format "[%L %p%%]")
+(display-battery-mode)
+(size-indication-mode)
+(column-number-mode)
+(line-number-mode)
+
+(defun simple-mode-line-render (left right)
+  "Return a string of `window-width' length.
+Containing LEFT, and RIGHT aligned respectively."
+  (let ((available-width
+         (- (window-total-width)
+            (+ (length (format-mode-line left))
+               (length (format-mode-line right))))))
+    (list left
+          (list (format (format "%%%ds" available-width) ""))
+          right)))
+
+(customize-set-variable
+ 'mode-line-format
+ '((:eval
+    (simple-mode-line-render
+     '(""
+       "%e"
+       mode-line-front-space
+       mode-line-mule-info
+       mode-line-client
+       mode-line-modified
+       mode-line-remote
+       mode-line-frame-identification
+       mode-line-buffer-identification
+       " "
+       mode-line-position
+       (:eval
+        (concat
+         "["
+         (number-to-string (1+ (exwm-workspace--position (selected-frame))))
+         "]"))
+       evil-mode-line-tag
+       (vc-mode vc-mode)
+       " "
+       (:eval
+        (propertize
+         (concat "#" (format-mode-line mode-name))
+         'face '(:weight bold)))
+       mode-line-process)
+
+     '(""
+       org-mode-line-string
+       " "
+       battery-mode-line-string
+       " "
+       display-time-string
+       " "
+       mode-line-end-spaces)))))
+
+
+(with-eval-after-load 'org-clock
+  (add-hook
+   'org-clock-out-hook
+   '(lambda ()
+      (clear-string org-mode-line-string))))
+;;; Modeline Section Ends
+
+
 ;; Unbind keys I don't use
 (dolist (key '("\C-z"      ; Suspend frame
                "\C-x\C-z"  ; Suspend frame
@@ -357,72 +430,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; source code highlighting for HTML org export
 (use-package htmlize)
 ;;; Org Section Ends
-
-
-;;; Modeline Section Begins
-(use-package time
-  :custom
-  (display-time-default-load-average nil)
-  (display-time-24hr-format t)
-  (display-time-day-and-date t)
-  :config
-  (display-time-mode))
-
-(customize-set-variable 'battery-mode-line-format "[%L %p%%]")
-(display-battery-mode)
-(size-indication-mode)
-(column-number-mode)
-(line-number-mode)
-
-(defun simple-mode-line-render (left right)
-  "Return a string of `window-width' length.
-Containing LEFT, and RIGHT aligned respectively."
-  (let ((available-width
-         (- (window-total-width)
-            (+ (length (format-mode-line left))
-               (length (format-mode-line right))))))
-    (list left
-          (list (format (format "%%%ds" available-width) ""))
-          right)))
-
-(customize-set-variable
- 'mode-line-format
- '((:eval
-    (simple-mode-line-render
-     '(""
-       "%e"
-       mode-line-front-space
-       mode-line-mule-info
-       mode-line-client
-       mode-line-modified
-       mode-line-remote
-       mode-line-frame-identification
-       mode-line-buffer-identification
-       " "
-       mode-line-position
-       evil-mode-line-tag
-       (vc-mode vc-mode)
-       " "
-       (:eval
-        (propertize
-         (concat "#" (format-mode-line mode-name))
-         'face '(:weight bold)))
-       mode-line-process)
-
-     '(""
-       org-mode-line-string
-       " "
-       battery-mode-line-string
-       " "
-       display-time-string
-       " "
-       mode-line-end-spaces)))))
-
-(add-hook
- 'org-clock-out-hook
- '(lambda ()
-    (setq org-mode-line-string "")))
-;;; Modeline Section Ends
 
 
 ;;; Ledger Mode Section Begins
