@@ -98,6 +98,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'auth-sources (list (expand-file-name "authinfo.gpg" user-emacs-directory)))
 (customize-set-variable 'auth-source-gpg-encrypt-to '("Morgan.J.Smith@outlook.com"))
 
+(customize-set-variable 'text-quoting-style 'grave)
+
 ;; Date should always be big to small (year/month/day)
 (customize-set-variable 'calendar-date-style 'iso)
 ;;; Sensible Default Section Ends
@@ -211,7 +213,7 @@ Containing LEFT, and RIGHT aligned respectively."
   (add-hook
    'org-clock-out-hook
    '(lambda ()
-      (clear-string org-mode-line-string))))
+      (setq org-mode-line-string ""))))
 ;;; Modeline Section Ends
 
 
@@ -292,9 +294,9 @@ Containing LEFT, and RIGHT aligned respectively."
 ;;; Org Section Begins
 (use-package org
   :custom
-  (org-pretty-entities t)
   (org-directory "~/documents/")
   (org-default-notes-file (expand-file-name "notes.org" org-directory))
+  (org-preview-latex-image-directory "~/.cache/org-preview-latex/")
   (org-log-done 'time)
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
@@ -320,16 +322,19 @@ Containing LEFT, and RIGHT aligned respectively."
   (org-agenda-todo-keyword-format "")
   (org-agenda-window-setup 'current-window)
 
-  (org-agenda-files (list (expand-file-name "daily.org" org-directory)
-                          (expand-file-name "events.org" org-directory)
-                          (expand-file-name "timetracking.org" org-directory)
-                          (expand-file-name "todo.org" org-directory)))
+  (org-agenda-files `(
+                      ,(expand-file-name "daily.org" org-directory)
+                      ,(expand-file-name "events.org" org-directory)
+                      ,(expand-file-name "timetracking.org" org-directory)
+                      ,(expand-file-name "todo.org" org-directory)
+                      ,@(directory-files-recursively "~/school" org-agenda-file-regexp)))
 
   (org-agenda-custom-commands
    '(("o" "My Agenda"
       ((todo
         "TODO|DAYOF"
         ((org-agenda-overriding-header "Due Today:\n")
+         (org-agenda-prefix-format "%t%?T%s")
          (org-agenda-todo-ignore-deadlines 'future)
          (org-agenda-todo-ignore-scheduled 'future)
          (org-agenda-todo-ignore-timestamp 'future)))
@@ -350,9 +355,15 @@ Containing LEFT, and RIGHT aligned respectively."
         ""
         ((org-agenda-overriding-header "\nSchedule:\n")
          (org-agenda-prefix-format "    %-12t| %s")
+
+         (holiday-bahai-holidays nil)
+         ;;(holiday-hebrew-holidays nil)
+         (holiday-islamic-holidays nil)
+         (org-agenda-include-diary t)
+
          (org-agenda-span 'fortnight)
          (org-agenda-skip-function
-          '(org-agenda-skip-entry-if 'todo '("*")))))
+          '(org-agenda-skip-entry-if 'todo '("TODO" "DONE" "HABIT" "DAYOF")))))
        (agenda
         ""
         ((org-agenda-overriding-header "\nTime Tracking:\n")
@@ -608,8 +619,7 @@ Containing LEFT, and RIGHT aligned respectively."
 
 (use-package company
   :custom
-  (company-minimum-prefix-length 1)
-  (company-show-numbers ''t)
+  (company-show-numbers t)
   :config
   (global-company-mode))
 
@@ -700,11 +710,11 @@ Containing LEFT, and RIGHT aligned respectively."
   (setenv "PAGER" (executable-find "cat")))
 
 (use-package dired
+  :hook (dired-mode . dired-hide-details-mode)
   :custom
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
-  (dired-listing-switches "-aFhl")
-  :hook (dired-mode . dired-hide-details-mode))
+  (dired-listing-switches "--all --dired --file-type --group-directories-first --si -l"))
 
 (use-package dired-x
   :custom
@@ -727,7 +737,6 @@ Containing LEFT, and RIGHT aligned respectively."
   :custom
   (read-buffer-completion-ignore-case t)
   (completion-cycle-threshold 3))
-
 
 (use-package exwm
   :if (and (display-graphic-p) (not IS-INSIDE-EMACS) (or IS-LINUX IS-BSD))
@@ -814,7 +823,6 @@ Containing LEFT, and RIGHT aligned respectively."
 
 (use-package bluetooth)
 
-(use-package disk-usage)
 
 (use-package guix
   :if (executable-find "guix"))
