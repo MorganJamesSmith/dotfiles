@@ -28,6 +28,7 @@
       "debbugs"
       "diff-hl"
       "disk-usage"
+      "djvu"
       "evil"
       "evil-collection"
       "evil-magit"

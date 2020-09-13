@@ -846,6 +846,8 @@ Containing LEFT, and RIGHT aligned respectively."
   :custom (nov-text-width 80)
   :mode ("\\.epub\\'" . nov-mode))
 
+(use-package djvu)
+
 (use-package undo-tree
   :config
   (global-undo-tree-mode)
