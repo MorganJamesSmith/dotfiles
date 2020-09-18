@@ -8,6 +8,7 @@
  ((gnu packages certs) #:select (nss-certs))
  ((gnu packages curl) #:select (curl))
  ((gnu packages gl) #:select (mesa))
+ ((gnu packages linux) #:select (v4l2loopback-linux-module))
  ((gnu packages rsync) #:select (rsync))
  ((gnu packages shells) #:select (dash))
  ((gnu packages suckless) #:select (slock))
@@ -87,6 +88,8 @@
   ;; US keyboard but replace caps with ctrl
   (keyboard-layout my-keyboard-layout)
 
+  (kernel-loadable-modules (list v4l2loopback-linux-module))
+
   (kernel-arguments (append
                      '("modprobe.blacklist=pcspkr,snd_pcsp"
                        "mitigations=off")
@@ -161,6 +164,11 @@
         ,(plain-file
           "doas.conf"
           (string-append "permit persist " username (string #\newline))))))
+    (service kernel-module-loader-service-type '("v4l2loopback"))
+    (simple-service 'v4l2loopback-config etc-service-type
+                    (list `("modprobe.d/v4l2loopback.conf"
+                            ,(plain-file "v4l2loopback.conf"
+                                         "options v4l2loopback exclusive_caps=1"))))
     (service
      chown-program-service-type
      #~(list
