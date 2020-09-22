@@ -536,6 +536,7 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package magit
   :hook (after-save . magit-after-save-refresh-status)
   :custom
+  (magit-section-initial-visibility-alist '((stashes . hide) (untracked . hide)))
   (magit-auto-revert-immediately t)
   (magit-diff-refine-hunk t)
   (magit-log-margin-show-committer-date t)
