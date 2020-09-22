@@ -194,10 +194,14 @@ Containing LEFT, and RIGHT aligned respectively."
        (vc-mode vc-mode)
        " "
        (:eval
-        (propertize
-         (concat "#" (format-mode-line mode-name))
-         'face '(:weight bold)))
-       mode-line-process)
+        (concat
+         (propertize
+          (concat "#" (format-mode-line mode-name))
+          'face '(:weight bold))))
+       mode-line-process
+       (:eval
+        (unless (string-equal text-scale-mode-lighter "+0")
+          (concat " [" text-scale-mode-lighter "]"))))
 
      '(""
        org-mode-line-string
