@@ -423,6 +423,9 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package org-edna
   :config (org-edna-mode))
 
+(use-package toc-org
+  :hook ((org-mode markdown-mode) . toc-org-mode))
+
 (use-package evil-org
   :hook (org-mode . evil-org-mode))
 
