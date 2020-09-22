@@ -197,4 +197,7 @@
          `(,(udev-rule
              "99-dev-input-group.rules"
              "SUBSYSTEM==\"input\", ACTION==\"add\", GROUP=\"input\"")
-           ,@(udev-configuration-rules c)))))))))
+           ,@(udev-configuration-rules c))))))))
+
+  ;; Allow resolution of '.local' host names with mDNS.
+  (name-service-switch %mdns-host-lookup-nss))
