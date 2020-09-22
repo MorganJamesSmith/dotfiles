@@ -420,14 +420,10 @@ Containing LEFT, and RIGHT aligned respectively."
   :config (org-edna-mode))
 
 (use-package evil-org
-  :after org
-  :config
-  (add-hook 'org-mode-hook 'evil-org-mode)
-  (add-hook 'evil-org-mode-hook
-            (lambda ()
-              (evil-org-set-key-theme)))
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
+  :hook (org-mode . evil-org-mode))
+
+(use-package evil-org-agenda
+  :config (evil-org-agenda-set-keys))
 
 (use-package org-beautify-theme
   :if (display-graphic-p)
@@ -475,8 +471,7 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package flymake
   :bind (("M-n" . flymake-goto-next-error)
          ("M-p" . flymake-goto-prev-error))
-  :config
-  (add-hook 'prog-mode-hook #'flymake-mode))
+  :hook (prog-mode . flymake-mode))
 
 ;; Save all buffers on compile automatically
 (customize-set-variable 'compilation-ask-about-save nil)
@@ -537,6 +532,7 @@ Containing LEFT, and RIGHT aligned respectively."
 
 ;;; VC/Diffs Section Begins
 (use-package magit
+  :hook (after-save . magit-after-save-refresh-status)
   :custom
   (magit-auto-revert-immediately t)
   (magit-diff-refine-hunk t)
@@ -546,10 +542,8 @@ Containing LEFT, and RIGHT aligned respectively."
   (magit-wip-merge-branch t)
   :config
   (magit-wip-mode 1)
-
-  (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
-  (add-hook 'magit-process-find-password-functions
-            'magit-process-password-auth-source))
+  (add-to-list 'magit-process-find-password-functions
+               'magit-process-password-auth-source))
 
 (use-package evil-magit
   :after (evil magit))
@@ -833,7 +827,8 @@ Containing LEFT, and RIGHT aligned respectively."
 
 
 (use-package guix
-  :if (executable-find "guix"))
+  :if (executable-find "guix")
+  :hook (scheme-mode . guix-devel-mode))
 
 (use-package nginx-mode)
 
