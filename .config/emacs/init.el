@@ -351,7 +351,7 @@ Containing LEFT, and RIGHT aligned respectively."
         ((org-agenda-overriding-header "\nDue Later:\n")
          (org-agenda-prefix-format "%-12t%?T%s")
          (org-agenda-show-all-dates nil)
-         (org-agenda-span 100)
+         (org-agenda-span 'fortnight)
          (org-agenda-start-day "+1d")
          (org-agenda-skip-function
           '(org-agenda-skip-entry-if 'nottodo '("TODO")))))
@@ -359,19 +359,14 @@ Containing LEFT, and RIGHT aligned respectively."
         ""
         ((org-agenda-overriding-header "\nSchedule:\n")
          (org-agenda-prefix-format "    %-12t| %s")
-
-         (holiday-bahai-holidays nil)
-         ;;(holiday-hebrew-holidays nil)
-         (holiday-islamic-holidays nil)
-         (org-agenda-include-diary t)
-
          (org-agenda-span 'fortnight)
+         (org-deadline-warning-days 0)
          (org-agenda-skip-function
           '(org-agenda-skip-entry-if 'todo '("TODO" "DONE" "HABIT" "DAYOF")))))
        (agenda
         ""
         ((org-agenda-overriding-header "\nTime Tracking:\n")
-         (org-agenda-prefix-format "%-18s | %t | ")
+         (org-agenda-prefix-format "%-18s | %-11t | ")
          (org-agenda-show-all-dates nil)
          (org-agenda-show-log 'clockcheck)))))))
   :config
