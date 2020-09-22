@@ -434,9 +434,9 @@ Containing LEFT, and RIGHT aligned respectively."
   :config
   (enable-theme 'org-beautify))
 
-(use-package org-bullets
+(use-package org-superstar
   :if (display-graphic-p)
-  :config (org-bullets-mode))
+  :hook (org-mode . org-superstar-mode))
 
 (use-package org-drill
   :custom
