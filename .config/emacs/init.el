@@ -138,6 +138,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'use-dialog-box nil)
 (customize-set-variable 'visible-bell t)
 (tool-bar-mode -1)
+(tooltip-mode -1)
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
 (blink-cursor-mode -1)
