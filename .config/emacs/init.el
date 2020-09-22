@@ -718,7 +718,7 @@ Containing LEFT, and RIGHT aligned respectively."
   :custom
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
-  (dired-listing-switches "--all --dired --file-type --group-directories-first --si -l"))
+  (dired-listing-switches "--all --dired --file-type --group-directories-first -l --si --sort=version"))
 
 (use-package dired-x
   :custom
