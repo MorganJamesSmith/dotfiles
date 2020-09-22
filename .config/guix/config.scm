@@ -2,12 +2,14 @@
  ((srfi srfi-1) #:select (remove))
  ((nongnu packages linux) #:select (linux linux-firmware))
  ((nongnu system linux-initrd) #:select (microcode-initrd))
+ ((gnu services linux) #:select (kernel-module-loader-service-type))
  (gnu)
  ((gnu packages admin) #:select (opendoas))
  ((gnu packages base) #:select (glibc-utf8-locales))
  ((gnu packages certs) #:select (nss-certs))
  ((gnu packages curl) #:select (curl))
  ((gnu packages gl) #:select (mesa))
+ ((gnu packages security-token) #:select (libu2f-host))
  ((gnu packages linux) #:select (v4l2loopback-linux-module))
  ((gnu packages rsync) #:select (rsync))
  ((gnu packages shells) #:select (dash))
@@ -16,8 +18,8 @@
  ((gnu packages wget) #:select (wget))
  ((gnu packages xorg) #:select (xkbcomp xorg-server))
  ((gnu services dbus) #:select (dbus-service))
- ((gnu services desktop)
-  #:select (%desktop-services))
+ ((gnu services desktop) #:select (%desktop-services))
+ ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services xorg)
   #:select (gdm-service-type xorg-configuration xorg-configuration-modules xorg-configuration-server-arguments))
  (guix gexp))
@@ -126,6 +128,10 @@
                          (type "vfat")))
                  %base-file-systems))
 
+  (groups (cons (user-group (name "plugdev")
+                            (system? #t))
+                %base-groups))
+
   (users (cons (user-account
                 (name username)
                 (comment username)
@@ -133,7 +139,8 @@
                 (shell (file-append dash "/bin/dash"))
                 (supplementary-groups '("wheel"
                                         "audio"
-                                        "video")))
+                                        "video"
+                                        "plugdev")))
                %base-user-accounts))
 
   (setuid-programs (cons*
@@ -169,6 +176,7 @@
                     (list `("modprobe.d/v4l2loopback.conf"
                             ,(plain-file "v4l2loopback.conf"
                                          "options v4l2loopback exclusive_caps=1"))))
+    (service pcscd-service-type)
     (service
      chown-program-service-type
      #~(list
@@ -197,6 +205,7 @@
          `(,(udev-rule
              "99-dev-input-group.rules"
              "SUBSYSTEM==\"input\", ACTION==\"add\", GROUP=\"input\"")
+           ,libu2f-host
            ,@(udev-configuration-rules c))))))))
 
   ;; Allow resolution of '.local' host names with mDNS.
