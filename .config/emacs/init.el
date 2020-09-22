@@ -382,6 +382,14 @@ Containing LEFT, and RIGHT aligned respectively."
       (or (and (= day lastday) (memq dayname '(1 2 3 4 5)))
           (and (>= day (- lastday 2)) (= dayname 5))))))
 
+(use-package org-capture
+  :bind ("C-c c" . org-capture)
+  :custom
+  (org-capture-templates
+   '(("i" "inbox" entry (file "inbox.org") "* %?\n"
+      :kill-buffer t
+      :prepend t))))
+
 (use-package org-clock
   :after org
   :bind
