@@ -713,6 +713,10 @@ Containing LEFT, and RIGHT aligned respectively."
   :config
   (setenv "PAGER" (executable-find "cat")))
 
+(use-package eshell-syntax-highlighting
+  :config
+  (eshell-syntax-highlighting-global-mode +1))
+
 (use-package dired
   :hook (dired-mode . dired-hide-details-mode)
   :custom
