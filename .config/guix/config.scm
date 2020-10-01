@@ -20,6 +20,7 @@
  ((gnu services dbus) #:select (dbus-service))
  ((gnu services desktop) #:select (%desktop-services))
  ((gnu services security-token) #:select (pcscd-service-type))
+ ((gnu services audio) #:select (mpd-service-type mpd-configuration))
  ((gnu services xorg)
   #:select (gdm-service-type xorg-configuration xorg-configuration-modules xorg-configuration-server-arguments))
  (guix gexp))
@@ -177,6 +178,14 @@
                             ,(plain-file "v4l2loopback.conf"
                                          "options v4l2loopback exclusive_caps=1"))))
     (service pcscd-service-type)
+    (service mpd-service-type
+             (mpd-configuration
+              (user username)
+              (music-dir "~/music")
+              (playlist-dir "~/.config/mpd/playlists")
+              (db-file "~/.config/mpd/database")
+              (state-file "~/.config/mpd/state")
+              (sticker-file "~/.config/mpd/sticker.sql")))
     (service
      chown-program-service-type
      #~(list
