@@ -33,16 +33,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (customize-set-variable 'use-package-always-demand t)
 
-;; Make buffers appear where I want them to
+;;; Make buffers appear where I want them to
+(unless (boundp 'shell-command-buffer-name-async)
+  (setq shell-command-buffer-name-async "*Async Shell Command*"))
 (customize-set-variable
  'display-buffer-alist
- '(("*Org Note*"     display-buffer-reuse-window)
-   ("*Warnings*"     display-buffer-reuse-window)
-   ("magit: "        display-buffer-reuse-window)
-   ("*Completions*" display-buffer-at-bottom)
-   ("" display-buffer-same-window)))
-(customize-set-variable 'switch-to-buffer-obey-display-actions t)
-
+ (list (list shell-command-buffer-name-async   #'display-buffer-no-window)
+       (list "*compilation*" #'display-buffer-no-window)))
+(customize-set-variable 'async-shell-command-buffer 'new-buffer)
 
 ;;; Optimization Section Begins
 
@@ -62,6 +60,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Disable bidirectional text rendering
 (setq-default bidi-display-reordering 'left-to-right
               bidi-paragraph-direction 'left-to-right)
+(setq bidi-inhibit-bpa t)
+
+;; Garbage collect at 100Mb
+(customize-set-variable 'gc-cons-threshold 100000000)
 
 ;; Do not render cursors or regions in non-focused windows.
 (customize-set-variable 'cursor-in-non-selected-windows nil)
@@ -77,7 +79,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Optimization Section Ends
 
 
-;;; Sensible Default Section Begins
+;;; Sensible Defaults Section Begins
 (global-auto-revert-mode t)
 (customize-set-variable 'revert-without-query '(".*"))
 
@@ -102,14 +104,25 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; Date should always be big to small (year/month/day)
 (customize-set-variable 'calendar-date-style 'iso)
-;;; Sensible Default Section Ends
+
+(set-fill-column 79)
+
+(global-so-long-mode)
+;;; Sensible Defaults Section Ends
+
+
+;;; Terrible Defaults Section Starts
+(customize-set-variable 'enable-local-variables :all)
+;;; Terrible Defaults Section Ends
 
 
 ;;; Pretty Visuals Section Begins
 (use-package modus-vivendi-theme
   :custom
   (custom-safe-themes t "All themes are now safe")
-  (custom-enabled-themes '(modus-vivendi) "Pretty cool dark theme"))
+  (custom-enabled-themes '(modus-vivendi) "Pretty cool dark theme")
+  :custom-face
+  (org-scheduled ((t (:foreground "magenta")))))
 
 (use-package all-the-icons
   :if (display-graphic-p)
@@ -182,18 +195,15 @@ Containing LEFT, and RIGHT aligned respectively."
        mode-line-client
        mode-line-modified
        mode-line-remote
-       mode-line-frame-identification
-       mode-line-buffer-identification
-       " "
+       evil-mode-line-tag
+       "%b %n "
        mode-line-position
        (:eval
         (concat
          "["
          (number-to-string (1+ (exwm-workspace--position (selected-frame))))
          "]"))
-       evil-mode-line-tag
        (vc-mode vc-mode)
-       " "
        (:eval
         (concat
          (propertize
@@ -201,7 +211,7 @@ Containing LEFT, and RIGHT aligned respectively."
           'face '(:weight bold))))
        mode-line-process
        (:eval
-        (unless (string-equal text-scale-mode-lighter "+0")
+        (unless (eq text-scale-mode-amount 0)
           (concat " [" text-scale-mode-lighter "]"))))
 
      '(""
@@ -242,6 +252,7 @@ Containing LEFT, and RIGHT aligned respectively."
   (evil-want-keybinding nil)
   (evil-want-C-u-scroll t)
   (evil-want-Y-yank-to-eol t)
+  (evil-org-special-o/O nil)
 
   :config
 
@@ -263,17 +274,21 @@ Containing LEFT, and RIGHT aligned respectively."
   (evil-define-key '(normal motion visual) 'my-intercept-mode-map
     (kbd leader) nil
     (leader "TAB") #'whitespace-mode
-    (leader "c")   #'compile
-    (leader "g")   #'magit-status
-    (leader "o")   #'ispell
-    (leader "e")   (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))
     (leader "a")   (lambda ()
                      (interactive)
                      (if (get-buffer "*Org Agenda*")
                          (progn
                            (switch-to-buffer "*Org Agenda*")
                            (org-agenda-redo))
-                       (org-agenda nil "o")))
+                       (org-agenda nil "o"))
+                     (goto-char (point-min)))
+    (leader "c")   #'compile
+    (leader "e")   (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))
+    (leader "g")   #'magit-status
+    (leader "l")   (lambda () (interactive) (org-latex-preview '(16)))
+    (leader "L")   (lambda () (interactive) (org-latex-preview '(64)))
+    (leader "o")   #'ispell
+    (leader "s")   #'save-buffer
 
     (kbd "g") nil
     (kbd "g b") #'switch-to-buffer
@@ -285,8 +300,18 @@ Containing LEFT, and RIGHT aligned respectively."
 
     (kbd "M-j") #'evil-scroll-line-down
     (kbd "M-k") #'evil-scroll-line-up
-    (kbd "M-J") #'text-scale-decrease
-    (kbd "M-K") #'text-scale-increase)
+    (kbd "M-J") (lambda () (interactive) (text-scale-decrease 1)
+                  (plist-put org-format-latex-options
+                             ':scale (max (1+ text-scale-mode-amount) 1)))
+    (kbd "M-K") (lambda () (interactive) (text-scale-increase 1)
+                  (plist-put org-format-latex-options
+                             ':scale (max (1+ text-scale-mode-amount) 1))))
+
+  (evil-define-key '(insert) 'org-mode-map
+    (kbd "M-L") #'org-shiftmetaright
+    (kbd "M-l") #'org-metaright
+    (kbd "M-H") #'org-shiftmetaleft
+    (kbd "M-h") #'org-metaleft)
 
   (evil-mode t))
 
@@ -302,10 +327,14 @@ Containing LEFT, and RIGHT aligned respectively."
   (org-directory "~/documents/")
   (org-default-notes-file (expand-file-name "notes.org" org-directory))
   (org-preview-latex-image-directory "~/.cache/org-preview-latex/")
+  (org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
+  (org-duration-format 'h:mm)
   (org-log-done 'time)
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
+  (org-return-follows-link t)
   (org-src-window-setup 'current-window)
+  (org-src-ask-before-returning-to-edit-buffer nil)
   (org-html-postamble nil)
   (org-todo-keywords
    '((sequence "TODO" "DONE")
@@ -313,10 +342,15 @@ Containing LEFT, and RIGHT aligned respectively."
      (sequence "DAYOF" "DONE")))
   :config
   (push 'org-habit org-modules)
+  (push "SHOWFROMTIME" org-default-properties)
   (org-indent-mode -1))
 
 (use-package org-agenda
   :custom
+  (org-agenda-sticky t)
+  (org-agenda-format-date "%F %A")
+  (org-agenda-show-outline-path nil)
+  (org-agenda-block-separator nil)
   (org-agenda-prefix-format "")
   (org-agenda-remove-tags t)
   (org-agenda-scheduled-leaders '("" ""))
@@ -324,7 +358,6 @@ Containing LEFT, and RIGHT aligned respectively."
   (org-agenda-start-on-weekday nil)
   (org-agenda-time-grid nil)
   (org-agenda-time-leading-zero t)
-  (org-agenda-todo-keyword-format "")
   (org-agenda-window-setup 'current-window)
 
   (org-agenda-files `(
@@ -338,32 +371,27 @@ Containing LEFT, and RIGHT aligned respectively."
    '(("o" "My Agenda"
       ((todo
         "TODO|DAYOF"
-        ((org-agenda-overriding-header "Due Today:\n")
+        ((org-agenda-overriding-header "Due Today:")
          (org-agenda-prefix-format "%t%?T%s")
          (org-agenda-todo-ignore-deadlines 'future)
          (org-agenda-todo-ignore-scheduled 'future)
-         (org-agenda-todo-ignore-timestamp 'future)))
+         (org-agenda-todo-ignore-timestamp 'future)
+         (org-agenda-todo-keyword-format "")))
        (todo
         "HABIT"
-        ((org-agenda-overriding-header "\nToday's Habits:\n")
-         (org-agenda-todo-ignore-scheduled 'future)))
-       (agenda
-        ""
-        ((org-agenda-overriding-header "\nDue Later:\n")
-         (org-agenda-prefix-format "%-12t%?T%s")
-         (org-agenda-show-all-dates nil)
-         (org-agenda-span 'fortnight)
-         (org-agenda-start-day "+1d")
+        ((org-agenda-overriding-header "\nToday's Habits:")
+         (org-agenda-todo-ignore-scheduled 'future)
+         (org-agenda-todo-keyword-format "")
          (org-agenda-skip-function
-          '(org-agenda-skip-entry-if 'nottodo '("TODO")))))
+          'org-agenda-skip-entry-before-SHOWFROMTIME-property)))
        (agenda
         ""
-        ((org-agenda-overriding-header "\nSchedule:\n")
+        ((org-agenda-overriding-header "\nSchedule:")
          (org-agenda-prefix-format "    %-12t| %s")
          (org-agenda-span 'fortnight)
          (org-deadline-warning-days 0)
          (org-agenda-skip-function
-          '(org-agenda-skip-entry-if 'todo '("TODO" "DONE" "HABIT" "DAYOF")))))
+          '(org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF")))))
        (agenda
         ""
         ((org-agenda-overriding-header "\nTime Tracking:\n")
@@ -380,7 +408,24 @@ Containing LEFT, and RIGHT aligned respectively."
            (year (calendar-extract-year date))
            (lastday (calendar-last-day-of-month month year)))
       (or (and (= day lastday) (memq dayname '(1 2 3 4 5)))
-          (and (>= day (- lastday 2)) (= dayname 5))))))
+          (and (>= day (- lastday 2)) (= dayname 5)))))
+
+  (defun org-agenda-skip-entry-before-SHOWFROMTIME-property ()
+    "Skip entry if :SHOWFROMTIME: property is set and time of day is before it."
+    (org-back-to-heading t)
+    (let ((show-from-time-string (org-entry-get (point) "SHOWFROMTIME" 'inherit)))
+      (when show-from-time-string
+        (let* ((decoded-time-to-minutes
+                (lambda (time)
+                  (+ (decoded-time-minute time)
+                     (* 60 (decoded-time-hour time)))))
+               (show-from-time-minutes
+                (funcall decoded-time-to-minutes
+                         (parse-time-string show-from-time-string)))
+               (currenttime-minutes
+                (funcall decoded-time-to-minutes (decode-time))))
+	      (when (< currenttime-minutes show-from-time-minutes)
+            (org-entry-end-position)))))))
 
 (use-package org-capture
   :bind ("C-c c" . org-capture)
@@ -625,7 +670,9 @@ Containing LEFT, and RIGHT aligned respectively."
 
 (use-package company
   :custom
+  (company-dabbrev-downcase nil)
   (company-show-numbers t)
+  (company-tooltip-limit 20)
   :config
   (global-company-mode))
 
@@ -666,7 +713,7 @@ Containing LEFT, and RIGHT aligned respectively."
 
 (use-package erc
   :custom
-  (erc-nick "pancak3")
+  (erc-nick "morgansmith")
   (erc-server "irc.freenode.net")
   (erc-port 6667)
   (erc-anonymous-login t)
@@ -724,7 +771,7 @@ Containing LEFT, and RIGHT aligned respectively."
   :custom
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
-  (dired-listing-switches "--all --dired --file-type --group-directories-first -l --si --sort=version"))
+  (dired-listing-switches "--all --file-type --group-directories-first -l --si --sort=version"))
 
 (use-package dired-x
   :custom
@@ -777,6 +824,10 @@ Containing LEFT, and RIGHT aligned respectively."
      ;; Split window.
      ([?\s-\\] . split-window-horizontally)
      ([?\s-\-] . split-window-vertically)
+     ;; Kill buffer
+     ;([?\s-q] . kill-this-buffer)
+     ;; Quit
+     ;([?\C-g] . keyboard-quit-context+)
      ;; eshell
      (,(kbd "<s-return>") . eshell)
      ;; Launch application.
@@ -953,8 +1004,6 @@ behavior added."
   (add-to-list 'smtpmail-auth-supported 'xoauth2)
   (auth-source-xoauth2-enable))
 
-(use-package explain-pause-mode
-  :config (explain-pause-mode))
 
 (provide 'init.el)
 ;;; init.el ends here
