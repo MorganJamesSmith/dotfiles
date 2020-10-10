@@ -2,8 +2,6 @@
 	ui = always
 [commit]
 	gpgSign = true
-[core]
-	eol = lf
 [pull]
 	ff = only
 [user]
