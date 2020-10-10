@@ -1,5 +1,7 @@
 #!/bin/sh
 
+command -v guix && eval "$(guix package --search-paths=suffix --profile="$HOME"/.config/guix/extra-profiles/default/default)"
+
 export EDITOR="emacsclient"
 export TERMINAL="st"
 export BROWSER="surf"
@@ -26,11 +28,15 @@ export XDG_DATA_HOME="$HOME"/.local/share
 mkdir -p "$XDG_DATA_HOME"
 export XDG_DESKTOP_DIR="$HOME/"
 export XDG_DOWNLOAD_DIR="$HOME/downloads"
+mkdir -p "$XDG_DOWNLOAD_DIR"
 export XDG_MUSIC_DIR="$HOME/music"
+mkdir -p "$XDG_MUSIC_DIR"
 export XDG_PICTURES_DIR="$HOME/pictures"
+mkdir -p "$XDG_PICTURES_DIR"
 export XDG_TEMPLATES_DIR="$HOME/"
 export XDG_PUBLICSHARE_DIR="$HOME/"
 export XDG_DOCUMENTS_DIR="$HOME/documents"
+mkdir -p "$XDG_DOCUMENTS_DIR"
 export XDG_VIDEOS_DIR="$HOME/"
 
 ## Xauthority/ICEauthority
@@ -81,6 +87,9 @@ eval "$(ssh-agent -s -a "$(gpgconf --list-dirs agent-ssh-socket)")"
 # start gpg-agent with moved homedir
 eval "$(gpg-agent --homedir "$GNUPGHOME" --daemon -s)"
 
-command -v shepherd && shepherd
+if [ "$(command -v shepherd)" ] && [ ! "$(herd status)" ]
+then
+    setsid shepherd
+fi
 
 alias startx="xinit ~/.xsession -- /run/setuid-programs/*startx vt1"
