@@ -20,7 +20,7 @@
  ((gnu services dbus) #:select (dbus-service))
  ((gnu services desktop) #:select (%desktop-services))
  ((gnu services security-token) #:select (pcscd-service-type))
- ((gnu services audio) #:select (mpd-service-type mpd-configuration))
+ ((gnu services audio) #:select (mpd-service-type mpd-configuration mpd-output))
  ((gnu services xorg)
   #:select (gdm-service-type xorg-configuration xorg-configuration-modules xorg-configuration-server-arguments))
  (guix gexp))
@@ -137,11 +137,11 @@
                 (name username)
                 (comment username)
                 (group "users")
-                (shell (file-append dash "/bin/dash"))
-                (supplementary-groups '("wheel"
+                (supplementary-groups '("wheel" ; sudo
                                         "audio"
                                         "video"
-                                        "plugdev")))
+                                        "plugdev" ; security keys
+                                        "kvm")))  ; qemu
                %base-user-accounts))
 
   (setuid-programs (cons*
@@ -185,7 +185,10 @@
               (playlist-dir "~/.config/mpd/playlists")
               (db-file "~/.config/mpd/database")
               (state-file "~/.config/mpd/state")
-              (sticker-file "~/.config/mpd/sticker.sql")))
+              (sticker-file "~/.config/mpd/sticker.sql")
+              (outputs
+               (list (mpd-output
+                      (type "alsa"))))))
     (service
      chown-program-service-type
      #~(list
