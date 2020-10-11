@@ -1,0 +1,10 @@
+#!/bin/sh
+
+manifest="$HOME"/.config/guix/manifest.scm
+
+default_profile_location="$HOME"/.config/guix/extra-profiles/default
+default_profile="$default_profile_location"/default
+
+mkdir -p "$default_profile_location"
+
+guix package -p "$default_profile" -m "$manifest"
