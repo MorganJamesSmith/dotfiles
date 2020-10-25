@@ -12,9 +12,6 @@
      (with-branch  . "emacs-company=master")
      (with-git-url . "emacs-company=https://github.com/company-mode/company-mode"))))
 
-(define (transformations-wrapper package+output)
-  (transformations #f (car package+output)))
-
 (define (manifest-with-transformations packages)
   (packages->manifest
    (map
