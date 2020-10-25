@@ -1,3 +1,30 @@
+(use-modules
+ ((guix scripts build) #:select (options->transformation)))
+
+(define transformations
+  (options->transformation
+   '((with-branch  . "emacs-evil=master")
+     (with-branch  . "emacs-evil-collection=master")
+     (with-git-url . "emacs-evil-collection=https://github.com/MorganJamesSmith/evil-collection")
+     (with-branch  . "emacs-modus-vivendi-theme=master")
+     (with-git-url . "emacs-modus-vivendi-theme=https://gitlab.com/protesilaos/modus-themes")
+     (with-branch  . "emacs-use-package=master")
+     (with-branch  . "emacs-company=master")
+     (with-git-url . "emacs-company=https://github.com/company-mode/company-mode"))))
+
+(define (transformations-wrapper package+output)
+  (transformations #f (car package+output)))
+
+(define (manifest-with-transformations packages)
+  (packages->manifest
+   (map
+    (compose
+     (lambda (package+output)
+       (transformations #f (car package+output)))
+     list
+     specification->package+output)
+    packages)))
+
 (define audio
   '("alsa-utils" ; alsamixer
     "pulsemixer"
@@ -78,7 +105,7 @@
   '("icecat"
     "ungoogled-chromium"))
 
-(specifications->manifest
+(manifest-with-transformations
  (append!
   audio
   downloaders
