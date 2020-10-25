@@ -111,6 +111,7 @@
   web-browsing
   '("aspell" ; spellchecker
     "aspell-dict-en"
+    "ffmpeg"
     "file" ; filetype checker
     "flameshot" ; Screenshots
     "font-dejavu"
@@ -132,6 +133,8 @@
     "rsync"
     "sxiv"
     "syncthing"
+    "texlive"
     "unclutter"
     "unzip"
+    "zip"
     "xrandr")))
