@@ -63,7 +63,8 @@
 (customize-set-variable 'gnus-ignored-newsgroups
                         (regexp-opt
                          '("Notes" "Outbox" "Scheduled" "Calendar" "Contacts"
-                           "Conversation" "Clutter" "Journal" "Tasks")))
+                           "Conversation" "Clutter" "Journal" "Tasks"
+                           "[/Trash" "[/Important" "[/Starred")))
 
 (customize-set-variable 'gnus-message-archive-group nil)
 
