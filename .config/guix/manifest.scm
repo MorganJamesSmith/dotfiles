@@ -1,5 +1,5 @@
 (use-modules
- ((guix scripts build) #:select (options->transformation)))
+ ((guix transformations) #:select (options->transformation)))
 
 (define transformations
   (options->transformation
@@ -17,7 +17,7 @@
    (map
     (compose
      (lambda (package+output)
-       (transformations #f (car package+output)))
+       (transformations (car package+output)))
      list
      specification->package+output)
     packages)))
@@ -84,6 +84,7 @@
       "rainbow-delimiters"
       "toc-org"
       "transmission"
+      "typit"
       "undo-tree"
       "use-package"
       "vterm"
@@ -118,7 +119,6 @@
     "font-wqy-zenhei" ; Chinese, Japanese, and more
     "fontconfig" ; `fc-cache -rv' to update font cache
     "gnupg"
-    "guix"
     "htop"
     "icedove" ; email client
     "libreoffice"
@@ -134,7 +134,9 @@
     "sxiv"
     "syncthing"
     "texlive"
+    "tree"
     "unclutter"
     "unzip"
-    "zip"
-    "xrandr")))
+    "xpdf" ; pdftotext
+    "xrandr"
+    "zip")))
