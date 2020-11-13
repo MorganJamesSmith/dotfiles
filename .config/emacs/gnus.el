@@ -169,23 +169,14 @@
 
  ;; Split windows horizontally instead of vertically when reading articles
 
-(when (display-graphic-p)
-    (customize-set-variable 'gnus-sum-thread-tree-indent "  ")
-    (customize-set-variable 'gnus-sum-thread-tree-root "● ")
-    (customize-set-variable 'gnus-sum-thread-tree-false-root "◯ ")
-    (customize-set-variable 'gnus-sum-thread-tree-single-indent "◎ ")
-    (customize-set-variable 'gnus-sum-thread-tree-vertical        "│")
-    (customize-set-variable 'gnus-sum-thread-tree-leaf-with-other "├─► ")
-    (customize-set-variable 'gnus-sum-thread-tree-single-leaf     "╰─► "))
-
 (customize-set-variable 'gnus-summary-line-format
                         (concat
                          "%0{%U%R%z%}"
-                         "%3{│%}" "%1{%&user-date;%}" "%3{│%}" ;; date
+                         "%3{|%}" "%1{%&user-date;%}" "%3{|%}" ;; date
                          "  "
                          "%4{%-20,20f%}"             ;; name
                          "  "
-                         "%3{│%}"
+                         "%3{|%}"
                          " "
                          "%1{%B%}"
                          "%s\n"))
