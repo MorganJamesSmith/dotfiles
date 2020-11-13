@@ -1,5 +1,7 @@
 ;;; init.el --- My personal init file -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2019-2020 Morgan Smith
+
 ;;; Commentary:
 
 ;; This is my personal Emacs init file.
@@ -43,6 +45,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'async-shell-command-buffer 'new-buffer)
 
 ;;; Optimization Section Begins
+
+;; Use ASCII and unibyte encodings. Why would you need anything else?
+(set-default-coding-systems  'ascii)
+(set-language-environment    'ascii)
+(setq locale-coding-system   'ascii)
+(set-terminal-coding-system  'ascii)
+(set-selection-coding-system 'ascii)
+(set-selection-coding-system 'ascii)
+(prefer-coding-system        'ascii)
+(push '("" . (no-conversion . no-conversion)) file-coding-system-alist)
+(push '("" . (no-conversion . no-conversion)) process-coding-system-alist)
+(push '("" . (no-conversion . no-conversion)) network-coding-system-alist)
 
 ;; Remove command line options that aren't relevant to our current OS; means
 ;; slightly less to process at startup.
@@ -105,7 +119,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Date should always be big to small (year/month/day)
 (customize-set-variable 'calendar-date-style 'iso)
 
-(set-fill-column 79)
+(customize-set-variable 'fill-column 79)
 
 (global-so-long-mode)
 ;;; Sensible Defaults Section Ends
@@ -211,7 +225,9 @@ Containing LEFT, and RIGHT aligned respectively."
           'face '(:weight bold))))
        mode-line-process
        (:eval
-        (unless (eq text-scale-mode-amount 0)
+        (when (and (boundp 'text-scale-mode-amount)
+                   (boundp 'text-scale-mode-lighter)
+                   (not (eq text-scale-mode-amount 0)))
           (concat " [" text-scale-mode-lighter "]"))))
 
      '(""
@@ -253,6 +269,7 @@ Containing LEFT, and RIGHT aligned respectively."
   (evil-want-C-u-scroll t)
   (evil-want-Y-yank-to-eol t)
   (evil-org-special-o/O nil)
+  (evil-undo-system 'undo-redo)
 
   :config
 
@@ -285,10 +302,21 @@ Containing LEFT, and RIGHT aligned respectively."
     (leader "c")   #'compile
     (leader "e")   (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))
     (leader "g")   #'magit-status
+    (leader "i")   #'org-insert-structure-template
     (leader "l")   (lambda () (interactive) (org-latex-preview '(16)))
     (leader "L")   (lambda () (interactive) (org-latex-preview '(64)))
+    (leader "m")   (lambda () (interactive) (set-buffer-multibyte t))
+    (leader "M")   (lambda () (interactive) (set-buffer-multibyte nil))
     (leader "o")   #'ispell
     (leader "s")   #'save-buffer
+    (leader "t")   #'org-babel-tangle
+    (leader "w")   (lambda ()
+                     (interactive)
+                     (let ((browser "IceCat")
+                           (command "icecat"))
+                       (if (get-buffer browser)
+                           (switch-to-buffer browser)
+                         (start-process-shell-command command nil command))))
 
     (kbd "g") nil
     (kbd "g b") #'switch-to-buffer
@@ -302,10 +330,10 @@ Containing LEFT, and RIGHT aligned respectively."
     (kbd "M-k") #'evil-scroll-line-up
     (kbd "M-J") (lambda () (interactive) (text-scale-decrease 1)
                   (plist-put org-format-latex-options
-                             ':scale (max (1+ text-scale-mode-amount) 1)))
+                             ':scale (max (+ 2 text-scale-mode-amount) 1)))
     (kbd "M-K") (lambda () (interactive) (text-scale-increase 1)
                   (plist-put org-format-latex-options
-                             ':scale (max (1+ text-scale-mode-amount) 1))))
+                             ':scale (max (+ 2 text-scale-mode-amount) 1))))
 
   (evil-define-key '(insert) 'org-mode-map
     (kbd "M-L") #'org-shiftmetaright
@@ -329,24 +357,46 @@ Containing LEFT, and RIGHT aligned respectively."
   (org-preview-latex-image-directory "~/.cache/org-preview-latex/")
   (org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
   (org-duration-format 'h:mm)
+  (org-list-allow-alphabetical t)
   (org-log-done 'time)
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
   (org-return-follows-link t)
-  (org-src-window-setup 'current-window)
   (org-src-ask-before-returning-to-edit-buffer nil)
+  (org-src-fontify-natively t)
+  (org-src-window-setup 'current-window)
   (org-html-postamble nil)
   (org-todo-keywords
    '((sequence "TODO" "DONE")
      (sequence "HABIT" "DONE")
-     (sequence "DAYOF" "DONE")))
+     (sequence "DAYOF" "DONE")
+     (sequence "LECTURE" "DONE")))
   :config
+  (add-hook 'after-save-hook #'org-babel-tangle 100 'only-in-org-mode)
   (push 'org-habit org-modules)
   (push "SHOWFROMTIME" org-default-properties)
   (org-indent-mode -1))
 
+(use-package ob-core
+  :hook (org-babel-after-execute . org-redisplay-inline-images)
+  :config
+  (push '(:mkdirp . "yes") org-babel-default-header-args))
+
+;; Allows completion of structure blocks
+(use-package org-tempo
+  :config
+  (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp")))
+
 (use-package org-agenda
   :custom
+  (calendar-holidays
+   '((holiday-fixed 10 26 "Reading Week")
+     (holiday-fixed 10 27 "Reading Week")
+     (holiday-fixed 10 28 "Reading Week")
+     (holiday-fixed 10 29 "Reading Week")
+     (holiday-fixed 10 30 "Reading Week")))
+
   (org-agenda-sticky t)
   (org-agenda-format-date "%F %A")
   (org-agenda-show-outline-path nil)
@@ -361,11 +411,11 @@ Containing LEFT, and RIGHT aligned respectively."
   (org-agenda-window-setup 'current-window)
 
   (org-agenda-files `(
-                      ,(expand-file-name "daily.org" org-directory)
-                      ,(expand-file-name "events.org" org-directory)
-                      ,(expand-file-name "timetracking.org" org-directory)
-                      ,(expand-file-name "todo.org" org-directory)
-                      ,@(directory-files-recursively "~/school" org-agenda-file-regexp)))
+                      ,(expand-file-name "agenda/daily.org" org-directory)
+                      ,(expand-file-name "agenda/events.org" org-directory)
+                      ,(expand-file-name "agenda/timetracking.org" org-directory)
+                      ,(expand-file-name "agenda/todo.org" org-directory)
+                      ,@(directory-files-recursively "~/school" "\\`\\(index\\|deadlines\\).*\\.org\\'")))
 
   (org-agenda-custom-commands
    '(("o" "My Agenda"
@@ -376,6 +426,10 @@ Containing LEFT, and RIGHT aligned respectively."
          (org-agenda-todo-ignore-deadlines 'future)
          (org-agenda-todo-ignore-scheduled 'future)
          (org-agenda-todo-ignore-timestamp 'future)
+         (org-agenda-todo-keyword-format "")))
+       (todo
+        "LECTURE"
+        ((org-agenda-overriding-header "\nLectures to watch:")
          (org-agenda-todo-keyword-format "")))
        (todo
         "HABIT"
@@ -391,7 +445,7 @@ Containing LEFT, and RIGHT aligned respectively."
          (org-agenda-span 'fortnight)
          (org-deadline-warning-days 0)
          (org-agenda-skip-function
-          '(org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF")))))
+          '(org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF" "LECTURE")))))
        (agenda
         ""
         ((org-agenda-overriding-header "\nTime Tracking:\n")
@@ -465,7 +519,7 @@ Containing LEFT, and RIGHT aligned respectively."
   :config (org-edna-mode))
 
 (use-package toc-org
-  :hook ((org-mode markdown-mode) . toc-org-mode))
+  :hook (org-mode . toc-org-mode))
 
 (use-package evil-org
   :hook (org-mode . evil-org-mode))
@@ -521,15 +575,24 @@ Containing LEFT, and RIGHT aligned respectively."
          ("M-p" . flymake-goto-prev-error))
   :hook (prog-mode . flymake-mode))
 
+(use-package verilog-mode
+  :custom
+  (verilog-indent-level             4)
+  (verilog-indent-level-module      4)
+  (verilog-indent-level-declaration 4)
+  (verilog-indent-level-behavioral  4)
+  (verilog-case-indent              0)
+  (verilog-auto-newline             nil)
+  (verilog-auto-indent-on-newline   t)
+  (verilog-minimum-comment-distance 0)
+  (verilog-indent-begin-after-if    nil))
+
 ;; Save all buffers on compile automatically
 (customize-set-variable 'compilation-ask-about-save nil)
 
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (customize-set-variable 'c-basic-offset 4)
-
-;; TODO: add evil bindings
-(use-package ascii-table)
 
 ;; Many major modes do no highlighting of number literals, so we do it for them
 (use-package highlight-numbers
@@ -570,8 +633,11 @@ Containing LEFT, and RIGHT aligned respectively."
   (yas-global-mode 1))
 
 (use-package copyright
+  :hook (before-save . copyright-update)
   :custom
-  (copyright-names-regexp (format "%s <%s>" user-full-name user-mail-address)))
+  (copyright-names-regexp (format "%s <%s>" user-full-name user-mail-address))
+  :config
+  (setenv "ORGANIZATION" user-full-name))
 
 (if (file-exists-p "~/src/guix/etc/copyright.el")
       (load-file "~/src/guix/etc/copyright.el"))
@@ -589,6 +655,7 @@ Containing LEFT, and RIGHT aligned respectively."
   (magit-no-confirm '(safe-with-wip))
   (magit-save-repository-buffers 'dontask)
   (magit-wip-merge-branch t)
+  (magit-diff-paint-whitespace nil)
   :config
   (magit-wip-mode 1)
   (add-to-list 'magit-process-find-password-functions
@@ -652,7 +719,8 @@ Containing LEFT, and RIGHT aligned respectively."
 (electric-indent-mode 1)
 
 (use-package ws-butler
-  :config (ws-butler-global-mode))
+  :config (ws-butler-global-mode)
+  :custom (ws-butler-global-exempt-modes '(eshell-mode)))
 
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'org-mode-hook 'turn-on-auto-fill)
@@ -714,6 +782,7 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package erc
   :custom
   (erc-nick "morgansmith")
+  (erc-user-full-name "Morgan Smith")
   (erc-server "irc.freenode.net")
   (erc-port 6667)
   (erc-anonymous-login t)
@@ -755,6 +824,8 @@ Containing LEFT, and RIGHT aligned respectively."
 (customize-set-variable 'custom-file (expand-file-name "custom-garbage" trash-directory) "Goodbye Custom")
 
 (use-package eshell
+  ;; Save command history when commands are entered
+  :hook (eshell-pre-command-hook . eshell-save-some-history)
   :custom
   (eshell-banner-message "")
   (eshell-history-size nil "Pull history size from environment variables")
@@ -777,7 +848,7 @@ Containing LEFT, and RIGHT aligned respectively."
   :custom
   (dired-guess-shell-alist-user
    `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm")) "mpv")
-     (,(regexp-opt '(".pdf")) "zathura"))))
+     (,(regexp-opt '(".pdf")) "pdftotext"))))
 
 (use-package tramp
   :custom
@@ -818,6 +889,8 @@ Containing LEFT, and RIGHT aligned respectively."
      ([?\s-i] . exwm-input-release-keyboard)
      ;; Reset (to line-mode).
      ([?\s-r] . exwm-reset)
+     ;; Fullscreen
+     ([?\s-f] . exwm-layout-set-fullscreen)
      ;; Switch focus.
      ([?\s-j] . other-window)
      ([?\s-k] . ,(lambda () (interactive) (other-window -1)))
@@ -834,6 +907,16 @@ Containing LEFT, and RIGHT aligned respectively."
      ([?\s-d] . ,(lambda (command)
                    (interactive (list (read-shell-command "$ ")))
                    (start-process-shell-command command nil command)))
+     ;; Switch monitor
+     ([?\s-l] . ,(lambda () (interactive)
+                   (exwm-workspace-switch
+                    (% (1+ (exwm-workspace--position (selected-frame)))
+                       (/ (list-length exwm-randr-workspace-monitor-plist) 2)))))
+     ([?\s-h] . ,(lambda () (interactive)
+                   (let ((num-monitors (/ (list-length exwm-randr-workspace-monitor-plist) 2)))
+                     (exwm-workspace-switch
+                      (% (1- (+ (exwm-workspace--position (selected-frame)) num-monitors))
+                         num-monitors)))))
      ;; Switch to workspace
      ,@(mapcar (lambda (i)
                  `(,(kbd (format "s-%d" i)) .
@@ -895,6 +978,7 @@ Containing LEFT, and RIGHT aligned respectively."
   :custom
   (plantuml-default-exec-mode 'executable)
   (plantuml-indent-level 4)
+  (org-plantuml-exec-mode 'plantuml)
   :config
   (with-eval-after-load 'evil
     (evil-define-key 'normal plantuml-mode-map (leader "c") #'plantuml-preview))
@@ -935,6 +1019,12 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package disk-usage)
 
 (use-package counsel)
+
+(use-package time-stamp
+  :custom
+  (time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
+  :config
+  (add-hook 'before-save-hook 'time-stamp))
 
 (defun download-file (&optional file-link)
   "Downloads a file.
@@ -1004,6 +1094,9 @@ behavior added."
   (add-to-list 'smtpmail-auth-supported 'xoauth2)
   (auth-source-xoauth2-enable))
 
+(use-package typit
+  :custom-face
+  (typit-current-word ((t (:inherit bold)))))
 
 (provide 'init.el)
 ;;; init.el ends here
