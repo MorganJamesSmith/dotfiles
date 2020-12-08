@@ -102,15 +102,15 @@
 (customize-set-variable 'gnus-secondary-select-methods
                         `((nnimap "morganjsmith"
                                   (nnimap-user "morgan.j.smith@outlook.com")
-                                  (nnimap-address "imap-mail.outlook.com")
+                                  (nnimap-address "outlook.office365.com")
                                   (nnimap-authenticator login))
                           (nnimap "cmail"
                                   (nnimap-user "morgansmith@cmail.carleton.ca")
-                                  (nnimap-address "imap-mail.outlook.com")
+                                  (nnimap-address "outlook.office365.com")
                                   (nnimap-authenticator login))
                           (nnimap "grommin"
                                   (nnimap-user "grommin@hotmail.com")
-                                  (nnimap-address "imap-mail.outlook.com")
+                                  (nnimap-address "outlook.office365.com")
                                   (nnimap-authenticator login))
                           (nnimap "hotbutterpancake"
                                   (nnimap-user "hotbutterypancake@gmail.com")
@@ -134,19 +134,19 @@
     (cond ((equal account "morganjsmith")
            (setq
             user-mail-address "Morgan.J.Smith@outlook.com"
-            smtpmail-smtp-server "smtp-mail.outlook.com"
+            smtpmail-smtp-server "smtp.office365.com"
             smtpmail-smtp-service 587
             smtpmail-auth-supported '(login)))
           ((equal account "cmail")
            (setq
             user-mail-address "morgansmith@cmail.carleton.ca"
-            smtpmail-smtp-server "smtp-mail.outlook.com"
+            smtpmail-smtp-server "smtp.office365.com"
             smtpmail-smtp-service 587
             smtpmail-auth-supported '(login)))
           ((equal account "grommin")
            (setq
             user-mail-address "grommin@hotmail.com"
-            smtpmail-smtp-server "smtp-mail.outlook.com"
+            smtpmail-smtp-server "smtp.office365.com"
             smtpmail-smtp-service 587
             smtpmail-auth-supported '(login)))
           ((equal account "hotbutterypancake")
