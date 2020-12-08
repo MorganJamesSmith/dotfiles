@@ -185,10 +185,12 @@
               (playlist-dir "~/.config/mpd/playlists")
               (db-file "~/.config/mpd/database")
               (state-file "~/.config/mpd/state")
-              (sticker-file "~/.config/mpd/sticker.sql")
-              (outputs
-               (list (mpd-output
-                      (type "alsa"))))))
+              (sticker-file "~/.config/mpd/sticker.sql")))
+    (service guix-publish-service-type
+             (guix-publish-configuration
+              (host "0.0.0.0")
+              (port 3000)
+              (advertise? #t)))
     (service
      chown-program-service-type
      #~(list
@@ -201,6 +203,14 @@
          (lambda (service)
            (eq? (service-kind service) gdm-service-type))
          %desktop-services)
+
+      (guix-service-type config =>
+                         (guix-configuration
+                          (inherit config)
+                          (discover? #t)
+                          (authorized-keys
+                           (append (list (local-file "./desktop.pub"))
+                                   %default-authorized-guix-keys))))
 
       ;; Use dash for /bin/sh instead of bash
       (special-files-service-type

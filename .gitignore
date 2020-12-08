@@ -6,6 +6,7 @@
 !.config/git/config
 !.config/guix/channels.scm
 !.config/guix/config.scm
+!.config/guix/desktop.pub
 !.config/guix/manifest.scm
 !.config/guix/update
 !.config/mimeapps.list
