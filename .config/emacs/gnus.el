@@ -78,6 +78,8 @@
 (customize-set-variable 'gnus-agent-consider-all-articles t)
 (customize-set-variable 'gnus-agent-synchronize-flags t)
 
+(customize-set-variable 'gnus-agent-predicate 'gnus-agent-true)
+
 ;; Encrypt email by default and also encrypt to self
 (add-hook 'message-setup-hook 'mml-secure-message-encrypt)
 (customize-set-variable 'mml-secure-openpgp-encrypt-to-self t)

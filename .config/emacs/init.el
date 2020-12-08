@@ -22,7 +22,7 @@
 (customize-set-variable 'user-full-name "Morgan Smith")
 (customize-set-variable 'user-mail-address "Morgan.J.Smith@outlook.com")
 
-(defun expand-create-directory-name (dir &optional default-dir)
+(defun create-directory (dir &optional default-dir)
   "Return DIR as a directory and create DIR if it doesn't already exist.
 If DIR is relative, it will be relative to DEFAULT-DIR
 If DEFAULT-DIR isn't provided, DIR is relative to ~"
@@ -30,7 +30,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     (setq default-dir "~"))
   (let ((directory (file-name-as-directory (expand-file-name dir default-dir))))
     (unless (file-exists-p directory)
-      (make-directory directory))
+      (make-directory directory t))
     directory))
 
 (customize-set-variable 'use-package-always-demand t)
@@ -45,18 +45,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'async-shell-command-buffer 'new-buffer)
 
 ;;; Optimization Section Begins
-
-;; Use ASCII and unibyte encodings. Why would you need anything else?
-(set-default-coding-systems  'ascii)
-(set-language-environment    'ascii)
-(setq locale-coding-system   'ascii)
-(set-terminal-coding-system  'ascii)
-(set-selection-coding-system 'ascii)
-(set-selection-coding-system 'ascii)
-(prefer-coding-system        'ascii)
-(push '("" . (no-conversion . no-conversion)) file-coding-system-alist)
-(push '("" . (no-conversion . no-conversion)) process-coding-system-alist)
-(push '("" . (no-conversion . no-conversion)) network-coding-system-alist)
 
 ;; Remove command line options that aren't relevant to our current OS; means
 ;; slightly less to process at startup.
@@ -89,7 +77,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (customize-set-variable 'auto-mode-case-fold nil)
 
-(customize-set-variable 'create-lockfiles nil) ; Only matters on multi-user systems
+;; Only matters on multi-user systems
+(customize-set-variable 'create-lockfiles nil)
 ;;; Optimization Section Ends
 
 
@@ -106,13 +95,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package gnus
   :custom
   (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
-  (gnus-home-directory (expand-create-directory-name "gnus-files" user-emacs-directory))
-  (gnus-directory (expand-create-directory-name "News" gnus-home-directory))
-  (mail-source-directory (expand-create-directory-name "Mail" gnus-home-directory)))
+  (gnus-home-directory (create-directory "gnus-files" user-emacs-directory))
+  (gnus-directory (create-directory "News" gnus-home-directory))
+  (mail-source-directory (create-directory "Mail" gnus-home-directory)))
 
 ;; Use only encrypted authinfo
-(customize-set-variable 'auth-sources (list (expand-file-name "authinfo.gpg" user-emacs-directory)))
-(customize-set-variable 'auth-source-gpg-encrypt-to '("Morgan.J.Smith@outlook.com"))
+(customize-set-variable
+ 'auth-sources (list (expand-file-name "authinfo.gpg" user-emacs-directory)))
+
+(customize-set-variable
+ 'auth-source-gpg-encrypt-to (list user-mail-address))
 
 (customize-set-variable 'text-quoting-style 'grave)
 
@@ -300,7 +292,8 @@ Containing LEFT, and RIGHT aligned respectively."
                        (org-agenda nil "o"))
                      (goto-char (point-min)))
     (leader "c")   #'compile
-    (leader "e")   (lambda () (interactive) (find-file (locate-user-emacs-file "init.el")))
+    (leader "e")   (lambda () (interactive)
+                     (find-file (locate-user-emacs-file "init.el")))
     (leader "g")   #'magit-status
     (leader "i")   #'org-insert-structure-template
     (leader "l")   (lambda () (interactive) (org-latex-preview '(16)))
@@ -410,12 +403,14 @@ Containing LEFT, and RIGHT aligned respectively."
   (org-agenda-time-leading-zero t)
   (org-agenda-window-setup 'current-window)
 
-  (org-agenda-files `(
-                      ,(expand-file-name "agenda/daily.org" org-directory)
-                      ,(expand-file-name "agenda/events.org" org-directory)
-                      ,(expand-file-name "agenda/timetracking.org" org-directory)
-                      ,(expand-file-name "agenda/todo.org" org-directory)
-                      ,@(directory-files-recursively "~/school" "\\`\\(index\\|deadlines\\).*\\.org\\'")))
+  (org-agenda-files
+   `(
+     ,(expand-file-name "agenda/daily.org" org-directory)
+     ,(expand-file-name "agenda/events.org" org-directory)
+     ,(expand-file-name "agenda/timetracking.org" org-directory)
+     ,(expand-file-name "agenda/todo.org" org-directory)
+     ,@(directory-files-recursively
+        "~/school" "\\`\\(index\\|deadlines\\).*\\.org\\'")))
 
   (org-agenda-custom-commands
    '(("o" "My Agenda"
@@ -467,7 +462,8 @@ Containing LEFT, and RIGHT aligned respectively."
   (defun org-agenda-skip-entry-before-SHOWFROMTIME-property ()
     "Skip entry if :SHOWFROMTIME: property is set and time of day is before it."
     (org-back-to-heading t)
-    (let ((show-from-time-string (org-entry-get (point) "SHOWFROMTIME" 'inherit)))
+    (let ((show-from-time-string
+           (org-entry-get (point) "SHOWFROMTIME" 'inherit)))
       (when show-from-time-string
         (let* ((decoded-time-to-minutes
                 (lambda (time)
@@ -597,14 +593,12 @@ Containing LEFT, and RIGHT aligned respectively."
 ;; Many major modes do no highlighting of number literals, so we do it for them
 (use-package highlight-numbers
   :hook ((prog-mode conf-mode) . highlight-numbers-mode)
-  :custom (highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
+  :custom
+  (highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
 
 (use-package flycheck
   :custom (flycheck-emacs-lisp-load-path 'inherit)
   :init (global-flycheck-mode))
-
-(use-package eldoc-eval
-  :config (eldoc-in-minibuffer-mode 1))
 
 (use-package debbugs
   :custom
@@ -617,7 +611,8 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package geiser
   :custom
   (geiser-active-implementations '(guile))
-  (geiser-repl-history-filename (expand-file-name "geiser_history" user-emacs-directory))
+  (geiser-repl-history-filename
+   (expand-file-name "geiser_history" user-emacs-directory))
   :config
   (with-eval-after-load 'geiser-guile
     (eval-when-compile
@@ -648,7 +643,8 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package magit
   :hook (after-save . magit-after-save-refresh-status)
   :custom
-  (magit-section-initial-visibility-alist '((stashes . hide) (untracked . hide)))
+  (magit-section-initial-visibility-alist
+   '((stashes . hide) (untracked . hide)))
   (magit-auto-revert-immediately t)
   (magit-diff-refine-hunk t)
   (magit-log-margin-show-committer-date t)
@@ -660,9 +656,6 @@ Containing LEFT, and RIGHT aligned respectively."
   (magit-wip-mode 1)
   (add-to-list 'magit-process-find-password-functions
                'magit-process-password-auth-source))
-
-(use-package evil-magit
-  :after (evil magit))
 
 (use-package magit-repos
   :after magit
@@ -765,7 +758,9 @@ Containing LEFT, and RIGHT aligned respectively."
 
 ;;; auth Section Begins
 (use-package auth-source-pass
-  :custom (auth-source-pass-filename (expand-file-name "password-store" (getenv "XDG_DATA_HOME"))))
+  :custom
+  (auth-source-pass-filename
+   (expand-file-name "password-store" (getenv "XDG_DATA_HOME"))))
 
 (use-package pinentry
   :if (not IS-INSIDE-EMACS)
@@ -787,7 +782,8 @@ Containing LEFT, and RIGHT aligned respectively."
   (erc-port 6667)
   (erc-anonymous-login t)
   (erc-prompt-for-nickserv-password nil)
-  (erc-log-channels-directory (expand-create-directory-name "erc-logs" user-emacs-directory))
+  (erc-log-channels-directory
+   (create-directory "erc-logs" user-emacs-directory))
   (erc-save-buffer-on-part t)
   (erc-header-line-format nil)
   (erc-autojoin-timing 'ident)
@@ -808,9 +804,11 @@ Containing LEFT, and RIGHT aligned respectively."
 ;; Backups and auto-saves and deleting
 (use-package files
   :custom
-  (backup-directory-alist `((".*" . ,(expand-create-directory-name "backups" user-emacs-directory))))
-  (auto-save-file-name-transforms `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
-  (trash-directory (expand-create-directory-name "trash" user-emacs-directory))
+  (backup-directory-alist
+   `((".*" . ,(create-directory "backups" user-emacs-directory))))
+  (auto-save-file-name-transforms
+   `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
+  (trash-directory (create-directory "trash" user-emacs-directory))
   (make-backup-files t)
   (backup-by-copying t)
   (version-control t)
@@ -821,16 +819,18 @@ Containing LEFT, and RIGHT aligned respectively."
   (auto-save-interval 200)
   (delete-by-moving-to-trash t))
 
-(customize-set-variable 'custom-file (expand-file-name "custom-garbage" trash-directory) "Goodbye Custom")
+(customize-set-variable
+ 'custom-file (expand-file-name "custom-garbage" trash-directory))
 
 (use-package eshell
   ;; Save command history when commands are entered
-  :hook (eshell-pre-command-hook . eshell-save-some-history)
+  :hook (eshell-pre-command . eshell-save-some-history)
   :custom
   (eshell-banner-message "")
   (eshell-history-size nil "Pull history size from environment variables")
   (eshell-history-file-name nil "Pull history file from environment variables")
   :config
+  (add-to-list 'eshell-modules-list 'eshell-tramp)
   (setenv "PAGER" (executable-find "cat")))
 
 (use-package eshell-syntax-highlighting
@@ -840,9 +840,11 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package dired
   :hook (dired-mode . dired-hide-details-mode)
   :custom
+  (dired-dwim-target t)
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
-  (dired-listing-switches "--all --file-type --group-directories-first -l --si --sort=version"))
+  (dired-listing-switches
+   "--all --file-type --group-directories-first -l --si --sort=version"))
 
 (use-package dired-x
   :custom
@@ -911,9 +913,9 @@ Containing LEFT, and RIGHT aligned respectively."
      ([?\s-l] . ,(lambda () (interactive)
                    (exwm-workspace-switch
                     (% (1+ (exwm-workspace--position (selected-frame)))
-                       (/ (list-length exwm-randr-workspace-monitor-plist) 2)))))
+                       (/ (cl-list-length exwm-randr-workspace-monitor-plist) 2)))))
      ([?\s-h] . ,(lambda () (interactive)
-                   (let ((num-monitors (/ (list-length exwm-randr-workspace-monitor-plist) 2)))
+                   (let ((num-monitors (/ (cl-list-length exwm-randr-workspace-monitor-plist) 2)))
                      (exwm-workspace-switch
                       (% (1- (+ (exwm-workspace--position (selected-frame)) num-monitors))
                          num-monitors)))))
@@ -1002,10 +1004,8 @@ Containing LEFT, and RIGHT aligned respectively."
   (undo-tree-visualizer-diff t))
 
 (use-package youtube-dl
-  :if (executable-find "youtube-dl")
-  :commands youtube-dl youtube-dl-list
   :custom
-  (youtube-dl-directory (expand-create-directory-name (getenv "XDG_DOWNLOAD_DIR"))))
+  (youtube-dl-directory (create-directory (getenv "XDG_DOWNLOAD_DIR"))))
 
 (use-package transmission
   :if (executable-find "transmission-daemon")
@@ -1031,13 +1031,25 @@ Containing LEFT, and RIGHT aligned respectively."
 Uses either `youtube-dl' or `transmission'.  Downloads either
 FILE-LINK, the URL at current point, or the URL in the clipboard"
   (interactive)
-  (let ((link (url-encode-url
-               (or file-link
-                   (thing-at-point 'url)
-                   (when interprogram-paste-function
-                     (funcall interprogram-paste-function))))))
+  (let* ((item (or file-link
+                  (thing-at-point 'url)
+                  (when interprogram-paste-function
+                    (funcall interprogram-paste-function))))
+        (link (url-encode-url item)))
+    (unless item
+          (error "No link provided"))
     (cond ((string-match "^magnet" link) (transmission-add link))
           ((youtube-dl-item-id (youtube-dl link)) nil)
+          ((string-match ".mp4$" link)
+           (start-process
+            "wget"
+            (generate-new-buffer "wget")
+            "wget"
+            (concat "--directory-prefix=" (getenv "XDG_DOWNLOAD_DIR"))
+            "--progress=dot:mega"
+            link))
+          ((string-match "^youtube-dl" item)
+           (async-shell-command link))
           (t (error "Can't download link: %S" link)))
     (message "Downloading link: %S" link)))
 
