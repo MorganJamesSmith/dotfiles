@@ -16,9 +16,8 @@
   (packages->manifest
    (map
     (compose
-     (lambda (package+output)
-       (transformations (car package+output)))
-     list
+     (lambda (package output)
+       (list (transformations package) output))
      specification->package+output)
     packages)))
 
