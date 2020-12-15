@@ -370,6 +370,10 @@ Containing LEFT, and RIGHT aligned respectively."
   (push "SHOWFROMTIME" org-default-properties)
   (org-indent-mode -1))
 
+(use-package org-pretty-table
+  :config
+  (global-org-pretty-table-mode))
+
 (use-package ob-core
   :hook (org-babel-after-execute . org-redisplay-inline-images)
   :config

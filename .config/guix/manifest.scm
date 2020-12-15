@@ -76,6 +76,7 @@
       "org-beautify-theme"
       "org-drill"
       "org-edna"
+      "org-pretty-table"
       "org-superstar"
       "pdf-tools"
       "pinentry"
