@@ -3,12 +3,8 @@
 
 (define transformations
   (options->transformation
-   '((with-branch  . "emacs-evil=master")
-     (with-branch  . "emacs-evil-collection=master")
-     (with-git-url . "emacs-evil-collection=https://github.com/MorganJamesSmith/evil-collection")
-     (with-branch  . "emacs-use-package=master")
-     (with-branch  . "emacs-company=master")
-     (with-git-url . "emacs-company=https://github.com/company-mode/company-mode"))))
+   '((with-branch  . "emacs-evil-collection=master")
+     (with-git-url . "emacs-evil-collection=https://github.com/emacs-evil/evil-collection"))))
 
 (define (manifest-with-transformations packages)
   (packages->manifest
