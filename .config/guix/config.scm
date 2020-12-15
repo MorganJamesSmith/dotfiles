@@ -137,9 +137,9 @@
                 (name username)
                 (comment username)
                 (group "users")
-                (supplementary-groups '("wheel" ; sudo
-                                        "audio"
+                (supplementary-groups '("wheel"   ; sudo
                                         "video"
+                                        "dialout" ; tty stuff
                                         "plugdev" ; security keys
                                         "kvm")))  ; qemu
                %base-user-accounts))
@@ -218,16 +218,30 @@
        `(("/bin/sh" ,(file-append dash "/bin/dash"))
          ("/usr/bin/env" ,(file-append coreutils "/bin/env"))))
 
-      ;; For xorg sans display manager (gentoo wiki)
       (udev-service-type
        c =>
        (udev-configuration
         (inherit c)
         (rules
-         `(,(udev-rule
+         `(
+           ;; Security key
+           ,libu2f-host
+           ;; For xorg sans display manager (gentoo wiki)
+           ,(udev-rule
              "99-dev-input-group.rules"
              "SUBSYSTEM==\"input\", ACTION==\"add\", GROUP=\"input\"")
-           ,libu2f-host
+           ;; Black magic probe
+           ,(udev-rule
+             "99-blackmagic.rules"
+             (string-append
+              "SUBSYSTEM==\"tty\", ACTION==\"add\", ATTRS{interface}==\"Black Magic GDB Server\", SYMLINK+=\"ttyBmpGdb\""
+              (string #\newline)
+              "SUBSYSTEM==\"tty\", ACTION==\"add\", ATTRS{interface}==\"Black Magic UART Port\", SYMLINK+=\"ttyBmpTarg\""
+              (string #\newline)
+              "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"1d50\", ATTR{idProduct}==\"6017\", MODE=\"0666\""
+              (string #\newline)
+              "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"1d50\", ATTR{idProduct}==\"6018\", MODE=\"0666\""
+              (string #\newline)))
            ,@(udev-configuration-rules c))))))))
 
   ;; Allow resolution of '.local' host names with mDNS.
