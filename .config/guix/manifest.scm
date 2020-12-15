@@ -6,8 +6,6 @@
    '((with-branch  . "emacs-evil=master")
      (with-branch  . "emacs-evil-collection=master")
      (with-git-url . "emacs-evil-collection=https://github.com/MorganJamesSmith/evil-collection")
-     (with-branch  . "emacs-modus-vivendi-theme=master")
-     (with-git-url . "emacs-modus-vivendi-theme=https://gitlab.com/protesilaos/modus-themes")
      (with-branch  . "emacs-use-package=master")
      (with-branch  . "emacs-company=master")
      (with-git-url . "emacs-company=https://github.com/company-mode/company-mode"))))
@@ -69,7 +67,7 @@
       "ledger-mode"
       "literate-calc-mode"
       "magit"
-      "modus-vivendi-theme"
+      "modus-themes"
       "nginx-mode"
       "nov-el"
       "org"
