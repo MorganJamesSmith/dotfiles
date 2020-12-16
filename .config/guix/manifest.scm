@@ -28,9 +28,9 @@
 
 (define emacs-packages
   (append!
-   '("emacs-next"
+   '("emacs-native-comp"
      "pinentry-emacs"
-     "ghostscript" ; allow Emacs to preview PostScript
+     "ghostscript" ; allows Emacs to preview PostScript
      "unoconv"     ; allows Emacs to preview docx files
      "xinit")      ; emacs-exwm needs this
    (map
