@@ -339,6 +339,9 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package evil-collection
   :after evil
   :config (evil-collection-init))
+
+(use-package evil-goggles
+  :config (evil-goggles-mode))
 ;;; Evil Section Ends
 
 
