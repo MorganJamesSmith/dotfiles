@@ -50,7 +50,6 @@
       "evil"
       "evil-collection"
       "evil-goggles"
-      "evil-magit"
       "evil-org"
       "exwm"
       "flycheck"
