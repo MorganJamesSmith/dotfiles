@@ -120,6 +120,7 @@
     "mpv" ; video player
     "openscad" ; 3D modeling program
     "openssh"
+    "pass-git-helper"
     "password-store"
     "picom" ; compositor
     "pinentry"
