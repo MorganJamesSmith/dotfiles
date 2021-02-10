@@ -3,10 +3,6 @@
 command -v guix && eval "$(guix package --search-paths=suffix --profile="$HOME"/.config/guix/extra-profiles/default/default)"
 
 export EDITOR="emacsclient"
-export TERMINAL="st"
-export BROWSER="surf"
-export READER="zathura"
-
 
 # big history (bigger histories cause eshell to hang when starting)
 export HISTFILESIZE=100000
@@ -38,10 +34,6 @@ export XDG_PUBLICSHARE_DIR="$HOME/"
 export XDG_DOCUMENTS_DIR="$HOME/documents"
 mkdir -p "$XDG_DOCUMENTS_DIR"
 export XDG_VIDEOS_DIR="$HOME/"
-
-## Xauthority/ICEauthority
-export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
-export ICEAUTHORITY="$XDG_RUNTIME_DIR"/ICEauthority
 
 ## less
 export LESSKEY="$XDG_CONFIG_HOME"/less/lesskey
