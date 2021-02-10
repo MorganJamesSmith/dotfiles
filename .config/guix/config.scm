@@ -18,7 +18,8 @@
  ((gnu packages wget) #:select (wget))
  ((gnu packages xorg) #:select (xkbcomp xorg-server))
  ((gnu services dbus) #:select (dbus-service))
- ((gnu services desktop) #:select (%desktop-services))
+ ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration))
+ ((gnu services desktop) #:select (%desktop-services bluetooth-service))
  ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration mpd-output))
  ((gnu services xorg)
@@ -34,6 +35,9 @@
 (define %default-xorg-server-arguments (@@ (gnu services xorg) %default-xorg-server-arguments))
 (define xorg-configuration-directory (@@ (gnu services xorg) xorg-configuration-directory))
 (define xorg-configuration->file (@@ (gnu services xorg) xorg-configuration->file))
+
+;; Things not exported by (gnu system)
+(define %default-modprobe-blacklist (@@ (gnu system) %default-modprobe-blacklist))
 
 
 (define my-xorg-conf
@@ -93,10 +97,18 @@
 
   (kernel-loadable-modules (list v4l2loopback-linux-module))
 
-  (kernel-arguments (append
-                     '("modprobe.blacklist=pcspkr,snd_pcsp"
-                       "mitigations=off")
-                     %default-kernel-arguments))
+  (kernel-arguments
+   (list
+    "mitigations=off"
+    "numa=off"
+    (string-append
+     "modprobe.blacklist="
+     (string-join (cons*
+                   "pcspkr" "snd_pcsp" ; Stop the beeping
+                   "snd_hda_intel"     ; Only use my usb audio
+                   "sb_edac"           ; Stop EDAC warnings
+                   %default-modprobe-blacklist)
+                  ","))))
 
   (issue "Morgan's GNU Guix Machine\n\n")
 
@@ -138,6 +150,7 @@
                 (comment username)
                 (group "users")
                 (supplementary-groups '("wheel"   ; sudo
+                                        "lp"      ; bluetooth
                                         "video"
                                         "dialout" ; tty stuff
                                         "plugdev" ; security keys
@@ -155,29 +168,25 @@
 
   ;; This is where we specify system-wide packages.
   (packages (cons*
-             curl
-             dash
-             git
              glibc-utf8-locales
              nss-certs
-             rsync
-             wget
              %base-packages))
 
   (services
    (cons*
+    ;; Helps with IO related freezing
+    (service sysctl-service-type
+             (sysctl-configuration
+              (settings '(("vm.dirty_background_ratio" . "5")
+                          ("vm.dirty_ratio" . "25")
+                          ("kernel.hung_task_timeout_secs" . "30")))))
+    (bluetooth-service)
     (simple-service
      'opendoas-config etc-service-type
      `(("doas.conf"
         ,(plain-file
           "doas.conf"
           (string-append "permit persist " username (string #\newline))))))
-    (service kernel-module-loader-service-type '("v4l2loopback"))
-    (simple-service 'v4l2loopback-config etc-service-type
-                    (list `("modprobe.d/v4l2loopback.conf"
-                            ,(plain-file "v4l2loopback.conf"
-                                         "options v4l2loopback exclusive_caps=1"))))
-    (service pcscd-service-type)
     (service mpd-service-type
              (mpd-configuration
               (user username)
