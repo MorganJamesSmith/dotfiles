@@ -1,6 +1,6 @@
 ;;; init.el --- My personal init file -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019-2020 Morgan Smith
+;; Copyright (C) 2019-2021 Morgan Smith
 
 ;;; Commentary:
 
@@ -33,7 +33,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       (make-directory directory t))
     directory))
 
+;; Load all packages upfront
 (customize-set-variable 'use-package-always-demand t)
+
+;; Don't be so in my face with issues
+(customize-set-variable 'warning-minimum-level :emergency)
 
 ;;; Make buffers appear where I want them to
 (unless (boundp 'shell-command-buffer-name-async)
@@ -41,7 +45,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable
  'display-buffer-alist
  (list (list shell-command-buffer-name-async   #'display-buffer-no-window)
-       (list "*compilation*" #'display-buffer-no-window)))
+       (list "*compilation*"                   #'display-buffer-no-window)))
 (customize-set-variable 'async-shell-command-buffer 'new-buffer)
 
 ;;; Optimization Section Begins
@@ -60,7 +64,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (fset #'display-startup-echo-area-message #'ignore)
 
 ;; Disable bidirectional text rendering
-(setq-default bidi-display-reordering 'left-to-right
+(setq-default bidi-display-reordering  'left-to-right
               bidi-paragraph-direction 'left-to-right)
 (setq bidi-inhibit-bpa t)
 
@@ -79,6 +83,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; Only matters on multi-user systems
 (customize-set-variable 'create-lockfiles nil)
+
+(global-so-long-mode)
 ;;; Optimization Section Ends
 
 
@@ -101,7 +107,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; Use only encrypted authinfo
 (customize-set-variable
- 'auth-sources (list (expand-file-name "authinfo.gpg" user-emacs-directory)))
+ 'auth-sources
+ `((:source ,(expand-file-name "authinfo.gpg" user-emacs-directory))))
+
+(customize-set-variable
+ 'auth-source-save-behavior t)
 
 (customize-set-variable
  'auth-source-gpg-encrypt-to (list user-mail-address))
@@ -112,8 +122,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'calendar-date-style 'iso)
 
 (customize-set-variable 'fill-column 79)
-
-(global-so-long-mode)
 ;;; Sensible Defaults Section Ends
 
 
@@ -125,32 +133,19 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Pretty Visuals Section Begins
 (use-package modus-vivendi-theme
   :custom
-  (custom-safe-themes t "All themes are now safe")
-  (custom-enabled-themes '(modus-vivendi) "Pretty cool dark theme")
-  :custom-face
-  (org-scheduled ((t (:foreground "magenta")))))
-
-(use-package all-the-icons
-  :if (display-graphic-p)
-  :custom (inhibit-compacting-font-caches t))
-
-(use-package all-the-icons-dired
-  :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode)
+  (modus-themes-bold-constructs t)
+  (modus-themes-completions 'opinionated)
+  (modus-themes-headings '((t . rainbow)))
+  (modus-themes-mode-line '3d)
+  (modus-themes-org-blocks 'rainbow)
+  (modus-themes-paren-match 'intense-bold)
+  (modus-themes-prompts 'intense)
+  (modus-themes-scale-5 2.5)
+  (modus-themes-scale-headings t)
+  (modus-themes-slanted-constructs t)
+  (modus-themes-variable-pitch-headings t)
   :config
-  ;; Disable package while renaming files as it wrecks havoc otherwise
-  (defun all-the-icons-dired-mode-enable ()
-    "Enable all-the-icons-dired-mode"
-    (all-the-icons-dired-mode 1))
-  (defun all-the-icons-dired-mode-disable ()
-    "Disable all-the-icons-dired-mode"
-    (all-the-icons-dired-mode 0))
-  (advice-add 'wdired-change-to-wdired-mode
-              :before #'all-the-icons-dired-mode-disable)
-  (advice-add 'wdired-finish-edit
-              :after #'all-the-icons-dired-mode-enable)
-  (advice-add 'wdired-abort-changes
-              :after #'all-the-icons-dired-mode-enable))
+  (load-theme 'modus-vivendi t))
 
 ;; I dislike gui stuff
 (customize-set-variable 'use-file-dialog nil)
@@ -177,7 +172,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (display-battery-mode)
 (size-indication-mode)
 (column-number-mode)
-(line-number-mode)
 
 (defun simple-mode-line-render (left right)
   "Return a string of `window-width' length.
@@ -204,17 +198,6 @@ Containing LEFT, and RIGHT aligned respectively."
        evil-mode-line-tag
        "%b %n "
        mode-line-position
-       (:eval
-        (concat
-         "["
-         (number-to-string (1+ (exwm-workspace--position (selected-frame))))
-         "]"))
-       (vc-mode vc-mode)
-       (:eval
-        (concat
-         (propertize
-          (concat "#" (format-mode-line mode-name))
-          'face '(:weight bold))))
        mode-line-process
        (:eval
         (when (and (boundp 'text-scale-mode-amount)
@@ -223,6 +206,8 @@ Containing LEFT, and RIGHT aligned respectively."
           (concat " [" text-scale-mode-lighter "]"))))
 
      '(""
+       appt-mode-string
+       " "
        org-mode-line-string
        " "
        battery-mode-line-string
@@ -235,8 +220,8 @@ Containing LEFT, and RIGHT aligned respectively."
 (with-eval-after-load 'org-clock
   (add-hook
    'org-clock-out-hook
-   '(lambda ()
-      (setq org-mode-line-string ""))))
+   (lambda ()
+     (setq org-mode-line-string ""))))
 ;;; Modeline Section Ends
 
 
@@ -257,11 +242,9 @@ Containing LEFT, and RIGHT aligned respectively."
 
 (use-package evil
   :custom
-  (evil-want-keybinding nil)
+  (evil-want-keybinding nil) ;; Needed for evil-collection
   (evil-want-C-u-scroll t)
   (evil-want-Y-yank-to-eol t)
-  (evil-org-special-o/O nil)
-  (evil-undo-system 'undo-redo)
 
   :config
 
@@ -290,32 +273,19 @@ Containing LEFT, and RIGHT aligned respectively."
                            (switch-to-buffer "*Org Agenda*")
                            (org-agenda-redo))
                        (org-agenda nil "o"))
-                     (goto-char (point-min)))
+                     (goto-char (point-min))
+                     (org-agenda-to-appt t))
     (leader "c")   #'compile
+    (leader "d")   #'kill-this-buffer
     (leader "e")   (lambda () (interactive)
                      (find-file (locate-user-emacs-file "init.el")))
     (leader "g")   #'magit-status
-    (leader "i")   #'org-insert-structure-template
-    (leader "l")   (lambda () (interactive) (org-latex-preview '(16)))
-    (leader "L")   (lambda () (interactive) (org-latex-preview '(64)))
-    (leader "m")   (lambda () (interactive) (set-buffer-multibyte t))
-    (leader "M")   (lambda () (interactive) (set-buffer-multibyte nil))
+    (leader "i")   (lambda () (interactive)
+                     (find-file (expand-file-name "inbox.org" org-directory)))
     (leader "o")   #'ispell
     (leader "s")   #'save-buffer
     (leader "t")   #'org-babel-tangle
-    (leader "w")   (lambda ()
-                     (interactive)
-                     (let ((browser "IceCat")
-                           (command "icecat"))
-                       (if (get-buffer browser)
-                           (switch-to-buffer browser)
-                         (start-process-shell-command command nil command))))
-
-    (kbd "g") nil
-    (kbd "g b") #'switch-to-buffer
-    (kbd "g B") #'list-buffers
-    (kbd "g d") #'kill-this-buffer
-    (kbd "g D") #'kill-buffer
+    (leader "w")   #'eww-list-bookmarks
     (kbd "g h") #'counsel-org-goto
     (kbd "g H") #'counsel-org-goto-all
 
@@ -353,13 +323,10 @@ Containing LEFT, and RIGHT aligned respectively."
   (org-preview-latex-image-directory "~/.cache/org-preview-latex/")
   (org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
   (org-duration-format 'h:mm)
-  (org-list-allow-alphabetical t)
   (org-log-done 'time)
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0)
-  (org-return-follows-link t)
   (org-src-ask-before-returning-to-edit-buffer nil)
-  (org-src-fontify-natively t)
   (org-src-window-setup 'current-window)
   (org-html-postamble nil)
   (org-todo-keywords
@@ -373,84 +340,69 @@ Containing LEFT, and RIGHT aligned respectively."
   (push "SHOWFROMTIME" org-default-properties)
   (org-indent-mode -1))
 
-(use-package org-pretty-table
-  :config
-  (global-org-pretty-table-mode))
-
-(use-package ob-core
-  :hook (org-babel-after-execute . org-redisplay-inline-images)
-  :config
-  (push '(:mkdirp . "yes") org-babel-default-header-args))
-
-;; Allows completion of structure blocks
-(use-package org-tempo
-  :config
-  (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp")))
-
 (use-package org-agenda
   :custom
   (calendar-holidays
-   '((holiday-fixed 10 26 "Reading Week")
-     (holiday-fixed 10 27 "Reading Week")
-     (holiday-fixed 10 28 "Reading Week")
-     (holiday-fixed 10 29 "Reading Week")
-     (holiday-fixed 10 30 "Reading Week")))
+   '((holiday-fixed 02 15 "Winter Break")
+     (holiday-fixed 02 16 "Winter Break")
+     (holiday-fixed 02 17 "Winter Break")
+     (holiday-fixed 02 18 "Winter Break")
+     (holiday-fixed 02 19 "Winter Break")
+     (holiday-fixed 04 02 "Statutory holiday")))
+
+  ;; Optimization
+  (org-agenda-dim-blocked-tasks nil)
+  (org-agenda-inhibit-startup t)
+  (org-agenda-use-tag-inheritance nil)
+  (org-agenda-ignore-drawer-properties '(effort appt stats category))
 
   (org-agenda-sticky t)
   (org-agenda-format-date "%F %A")
   (org-agenda-show-outline-path nil)
   (org-agenda-block-separator nil)
-  (org-agenda-prefix-format "")
-  (org-agenda-remove-tags t)
   (org-agenda-scheduled-leaders '("" ""))
   (org-agenda-deadline-leaders '("" ""))
   (org-agenda-start-on-weekday nil)
   (org-agenda-time-grid nil)
   (org-agenda-time-leading-zero t)
   (org-agenda-window-setup 'current-window)
+  (org-agenda-todo-keyword-format "")
 
   (org-agenda-files
    `(
-     ,(expand-file-name "agenda/daily.org" org-directory)
      ,(expand-file-name "agenda/events.org" org-directory)
      ,(expand-file-name "agenda/timetracking.org" org-directory)
      ,(expand-file-name "agenda/todo.org" org-directory)
      ,@(directory-files-recursively
-        "~/school" "\\`\\(index\\|deadlines\\).*\\.org\\'")))
+        "~/school" "\\`index\\.org\\'")))
 
   (org-agenda-custom-commands
    '(("o" "My Agenda"
       ((todo
         "TODO|DAYOF"
-        ((org-agenda-overriding-header "Due Today:")
+        ((org-agenda-overriding-header "Todo:")
          (org-agenda-prefix-format "%t%?T%s")
          (org-agenda-todo-ignore-deadlines 'future)
          (org-agenda-todo-ignore-scheduled 'future)
-         (org-agenda-todo-ignore-timestamp 'future)
-         (org-agenda-todo-keyword-format "")))
-       (todo
-        "LECTURE"
-        ((org-agenda-overriding-header "\nLectures to watch:")
-         (org-agenda-todo-keyword-format "")))
+         (org-agenda-todo-ignore-timestamp 'future)))
        (todo
         "HABIT"
-        ((org-agenda-overriding-header "\nToday's Habits:")
+        ((org-agenda-overriding-header "Today's Habits:")
+         (org-agenda-prefix-format "")
          (org-agenda-todo-ignore-scheduled 'future)
-         (org-agenda-todo-keyword-format "")
          (org-agenda-skip-function
           'org-agenda-skip-entry-before-SHOWFROMTIME-property)))
        (agenda
         ""
-        ((org-agenda-overriding-header "\nSchedule:")
-         (org-agenda-prefix-format "    %-12t| %s")
-         (org-agenda-span 'fortnight)
+        ((org-agenda-overriding-header "Schedule:")
+         (org-agenda-prefix-format "    %-12t| %?-12:c %s")
+         (org-agenda-span 60)
          (org-deadline-warning-days 0)
          (org-agenda-skip-function
           '(org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF" "LECTURE")))))
        (agenda
         ""
-        ((org-agenda-overriding-header "\nTime Tracking:\n")
+        ((org-agenda-overriding-header "Time Tracking:")
          (org-agenda-prefix-format "%-18s | %-11t | ")
          (org-agenda-show-all-dates nil)
          (org-agenda-show-log 'clockcheck)))))))
@@ -484,24 +436,13 @@ Containing LEFT, and RIGHT aligned respectively."
 	      (when (< currenttime-minutes show-from-time-minutes)
             (org-entry-end-position)))))))
 
-(use-package org-capture
-  :bind ("C-c c" . org-capture)
-  :custom
-  (org-capture-templates
-   '(("i" "inbox" entry (file "inbox.org") "* %?\n"
-      :kill-buffer t
-      :prepend t))))
 
 (use-package org-clock
   :after org
-  :bind
-  ("C-c I" . (lambda () (interactive) (org-clock-in '(4))))
-  ("C-c O" . org-clock-out)
   :custom
   (org-agenda-clock-consistency-checks '(:max-gap "0:00"))
   (org-clock-continuously t)
   (org-clock-display-default-range 'untilnow)
-  (org-clock-history-length 20)
   (org-clock-in-resume t)
   (org-clock-mode-line-total 'current)
   (org-clock-out-remove-zero-time-clocks t)
@@ -518,37 +459,28 @@ Containing LEFT, and RIGHT aligned respectively."
 
   (org-clock-persistence-insinuate))
 
-(use-package org-edna
-  :config (org-edna-mode))
-
-(use-package toc-org
-  :hook (org-mode . toc-org-mode))
+(use-package org-contacts
+  :custom
+  (org-contacts-files
+   (list (expand-file-name "contactlist.org" org-directory))))
 
 (use-package evil-org
+  :custom (evil-org-special-o/O nil)
   :hook (org-mode . evil-org-mode))
 
 (use-package evil-org-agenda
   :config (evil-org-agenda-set-keys))
 
-(use-package org-beautify-theme
-  :if (display-graphic-p)
-  :config
-  (enable-theme 'org-beautify))
-
-(use-package org-superstar
-  :if (display-graphic-p)
-  :hook (org-mode . org-superstar-mode))
+;; (use-package org-superstar
+;;   :if (display-graphic-p)
+;;   :hook (org-mode . org-superstar-mode))
 
 (use-package org-drill
   :custom
-  (org-drill-use-visible-cloze-face-p t)
   (org-drill-hide-item-headings-p t)
   (org-drill-save-buffers-after-drill-sessions-p nil)
   (org-drill-add-random-noise-to-intervals-p t)
   (org-drill-leech-method nil))
-
-;; source code highlighting for HTML org export
-(use-package htmlize)
 ;;; Org Section Ends
 
 
@@ -578,17 +510,9 @@ Containing LEFT, and RIGHT aligned respectively."
          ("M-p" . flymake-goto-prev-error))
   :hook (prog-mode . flymake-mode))
 
-(use-package verilog-mode
-  :custom
-  (verilog-indent-level             4)
-  (verilog-indent-level-module      4)
-  (verilog-indent-level-declaration 4)
-  (verilog-indent-level-behavioral  4)
-  (verilog-case-indent              0)
-  (verilog-auto-newline             nil)
-  (verilog-auto-indent-on-newline   t)
-  (verilog-minimum-comment-distance 0)
-  (verilog-indent-begin-after-if    nil))
+(use-package flycheck
+  :custom (flycheck-emacs-lisp-load-path 'inherit)
+  :init (global-flycheck-mode))
 
 ;; Save all buffers on compile automatically
 (customize-set-variable 'compilation-ask-about-save nil)
@@ -599,13 +523,7 @@ Containing LEFT, and RIGHT aligned respectively."
 
 ;; Many major modes do no highlighting of number literals, so we do it for them
 (use-package highlight-numbers
-  :hook ((prog-mode conf-mode) . highlight-numbers-mode)
-  :custom
-  (highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
-
-(use-package flycheck
-  :custom (flycheck-emacs-lisp-load-path 'inherit)
-  :init (global-flycheck-mode))
+  :hook ((prog-mode conf-mode) . highlight-numbers-mode))
 
 (use-package debbugs
   :custom
@@ -626,6 +544,9 @@ Containing LEFT, and RIGHT aligned respectively."
       (require 'geiser-guile))
     (add-to-list 'geiser-guile-load-path "~/src/guix")))
 
+(use-package guix
+  :hook (scheme-mode . guix-devel-mode))
+
 (use-package flycheck-guile
   :after (flycheck geiser))
 
@@ -633,16 +554,6 @@ Containing LEFT, and RIGHT aligned respectively."
   :config
   (add-to-list 'yas-snippet-dirs "~/src/guix/etc/snippets")
   (yas-global-mode 1))
-
-(use-package copyright
-  :hook (before-save . copyright-update)
-  :custom
-  (copyright-names-regexp (format "%s <%s>" user-full-name user-mail-address))
-  :config
-  (setenv "ORGANIZATION" user-full-name))
-
-(if (file-exists-p "~/src/guix/etc/copyright.el")
-      (load-file "~/src/guix/etc/copyright.el"))
 ;;; Programming Section Ends
 
 
@@ -663,14 +574,6 @@ Containing LEFT, and RIGHT aligned respectively."
   (magit-wip-mode 1)
   (add-to-list 'magit-process-find-password-functions
                'magit-process-password-auth-source))
-
-(use-package magit-repos
-  :after magit
-  :commands magit-list-repositories
-  :custom
-  (magit-repository-directories
-   `(("~/repos" . 1)
-     ("~" . 0))))
 
 (use-package diff-hl
   :config (global-diff-hl-mode))
@@ -698,18 +601,7 @@ Containing LEFT, and RIGHT aligned respectively."
   (show-paren-mode t))
 
 (use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode)
-  :custom-face
-  (rainbow-delimiters-depth-1-face   ((t (:foreground "white"))))
-  (rainbow-delimiters-depth-2-face   ((t (:foreground "cyan"))))
-  (rainbow-delimiters-depth-3-face   ((t (:foreground "yellow"))))
-  (rainbow-delimiters-depth-4-face   ((t (:foreground "green"))))
-  (rainbow-delimiters-depth-5-face   ((t (:foreground "orange"))))
-  (rainbow-delimiters-depth-6-face   ((t (:foreground "purple"))))
-  (rainbow-delimiters-depth-7-face   ((t (:foreground "white"))))
-  (rainbow-delimiters-depth-8-face   ((t (:foreground "cyan"))))
-  (rainbow-delimiters-depth-9-face   ((t (:foreground "yellow"))))
-  (rainbow-delimiters-unmatched-face ((t (:foreground "red")))))
+  :hook (prog-mode . rainbow-delimiters-mode))
 ;;; Parens Section Ends
 
 
@@ -733,6 +625,7 @@ Containing LEFT, and RIGHT aligned respectively."
   :custom
   (ido-enable-flex-matching t)
   (ido-everywhere t)
+  (ido-auto-merge-work-directories-length -1)
   :config
   (ido-mode 1))
 
@@ -755,11 +648,23 @@ Containing LEFT, and RIGHT aligned respectively."
 
 
 ;;; EWW Section Begins
+ (use-package eww
+   :custom
+   (eww-use-browse-url "\\`\\(gemini\\|gopher\\|mailto\\):"))
+
 (use-package shr
   :custom
   (browse-url-browser-function 'eww-browse-url)
   (shr-use-colors nil)
   (shr-max-image-proportion 0.5))
+
+(use-package elpher)
+
+(use-package browse-url
+  :custom
+  (browse-url-handlers
+   '(("\\`\\(gemini\\|gopher\\)://" .
+      (lambda (host-or-url &rest _) (elpher-go host-or-url))))))
 ;;; EWW Section Ends
 
 
@@ -810,6 +715,7 @@ Containing LEFT, and RIGHT aligned respectively."
 
 ;; Backups and auto-saves and deleting
 (use-package files
+  :hook (before-save . backup-buffer)
   :custom
   (backup-directory-alist
    `((".*" . ,(create-directory "backups" user-emacs-directory))))
@@ -836,6 +742,7 @@ Containing LEFT, and RIGHT aligned respectively."
   (eshell-banner-message "")
   (eshell-history-size nil "Pull history size from environment variables")
   (eshell-history-file-name nil "Pull history file from environment variables")
+  (eshell-hist-ignoredups 'erase)
   :config
   (add-to-list 'eshell-modules-list 'eshell-tramp)
   (setenv "PAGER" (executable-find "cat")))
@@ -856,7 +763,7 @@ Containing LEFT, and RIGHT aligned respectively."
 (use-package dired-x
   :custom
   (dired-guess-shell-alist-user
-   `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm")) "mpv")
+   `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm" ".m4v")) "mpv")
      (,(regexp-opt '(".pdf")) "pdftotext"))))
 
 (use-package tramp
@@ -872,8 +779,7 @@ Containing LEFT, and RIGHT aligned respectively."
 
 (use-package minibuffer
   :custom
-  (read-buffer-completion-ignore-case t)
-  (completion-cycle-threshold 3))
+  (read-buffer-completion-ignore-case t))
 
 (use-package exwm
   :if (and (display-graphic-p) (not IS-INSIDE-EMACS) (or IS-LINUX IS-BSD))
@@ -906,10 +812,6 @@ Containing LEFT, and RIGHT aligned respectively."
      ;; Split window.
      ([?\s-\\] . split-window-horizontally)
      ([?\s-\-] . split-window-vertically)
-     ;; Kill buffer
-     ;([?\s-q] . kill-this-buffer)
-     ;; Quit
-     ;([?\C-g] . keyboard-quit-context+)
      ;; eshell
      (,(kbd "<s-return>") . eshell)
      ;; Launch application.
@@ -975,11 +877,6 @@ Containing LEFT, and RIGHT aligned respectively."
   (shell-command "gpg-connect-agent \"UPDATESTARTUPTTY\" /bye"))
 
 (use-package bluetooth)
-
-
-(use-package guix
-  :if (executable-find "guix")
-  :hook (scheme-mode . guix-devel-mode))
 
 (use-package nginx-mode)
 
@@ -1062,50 +959,17 @@ FILE-LINK, the URL at current point, or the URL in the clipboard"
 
 (global-set-key (kbd "C-c d") #'download-file)
 
-(defun keyboard-quit-context+ ()
-  "Quit current context.
-
-This function is a combination of `keyboard-quit' and
-`keyboard-escape-quit' with some parts omitted and some custom
-behavior added."
-  (interactive)
-  (cond ((region-active-p)
-         ;; Avoid adding the region to the window selection.
-         (setq saved-region-selection nil)
-         (let (select-active-regions)
-           (deactivate-mark)))
-        ((eq last-command 'mode-exited) nil)
-        (current-prefix-arg
-         nil)
-        (defining-kbd-macro
-          (message
-           (substitute-command-keys
-            "Quit is ignored during macro defintion, use \\[kmacro-end-macro] if you want to stop macro definition"))
-          (cancel-kbd-macro-events))
-        ((active-minibuffer-window)
-         (when (get-buffer-window "*Completions*")
-           ;; hide completions first so point stays in active window when
-           ;; outside the minibuffer
-           (minibuffer-hide-completions))
-         (abort-recursive-edit))
-        (t
-         (when completion-in-region-mode
-           (completion-in-region-mode -1))
-         (let ((debug-on-quit nil))
-           (signal 'quit nil)))))
-
-(global-set-key [remap keyboard-quit] #'keyboard-quit-context+)
 
 (use-package auth-source-xoauth2
   :after smtpmail
   :config
   (defun my-xoauth2-get-secrets (_host user _port)
-    (when (string= user (auth-source-pass-get 'secret "email/work/address"))
+    (when (string= user (auth-source-pass-get "address" "email/work"))
       (list
        :token-url "https://accounts.google.com/o/oauth2/token"
-       :client-id (auth-source-pass-get 'secret "email/work/client-id")
-       :client-secret (auth-source-pass-get 'secret "email/work/client-secret")
-       :refresh-token (auth-source-pass-get 'secret "email/work/refresh-token"))))
+       :client-id (auth-source-pass-get "client-id" "email/work")
+       :client-secret (auth-source-pass-get "client-secret" "email/work")
+       :refresh-token (auth-source-pass-get "refresh-token" "email/work"))))
   (setq auth-source-xoauth2-creds 'my-xoauth2-get-secrets)
 
   (eval-when-compile
