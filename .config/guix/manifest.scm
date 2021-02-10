@@ -3,10 +3,11 @@
 
 (define transformations
   (options->transformation
-   '((with-branch  . "emacs-evil-collection=master")
-     (with-git-url . "emacs-evil-collection=https://github.com/emacs-evil/evil-collection"))))
+   '((with-branch  . "emacs-modus-themes=main")
+     (with-branch  . "emacs-next=master")
+     (with-git-url  . "emacs-next=/home/pancake/src/emacs/emacs"))))
 
-(define (manifest-with-transformations packages)
+(define (specifications->manifest-with-transformations packages)
   (packages->manifest
    (map
     (compose
@@ -28,7 +29,7 @@
 
 (define emacs-packages
   (append!
-   '("emacs-native-comp"
+   '("emacs-next"
      "pinentry-emacs"
      "ghostscript" ; allows Emacs to preview PostScript
      "unoconv"     ; allows Emacs to preview docx files
@@ -94,7 +95,7 @@
   '("icecat"
     "ungoogled-chromium"))
 
-(manifest-with-transformations
+(specifications->manifest-with-transformations
  (append!
   audio
   downloaders
