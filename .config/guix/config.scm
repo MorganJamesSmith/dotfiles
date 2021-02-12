@@ -17,11 +17,13 @@
  ((gnu packages version-control) #:select (git))
  ((gnu packages wget) #:select (wget))
  ((gnu packages xorg) #:select (xkbcomp xorg-server))
- ((gnu services dbus) #:select (dbus-service))
- ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration))
- ((gnu services desktop) #:select (%desktop-services bluetooth-service))
- ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration mpd-output))
+ ((gnu services dbus) #:select (dbus-service))
+ ((gnu services desktop) #:select (%desktop-services bluetooth-service))
+ ((gnu services file-sharing) #:select (transmission-daemon-service-type))
+ ((gnu services security-token) #:select (pcscd-service-type))
+ ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
+ ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration))
  ((gnu services xorg)
   #:select (gdm-service-type xorg-configuration xorg-configuration-modules xorg-configuration-server-arguments))
  (guix gexp))
@@ -152,6 +154,7 @@
                 (supplementary-groups '("wheel"   ; sudo
                                         "lp"      ; bluetooth
                                         "video"
+                                        "transmission"
                                         "dialout" ; tty stuff
                                         "plugdev" ; security keys
                                         "kvm")))  ; qemu
@@ -174,6 +177,9 @@
 
   (services
    (cons*
+    (service transmission-daemon-service-type)
+    (service syncthing-service-type
+             (syncthing-configuration (user username)))
     ;; Helps with IO related freezing
     (service sysctl-service-type
              (sysctl-configuration
