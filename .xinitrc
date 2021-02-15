@@ -17,7 +17,7 @@ xset r rate 200 60
 xset +fp $(dirname $(readlink -f ~/.guix-profile/share/fonts/truetype/fonts.dir))
 
 # Automatically hide cursor
-command -v unclutter && unclutter &
+command -v unclutter && unclutter -idle 1 &
 
 # A compositor (optional)
 command -v picom && picom -b
