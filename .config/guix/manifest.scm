@@ -32,8 +32,7 @@
    '("emacs-next"
      "pinentry-emacs"
      "ghostscript" ; allows Emacs to preview PostScript
-     "unoconv"     ; allows Emacs to preview docx files
-     "xinit")      ; emacs-exwm needs this
+     "unoconv")    ; allows Emacs to preview docx files
    (map
     (lambda (x) (string-append "emacs-" x))
     '("auth-source-xoauth2"
