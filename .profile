@@ -84,4 +84,6 @@ then
     setsid shepherd
 fi
 
-alias startx="xinit ~/.xsession -- /run/setuid-programs/*startx vt1"
+if [ "$(tty)" = "/dev/tty7" ]; then
+    /bin/startx vt7
+fi

@@ -15,7 +15,7 @@
  ((gnu packages suckless) #:select (slock))
  ((gnu packages version-control) #:select (git))
  ((gnu packages wget) #:select (wget))
- ((gnu packages xorg) #:select (xkbcomp xorg-server))
+ ((gnu packages xorg) #:select (xinit xkbcomp xorg-server))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration mpd-output))
  ((gnu services dbus) #:select (dbus-service))
  ((gnu services desktop) #:select (%desktop-services bluetooth-service))
@@ -23,8 +23,7 @@
  ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration))
- ((gnu services xorg)
-  #:select (gdm-service-type xorg-configuration xorg-configuration-modules xorg-configuration-server-arguments))
+ ((gnu services xorg) #:select (gdm-service-type xorg-configuration xorg-start-command))
  (guix gexp))
 
 (define username "CHANGE ME")
@@ -34,8 +33,6 @@
 
 ;; Things not exported by (gnu services xorg)
 (define %default-xorg-server-arguments (@@ (gnu services xorg) %default-xorg-server-arguments))
-(define xorg-configuration-directory (@@ (gnu services xorg) xorg-configuration-directory))
-(define xorg-configuration->file (@@ (gnu services xorg) xorg-configuration->file))
 
 ;; Things not exported by (gnu system)
 (define %default-modprobe-blacklist (@@ (gnu system) %default-modprobe-blacklist))
@@ -47,44 +44,10 @@
    (server-arguments
     `("-keeptty" ,@%default-xorg-server-arguments))))
 
-(define startx
-  (program-file
-   "startx"
-   #~(begin
-       (setenv
-        "XORG_DRI_DRIVER_PATH" (string-append #$mesa "/lib/dri"))
-       (setenv
-        "XKB_BINDIR" (string-append #$xkbcomp "/bin"))
-
-       ;; X doesn't accept absolute paths when run with suid
-       (apply
-        execl
-        (string-append #$xorg-server "/bin/X")
-        (string-append #$xorg-server "/bin/X")
-        "-config" #$(xorg-configuration->file my-xorg-conf)
-        "-configdir" #$(xorg-configuration-directory
-                        (xorg-configuration-modules my-xorg-conf))
-        "-logverbose" "-verbose" "-terminate"
-        (append '#$(xorg-configuration-server-arguments my-xorg-conf)
-                (cdr (command-line)))))))
-
-(define chown-program-service-type
-  (service-type
-   (name 'chown-program-service-type)
-   (extensions
-    (list
-     (service-extension setuid-program-service-type (const '()))
-     (service-extension
-      activation-service-type
-      (lambda (params)
-        #~(begin
-            (define (chownership prog user group perm)
-              (let ((uid (passwd:uid (getpw user)))
-                    (gid (group:gid (getgr group))))
-                (chown prog uid gid)
-                (chmod prog perm)))
-            (for-each (lambda (x) (apply chownership x)) #$params))))))
-   (description "Modify permissions and ownership of programs.")))
+(define my-startx
+  #~(let ((xinit (string-append #$xinit "/bin/xinit")))
+      (apply execl xinit xinit ;; Second xinit is for argv[0].
+             "--" #$(xorg-start-command my-xorg-conf) (cdr (command-line)))))
 
 (operating-system
   (host-name host-name)
@@ -159,14 +122,6 @@
                                         "kvm")))  ; qemu
                %base-user-accounts))
 
-  (setuid-programs (cons*
-                    ;; Stuff for xorg without display manager.
-                    ;; startx and X need to be in setuid-programs.
-                    ;; They also need extra tweaks in the chown-file service below.
-                    (file-append xorg-server "/bin/X")
-                    startx
-                    %setuid-programs))
-
   ;; This is where we specify system-wide packages.
   (packages (cons*
              glibc-utf8-locales
@@ -175,6 +130,8 @@
 
   (services
    (cons*
+    (extra-special-file "/bin/startx"
+                        (program-file "startx" my-startx))
     (service transmission-daemon-service-type)
     (service syncthing-service-type
              (syncthing-configuration (user username)))
@@ -198,13 +155,10 @@
               (host "0.0.0.0")
               (port 3000)
               (advertise? #t)))
-    (service
-     chown-program-service-type
-     #~(list
-        (list
-         (string-append "/run/setuid-programs/" (basename #$startx))
-         #$username "input" #o2755)
-        `("/run/setuid-programs/X" ,#$username "input" #o2755)))
+    (service mingetty-service-type
+             (mingetty-configuration
+              (tty "tty7")
+              (auto-login username)))
     (modify-services
         (remove
          (lambda (service)

@@ -25,5 +25,4 @@
 !.local/share/gnupg/gpg-agent.conf
 !.profile
 !.xinitrc
-!.xsession
 !LICENSE
