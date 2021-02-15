@@ -119,9 +119,9 @@
                                   (nnimap-address "imap.gmail.com")
                                   (nnimap-authenticator login))
                           (nnimap "work"
-                                  (nnimap-user ,(auth-source-pass-get 'secret "email/work/address"))
-                                  (nnimap-address ,(auth-source-pass-get 'secret "email/work/imap-server"))
-                                  (nnimap-server-port ,(string-to-number (auth-source-pass-get 'secret "email/work/imap-port")))
+                                  (nnimap-user ,(auth-source-pass-get "address" "email/work"))
+                                  (nnimap-address ,(auth-source-pass-get "imap-server" "email/work"))
+                                  (nnimap-server-port ,(string-to-number (auth-source-pass-get "imap-port" "email/work")))
                                   (nnimap-authenticator xoauth2))))
 
 ;; Sending email stuff
@@ -159,9 +159,9 @@
             smtpmail-auth-supported '(login)))
           ((equal account "work")
            (setq
-            user-mail-address (auth-source-pass-get 'secret "email/work/address")
-            smtpmail-smtp-server (auth-source-pass-get 'secret "email/work/smtp-server")
-            smtpmail-smtp-service  (string-to-number (auth-source-pass-get 'secret "email/work/smtp-service")))
+            user-mail-address (auth-source-pass-get "address" "email/work")
+            smtpmail-smtp-server (auth-source-pass-get "smtp-server" "email/work")
+            smtpmail-smtp-service  (string-to-number (auth-source-pass-get "smtp-port" "email/work")))
             smtpmail-auth-supported '(xoauth2)))
 
     (setq smtpmail-smtp-user account)
