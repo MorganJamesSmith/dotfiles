@@ -22,6 +22,10 @@ command -v unclutter && unclutter &
 # A compositor (optional)
 command -v picom && picom -b
 
+# Blank screen and lock after 3 minutes
+xset dpms 0 0 180
+xss-lock -- slock &
+
 # This lets ssh-agent know what screen I'm using
 gpg-connect-agent "UPDATESTARTUPTTY" /bye
 

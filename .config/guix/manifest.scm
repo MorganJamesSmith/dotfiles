@@ -132,4 +132,8 @@
     "unzip"
     "xpdf" ; pdftotext
     "xrandr"
+    "xhost"    ; used in xinitrc
+    "xset"     ; used in xinitrc
+    "xsetroot" ; used in xinitrc
+    "xss-lock" ; auto lock screen (run in xinitrc)
     "zip")))
