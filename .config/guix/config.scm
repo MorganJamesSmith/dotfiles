@@ -4,7 +4,6 @@
  ((nongnu system linux-initrd) #:select (microcode-initrd))
  ((gnu services linux) #:select (kernel-module-loader-service-type))
  (gnu)
- ((gnu packages admin) #:select (opendoas))
  ((gnu packages base) #:select (glibc-utf8-locales))
  ((gnu packages certs) #:select (nss-certs))
  ((gnu packages curl) #:select (curl))
@@ -161,7 +160,6 @@
                %base-user-accounts))
 
   (setuid-programs (cons*
-                    (file-append opendoas "/bin/doas")
                     ;; Stuff for xorg without display manager.
                     ;; startx and X need to be in setuid-programs.
                     ;; They also need extra tweaks in the chown-file service below.
@@ -187,12 +185,6 @@
                           ("vm.dirty_ratio" . "25")
                           ("kernel.hung_task_timeout_secs" . "30")))))
     (bluetooth-service)
-    (simple-service
-     'opendoas-config etc-service-type
-     `(("doas.conf"
-        ,(plain-file
-          "doas.conf"
-          (string-append "permit persist " username (string #\newline))))))
     (service mpd-service-type
              (mpd-configuration
               (user username)
