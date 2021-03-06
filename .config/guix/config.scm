@@ -22,7 +22,7 @@
  ((gnu services audio) #:select (mpd-service-type mpd-configuration mpd-output))
  ((gnu services dbus) #:select (dbus-service))
  ((gnu services desktop) #:select (%desktop-services bluetooth-service))
- ((gnu services file-sharing) #:select (transmission-daemon-service-type))
+ ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
  ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration))
@@ -119,6 +119,7 @@
                 (supplementary-groups '("wheel"   ; polkit group
                                         "lp"      ; bluetooth
                                         "video"
+                                        "audio"   ; amixer commands
                                         "transmission"
                                         "dialout" ; tty stuff
                                         "plugdev" ; security keys
@@ -162,11 +163,18 @@
 
   (services
    (cons*
-    (extra-special-file "/bin/startx"
-                        (program-file "startx" my-startx))
-    (service transmission-daemon-service-type)
-    (service syncthing-service-type
-             (syncthing-configuration (user username)))
+    (simple-service
+     'opendoas-config etc-service-type
+     `(("doas.conf"
+        ,(plain-file
+          "doas.conf"
+          (string-append
+           "permit persist " username (string #\newline))))))
+    (extra-special-file "/bin/startx" (program-file "startx" my-startx))
+    (service transmission-daemon-service-type
+             (transmission-daemon-configuration
+              (download-dir "/torrents")))
+    (service syncthing-service-type (syncthing-configuration (user username)))
     ;; Helps with IO related freezing
     (service sysctl-service-type
              (sysctl-configuration
@@ -209,33 +217,7 @@
       (special-files-service-type
        c =>
        `(("/bin/sh" ,(file-append dash "/bin/dash"))
-         ("/usr/bin/env" ,(file-append coreutils "/bin/env"))))
-
-      (udev-service-type
-       c =>
-       (udev-configuration
-        (inherit c)
-        (rules
-         `(
-           ;; Security key
-           ,libu2f-host
-           ;; For xorg sans display manager (gentoo wiki)
-           ,(udev-rule
-             "99-dev-input-group.rules"
-             "SUBSYSTEM==\"input\", ACTION==\"add\", GROUP=\"input\"")
-           ;; Black magic probe
-           ,(udev-rule
-             "99-blackmagic.rules"
-             (string-append
-              "SUBSYSTEM==\"tty\", ACTION==\"add\", ATTRS{interface}==\"Black Magic GDB Server\", SYMLINK+=\"ttyBmpGdb\""
-              (string #\newline)
-              "SUBSYSTEM==\"tty\", ACTION==\"add\", ATTRS{interface}==\"Black Magic UART Port\", SYMLINK+=\"ttyBmpTarg\""
-              (string #\newline)
-              "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"1d50\", ATTR{idProduct}==\"6017\", MODE=\"0666\""
-              (string #\newline)
-              "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"1d50\", ATTR{idProduct}==\"6018\", MODE=\"0666\""
-              (string #\newline)))
-           ,@(udev-configuration-rules c))))))))
+         ("/usr/bin/env" ,(file-append coreutils "/bin/env")))))))
 
   ;; Allow resolution of '.local' host names with mDNS.
   (name-service-switch %mdns-host-lookup-nss))
