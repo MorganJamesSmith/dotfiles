@@ -114,6 +114,7 @@
     "icedove" ; email client
     "libreoffice"
     "lm-sensors"
+    "lxqt-policykit" ; used in xinitrc
     "mpv" ; video player
     "openscad" ; 3D modeling program
     "openssh"

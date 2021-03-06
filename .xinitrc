@@ -22,6 +22,9 @@ command -v unclutter && unclutter -idle 1 &
 # A compositor (optional)
 command -v picom && picom -b
 
+# A policykit agent to allow processes to elevate their privileges
+command -v lxqt-policykit-agent && lxqt-policykit-agent &
+
 # Blank screen and lock after 3 minutes
 xset dpms 0 0 180
 xss-lock -- slock &
