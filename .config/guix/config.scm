@@ -4,6 +4,7 @@
  ((nongnu system linux-initrd) #:select (microcode-initrd))
  ((gnu services linux) #:select (kernel-module-loader-service-type))
  (gnu)
+ ((gnu packages admin) #:select (opendoas sudo))
  ((gnu packages base) #:select (glibc-utf8-locales))
  ((gnu packages certs) #:select (nss-certs))
  ((gnu packages curl) #:select (curl))
@@ -113,7 +114,7 @@
                 (name username)
                 (comment username)
                 (group "users")
-                (supplementary-groups '("wheel"   ; sudo
+                (supplementary-groups '("wheel"   ; polkit group
                                         "lp"      ; bluetooth
                                         "video"
                                         "transmission"
@@ -122,11 +123,37 @@
                                         "kvm")))  ; qemu
                %base-user-accounts))
 
+  (sudoers-file #f)
+
+  (setuid-programs
+   (cons*
+    (file-append opendoas "/bin/doas")
+    (remove
+     (lambda (file)
+       (member file
+               (list (file-append sudo "/bin/sudo")
+                     (file-append sudo "/bin/sudoedit"))))
+     %setuid-programs)))
+
+  (pam-services
+   (cons
+    (unix-pam-service "doas")
+    (remove
+     (lambda (service)
+       (equal? (pam-service-name service) "sudo"))
+     (base-pam-services))))
+
   ;; This is where we specify system-wide packages.
-  (packages (cons*
-             glibc-utf8-locales
-             nss-certs
-             %base-packages))
+  (packages
+   (cons*
+    glibc-utf8-locales
+    nss-certs
+    opendoas ; We already have the binary as it is a setuid-program. This is
+             ; for the documentation
+    (remove
+     (lambda (package)
+       (memq package (list sudo)))
+     %base-packages)))
 
   (services
    (cons*
