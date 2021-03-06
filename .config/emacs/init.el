@@ -95,8 +95,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Replace the info command with something more useful
 (global-set-key (kbd "C-h i") 'info-display-manual)
 
-(fset #'yes-or-no-p #'y-or-n-p)
-
 ;; Move gnus folders to the `user-emacs-directory'
 (use-package gnus
   :custom
@@ -126,6 +124,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; Terrible Defaults Section Starts
+(customize-set-variable 'use-short-answers t)
+
 (customize-set-variable 'enable-local-variables :all)
 ;;; Terrible Defaults Section Ends
 
@@ -332,12 +332,11 @@ Containing LEFT, and RIGHT aligned respectively."
   (org-todo-keywords
    '((sequence "TODO" "DONE")
      (sequence "HABIT" "DONE")
-     (sequence "DAYOF" "DONE")
-     (sequence "LECTURE" "DONE")))
+     (sequence "DAYOF" "DONE")))
   :config
-  (add-hook 'after-save-hook #'org-babel-tangle 100 'only-in-org-mode)
   (push 'org-habit org-modules)
   (push "SHOWFROMTIME" org-default-properties)
+  (push "SHOWFROMDATE" org-default-properties)
   (org-indent-mode -1))
 
 (use-package org-agenda
@@ -370,6 +369,7 @@ Containing LEFT, and RIGHT aligned respectively."
 
   (org-agenda-files
    `(
+     ,(expand-file-name "agenda/daily.org" org-directory)
      ,(expand-file-name "agenda/events.org" org-directory)
      ,(expand-file-name "agenda/timetracking.org" org-directory)
      ,(expand-file-name "agenda/todo.org" org-directory)
@@ -381,10 +381,12 @@ Containing LEFT, and RIGHT aligned respectively."
       ((todo
         "TODO|DAYOF"
         ((org-agenda-overriding-header "Todo:")
-         (org-agenda-prefix-format "%t%?T%s")
+         (org-agenda-prefix-format "%?T%s")
          (org-agenda-todo-ignore-deadlines 'future)
          (org-agenda-todo-ignore-scheduled 'future)
-         (org-agenda-todo-ignore-timestamp 'future)))
+         (org-agenda-todo-ignore-timestamp 'future)
+         (org-agenda-skip-function
+          'org-agenda-skip-entry-before-SHOWFROMTIME-property)))
        (todo
         "HABIT"
         ((org-agenda-overriding-header "Today's Habits:")
@@ -399,7 +401,9 @@ Containing LEFT, and RIGHT aligned respectively."
          (org-agenda-span 60)
          (org-deadline-warning-days 0)
          (org-agenda-skip-function
-          '(org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF" "LECTURE")))))
+          '(or
+            (org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF" "LECTURE"))
+            (org-agenda-skip-entry-before-SHOWFROMDATE-property)))))
        (agenda
         ""
         ((org-agenda-overriding-header "Time Tracking:")
@@ -434,7 +438,17 @@ Containing LEFT, and RIGHT aligned respectively."
                (currenttime-minutes
                 (funcall decoded-time-to-minutes (decode-time))))
 	      (when (< currenttime-minutes show-from-time-minutes)
-            (org-entry-end-position)))))))
+            (org-entry-end-position))))))
+
+  (defun org-agenda-skip-entry-before-SHOWFROMDATE-property ()
+    "Skip entry if :SHOWFROMDATE: property is set and is before
+the current date."
+    (org-back-to-heading t)
+    (let ((date-string
+           (org-entry-get (point) "SHOWFROMDATE" 'inherit)))
+      (when date-string
+	    (when (< (time-to-days (current-time)) (org-time-string-to-absolute date-string))
+            (org-entry-end-position))))))
 
 
 (use-package org-clock
@@ -485,16 +499,7 @@ Containing LEFT, and RIGHT aligned respectively."
 
 
 ;;; Ledger Mode Section Begins
-(use-package ledger-mode
-  :custom
-  (ledger-reports
-    '(("mon" "%(binary) -f %(ledger-file) bal -p \"this month\"")
-      ("last mon" "%(binary) -f %(ledger-file) bal -p \"last month\"")
-      ("bal" "%(binary) -f %(ledger-file) bal")
-      ("reg" "%(binary) -f %(ledger-file) reg")
-      ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
-      ("account" "%(binary) -f %(ledger-file) reg %(account)")))
-  :mode ("\\.ledger\\'" . ledger-mode))
+(use-package ledger-mode)
 
 (use-package flycheck-ledger
   :after (ledger-mode flycheck))
@@ -777,6 +782,11 @@ Containing LEFT, and RIGHT aligned respectively."
            vc-ignore-dir-regexp
            tramp-file-name-regexp)))
 
+(use-package tramp-sh
+  :config
+  ;; guix system bin
+  (add-to-list 'tramp-remote-path "/run/current-system/profile/bin"))
+
 (use-package minibuffer
   :custom
   (read-buffer-completion-ignore-case t))
@@ -891,8 +901,7 @@ Containing LEFT, and RIGHT aligned respectively."
   :mode ("\\.uml\\'" . plantuml-mode))
 
 (use-package pdf-tools
-  :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
-  :config (pdf-tools-install t))
+  :config (pdf-tools-install))
 
 (use-package nov
   :custom (nov-text-width 80)
@@ -919,8 +928,6 @@ Containing LEFT, and RIGHT aligned respectively."
                                 transmission-files-mode
                                 transmission-info-mode
                                 transmission-peers-mode)))
-
-(use-package disk-usage)
 
 (use-package counsel)
 
@@ -980,6 +987,13 @@ FILE-LINK, the URL at current point, or the URL in the clipboard"
 (use-package typit
   :custom-face
   (typit-current-word ((t (:inherit bold)))))
+
+(use-package disk-usage
+  :config
+  (defun disk-usage-filter-proc (path _attributes)
+    (not (string-match "\\(^/proc\\|:/proc\\)" path)))
+  (add-to-list 'disk-usage-available-filters 'disk-usage-filter-proc)
+  (add-to-list 'disk-usage-default-filters 'disk-usage-filter-proc))
 
 (provide 'init.el)
 ;;; init.el ends here
