@@ -10,6 +10,8 @@
  ((gnu packages curl) #:select (curl))
  ((gnu packages gl) #:select (mesa))
  ((gnu packages security-token) #:select (libu2f-host))
+ ((gnu packages zile) #:select (zile))
+ ((gnu packages nano) #:select (nano))
  ((gnu packages linux) #:select (v4l2loopback-linux-module))
  ((gnu packages rsync) #:select (rsync))
  ((gnu packages shells) #:select (dash))
@@ -152,7 +154,10 @@
              ; for the documentation
     (remove
      (lambda (package)
-       (memq package (list sudo)))
+       (memq package (list
+                      sudo
+                      zile
+                      nano)))
      %base-packages)))
 
   (services
