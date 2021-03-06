@@ -79,11 +79,6 @@ eval "$(ssh-agent -s -a "$(gpgconf --list-dirs agent-ssh-socket)")"
 # start gpg-agent with moved homedir
 eval "$(gpg-agent --homedir "$GNUPGHOME" --daemon -s)"
 
-if [ "$(command -v shepherd)" ] && [ ! "$(herd status)" ]
-then
-    setsid shepherd
-fi
-
 if [ "$(tty)" = "/dev/tty7" ]; then
     /bin/startx vt7
 fi
