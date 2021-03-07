@@ -459,6 +459,10 @@ the current date."
                      (split-string date-string "," t " ")))
           (org-entry-end-position))))))
 
+(use-package appt
+  :custom
+  (appt-display-format 'echo))
+
 (use-package org-clock
   :after org
   :custom
