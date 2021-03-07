@@ -519,9 +519,6 @@ the current date."
 
 
 ;;; Programming Section Begins
-(use-package xcscope
-  :config (cscope-setup))
-
 (use-package flymake
   :bind (("M-n" . flymake-goto-next-error)
          ("M-p" . flymake-goto-prev-error))
