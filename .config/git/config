@@ -10,3 +10,6 @@
 	signingKey = 177A078751DC4BFE55E6C6E752D93416EEAA45A6
 [credential]
 	helper = !pass-git-helper $@
+[alias]
+	pushall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git push --all --follow-tags
+	fetchall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git fetch
