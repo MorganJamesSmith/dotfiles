@@ -758,7 +758,31 @@ the current date."
   (eshell-hist-ignoredups 'erase)
   :config
   (add-to-list 'eshell-modules-list 'eshell-tramp)
-  (setenv "PAGER" (executable-find "cat")))
+  (setenv "PAGER" (executable-find "cat"))
+
+  (defvar-local eshell-current-command-start-time nil)
+  (defvar-local eshell-last-command-prompt nil)
+
+  (defun eshell-current-command-start ()
+    (setq eshell-current-command-start-time (current-time)))
+
+  (defun eshell-current-command-stop ()
+    (when eshell-current-command-start-time
+      (setq eshell-last-command-prompt
+            (format "(%i)(%.4fs)\n"
+                    eshell-last-command-status
+                    (float-time (time-subtract
+                                 (current-time)
+                                 eshell-current-command-start-time))))
+      (setq eshell-current-command-start-time nil))
+    (when eshell-last-command-prompt
+      (eshell-interactive-print eshell-last-command-prompt)))
+
+  (defun eshell-current-command-time-track ()
+    (add-hook 'eshell-pre-command-hook #'eshell-current-command-start nil t)
+    (add-hook 'eshell-post-command-hook #'eshell-current-command-stop nil t))
+
+  (add-hook 'eshell-mode-hook #'eshell-current-command-time-track))
 
 (use-package eshell-syntax-highlighting
   :config
