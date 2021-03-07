@@ -337,6 +337,7 @@ Containing LEFT, and RIGHT aligned respectively."
   (push 'org-habit org-modules)
   (push "SHOWFROMTIME" org-default-properties)
   (push "SHOWFROMDATE" org-default-properties)
+  (push "EXCEPTIONS" org-default-properties)
   (org-indent-mode -1))
 
 (use-package org-agenda
@@ -386,7 +387,9 @@ Containing LEFT, and RIGHT aligned respectively."
          (org-agenda-todo-ignore-scheduled 'future)
          (org-agenda-todo-ignore-timestamp 'future)
          (org-agenda-skip-function
-          'org-agenda-skip-entry-before-SHOWFROMTIME-property)))
+          '(or
+            (org-agenda-skip-entry-before-SHOWFROMTIME-property)
+            (org-agenda-skip-entry-before-SHOWFROMDATE-property)))))
        (todo
         "HABIT"
         ((org-agenda-overriding-header "Today's Habits:")
@@ -403,7 +406,8 @@ Containing LEFT, and RIGHT aligned respectively."
          (org-agenda-skip-function
           '(or
             (org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF" "LECTURE"))
-            (org-agenda-skip-entry-before-SHOWFROMDATE-property)))))
+            (org-agenda-skip-entry-before-SHOWFROMDATE-property)
+            (org-agenda-skip-entry-EXCEPTIONS-property)))))
        (agenda
         ""
         ((org-agenda-overriding-header "Time Tracking:")
@@ -425,20 +429,14 @@ Containing LEFT, and RIGHT aligned respectively."
   (defun org-agenda-skip-entry-before-SHOWFROMTIME-property ()
     "Skip entry if :SHOWFROMTIME: property is set and time of day is before it."
     (org-back-to-heading t)
-    (let ((show-from-time-string
+    (let ((time-string
            (org-entry-get (point) "SHOWFROMTIME" 'inherit)))
-      (when show-from-time-string
-        (let* ((decoded-time-to-minutes
-                (lambda (time)
-                  (+ (decoded-time-minute time)
-                     (* 60 (decoded-time-hour time)))))
-               (show-from-time-minutes
-                (funcall decoded-time-to-minutes
-                         (parse-time-string show-from-time-string)))
-               (currenttime-minutes
-                (funcall decoded-time-to-minutes (decode-time))))
-	      (when (< currenttime-minutes show-from-time-minutes)
-            (org-entry-end-position))))))
+      (when time-string
+        (let* ((cur-decoded-time (decode-time))
+               (cur-time-of-day (+ (* (decoded-time-hour cur-decoded-time) 100)
+                                   (decoded-time-minute cur-decoded-time))))
+               (unless (< (org-get-time-of-day time-string) cur-time-of-day)
+                 (org-entry-end-position))))))
 
   (defun org-agenda-skip-entry-before-SHOWFROMDATE-property ()
     "Skip entry if :SHOWFROMDATE: property is set and is before
@@ -447,9 +445,19 @@ the current date."
     (let ((date-string
            (org-entry-get (point) "SHOWFROMDATE" 'inherit)))
       (when date-string
-	    (when (< (time-to-days (current-time)) (org-time-string-to-absolute date-string))
-            (org-entry-end-position))))))
+        (unless (time-less-p (org-2ft date-string) (current-time))
+          (org-entry-end-position)))))
 
+  (defun org-agenda-skip-entry-EXCEPTIONS-property ()
+    "Skip entry if :EXCEPTIONS: property has today's date in it."
+    (org-back-to-heading t)
+    (let ((date-string (org-entry-get (point) "EXCEPTIONS" 'inherit)))
+      (when date-string
+        (when (memq 0
+                    (mapcar
+                     #'org-time-stamp-to-now
+                     (split-string date-string "," t " ")))
+          (org-entry-end-position))))))
 
 (use-package org-clock
   :after org
