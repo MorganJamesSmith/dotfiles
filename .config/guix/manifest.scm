@@ -55,6 +55,7 @@
       "flycheck"
       "flycheck-guile"
       "flycheck-ledger"
+      "flymake-shellcheck"
       "geiser"
       "guix"
       "helpful"

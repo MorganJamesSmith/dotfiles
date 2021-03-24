@@ -524,6 +524,10 @@ the current date."
          ("M-p" . flymake-goto-prev-error))
   :hook (prog-mode . flymake-mode))
 
+(use-package flymake-shellcheck
+  :custom (flymake-shellcheck-allow-external-files t)
+  :init (add-hook 'sh-mode-hook 'flymake-shellcheck-load))
+
 (use-package flycheck
   :custom (flycheck-emacs-lisp-load-path 'inherit)
   :init (global-flycheck-mode))
