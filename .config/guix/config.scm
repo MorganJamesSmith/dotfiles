@@ -168,8 +168,11 @@
      `(("doas.conf"
         ,(plain-file
           "doas.conf"
-          (string-append
-           "permit persist " username (string #\newline))))))
+          (string-join
+           (list
+            "permit persist"
+            "setenv { PATH=/bin:/usr/bin:/var/guix/profiles/system/profile/bin }"
+            username (string #\newline)))))))
     (extra-special-file "/bin/startx" (program-file "startx" my-startx))
     (service transmission-daemon-service-type
              (transmission-daemon-configuration
