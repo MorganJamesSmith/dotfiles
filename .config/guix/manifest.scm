@@ -125,6 +125,7 @@
     "pinentry"
     "pwgen" ; Password Generator
     "rsync"
+    "sx" ; Start X
     "sxiv"
     "syncthing"
     "texlive"

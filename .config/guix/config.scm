@@ -18,7 +18,6 @@
  ((gnu packages suckless) #:select (slock))
  ((gnu packages version-control) #:select (git))
  ((gnu packages wget) #:select (wget))
- ((gnu packages xorg) #:select (xinit xkbcomp xorg-server))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration mpd-output))
  ((gnu services dbus) #:select (dbus-service))
  ((gnu services desktop) #:select (%desktop-services bluetooth-service))
@@ -26,31 +25,15 @@
  ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration))
- ((gnu services xorg) #:select (gdm-service-type xorg-configuration xorg-start-command))
+ ((gnu services xorg) #:select (gdm-service-type xorg-server-service-type))
  (guix gexp))
 
 (define username "CHANGE ME")
 (define host-name "CHANGE ME")
 (define my-keyboard-layout (keyboard-layout "us" #:options '("ctrl:nocaps")))
 
-
-;; Things not exported by (gnu services xorg)
-(define %default-xorg-server-arguments (@@ (gnu services xorg) %default-xorg-server-arguments))
-
 ;; Things not exported by (gnu system)
 (define %default-modprobe-blacklist (@@ (gnu system) %default-modprobe-blacklist))
-
-
-(define my-xorg-conf
-  (xorg-configuration
-   (keyboard-layout my-keyboard-layout)
-   (server-arguments
-    `("-keeptty" ,@%default-xorg-server-arguments))))
-
-(define my-startx
-  #~(let ((xinit (string-append #$xinit "/bin/xinit")))
-      (apply execl xinit xinit ;; Second xinit is for argv[0].
-             "--" #$(xorg-start-command my-xorg-conf) (cdr (command-line)))))
 
 (operating-system
   (host-name host-name)
@@ -163,6 +146,7 @@
 
   (services
    (cons*
+    (service xorg-server-service-type)
     (simple-service
      'opendoas-config etc-service-type
      `(("doas.conf"
@@ -173,7 +157,6 @@
             "permit persist"
             "setenv { PATH=/bin:/usr/bin:/var/guix/profiles/system/profile/bin }"
             username (string #\newline)))))))
-    (extra-special-file "/bin/startx" (program-file "startx" my-startx))
     (service transmission-daemon-service-type
              (transmission-daemon-configuration
               (download-dir "/torrents")))

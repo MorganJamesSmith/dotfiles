@@ -17,6 +17,7 @@
 !.config/pulse/daemon.conf
 !.config/readline/inputrc
 !.config/setup.sh
+!.config/sx/sxrc
 !.config/user-dirs.dirs
 !.config/wget/wgetrc
 !.gitignore
@@ -24,5 +25,4 @@
 !.local/share/applications/transmission.desktop
 !.local/share/gnupg/gpg-agent.conf
 !.profile
-!.xinitrc
 !LICENSE
