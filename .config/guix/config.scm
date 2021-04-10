@@ -2,29 +2,20 @@
  ((srfi srfi-1) #:select (remove))
  ((nongnu packages linux) #:select (linux linux-firmware))
  ((nongnu system linux-initrd) #:select (microcode-initrd))
- ((gnu services linux) #:select (kernel-module-loader-service-type))
  (gnu)
  ((gnu packages admin) #:select (opendoas sudo))
  ((gnu packages base) #:select (glibc-utf8-locales))
  ((gnu packages certs) #:select (nss-certs))
- ((gnu packages curl) #:select (curl))
- ((gnu packages gl) #:select (mesa))
- ((gnu packages security-token) #:select (libu2f-host))
- ((gnu packages zile) #:select (zile))
- ((gnu packages nano) #:select (nano))
  ((gnu packages linux) #:select (v4l2loopback-linux-module))
- ((gnu packages rsync) #:select (rsync))
+ ((gnu packages nano) #:select (nano))
  ((gnu packages shells) #:select (dash))
  ((gnu packages suckless) #:select (slock))
- ((gnu packages version-control) #:select (git))
- ((gnu packages wget) #:select (wget))
- ((gnu services audio) #:select (mpd-service-type mpd-configuration mpd-output))
- ((gnu services dbus) #:select (dbus-service))
  ((gnu services desktop) #:select (%desktop-services bluetooth-service))
+ ((gnu packages zile) #:select (zile))
+ ((gnu services audio) #:select (mpd-service-type mpd-configuration))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
- ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
- ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration))
+ ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
  ((gnu services xorg) #:select (gdm-service-type xorg-server-service-type))
  (guix gexp))
 
@@ -91,10 +82,6 @@
                          (type "vfat")))
                  %base-file-systems))
 
-  (groups (cons (user-group (name "plugdev")
-                            (system? #t))
-                %base-groups))
-
   (users (cons (user-account
                 (name username)
                 (comment username)
@@ -104,8 +91,7 @@
                                         "video"
                                         "audio"   ; amixer commands
                                         "transmission"
-                                        "dialout" ; tty stuff
-                                        "plugdev" ; security keys
+                                        "dialout" ; serial TTYs
                                         "kvm")))  ; qemu
                %base-user-accounts))
 
@@ -147,6 +133,33 @@
   (services
    (cons*
     (service xorg-server-service-type)
+
+    (udev-rules-service
+     'planck-dfu
+     (udev-rule
+      "99-planck.rules"
+      "ACTION==\"add\", SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0483\", ATTR{idProduct}==\"df11\", GROUP=\"dialout\", MODE=\"0660\"\n"))
+
+    (udev-rules-service
+     'jlink
+     (udev-rule
+      "99-jlink.rules"
+      "ACTION==\"add\", SUBSYSTEM==\"usb\", ATTR{product}==\"J-Link\", ATTR{manufacturer}==\"SEGGER\", GROUP=\"dialout\", MODE=\"0660\"\n"))
+
+    (udev-rules-service
+     'blackmagic
+     (udev-rule
+      "99-blackmagic.rules"
+      (string-append
+       "SUBSYSTEM==\"tty\", ACTION==\"add\", ATTRS{interface}==\"Black Magic GDB Server\", SYMLINK+=\"ttyBmpGdb\""
+       (string #\newline)
+       "SUBSYSTEM==\"tty\", ACTION==\"add\", ATTRS{interface}==\"Black Magic UART Port\", SYMLINK+=\"ttyBmpTarg\""
+       (string #\newline)
+       "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"1d50\", ATTR{idProduct}==\"6017\", MODE=\"0666\""
+       (string #\newline)
+       "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"1d50\", ATTR{idProduct}==\"6018\", MODE=\"0666\""
+       (string #\newline))))
+
     (simple-service
      'opendoas-config etc-service-type
      `(("doas.conf"
@@ -161,12 +174,6 @@
              (transmission-daemon-configuration
               (download-dir "/torrents")))
     (service syncthing-service-type (syncthing-configuration (user username)))
-    ;; Helps with IO related freezing
-    (service sysctl-service-type
-             (sysctl-configuration
-              (settings '(("vm.dirty_background_ratio" . "5")
-                          ("vm.dirty_ratio" . "25")
-                          ("kernel.hung_task_timeout_secs" . "30")))))
     (bluetooth-service)
     (service mpd-service-type
              (mpd-configuration
@@ -199,11 +206,15 @@
                            (append (list (local-file "./desktop.pub"))
                                    %default-authorized-guix-keys))))
 
-      ;; Use dash for /bin/sh instead of bash
-      (special-files-service-type
-       c =>
-       `(("/bin/sh" ,(file-append dash "/bin/dash"))
-         ("/usr/bin/env" ,(file-append coreutils "/bin/env")))))))
+      ;; Helps with IO related freezing
+      (sysctl-service-type
+       config =>
+       (sysctl-configuration
+        (settings (append
+                   '(("vm.dirty_background_ratio" . "5")
+                     ("vm.dirty_ratio" . "25")
+                     ("kernel.hung_task_timeout_secs" . "30"))
+                   %default-sysctl-settings)))))))
 
   ;; Allow resolution of '.local' host names with mDNS.
   (name-service-switch %mdns-host-lookup-nss))
