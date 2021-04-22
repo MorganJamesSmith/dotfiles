@@ -71,6 +71,26 @@ mkdir -p "$XDG_CONFIG_HOME"/wget
 export CARGO_HOME="$XDG_DATA_HOME"/cargo
 mkdir -p "$CARGO_HOME"
 
+## java
+export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java
+mkdir -p "$XDG_CONFIG_HOME"/java
+
+## pylint
+export PYLINTHOME="$XDG_DATA_HOME"/pylint
+mkdir -p "$PYLINTHOME"
+
+## simplescreenrecorder
+mkdir -p "$XDG_CONFIG_HOME"/simplescreenrecorder
+
+## texlive
+export TEXMFHOME="$XDG_DATA_HOME"/texmf
+export TEXMFVAR="$XDG_CACHE_HOME"/texlive/texmf-var
+export TEXMFCONFIG="$XDG_CONFIG_HOME"/texlive/texmf-config
+mkdir -p "$TEXMFHOME" "$TEXMFVAR" "$TEXMFCONFIG"
+
+## shells
+export HISTFILE="$XDG_DATA_HOME"/shell-history
+
 ### XDG Section End
 
 # make SSH use gpg-agent
