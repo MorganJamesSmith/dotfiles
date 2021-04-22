@@ -36,7 +36,6 @@
    (map
     (lambda (x) (string-append "emacs-" x))
     '("auth-source-xoauth2"
-      "bluetooth"
       "company"
       "company-quickhelp"
       "counsel"
@@ -65,7 +64,6 @@
       "literate-calc-mode"
       "magit"
       "modus-themes"
-      "nginx-mode"
       "nov-el"
       "org"
       "org-contrib"

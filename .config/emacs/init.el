@@ -68,9 +68,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
               bidi-paragraph-direction 'left-to-right)
 (setq bidi-inhibit-bpa t)
 
-;; Garbage collect at 100Mb
-(customize-set-variable 'gc-cons-threshold 100000000)
-
 ;; Do not render cursors or regions in non-focused windows.
 (customize-set-variable 'cursor-in-non-selected-windows nil)
 (customize-set-variable 'highlight-nonselected-windows nil)
@@ -225,13 +222,6 @@ Containing LEFT, and RIGHT aligned respectively."
 ;;; Modeline Section Ends
 
 
-;; Unbind keys I don't use
-(dolist (key '("\C-z"      ; Suspend frame
-               "\C-x\C-z"  ; Suspend frame
-               "\C-x\C-d"  ; List directory
-               "\M-o"))    ; Facemenu stuff
-  (global-unset-key key))
-
 ;;; Evil Section Begins
 (defvar leader "SPC"
   "Key to use as leader.")
@@ -342,14 +332,6 @@ Containing LEFT, and RIGHT aligned respectively."
 
 (use-package org-agenda
   :custom
-  (calendar-holidays
-   '((holiday-fixed 02 15 "Winter Break")
-     (holiday-fixed 02 16 "Winter Break")
-     (holiday-fixed 02 17 "Winter Break")
-     (holiday-fixed 02 18 "Winter Break")
-     (holiday-fixed 02 19 "Winter Break")
-     (holiday-fixed 04 02 "Statutory holiday")))
-
   ;; Optimization
   (org-agenda-dim-blocked-tasks nil)
   (org-agenda-inhibit-startup t)
@@ -923,10 +905,6 @@ the current date."
   ;; Tell gpg what screen to use for pinentry
   (shell-command "gpg-connect-agent \"UPDATESTARTUPTTY\" /bye"))
 
-(use-package bluetooth)
-
-(use-package nginx-mode)
-
 (use-package plantuml-mode
   :custom
   (plantuml-default-exec-mode 'executable)
@@ -941,7 +919,7 @@ the current date."
   :config (pdf-tools-install))
 
 (use-package nov
-  :custom (nov-text-width 80)
+  :custom (nov-text-width fill-column)
   :mode ("\\.epub\\'" . nov-mode))
 
 (use-package djvu)
