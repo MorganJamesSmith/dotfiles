@@ -170,6 +170,21 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (size-indication-mode)
 (column-number-mode)
 
+(defvar current-song ""
+  "The song MPD is currently playing.")
+(defun mpdupdate (_process _change)
+  "Always know what song is playing."
+  (setq current-song
+        (if (string-search "playing" (shell-command-to-string "mpc status"))
+            (string-trim (shell-command-to-string "mpc current"))
+        ""))
+  (force-mode-line-update t)
+  (make-process :name "mpdupdate"
+                :command '("mpc" "idle")
+                :sentinel #'mpdupdate
+                :noquery t))
+(mpdupdate nil nil)
+
 (defun simple-mode-line-render (left right)
   "Return a string of `window-width' length.
 Containing LEFT, and RIGHT aligned respectively."
@@ -203,6 +218,8 @@ Containing LEFT, and RIGHT aligned respectively."
           (concat " [" text-scale-mode-lighter "]"))))
 
      '(""
+       current-song
+       ""
        appt-mode-string
        " "
        org-mode-line-string
@@ -823,12 +840,11 @@ the current date."
      ;; Lock
      ([?\s-x] . ,(lambda () (interactive) (shell-command "slock")))
      ;; Music/Media bindings
-     ([?\s-p] . ,(lambda () (interactive) (shell-command "mpc toggle")))
-     ([?\s-?] . ,(lambda () (interactive) (shell-command "mpc status")))
+     ([?\s-p] . ,(lambda () (interactive) (call-process "mpc" nil nil t "toggle")))
      (,(kbd "<s-up>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%+")))
      (,(kbd "<s-down>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%-")))
-     (,(kbd "<s-right>") . ,(lambda () (interactive) (shell-command "mpc next")))
-     (,(kbd "<s-left>") . ,(lambda () (interactive) (shell-command "mpc prev")))
+     (,(kbd "<s-right>") . ,(lambda () (interactive) (call-process "mpc" nil nil t "next")))
+     (,(kbd "<s-left>") . ,(lambda () (interactive) (call-process "mpc" nil nil t "prev")))
      ;; Char mode
      ([?\s-i] . exwm-input-release-keyboard)
      ;; Reset (to line-mode).
