@@ -207,8 +207,7 @@ Containing LEFT, and RIGHT aligned respectively."
        mode-line-client
        mode-line-modified
        mode-line-remote
-       evil-mode-line-tag
-       "%b %n "
+       " %b %n "
        mode-line-position
        mode-line-process
        (:eval
@@ -237,89 +236,6 @@ Containing LEFT, and RIGHT aligned respectively."
    (lambda ()
      (setq org-mode-line-string ""))))
 ;;; Modeline Section Ends
-
-
-;;; Evil Section Begins
-(defvar leader "SPC"
-  "Key to use as leader.")
-
-(defun leader (key)
-  "Add the leader key on front of KEY."
-  (kbd (concat leader " " key)))
-
-(use-package evil
-  :custom
-  (evil-want-keybinding nil) ;; Needed for evil-collection
-  (evil-want-C-u-scroll t)
-  (evil-want-Y-yank-to-eol t)
-
-  :config
-
-  ;; `my-intercept-mode' is used to override default evil bindings
-  (defvar my-intercept-mode-map (make-sparse-keymap)
-    "High precedence keymap.")
-
-  (define-minor-mode my-intercept-mode
-    "Global minor mode for higher precedence evil keybindings."
-    :global t)
-
-  (my-intercept-mode)
-
-  (dolist (state '(normal visual insert))
-    (evil-make-intercept-map
-     (evil-get-auxiliary-keymap my-intercept-mode-map state t t)
-     state))
-
-  (evil-define-key '(normal motion visual) 'my-intercept-mode-map
-    (kbd leader) nil
-    (leader "TAB") #'whitespace-mode
-    (leader "a")   (lambda ()
-                     (interactive)
-                     (if (get-buffer "*Org Agenda*")
-                         (progn
-                           (switch-to-buffer "*Org Agenda*")
-                           (org-agenda-redo))
-                       (org-agenda nil "o"))
-                     (goto-char (point-min))
-                     (org-agenda-to-appt t))
-    (leader "c")   #'compile
-    (leader "d")   #'kill-this-buffer
-    (leader "e")   (lambda () (interactive)
-                     (find-file (locate-user-emacs-file "init.el")))
-    (leader "g")   #'magit-status
-    (leader "i")   (lambda () (interactive)
-                     (find-file (expand-file-name "inbox.org" org-directory)))
-    (leader "o")   #'ispell
-    (leader "s")   #'save-buffer
-    (leader "t")   #'org-babel-tangle
-    (leader "w")   #'eww-list-bookmarks
-    (kbd "g h") #'counsel-org-goto
-    (kbd "g H") #'counsel-org-goto-all
-
-    (kbd "M-j") #'evil-scroll-line-down
-    (kbd "M-k") #'evil-scroll-line-up
-    (kbd "M-J") (lambda () (interactive) (text-scale-decrease 1)
-                  (plist-put org-format-latex-options
-                             ':scale (max (+ 2 text-scale-mode-amount) 1)))
-    (kbd "M-K") (lambda () (interactive) (text-scale-increase 1)
-                  (plist-put org-format-latex-options
-                             ':scale (max (+ 2 text-scale-mode-amount) 1))))
-
-  (evil-define-key '(insert) 'org-mode-map
-    (kbd "M-L") #'org-shiftmetaright
-    (kbd "M-l") #'org-metaright
-    (kbd "M-H") #'org-shiftmetaleft
-    (kbd "M-h") #'org-metaleft)
-
-  (evil-mode t))
-
-(use-package evil-collection
-  :after evil
-  :config (evil-collection-init))
-
-(use-package evil-goggles
-  :config (evil-goggles-mode))
-;;; Evil Section Ends
 
 
 ;;; Org Section Begins
@@ -488,13 +404,6 @@ the current date."
   :custom
   (org-contacts-files
    (list (expand-file-name "contactlist.org" org-directory))))
-
-(use-package evil-org
-  :custom (evil-org-special-o/O nil)
-  :hook (org-mode . evil-org-mode))
-
-(use-package evil-org-agenda
-  :config (evil-org-agenda-set-keys))
 
 ;; (use-package org-superstar
 ;;   :if (display-graphic-p)
@@ -926,9 +835,6 @@ the current date."
   (plantuml-default-exec-mode 'executable)
   (plantuml-indent-level 4)
   (org-plantuml-exec-mode 'plantuml)
-  :config
-  (with-eval-after-load 'evil
-    (evil-define-key 'normal plantuml-mode-map (leader "c") #'plantuml-preview))
   :mode ("\\.uml\\'" . plantuml-mode))
 
 (use-package pdf-tools
