@@ -6,8 +6,10 @@
  ((gnu packages admin) #:select (opendoas sudo))
  ((gnu packages base) #:select (glibc-utf8-locales))
  ((gnu packages certs) #:select (nss-certs))
+ ((gnu packages ed) #:select (ed))
  ((gnu packages linux) #:select (v4l2loopback-linux-module))
  ((gnu packages nano) #:select (nano))
+ ((gnu packages nvi) #:select (nvi))
  ((gnu packages shells) #:select (dash))
  ((gnu packages suckless) #:select (slock))
  ((gnu services desktop) #:select (%desktop-services bluetooth-service))
@@ -122,12 +124,10 @@
     nss-certs
     opendoas ; We already have the binary as it is a setuid-program. This is
              ; for the documentation
+    ed ;; the standard editor
     (remove
      (lambda (package)
-       (memq package (list
-                      sudo
-                      zile
-                      nano)))
+       (memq package (list sudo nano nvi zile)))
      %base-packages)))
 
   (services
