@@ -1,7 +1,5 @@
 (use-modules
  ((srfi srfi-1) #:select (remove))
- ((nongnu packages linux) #:select (linux linux-firmware))
- ((nongnu system linux-initrd) #:select (microcode-initrd))
  (gnu)
  ((gnu packages admin) #:select (opendoas sudo))
  ((gnu packages base) #:select (glibc-utf8-locales))
@@ -15,9 +13,9 @@
  ((gnu packages nvi) #:select (nvi))
  ((gnu packages shells) #:select (dash))
  ((gnu packages suckless) #:select (slock))
- ((gnu services desktop) #:select (%desktop-services bluetooth-service))
  ((gnu packages zile) #:select (zile))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration))
+ ((gnu services desktop) #:select (%desktop-services))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
@@ -34,9 +32,6 @@
 (operating-system
   (host-name host-name)
   (timezone "America/New_York")
-  (kernel linux)
-  (initrd microcode-initrd)
-  (firmware (list linux-firmware))
 
   ;; US keyboard but replace caps with ctrl
   (keyboard-layout my-keyboard-layout)
@@ -92,7 +87,6 @@
                 (comment username)
                 (group "users")
                 (supplementary-groups '("wheel"   ; polkit group
-                                        "lp"      ; bluetooth
                                         "video"
                                         "audio"   ; amixer commands
                                         "transmission"
@@ -185,7 +179,6 @@
              (transmission-daemon-configuration
               (download-dir "/torrents")))
     (service syncthing-service-type (syncthing-configuration (user username)))
-    (bluetooth-service)
     (service mpd-service-type
              (mpd-configuration
               (user username)
