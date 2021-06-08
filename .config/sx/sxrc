@@ -14,7 +14,7 @@ xset -b
 # Set keyboard repeat rate.
 xset r rate 200 60
 
-xset +fp $(dirname $(readlink -f ~/.guix-profile/share/fonts/truetype/fonts.dir))
+xset +fp $(dirname $(readlink -f /var/guix/profiles/system/profile/share/fonts/truetype/fonts.dir))
 
 # Automatically hide cursor
 command -v unclutter && unclutter -idle 1 &

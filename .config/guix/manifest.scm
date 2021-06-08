@@ -101,9 +101,6 @@
     "ffmpeg"
     "file" ; filetype checker
     "flameshot" ; Screenshots
-    "font-dejavu"
-    "font-wqy-zenhei" ; Chinese, Japanese, and more
-    "fontconfig" ; `fc-cache -rv' to update font cache
     "gnupg"
     "htop"
     "icedove" ; email client

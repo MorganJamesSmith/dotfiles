@@ -7,6 +7,9 @@
  ((gnu packages base) #:select (glibc-utf8-locales))
  ((gnu packages certs) #:select (nss-certs))
  ((gnu packages ed) #:select (ed))
+ ((gnu packages fonts) #:select (font-dejavu font-gnu-freefont font-wqy-zenhei))
+ ((gnu packages fontutils) #:select (fontconfig))
+ ((gnu packages ghostscript) #:select (gs-fonts))
  ((gnu packages linux) #:select (v4l2loopback-linux-module))
  ((gnu packages nano) #:select (nano))
  ((gnu packages nvi) #:select (nvi))
@@ -125,6 +128,14 @@
     opendoas ; We already have the binary as it is a setuid-program. This is
              ; for the documentation
     ed ;; the standard editor
+
+    ;; fonts
+    fontconfig
+    gs-fonts
+    font-dejavu
+    font-gnu-freefont
+    font-wqy-zenhei
+
     (remove
      (lambda (package)
        (memq package (list sudo nano nvi zile)))
