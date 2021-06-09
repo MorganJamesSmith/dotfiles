@@ -1,0 +1,3 @@
+# name : expand link to contact
+# --
+[[contact:${1:$$(yas-choose-value (mapcar (lambda (x) (substring-no-properties (car x))) (org-contacts-filter)))}][$1]] $0

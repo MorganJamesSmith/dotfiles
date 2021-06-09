@@ -47,9 +47,10 @@
 (add-hook 'nnmail-prepare-incoming-header-hook #'nnmail-remove-leading-whitespace)
 (add-hook 'nnmail-prepare-incoming-header-hook #'nnmail-remove-tabs)
 
-;; Select first article instead of first unread
+;; Leave the cursor where it is damn it!
 (customize-set-variable 'gnus-auto-select-subject 'first)
 (customize-set-variable 'gnus-summary-goto-unread 'never)
+(customize-set-variable 'gnus-group-goto-unread nil)
 
 ;; All groups are new each time gnus is run
 (customize-set-variable 'gnus-save-killed-list nil)
@@ -136,7 +137,7 @@
     (cond ((equal account "morganjsmith")
            (setq
             user-mail-address "Morgan.J.Smith@outlook.com"
-            smtpmail-smtp-server "smtp.office365.com"
+            smtpmail-smtp-server "smtp.outlook.com"
             smtpmail-smtp-service 587
             smtpmail-auth-supported '(login)))
           ((equal account "cmail")

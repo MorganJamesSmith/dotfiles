@@ -72,7 +72,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'cursor-in-non-selected-windows nil)
 (customize-set-variable 'highlight-nonselected-windows nil)
 
+;; These are for fast scrolling. I don't think I'm supposed to turn them all on
 (customize-set-variable 'fast-but-imprecise-scrolling t)
+(customize-set-variable 'jit-lock-defer-time 0)
+(customize-set-variable 'redisplay-skip-fontification-on-input t)
 
 (customize-set-variable 'frame-inhibit-implied-resize t)
 
@@ -89,8 +92,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (global-auto-revert-mode t)
 (customize-set-variable 'revert-without-query '(".*"))
 
-;; Replace the info command with something more useful
-(global-set-key (kbd "C-h i") 'info-display-manual)
+;; Use ibuffer
+(global-set-key (kbd "C-x C-b") #'ibuffer)
 
 ;; Move gnus folders to the `user-emacs-directory'
 (use-package gnus
@@ -124,6 +127,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (customize-set-variable 'use-short-answers t)
 
 (customize-set-variable 'enable-local-variables :all)
+
+(customize-set-variable 'org-link-elisp-confirm-function nil)
 ;;; Terrible Defaults Section Ends
 
 
@@ -136,11 +141,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (modus-themes-mode-line '3d)
   (modus-themes-org-blocks 'rainbow)
   (modus-themes-paren-match 'intense-bold)
-  (modus-themes-prompts 'intense)
-  (modus-themes-scale-5 2.5)
+  (modus-themes-prompts 'intense-accented)
+  (modus-themes-scale-title 2.5)
   (modus-themes-scale-headings t)
   (modus-themes-slanted-constructs t)
   (modus-themes-variable-pitch-headings t)
+  (modus-themes-org-agenda
+   '((header-block . (scale-title))
+     (header-date . (bold-today))
+     (scheduled . rainbow)))
   :config
   (load-theme 'modus-vivendi t))
 
@@ -169,6 +178,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (display-battery-mode)
 (size-indication-mode)
 (column-number-mode)
+
+(customize-set-variable 'mode-line-compact 'long)
 
 (defvar current-song ""
   "The song MPD is currently playing.")
@@ -263,8 +274,40 @@ Containing LEFT, and RIGHT aligned respectively."
   (push "EXCEPTIONS" org-default-properties)
   (org-indent-mode -1))
 
-(use-package org-agenda
+(use-package org-goto
   :custom
+  (org-goto-interface 'outline-path-completion)
+  (org-outline-path-complete-in-steps nil))
+
+(use-package org-agenda
+  :bind
+  (("C-c a" . (lambda () (interactive) (org-agenda nil "o"))))
+  :custom
+  (calendar-holidays
+   '((holiday-fixed 1 1 "New Year's Day (National Holiday)")
+     (holiday-fixed 2 2 "Groundhog Day")
+     (holiday-fixed 2 14 "Valentine's Day")
+     (holiday-float 2 1 3 "Family Day (Ontario Holiday)")
+     (holiday-fixed 3 17 "Saint Patrick's Day")
+     (holiday-fixed 4 1 "April Fool's Day")
+     (holiday-fixed 4 6 "Tartan Day")
+     (holiday-easter-etc -2 "Good Friday (National Holiday)")
+     (holiday-easter-etc 0 "Easter Sunday")
+     (holiday-easter-etc 1 "Easter Monday (Federal Holiday)")
+     (holiday-fixed 4 22 "Earth Day")
+     (holiday-float 5 1 -1 "Victoria Day (Federal and Ontario Holiday)" 25)
+     (holiday-float 5 0 2 "Mother's Day")
+     (holiday-float 6 0 3 "Father's Day")
+     (holiday-fixed 7 1 "Canada Day (National Holiday)")
+     (holiday-float 8 1 1 "Civic Holiday (Federal Holiday)")
+     (holiday-float 9 1 1 "Labour Day (National Holiday)")
+     (holiday-float 10 1 2 "Thanksgiving (Federal and Ontario Holiday)")
+     (holiday-fixed 11 11 "Remembrance Day (Federal Holiday)")
+     (holiday-fixed 12 25 "Christmas Day (National Holiday)")
+     (holiday-fixed 12 26 "Boxing Day (Federal and Ontario Holiday)")))
+
+  (org-agenda-include-diary t) ;; For holidays
+
   ;; Optimization
   (org-agenda-dim-blocked-tasks nil)
   (org-agenda-inhibit-startup t)
@@ -327,6 +370,7 @@ Containing LEFT, and RIGHT aligned respectively."
         ""
         ((org-agenda-overriding-header "Time Tracking:")
          (org-agenda-prefix-format "%-18s | %-11t | ")
+         (calendar-holidays nil)
          (org-agenda-show-all-dates nil)
          (org-agenda-show-log 'clockcheck)))))))
   :config
@@ -345,7 +389,7 @@ Containing LEFT, and RIGHT aligned respectively."
     "Skip entry if :SHOWFROMTIME: property is set and time of day is before it."
     (org-back-to-heading t)
     (let ((time-string
-           (org-entry-get (point) "SHOWFROMTIME" 'inherit)))
+           (org-entry-get (point) "SHOWFROMTIME")))
       (when time-string
         (let* ((cur-decoded-time (decode-time))
                (cur-time-of-day (+ (* (decoded-time-hour cur-decoded-time) 100)
@@ -358,7 +402,7 @@ Containing LEFT, and RIGHT aligned respectively."
 the current date."
     (org-back-to-heading t)
     (let ((date-string
-           (org-entry-get (point) "SHOWFROMDATE" 'inherit)))
+           (org-entry-get (point) "SHOWFROMDATE")))
       (when date-string
         (unless (time-less-p (org-2ft date-string) (current-time))
           (org-entry-end-position)))))
@@ -401,20 +445,22 @@ the current date."
   (org-clock-persistence-insinuate))
 
 (use-package org-contacts
+  :init
+  (add-to-list 'org-link-abbrev-alist
+               (cons "contact"  (concat (car org-contacts-files) "::%s")))
   :custom
   (org-contacts-files
-   (list (expand-file-name "contactlist.org" org-directory))))
+   (list (expand-file-name "contactlist.org" org-directory)))
+  (org-contacts-icon-use-gravatar nil))
 
-;; (use-package org-superstar
-;;   :if (display-graphic-p)
-;;   :hook (org-mode . org-superstar-mode))
-
-(use-package org-drill
+(use-package org-passwords
+  :bind
+  (("C-c q" . org-passwords)
+   :map org-passwords-mode-map
+   ("C-c u" . org-passwords-copy-username)
+   ("C-c p" . org-passwords-copy-password))
   :custom
-  (org-drill-hide-item-headings-p t)
-  (org-drill-save-buffers-after-drill-sessions-p nil)
-  (org-drill-add-random-noise-to-intervals-p t)
-  (org-drill-leech-method nil))
+  (org-passwords-file (expand-file-name "codes.gpg" org-directory)))
 ;;; Org Section Ends
 
 
@@ -471,6 +517,9 @@ the current date."
     (add-to-list 'geiser-guile-load-path "~/src/guix")))
 
 (use-package guix
+  :init
+  (add-to-list 'org-link-abbrev-alist
+               (cons "guix" "elisp:(guix-packages-by-name \"%s\")"))
   :hook (scheme-mode . guix-devel-mode))
 
 (use-package flycheck-guile
@@ -576,13 +625,18 @@ the current date."
 ;;; EWW Section Begins
  (use-package eww
    :custom
-   (eww-use-browse-url "\\`\\(gemini\\|gopher\\|mailto\\):"))
+   (eww-use-browse-url "\\`\\(gemini\\|gopher\\|mailto\\|magnet\\):"))
 
 (use-package shr
   :custom
   (browse-url-browser-function 'eww-browse-url)
   (shr-use-colors nil)
-  (shr-max-image-proportion 0.5))
+  (shr-use-fonts nil)
+  (shr-cookie-policy nil)
+  (shr-inhibit-images t)
+  (shr-max-width nil)
+  (shr-width nil)
+  (url-privacy-level 'paranoid))
 
 (use-package elpher)
 
@@ -590,7 +644,9 @@ the current date."
   :custom
   (browse-url-handlers
    '(("\\`\\(gemini\\|gopher\\)://" .
-      (lambda (host-or-url &rest _) (elpher-go host-or-url))))))
+      (lambda (host-or-url &rest _) (elpher-go host-or-url)))
+     ("\\`magnet:" .
+      (lambda (host-or-url &rest _) (transmission-add host-or-url))))))
 ;;; EWW Section Ends
 
 
@@ -858,15 +914,11 @@ the current date."
   (youtube-dl-directory (create-directory (getenv "XDG_DOWNLOAD_DIR"))))
 
 (use-package transmission
-  :if (executable-find "transmission-daemon")
-  :commands transmission transmission-add
   :custom
   (transmission-refresh-modes '(transmission-mode
                                 transmission-files-mode
                                 transmission-info-mode
                                 transmission-peers-mode)))
-
-(use-package counsel)
 
 (use-package time-stamp
   :custom

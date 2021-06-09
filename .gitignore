@@ -3,6 +3,7 @@
 !.config/emacs/eww-bookmarks
 !.config/emacs/gnus.el
 !.config/emacs/init.el
+!.config/emacs/snippets/org-mode/contact
 !.config/git/config
 !.config/guix/config.scm
 !.config/guix/desktop.pub
