@@ -11,16 +11,18 @@
  ((gnu packages linux) #:select (v4l2loopback-linux-module))
  ((gnu packages nano) #:select (nano))
  ((gnu packages nvi) #:select (nvi))
+ ((gnu packages security-token) #:select (libu2f-host))
  ((gnu packages shells) #:select (dash))
  ((gnu packages suckless) #:select (slock))
  ((gnu packages zile) #:select (zile))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration))
  ((gnu services desktop) #:select (%desktop-services))
+ ((gnu services dict) #:select (dicod-service))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
+ ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
- ((gnu services xorg) #:select (gdm-service-type xorg-server-service-type))
- (guix gexp))
+ ((gnu services xorg) #:select (gdm-service-type xorg-server-service-type)))
 
 (define username "CHANGE ME")
 (define host-name "CHANGE ME")
@@ -35,8 +37,6 @@
 
   ;; US keyboard but replace caps with ctrl
   (keyboard-layout my-keyboard-layout)
-
-  (kernel-loadable-modules (list v4l2loopback-linux-module))
 
   (kernel-arguments
    (list
@@ -82,17 +82,23 @@
                          (type "vfat")))
                  %base-file-systems))
 
-  (users (cons (user-account
-                (name username)
-                (comment username)
-                (group "users")
-                (supplementary-groups '("wheel"   ; polkit group
-                                        "video"
-                                        "audio"   ; amixer commands
-                                        "transmission"
-                                        "dialout" ; serial TTYs
-                                        "kvm")))  ; qemu
-               %base-user-accounts))
+  (groups (cons
+           (user-group (name "plugdev") (system? #t))
+           %base-groups))
+
+  (users (cons
+          (user-account
+           (name username)
+           (comment username)
+           (group "users")
+           (supplementary-groups '("wheel"   ; polkit group
+                                   "video"
+                                   "audio"   ; amixer commands
+                                   "transmission"
+                                   "dialout" ; serial TTYs
+                                   "plugdev" ; security key
+                                   "kvm")))  ; qemu
+          %base-user-accounts))
 
   (sudoers-file #f)
 
@@ -117,7 +123,7 @@
   ;; This is where we specify system-wide packages.
   (packages
    (cons*
-    glibc-utf8-locales
+    glibc-locales
     nss-certs
     opendoas ; We already have the binary as it is a setuid-program. This is
              ; for the documentation
@@ -138,6 +144,11 @@
   (services
    (cons*
     (service xorg-server-service-type)
+    (dicod-service)
+
+    ;; Security Keys
+    (service pcscd-service-type)
+    (udev-rules-service 'security-key libu2f-host)
 
     (udev-rules-service
      'planck-dfu
@@ -197,10 +208,7 @@
               (tty "tty7")
               (auto-login username)))
     (modify-services
-        (remove
-         (lambda (service)
-           (eq? (service-kind service) gdm-service-type))
-         %desktop-services)
+        %desktop-services
 
       (guix-service-type config =>
                          (guix-configuration
@@ -209,6 +217,7 @@
                           (authorized-keys
                            (append (list (local-file "./desktop.pub"))
                                    %default-authorized-guix-keys))))
+      (delete gdm-service-type)
 
       ;; Helps with IO related freezing
       (sysctl-service-type
