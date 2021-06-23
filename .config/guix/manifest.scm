@@ -1,11 +1,47 @@
 (use-modules
- ((guix transformations) #:select (options->transformation)))
+ ((ice-9 popen) #:select (open-pipe* close-pipe))
+ ((ice-9 rdelim) #:select (read-line))
+ ((guix transformations) #:select (options->transformation))
+ ((guix build utils) #:select (with-directory-excursion)))
+
+(use-modules
+ (flat packages emacs))
+
+
+(define (emacs-git-commit)
+  (let* ((pipe (with-directory-excursion "/home/pancake/src/emacs/emacs"
+                 (open-pipe* OPEN_READ "git" "rev-parse" "HEAD")))
+         (version (read-line pipe)))
+    (close-pipe pipe)
+    version))
 
 (define transformations
   (options->transformation
-   '((with-branch  . "emacs-modus-themes=main")
-     (with-branch  . "emacs-next=master")
-     (with-git-url  . "emacs-next=/home/pancake/src/emacs/emacs"))))
+   `((with-branch  . "emacs-modus-themes=main")
+
+     (with-branch  . "emacs-pdf-tools=master")
+     (with-git-url . "emacs-pdf-tools=https://github.com/vedang/pdf-tools")
+
+     (with-branch  . "emacs-ledger-mode=master")
+
+     (with-branch  . "emacs-dash=master")
+
+     (with-branch  . "emacs-exwm=master")
+     (with-git-url . "emacs-exwm=https://github.com/ch11ng/exwm")
+     (with-branch  . "emacs-xelb=master")
+     (with-git-url . "emacs-xelb=https://github.com/ch11ng/xelb")
+
+     (with-commit  . ,(string-append "emacs-native-comp=" (emacs-git-commit)))
+     (with-git-url . "emacs-native-comp=/home/pancake/src/emacs/emacs")
+     (with-input   . "emacs=emacs-native-comp")
+     (with-input   . "emacs-minimal=emacs-native-comp")
+     (with-input   . "emacs-no-x=emacs-native-comp")
+     (with-input   . "emacs-no-x-toolkit=emacs-native-comp")
+
+     (without-tests . "emacs-yasnippet") ;; Fixed in elpa
+     (without-tests  . "emacs-buttercup")
+     (without-tests  . "emacs-libgit")
+     (without-tests  . "emacs-use-package"))))
 
 (define (specifications->manifest-with-transformations packages)
   (packages->manifest
@@ -29,7 +65,7 @@
 
 (define emacs-packages
   (append!
-   '("emacs-next"
+   '("emacs-native-comp"
      "pinentry-emacs"
      "ghostscript" ; allows Emacs to preview PostScript
      "unoconv")    ; allows Emacs to preview docx files
@@ -84,6 +120,8 @@
 
 (define web-browsing
   '("icecat"
+    "nyxt"
+    "qutebrowser"
     "ungoogled-chromium"))
 
 (specifications->manifest-with-transformations

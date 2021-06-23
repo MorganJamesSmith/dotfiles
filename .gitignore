@@ -5,6 +5,7 @@
 !.config/emacs/init.el
 !.config/emacs/snippets/org-mode/contact
 !.config/git/config
+!.config/guix/channels.scm
 !.config/guix/config.scm
 !.config/guix/desktop.pub
 !.config/guix/manifest.scm
