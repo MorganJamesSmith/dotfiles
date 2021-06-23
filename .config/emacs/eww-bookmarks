@@ -1,5 +1,8 @@
 ;; Auto-generated file; don't edit -*- mode: lisp-data -*-
-((:url "https://oremacs.com/" :title "(or emacs · irrelevant)" :time "Sat Jun  5 14:02:23 2021")
+((:url "https://axisofeval.blogspot.com/" :title "The Axis of Eval" :time "Wed Jun  9 23:02:02 2021")
+ (:url "http://mbork.pl/CategoryBlog" :title "Marcin Borkowski: CategoryBlog" :time "Wed Jun  9 23:00:27 2021")
+ (:url "https://jao.io/" :title "programming (and other) musings" :time "Wed Jun  9 19:10:13 2021")
+ (:url "https://oremacs.com/" :title "(or emacs · irrelevant)" :time "Sat Jun  5 14:02:23 2021")
  (:url "https://sourcehut.org/blog/" :title "Blogs" :time "Wed May 19 10:11:01 2021")
  (:url "http://akrl.sdf.org/" :title "akrl" :time "Wed May  5 19:13:46 2021")
  (:url "https://lukesmith.xyz/blog" :title "Weblog (2021) – Luke Smith" :time "Mon Apr 19 08:23:52 2021")
