@@ -327,13 +327,11 @@ Containing LEFT, and RIGHT aligned respectively."
   (org-agenda-todo-keyword-format "")
 
   (org-agenda-files
-   `(
-     ,(expand-file-name "agenda/daily.org" org-directory)
-     ,(expand-file-name "agenda/events.org" org-directory)
-     ,(expand-file-name "agenda/timetracking.org" org-directory)
-     ,(expand-file-name "agenda/todo.org" org-directory)
-     ,@(directory-files-recursively
-        "~/school" "\\`index\\.org\\'")))
+   (list
+    (expand-file-name "agenda/daily.org" org-directory)
+    (expand-file-name "agenda/events.org" org-directory)
+    (expand-file-name "agenda/timetracking.org" org-directory)
+    (expand-file-name "agenda/todo.org" org-directory)))
 
   (org-agenda-custom-commands
    '(("o" "My Agenda"
