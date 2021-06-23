@@ -22,6 +22,8 @@
           (gnus-group-exit)))))
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
+(bind-key "m" #'gnus-summary-mark-as-processable gnus-summary-mode-map)
+
 ;; Perfer plain text email
 (with-eval-after-load "mm-decode"
   (add-to-list 'mm-discouraged-alternatives "text/html")
@@ -185,11 +187,8 @@
                          "%1{%B%}"
                          "%s\n"))
 
-(customize-set-variable 'gnus-user-date-format-alist
-                        '((t . "%d-%b %Y, %H:%M")))
-
-(customize-set-variable 'gnus-group-line-format "%M%S%p%P%5y:%B%(%c%)\n")
-
+(customize-set-variable 'gnus-user-date-format-alist `((t . ,time-stamp-format)))
+(customize-set-variable 'gnus-group-line-format "%5y:%B%(%c%)\n")
 (customize-set-variable 'gnus-summary-display-arrow t)
 
 (provide 'my-gnus.el)
