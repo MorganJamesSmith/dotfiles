@@ -859,22 +859,23 @@ the current date."
   (require 'exwm-randr)
 
   (defun exwm-monitor-update ()
-    ;; Update monitor order and add bindings for switching between them
-    ;; monitor 0 is the first monitor and is attached to the monitor
-    ;; whose X coordinate is 0. Other monitors are attached arbitrarily
-    (let ((monitor-number 1)
-          (value nil))
+    ;; Update monitor order based on geometry.
+    (customize-set-variable
+     'exwm-randr-workspace-monitor-plist
+     (let ((i 0)
+           return)
+       (mapcar
+        (lambda (x)
+          (push (car x) return)
+          (push i return)
+          (setq i (1+ i)))
+        (sort
+         (mapcar
+          (lambda (x) (cons (alist-get 'name x) (car (alist-get 'geometry x))))
+          (display-monitor-attributes-list))
+         (lambda (x y) (< (cdr x) (cdr y)))))
+       return)))
 
-      (dolist (monitor (display-monitor-attributes-list) value)
-        (push (alist-get 'name monitor) value)
-        ;; Monitor 0 if geometry == 0, else just use an incremented number
-        (if (equal (car (alist-get 'geometry monitor)) 0)
-            (push 0 value)
-          (progn
-            (push monitor-number value)
-            (setq monitor-number (1+ monitor-number)))))
-
-      (customize-set-variable 'exwm-randr-workspace-monitor-plist value)))
 
   (add-hook 'exwm-randr-screen-change-hook #'exwm-monitor-update)
   (add-hook 'exwm-init-hook #'exwm-monitor-update)
