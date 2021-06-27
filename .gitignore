@@ -18,6 +18,7 @@
 !.config/sx/sxrc
 !.config/user-dirs.dirs
 !.config/wget/wgetrc
+!.config/youtube-dl/config
 !.gitignore
 !.local/share/applications/emacsclient.desktop
 !.local/share/applications/transmission.desktop
