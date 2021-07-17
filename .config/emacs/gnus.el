@@ -138,33 +138,38 @@
                   '("morganjsmith" "cmail" "grommin" "hotbutterypancake" "work"))))
     (cond ((equal account "morganjsmith")
            (setq
-            user-mail-address "Morgan.J.Smith@outlook.com"
-            smtpmail-smtp-server "smtp.outlook.com"
+            user-mail-address "morgan.j.smith@outlook.com"
+            smtpmail-smtp-server "smtp.office365.com"
             smtpmail-smtp-service 587
+            smtpmail-stream-type 'starttls
             smtpmail-auth-supported '(login)))
           ((equal account "cmail")
            (setq
             user-mail-address "morgansmith@cmail.carleton.ca"
             smtpmail-smtp-server "smtp.office365.com"
             smtpmail-smtp-service 587
+            smtpmail-stream-type 'starttls
             smtpmail-auth-supported '(login)))
           ((equal account "grommin")
            (setq
             user-mail-address "grommin@hotmail.com"
             smtpmail-smtp-server "smtp.office365.com"
             smtpmail-smtp-service 587
+            smtpmail-stream-type 'starttls
             smtpmail-auth-supported '(login)))
           ((equal account "hotbutterypancake")
            (setq
             user-mail-address "hotbutterypancake@gmail.com"
             smtpmail-smtp-server "smtp.gmail.com"
             smtpmail-smtp-service 587
+            smtpmail-stream-type 'starttls
             smtpmail-auth-supported '(login)))
           ((equal account "work")
            (setq
             user-mail-address (auth-source-pass-get "address" "email/work")
             smtpmail-smtp-server (auth-source-pass-get "smtp-server" "email/work")
             smtpmail-smtp-service  (string-to-number (auth-source-pass-get "smtp-port" "email/work")))
+            smtpmail-stream-type 'starttls
             smtpmail-auth-supported '(xoauth2)))
 
     (setq smtpmail-smtp-user account)
