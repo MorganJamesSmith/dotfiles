@@ -165,7 +165,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Pretty Visuals Section Ends
 
 
-;;; Modeline Section Begins
+;;; Modeline/Tab Bar Section Begins
 (use-package time
   :custom
   (display-time-default-load-average nil)
@@ -174,7 +174,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (display-time-mode))
 
-(customize-set-variable 'battery-mode-line-format "[%L %p%%]")
 (display-battery-mode)
 (size-indication-mode)
 (column-number-mode)
@@ -195,58 +194,24 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                 :sentinel #'mpdupdate
                 :noquery t))
 (mpdupdate nil nil)
+(add-to-list 'global-mode-string #'current-song t)
 
-(defun simple-mode-line-render (left right)
-  "Return a string of `window-width' length.
-Containing LEFT, and RIGHT aligned respectively."
-  (let ((available-width
-         (- (window-total-width)
-            (+ (length (format-mode-line left))
-               (length (format-mode-line right))))))
-    (list left
-          (list (format (format "%%%ds" available-width) ""))
-          right)))
-
-(customize-set-variable
- 'mode-line-format
- '((:eval
-    (simple-mode-line-render
-     '(""
-       "%e"
-       mode-line-front-space
-       mode-line-mule-info
-       mode-line-client
-       mode-line-modified
-       mode-line-remote
-       " %b %n "
-       mode-line-position
-       mode-line-process
-       (:eval
-        (when (and (boundp 'text-scale-mode-amount)
-                   (boundp 'text-scale-mode-lighter)
-                   (not (eq text-scale-mode-amount 0)))
-          (concat " [" text-scale-mode-lighter "]"))))
-
-     '(""
-       current-song
-       ""
-       appt-mode-string
-       " "
-       org-mode-line-string
-       " "
-       battery-mode-line-string
-       " "
-       display-time-string
-       " "
-       mode-line-end-spaces)))))
-
+(use-package tab-bar
+  :custom
+  (tab-bar-format '(tab-bar-format-global))
+  :config
+  (tab-bar-mode))
 
 (with-eval-after-load 'org-clock
   (add-hook
    'org-clock-out-hook
    (lambda ()
+     (setq org-mode-line-string "")))
+  (add-hook
+   'org-clock-cancel-hook
+   (lambda ()
      (setq org-mode-line-string ""))))
-;;; Modeline Section Ends
+;;; Modeline/Tab Bar Section Ends
 
 
 ;;; Org Section Begins
