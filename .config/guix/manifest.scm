@@ -19,17 +19,7 @@
   (options->transformation
    `((with-branch  . "emacs-modus-themes=main")
 
-     (with-branch  . "emacs-pdf-tools=master")
-     (with-git-url . "emacs-pdf-tools=https://github.com/vedang/pdf-tools")
-
      (with-branch  . "emacs-ledger-mode=master")
-
-     (with-branch  . "emacs-dash=master")
-
-     (with-branch  . "emacs-exwm=master")
-     (with-git-url . "emacs-exwm=https://github.com/ch11ng/exwm")
-     (with-branch  . "emacs-xelb=master")
-     (with-git-url . "emacs-xelb=https://github.com/ch11ng/xelb")
 
      (with-commit  . ,(string-append "emacs-native-comp=" (emacs-git-commit)))
      (with-git-url . "emacs-native-comp=/home/pancake/src/emacs/emacs")
@@ -41,7 +31,8 @@
      (without-tests . "emacs-yasnippet") ;; Fixed in elpa
      (without-tests  . "emacs-buttercup")
      (without-tests  . "emacs-libgit")
-     (without-tests  . "emacs-use-package"))))
+     (without-tests  . "emacs-use-package")
+     (without-tests  . "emacs-lispy"))))
 
 (define (specifications->manifest-with-transformations packages)
   (packages->manifest
@@ -74,11 +65,12 @@
     '("auth-source-xoauth2"
       "company"
       "company-quickhelp"
-      "crdt"
       "debbugs"
       "diff-hl"
       "disk-usage"
+      "ggtags"
       "djvu"
+      "delight"
       "elpher"
       "eshell-syntax-highlighting"
       "exwm"
@@ -102,6 +94,7 @@
       "plantuml-mode"
       "rainbow-delimiters"
       "scad-mode"
+      "sr-speedbar"
       "transmission"
       "typit"
       "undo-tree"
@@ -124,6 +117,10 @@
     "qutebrowser"
     "ungoogled-chromium"))
 
+(define stuff-only-needed-for-their-environment-variables
+  '("man-db"     ;; MANPATH
+    "texinfo"))  ;; INFOPATH
+
 (specifications->manifest-with-transformations
  (append!
   audio
@@ -131,17 +128,19 @@
   emacs-packages
   programming
   web-browsing
+  stuff-only-needed-for-their-environment-variables
   '("aspell" ; spellchecker
     "aspell-dict-en"
     "ffmpeg"
     "file" ; filetype checker
     "flameshot" ; Screenshots
+    "global"
     "gnupg"
     "htop"
     "icedove" ; email client
     "libreoffice"
-    "lm-sensors"
     "lxqt-policykit" ; used in xinitrc
+    "make"
     "mpv" ; video player
     "openscad" ; 3D modeling program
     "openssh"
@@ -149,12 +148,13 @@
     "password-store"
     "picom" ; compositor
     "pinentry"
+    "pulseaudio"
     "pwgen" ; Password Generator
+    "rmlint"
     "rsync"
     "sx" ; Start X
     "sxiv"
     "syncthing"
-    "texlive"
     "tree"
     "unclutter"
     "unzip"

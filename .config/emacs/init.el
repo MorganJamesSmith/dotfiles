@@ -436,6 +436,13 @@ the current date."
 
 
 ;;; Programming Section Begins
+(use-package ggtags
+  ;; Handy keybinds are
+  ;; M-.     xref-find-definitions
+  ;; M-,     xref-pop-marker-stack
+  ;; C-M-.   xref-find-apropos
+  :hook ((c-mode c++-mode) . ggtags-mode))
+
 (use-package flymake
   :bind (("M-n" . flymake-goto-next-error)
          ("M-p" . flymake-goto-prev-error))
@@ -448,6 +455,9 @@ the current date."
 (use-package flycheck
   :custom (flycheck-emacs-lisp-load-path 'inherit)
   :init (global-flycheck-mode))
+
+(use-package eldoc
+  :delight)
 
 ;; Save all buffers on compile automatically
 (customize-set-variable 'compilation-ask-about-save nil)
@@ -489,6 +499,7 @@ the current date."
   :after (flycheck geiser))
 
 (use-package yasnippet
+  :delight yas-minor-mode
   :config
   (add-to-list 'yas-snippet-dirs "~/src/guix/etc/snippets")
   (yas-global-mode 1))
@@ -497,6 +508,7 @@ the current date."
 
 ;;; VC/Diffs Section Begins
 (use-package magit
+  :delight magit-wip-mode
   :hook (after-save . magit-after-save-refresh-status)
   :custom
   (magit-section-initial-visibility-alist
@@ -549,6 +561,7 @@ the current date."
 (electric-indent-mode 1)
 
 (use-package ws-butler
+  :delight
   :config (ws-butler-global-mode)
   :custom (ws-butler-global-exempt-modes '(eshell-mode)))
 
@@ -580,6 +593,7 @@ the current date."
   :config (company-quickhelp-mode))
 
 (use-package which-key
+  :delight
   :custom (which-key-idle-secondary-delay 0.05)
   :config (which-key-mode))
 ;;; Auto-complete/Hints Section Ends
@@ -867,6 +881,7 @@ the current date."
 (use-package djvu)
 
 (use-package undo-tree
+  :delight
   :config
   (global-undo-tree-mode)
   :custom
@@ -947,6 +962,10 @@ FILE-LINK, the URL at current point, or the URL in the clipboard"
     (not (string-match "\\(^/proc\\|:/proc\\)" path)))
   (add-to-list 'disk-usage-available-filters 'disk-usage-filter-proc)
   (add-to-list 'disk-usage-default-filters 'disk-usage-filter-proc))
+
+(use-package sr-speedbar
+  :bind
+  ("C-c s" . sr-speedbar-toggle))
 
 (provide 'init.el)
 ;;; init.el ends here
