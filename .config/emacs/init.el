@@ -228,6 +228,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-src-ask-before-returning-to-edit-buffer nil)
   (org-src-window-setup 'current-window)
   (org-html-postamble nil)
+  (org-catch-invisible-edits 'show-and-error)
   (org-todo-keywords
    '((sequence "TODO" "DONE")
      (sequence "HABIT" "DONE")
@@ -237,7 +238,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (push "SHOWFROMTIME" org-default-properties)
   (push "SHOWFROMDATE" org-default-properties)
   (push "EXCEPTIONS" org-default-properties)
-  (org-indent-mode -1))
+  (org-indent-mode -1)
+
+  ;; I keep accidentally archiving stuff
+  (unbind-key (kbd "C-c C-x C-s") org-mode-map))
 
 (use-package org-goto
   :custom
@@ -270,8 +274,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      (holiday-fixed 11 11 "Remembrance Day (Federal Holiday)")
      (holiday-fixed 12 25 "Christmas Day (National Holiday)")
      (holiday-fixed 12 26 "Boxing Day (Federal and Ontario Holiday)")))
-
-  (org-agenda-include-diary t) ;; For holidays
 
   ;; Optimization
   (org-agenda-dim-blocked-tasks nil)
@@ -324,6 +326,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (org-agenda-prefix-format "    %-12t| %?-12:c %s")
          (org-agenda-span 60)
          (org-deadline-warning-days 0)
+         (org-agenda-include-diary t) ;; For holidays
          (org-agenda-skip-function
           '(or
             (org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF" "LECTURE"))
@@ -333,7 +336,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         ""
         ((org-agenda-overriding-header "Time Tracking:")
          (org-agenda-prefix-format "%-18s | %-11t | ")
-         (calendar-holidays nil)
          (org-agenda-show-all-dates nil)
          (org-agenda-show-log 'clockcheck)))))))
   :config
