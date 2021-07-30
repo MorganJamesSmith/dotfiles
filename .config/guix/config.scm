@@ -12,17 +12,20 @@
  ((gnu packages nano) #:select (nano))
  ((gnu packages nvi) #:select (nvi))
  ((gnu packages security-token) #:select (libu2f-host))
+ ((gnu packages embedded) #:select (openocd))
  ((gnu packages shells) #:select (dash))
  ((gnu packages suckless) #:select (slock))
- ((gnu packages zile) #:select (zile))
+ ((gnu packages text-editors) #:select (mg))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration))
+ ((gnu services pm) #:select (thermald-service-type tlp-service-type tlp-configuration))
  ((gnu services desktop) #:select (%desktop-services))
  ((gnu services dict) #:select (dicod-service))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
  ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
- ((gnu services xorg) #:select (gdm-service-type xorg-server-service-type)))
+ ((gnu services xorg) #:select (gdm-service-type xorg-server-service-type xorg-configuration))
+ ((gnu system setuid) #:select (file-like->setuid-program)))
 
 (define username "CHANGE ME")
 (define host-name "CHANGE ME")
@@ -104,12 +107,13 @@
 
   (setuid-programs
    (cons*
-    (file-append opendoas "/bin/doas")
+    (file-like->setuid-program (file-append opendoas "/bin/doas"))
     (remove
-     (lambda (file)
-       (member file
-               (list (file-append sudo "/bin/sudo")
-                     (file-append sudo "/bin/sudoedit"))))
+     (lambda (program)
+       (member program
+               (map file-like->setuid-program
+                    (list (file-append sudo "/bin/sudo")
+                          (file-append sudo "/bin/sudoedit")))))
      %setuid-programs)))
 
   (pam-services
@@ -138,17 +142,28 @@
 
     (remove
      (lambda (package)
-       (memq package (list sudo nano nvi zile)))
+       (memq package (list sudo nano nvi mg)))
      %base-packages)))
 
   (services
    (cons*
-    (service xorg-server-service-type)
-    (dicod-service)
+    (service xorg-server-service-type
+             (xorg-configuration
+              (keyboard-layout my-keyboard-layout)))
+    (dicod-service) ;; Dictionary server
 
     ;; Security Keys
     (service pcscd-service-type)
     (udev-rules-service 'security-key libu2f-host)
+
+    (service tlp-service-type
+             (tlp-configuration
+              (cpu-scaling-governor-on-ac (list "performance"))
+              (cpu-scaling-governor-on-bat (list "powersave"))))
+
+    (service thermald-service-type)
+
+    (udev-rules-service 'openocd openocd)
 
     (udev-rules-service
      'planck-dfu
