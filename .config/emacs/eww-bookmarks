@@ -1,5 +1,12 @@
 ;; Auto-generated file; don't edit -*- mode: lisp-data -*-
-((:url "https://axisofeval.blogspot.com/" :title "The Axis of Eval" :time "Wed Jun  9 23:02:02 2021")
+((:url "https://tychoish.com/" :title "tychoish" :time "Thu Aug  5 13:06:44 2021")
+ (:url "https://dthompson.us/" :title "Recent Blog Posts — dthompson" :time "Thu Aug  5 13:03:07 2021")
+ (:url "https://blog.tecosaur.com/tmio/" :title "This Month in Org" :time "Thu Aug  5 12:59:25 2021")
+ (:url "https://emacsninja.com/index.html" :title "Emacs Ninja - Index" :time "Thu Aug  5 12:49:27 2021")
+ (:url "http://ruzkuku.com/" :title "Webpresence of Philip K." :time "Thu Aug  5 12:48:42 2021")
+ (:url "https://box.matto.nl/" :title "Enjoying Open Source Software - box.matto.nl" :time "Thu Aug  5 12:47:54 2021")
+ (:url "https://helpdeskheadesk.net/" :title "The Art of Not Asking Why" :time "Thu Aug  5 12:47:33 2021")
+ (:url "https://axisofeval.blogspot.com/" :title "The Axis of Eval" :time "Wed Jun  9 23:02:02 2021")
  (:url "http://mbork.pl/CategoryBlog" :title "Marcin Borkowski: CategoryBlog" :time "Wed Jun  9 23:00:27 2021")
  (:url "https://jao.io/" :title "programming (and other) musings" :time "Wed Jun  9 19:10:13 2021")
  (:url "https://oremacs.com/" :title "(or emacs · irrelevant)" :time "Sat Jun  5 14:02:23 2021")
