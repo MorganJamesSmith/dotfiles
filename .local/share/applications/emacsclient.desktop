@@ -1,4 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Emacs Client
-Exec=emacsclient %u
