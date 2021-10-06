@@ -112,4 +112,9 @@ fi
                    home-files-service-type
                    (list `("config/wget/wgetrc"
                                 ,(plain-file "wgetrc"
-                                             "hsts-file=~/.cache/wget-hsts\n")))))))
+                                             "hsts-file=~/.cache/wget-hsts\n"))))
+
+   (simple-service 'git-pass
+                   home-files-service-type
+                   (list `("config/pass-git-helper/git-pass-mapping.ini"
+                                ,(plain-file "git-pass" "[*outlook.com*]\ntarget=email/morganjsmith\n")))))))

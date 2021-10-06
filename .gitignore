@@ -12,7 +12,6 @@
 !.config/guix/manifest.scm
 !.config/guix/update
 !.config/mpv/input.conf
-!.config/pass-git-helper/git-pass-mapping.ini
 !.config/sx/sxrc
 !.config/youtube-dl/config
 !.gitignore
