@@ -11,9 +11,7 @@
 !.config/guix/home.scm
 !.config/guix/manifest.scm
 !.config/guix/update
-!.config/mpd/mpd.conf
 !.config/mpv/input.conf
-!.config/nyxt/init.lisp
 !.config/pass-git-helper/git-pass-mapping.ini
 !.config/sx/sxrc
 !.config/youtube-dl/config
