@@ -105,4 +105,11 @@ fi
                      ("PATH" . "$HOME/.local/bin:$PATH")
                      ("HISTFILESIZE" . "100000")
                      ("HISTSIZE" . "100000")
-                     ("HISTTIMEFORMAT" . "\"[%F %T] \""))))))
+                     ("HISTTIMEFORMAT" . "\"[%F %T] \"")))
+
+   ;; Prevent wget from creating history file in home directory
+   (simple-service 'wgetrc
+                   home-files-service-type
+                   (list `("config/wget/wgetrc"
+                                ,(plain-file "wgetrc"
+                                             "hsts-file=~/.cache/wget-hsts\n")))))))
