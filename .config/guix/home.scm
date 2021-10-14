@@ -1,11 +1,23 @@
-(use-modules (gnu home)
-             (gnu home-services)
-             (gnu home-services shells)
-             (gnu home-services xdg)
-             (gnu services)
-             (gnu packages admin)
-             (guix gexp))
-
+(use-modules
+ ((gnu home services shells) #:select (home-bash-service-type
+                                       home-shell-profile-service-type))
+ ((gnu home services xdg) #:select (home-xdg-mime-applications-configuration
+                                    home-xdg-mime-applications-service-type
+                                    home-xdg-user-directories-configuration
+                                    home-xdg-user-directories-service-type
+                                    xdg-desktop-entry))
+ ((gnu home services) #:select (home-environment-variables-service-type
+                                home-files-service-type
+                                home-run-on-first-login-service-type))
+ ((gnu packages glib) #:select (dbus))
+ ((gnu packages gnupg) #:select (gnupg))
+ ((gnu packages linux) #:select (brightnessctl pipewire-0.3))
+ ((gnu packages mpd) #:select (mpdris2))
+ ((gnu packages music) #:select (playerctl))
+ ((gnu packages ssh) #:select (openssh))
+ ((gnu services) #:select (service simple-service))
+ ((guix gexp) #:select (file-append gexp plain-file))
+ )
 
 (home-environment
  (services
@@ -14,16 +26,18 @@
 
    (simple-service 'stuff
                    home-shell-profile-service-type
-                   '("
+                   (list (plain-file "profile" "
+eval \"$(guix package --search-paths=suffix --profile=$HOME/.config/guix/extra-profiles/emacs/emacs)\"
 eval \"$(guix package --search-paths=suffix --profile=$HOME/.config/guix/extra-profiles/default/default)\"
-eval \"$(ssh-agent -s -a \"$(gpgconf --list-dirs agent-ssh-socket)\")\"
-eval \"$(gpg-agent --homedir \"$GNUPGHOME\" --daemon -s)\"
+
+[ -f /tmp/daemon-env-vars ] && . /tmp/daemon-env-vars
 
 # Start graphical interface
 if [ \"$(tty)\" = \"/dev/tty7\" ]; then
+    chvt 7
     sx
 fi
-"))
+")))
 
    (service home-xdg-user-directories-service-type
             (home-xdg-user-directories-configuration
@@ -62,6 +76,32 @@ fi
         (type 'application)
         (config '((exec . "emacsclient -a emacs %u"))))))))
 
+   (simple-service
+    'start-daemons
+    home-run-on-first-login-service-type
+    #~(begin
+        (system
+         (string-join
+          (append
+           (map
+            (lambda (command)
+              ;; Put the environment variables in a file that can be sourced in
+              ;; our profile and also set them now so the other daemons have
+              ;; access to them
+              (string-append "eval $( " command " | tee -a /tmp/daemon-env-vars )"))
+            (list
+             (string-append #$(file-append dbus "/bin/dbus-launch") " --sh-syntax")
+             (string-append #$(file-append openssh "/bin/ssh-agent") " -s -a \"$(gpgconf --list-dirs agent-ssh-socket)\"")
+             (string-append #$(file-append gnupg "/bin/gpg-agent") " --homedir \"$GNUPGHOME\" --daemon -s")))
+           (map
+            (lambda (command)
+              (string-append command " &"))
+            (list
+             (string-append #$(file-append pipewire-0.3 "/bin/pipewire"))
+             (string-append #$(file-append pipewire-0.3 "/bin/pipewire-media-session"))
+             (string-append #$(file-append pipewire-0.3 "/bin/pipewire-pulse"))
+             (string-append #$(file-append mpdris2 "/bin/mpDris2")))))
+          "\n"))))
 
    (simple-service 'mkdirs
                    home-run-on-first-login-service-type

@@ -32,9 +32,6 @@ xss-lock -- slock &
 # This lets ssh-agent know what screen I'm using
 gpg-connect-agent "UPDATESTARTUPTTY" /bye
 
-if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
-      eval $(dbus-launch --sh-syntax --exit-with-x11)
-fi
 
 # Finally start Emacs
 exec emacs --fullscreen -f server-start
