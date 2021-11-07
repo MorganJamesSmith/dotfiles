@@ -53,10 +53,12 @@ fi
    (service home-xdg-mime-applications-service-type
     (home-xdg-mime-applications-configuration
      (default
-       '((x-scheme-handler/magnet  . transmission.desktop)
-         (application/x-bittorrent . transmission.desktop)
+       '((application/x-bittorrent . transmission.desktop)
+         (x-scheme-handler/magnet  . transmission.desktop)
+         (x-scheme-handler/mailto  . emacsmail.desktop)
          (application/pdf          . emacs.desktop)
          (application/postscript   . emacs.desktop)
+         (application/x-csv        . emacs.desktop)
          (image/gif                . emacs.desktop)
          (image/jpeg               . emacs.desktop)
          (image/png                . emacs.desktop)
@@ -66,15 +68,20 @@ fi
      (desktop-entries
       (list
        (xdg-desktop-entry
-             (file "transmission")
-             (name "Transmission")
-             (type 'application)
-             (config '((exec . "transmission-remote -a %u"))))
+        (file "transmission")
+        (name "Transmission")
+        (type 'application)
+        (config '((exec . "transmission-remote -a %u"))))
        (xdg-desktop-entry
         (file "emacs")
         (name "Emacs")
         (type 'application)
-        (config '((exec . "emacsclient -a emacs %u"))))))))
+        (config '((exec . "emacsclient -a emacs %u"))))
+       (xdg-desktop-entry
+        (file "emacsmail")
+        (name "Emacs Mail")
+        (type 'application)
+        (config '((exec . "emacsclient -a emacs --eval \"(browse-url-mail \\\"%u\\\")\""))))))))
 
    (simple-service
     'start-daemons
