@@ -7,7 +7,6 @@
 (use-modules
  (flat packages emacs))
 
-
 (define (emacs-git-commit)
   (let* ((pipe (with-directory-excursion "/home/pancake/src/emacs/emacs"
                  (open-pipe* OPEN_READ "git" "rev-parse" "HEAD")))
@@ -17,22 +16,38 @@
 
 (define transformations
   (options->transformation
-   `((with-branch  . "emacs-modus-themes=main")
+   `((with-commit  . ,(string-append "emacs-native-comp=" (emacs-git-commit)))
 
-     (with-branch  . "emacs-ledger-mode=master")
-
-     (with-commit  . ,(string-append "emacs-native-comp=" (emacs-git-commit)))
      (with-git-url . "emacs-native-comp=/home/pancake/src/emacs/emacs")
      (with-input   . "emacs=emacs-native-comp")
      (with-input   . "emacs-minimal=emacs-native-comp")
      (with-input   . "emacs-no-x=emacs-native-comp")
      (with-input   . "emacs-no-x-toolkit=emacs-native-comp")
 
-     (without-tests . "emacs-yasnippet") ;; Fixed in elpa
-     (without-tests  . "emacs-buttercup")
+     ;; (with-git-url . "emacs-dash=/home/pancake/src/emacs/dash.el")
+     ;; (with-branch  . "emacs-dash=master")
+
+     (without-tests . "emacs-yasnippet") ;; Problem with 0.14.0.  Fixed in elpa
+     (with-branch  . "emacs-ledger-mode=master") ;; Problem with 4.0.0
+
+     ;; version: 20200515-1.0ef8b13
+     ;; (wrong-type-argument utf-8-string-p "\177ELF...
      (without-tests  . "emacs-libgit")
-     (without-tests  . "emacs-use-package")
-     (without-tests  . "emacs-lispy"))))
+
+     ;; version: 1.24
+     ;; "Cannot find suitable directory for output in ‘native-comp-eln-load-path’"
+     ;; (without-tests  . "emacs-buttercup")
+
+     ;; version: 2.4.1
+     ;; "Cannot find suitable directory for output in ‘native-comp-eln-load-path’"
+     ;; (without-tests  . "emacs-use-package")
+
+     ;; current value of native-comp-eln-load-path:
+     ;; ("/homeless-shelter/.emacs.d/eln-cache/" "/gnu/store/vix7md2m5lm5j8k8hi7hw8fcjaq518hx-emacs-native-comp-git.9a5a35c/lib/emacs/28.0.50/native-lisp/")
+
+     ;; (without-tests  . "emacs-esup")
+     ;; (without-tests  . "emacs-lispy")
+     )))
 
 (define (specifications->manifest-with-transformations packages)
   (packages->manifest
@@ -43,52 +58,37 @@
      specification->package+output)
     packages)))
 
-(define audio
-  '("alsa-utils" ; alsamixer
-    "pulsemixer"
-    "mpd-mpc")) ; Music Playing Daemon CLI
-
-(define downloaders
-  '("curl"
-    "transmission" ; Torrent Client
-    "wget"
-    "youtube-dl")) ; Downloads more than just YouTube
-
 (define emacs-packages
   (append!
    '("emacs-native-comp"
+     "graphicsmagick" ; image-dired
+     "libjpeg"        ; image-dired
      "pinentry-emacs"
      "ghostscript" ; allows Emacs to preview PostScript
      "unoconv")    ; allows Emacs to preview docx files
    (map
     (lambda (x) (string-append "emacs-" x))
-    '("auth-source-xoauth2"
-      "company"
-      "company-quickhelp"
-      "debbugs"
+    '("debbugs"
+      "delight"
+      "desktop-environment"
       "diff-hl"
       "disk-usage"
-      "ggtags"
-      "djvu"
-      "delight"
       "elpher"
       "eshell-syntax-highlighting"
       "exwm"
-      "flycheck"
-      "flycheck-guile"
-      "flycheck-ledger"
       "flymake-shellcheck"
       "geiser"
+      "ggtags"
       "guix"
       "highlight-numbers"
-      "htmlize"
+      "irfc"
       "ledger-mode"
       "literate-calc-mode"
       "magit"
-      "modus-themes"
       "nov-el"
       "org"
-      "org-contrib"
+      "org-contacts"
+      "org-contrib" ;; for org-passwords
       "pdf-tools"
       "pinentry"
       "plantuml-mode"
@@ -102,20 +102,7 @@
       "vterm"
       "which-key"
       "ws-butler"
-      "yasnippet"
-      "youtube-dl"))))
-
-(define programming
-  '("git"
-    "git:send-email"
-    "guile"
-    "shellcheck"))
-
-(define web-browsing
-  '("icecat"
-    "nyxt"
-    "qutebrowser"
-    "ungoogled-chromium"))
+      "yasnippet"))))
 
 (define stuff-only-needed-for-their-environment-variables
   '("man-db"     ;; MANPATH
@@ -123,45 +110,5 @@
 
 (specifications->manifest-with-transformations
  (append!
-  audio
-  downloaders
   emacs-packages
-  programming
-  web-browsing
-  stuff-only-needed-for-their-environment-variables
-  '("aspell" ; spellchecker
-    "aspell-dict-en"
-    "ffmpeg"
-    "file" ; filetype checker
-    "flameshot" ; Screenshots
-    "global"
-    "gnupg"
-    "htop"
-    "icedove" ; email client
-    "libreoffice"
-    "lxqt-policykit" ; used in xinitrc
-    "make"
-    "mpv" ; video player
-    "openscad" ; 3D modeling program
-    "openssh"
-    "pass-git-helper"
-    "password-store"
-    "picom" ; compositor
-    "pinentry"
-    "pulseaudio"
-    "pwgen" ; Password Generator
-    "rmlint"
-    "rsync"
-    "sx" ; Start X
-    "sxiv"
-    "syncthing"
-    "tree"
-    "unclutter"
-    "unzip"
-    "xpdf" ; pdftotext
-    "xrandr"
-    "xhost"    ; used in xinitrc
-    "xset"     ; used in xinitrc
-    "xsetroot" ; used in xinitrc
-    "xss-lock" ; auto lock screen (run in xinitrc)
-    "zip")))
+  stuff-only-needed-for-their-environment-variables))

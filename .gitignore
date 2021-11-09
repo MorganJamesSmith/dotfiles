@@ -9,7 +9,8 @@
 !.config/guix/config.scm
 !.config/guix/desktop.pub
 !.config/guix/home.scm
-!.config/guix/manifest.scm
+!.config/guix/default-manifest.scm
+!.config/guix/emacs-manifest.scm
 !.config/guix/update
 !.config/sx/sxrc
 !.config/yt-dlp/config
