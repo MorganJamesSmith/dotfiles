@@ -7,10 +7,8 @@
 
 ;;; Code:
 
-(require 'nnmaildir)
-(require 'smtpmail)
-(require 'gnus-sum)
-(require 'gnus-agent)
+(require 'gnus)
+(require 'gnus-util)
 
 ;; Exit gnus on Emacs exit
 (defun exit-gnus-on-exit ()
@@ -20,34 +18,33 @@
       (with-current-buffer (get-buffer "*Group*")
         (let (gnus-interactive-exit)
           (gnus-group-exit)))))
+
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
+(customize-set-variable 'gnus-interactive-exit nil)
+
 (bind-key "m" #'gnus-summary-mark-as-processable gnus-summary-mode-map)
+(bind-key "u" #'gnus-summary-clear-mark-forward gnus-summary-mode-map)
+
+;; f runs the command mbsync
+(defun get-mail ()
+  "Get mail."
+  (interactive)
+  (let ((processes (list
+                    (start-process "mbsync" "*mbsync*" "mbsync" "-a")
+                    (start-process "rss2email" "*rss2email*" "r2e" "run"))))
+    (dolist (process processes)
+      (set-process-sentinel process #'gnus-group-get-new-news))))
+
+(define-key gnus-group-mode-map (kbd "f") #'get-mail)
 
 ;; Perfer plain text email
 (with-eval-after-load "mm-decode"
   (add-to-list 'mm-discouraged-alternatives "text/html")
   (add-to-list 'mm-discouraged-alternatives "text/richtext"))
 
-(customize-set-variable 'send-mail-function         'smtpmail-send-it) ; not for gnus
-(customize-set-variable 'message-send-mail-function 'smtpmail-send-it)
-
-;; I don't want to use a .newsrc file
-(customize-set-variable 'gnus-save-newsrc-file nil)
-(customize-set-variable 'gnus-read-newsrc-file nil)
-
-;; Read the entire active file because I would like everything
-(customize-set-variable 'gnus-read-active-file t)
-
-;; Update marks on the server as well
-(customize-set-variable 'gnus-use-backend-marks t)
-
 ;; Don't ask how many messages I want to see. I want them all
 (customize-set-variable 'gnus-large-newsgroup nil)
-
-;; Sanitize the mail a little
-(add-hook 'nnmail-prepare-incoming-header-hook #'nnmail-remove-leading-whitespace)
-(add-hook 'nnmail-prepare-incoming-header-hook #'nnmail-remove-tabs)
 
 ;; Leave the cursor where it is damn it!
 (customize-set-variable 'gnus-auto-select-subject 'first)
@@ -57,31 +54,17 @@
 ;; All groups are new each time gnus is run
 (customize-set-variable 'gnus-save-killed-list nil)
 
-;; If you get a new newsgroup, manually run M-x
-;; gnus-find-new-newsgroups. New groups will be subscribed to
-;; alphabetically
-(customize-set-variable 'gnus-check-new-newsgroups nil)
-(customize-set-variable 'gnus-subscribe-newsgroup-method #'gnus-subscribe-alphabetically)
-
 (customize-set-variable 'gnus-ignored-newsgroups
                         (regexp-opt
                          '("Notes" "Outbox" "Scheduled" "Calendar" "Contacts"
                            "Conversation" "Clutter" "Journal" "Tasks"
-                           "[/Trash" "[/Important" "[/Starred")))
+                           "[Gmail]/Trash" "[Gmail]/Important" "Starred" "Unwanted" "Drafts"
+                           "Deleted" "All Mail")))
 
 (customize-set-variable 'gnus-message-archive-group nil)
 
-;; Add articles I look at to the cache
-(add-hook 'gnus-select-article-hook #'gnus-agent-fetch-selected-article)
-
-;; Make sure we don't expire anything
-(customize-set-variable 'gnus-agent-enable-expiration 'DISABLE)
-(customize-set-variable 'gnus-agent-expire-days most-positive-fixnum)
-
-(customize-set-variable 'gnus-agent-consider-all-articles t)
-(customize-set-variable 'gnus-agent-synchronize-flags t)
-
-(customize-set-variable 'gnus-agent-predicate 'gnus-agent-true)
+;; We don't need to cache since we use a local dovecot server
+(customize-set-variable 'gnus-agent nil)
 
 ;; Encrypt email by default and also encrypt to self
 (add-hook 'message-setup-hook 'mml-secure-message-encrypt)
@@ -92,89 +75,23 @@
 (customize-set-variable 'mm-decrypt-option 'always)
 
 (customize-set-variable 'gnus-completing-read-function #'gnus-ido-completing-read)
-
-
 ;; Always show all my groups
-(customize-set-variable 'gnus-permanently-visible-groups ".*")
-
-(customize-set-variable 'gnus-parameters '((".*" (display . all))))
+(customize-set-variable 'gnus-permanently-visible-groups ".")
 
 (customize-set-variable 'gnus-visible-headers (concat gnus-visible-headers "\\|^Message-ID:"))
 
+(customize-set-variable 'gnus-parameters `(("." (display . all))))
+
+
 ;; Receiving email stuff
-
 (customize-set-variable 'gnus-select-method '(nnnil ""))
-(customize-set-variable 'gnus-secondary-select-methods
-                        `((nnimap "morganjsmith"
-                                  (nnimap-user "morgan.j.smith@outlook.com")
-                                  (nnimap-address "outlook.office365.com")
-                                  (nnimap-authenticator login))
-                          (nnimap "cmail"
-                                  (nnimap-user "morgansmith@cmail.carleton.ca")
-                                  (nnimap-address "outlook.office365.com")
-                                  (nnimap-authenticator login))
-                          (nnimap "grommin"
-                                  (nnimap-user "grommin@hotmail.com")
-                                  (nnimap-address "outlook.office365.com")
-                                  (nnimap-authenticator login))
-                          (nnimap "hotbutterpancake"
-                                  (nnimap-user "hotbutterypancake@gmail.com")
-                                  (nnimap-address "imap.gmail.com")
-                                  (nnimap-authenticator login))
-                          (nnimap "work"
-                                  (nnimap-user ,(auth-source-pass-get "address" "email/work"))
-                                  (nnimap-address ,(auth-source-pass-get "imap-server" "email/work"))
-                                  (nnimap-server-port ,(string-to-number (auth-source-pass-get "imap-port" "email/work")))
-                                  (nnimap-authenticator xoauth2))))
+(customize-set-variable
+ 'gnus-secondary-select-methods
+ (mapcar
+  (lambda (x)
+    `(nnimap ,x (nnimap-stream shell)))
+  '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local")))
 
-;; Sending email stuff
-
-(defun compose-mail-choose-account ()
-  "Call `compose-mail' after setting up the environment for a specific account."
-  (interactive)
-
-  (let ((account (ido-completing-read
-                  "Choose account: "
-                  '("morganjsmith" "cmail" "grommin" "hotbutterypancake" "work"))))
-    (cond ((equal account "morganjsmith")
-           (setq
-            user-mail-address "morgan.j.smith@outlook.com"
-            smtpmail-smtp-server "smtp.office365.com"
-            smtpmail-smtp-service 587
-            smtpmail-stream-type 'starttls
-            smtpmail-auth-supported '(login)))
-          ((equal account "cmail")
-           (setq
-            user-mail-address "morgansmith@cmail.carleton.ca"
-            smtpmail-smtp-server "smtp.office365.com"
-            smtpmail-smtp-service 587
-            smtpmail-stream-type 'starttls
-            smtpmail-auth-supported '(login)))
-          ((equal account "grommin")
-           (setq
-            user-mail-address "grommin@hotmail.com"
-            smtpmail-smtp-server "smtp.office365.com"
-            smtpmail-smtp-service 587
-            smtpmail-stream-type 'starttls
-            smtpmail-auth-supported '(login)))
-          ((equal account "hotbutterypancake")
-           (setq
-            user-mail-address "hotbutterypancake@gmail.com"
-            smtpmail-smtp-server "smtp.gmail.com"
-            smtpmail-smtp-service 587
-            smtpmail-stream-type 'starttls
-            smtpmail-auth-supported '(login)))
-          ((equal account "work")
-           (setq
-            user-mail-address (auth-source-pass-get "address" "email/work")
-            smtpmail-smtp-server (auth-source-pass-get "smtp-server" "email/work")
-            smtpmail-smtp-service  (string-to-number (auth-source-pass-get "smtp-port" "email/work")))
-            smtpmail-stream-type 'starttls
-            smtpmail-auth-supported '(xoauth2)))
-
-    (setq smtpmail-smtp-user account)
-    (compose-mail)))
-(global-set-key (kbd "C-x m") #'compose-mail-choose-account)
 
 ;; Make stuff pretty section
 

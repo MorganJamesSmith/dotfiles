@@ -98,10 +98,27 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Move gnus folders to the `user-emacs-directory'
 (use-package gnus
   :custom
+  (imap-shell-program
+   (list (concat (string-trim (shell-command-to-string "guix build dovecot"))
+                 "/libexec/dovecot/imap"
+                 " -o mail_location=maildir:~/.local/share/mail/%s")))
+
+  (read-mail-command 'gnus)
+  (mail-user-agent 'gnus-user-agent)
+
+  (user-mail-address "morgan.j.smith@outlook.com")
+
+  (sendmail-program "msmtp")
+  (message-sendmail-envelope-from 'header)
+  (send-mail-function #'message-send-mail-with-sendmail)
+  (message-send-mail-function #'message-send-mail-with-sendmail)
+
   (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
   (gnus-home-directory (create-directory "gnus-files" user-emacs-directory))
   (gnus-directory (create-directory "News" gnus-home-directory))
-  (mail-source-directory (create-directory "Mail" gnus-home-directory)))
+  (mail-source-directory (create-directory "Mail" gnus-home-directory))
+  (gnus-save-newsrc-file nil)
+  (gnus-read-newsrc-file nil))
 
 ;; Use only encrypted authinfo
 (customize-set-variable

@@ -8,8 +8,10 @@
 	email = Morgan.J.Smith@outlook.com
 	name = Morgan Smith
 	signingKey = 177A078751DC4BFE55E6C6E752D93416EEAA45A6
-[credential]
-	helper = !pass-git-helper $@
+[sendemail]
+	from = Morgan.J.Smith@outlook.com
+	envelopeSender = auto
+	sendmailcmd = msmtp
 [alias]
 	pushall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git push --all --follow-tags
 	fetchall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git fetch
