@@ -12,7 +12,7 @@
 !.config/guix/manifest.scm
 !.config/guix/update
 !.config/sx/sxrc
-!.config/youtube-dl/config
+!.config/yt-dlp/config
 !.gitignore
 !.local/share/gnupg/gpg-agent.conf
 !LICENSE
