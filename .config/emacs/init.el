@@ -10,6 +10,8 @@
 
 ;;; Code:
 
+(setq source-directory "~/src/emacs/emacs")
+
 (defconst IS-MAC     (eq system-type 'darwin))
 (defconst IS-LINUX   (eq system-type 'gnu/linux))
 (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
@@ -33,6 +35,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       (make-directory directory t))
     directory))
 
+(eval-when-compile
+  (require 'use-package))
+
 ;; Load all packages upfront
 (customize-set-variable 'use-package-always-demand t)
 
@@ -44,8 +49,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (setq shell-command-buffer-name-async "*Async Shell Command*"))
 (customize-set-variable
  'display-buffer-alist
- (list (list shell-command-buffer-name-async   #'display-buffer-no-window)
-       (list "*compilation*"                   #'display-buffer-no-window)))
+ (list (list shell-command-buffer-name-async   #'display-buffer-no-window)))
 (customize-set-variable 'async-shell-command-buffer 'new-buffer)
 
 ;;; Optimization Section Begins
@@ -92,8 +96,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (global-auto-revert-mode t)
 (customize-set-variable 'revert-without-query '(".*"))
 
+(global-set-key [remap eval-last-sexp] 'pp-eval-last-sexp)
+
 ;; Use ibuffer
 (global-set-key (kbd "C-x C-b") #'ibuffer)
+
+(global-set-key (kbd "C-c c") #'compile)
 
 ;; Move gnus folders to the `user-emacs-directory'
 (use-package gnus
@@ -120,16 +128,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (gnus-save-newsrc-file nil)
   (gnus-read-newsrc-file nil))
 
-;; Use only encrypted authinfo
-(customize-set-variable
- 'auth-sources
- `((:source ,(expand-file-name "authinfo.gpg" user-emacs-directory))))
-
-(customize-set-variable
- 'auth-source-save-behavior t)
-
-(customize-set-variable
- 'auth-source-gpg-encrypt-to (list user-mail-address))
+(use-package auth-source
+  :custom
+  ;; Use only encrypted authinfo
+  (auth-sources `((:source ,(expand-file-name "authinfo.gpg" user-emacs-directory))))
+  (auth-source-save-behavior t)
+  (auth-source-gpg-encrypt-to (list user-mail-address)))
 
 (customize-set-variable 'text-quoting-style 'grave)
 
@@ -150,23 +154,29 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; Pretty Visuals Section Begins
-(use-package modus-vivendi-theme
+;; (use-package faces
+;;   :config
+;;   ;; No more variable-pitch fonts
+;;   (set-face-attribute 'variable-pitch nil :family "Sans Serif"))
+
+(use-package modus-themes
   :custom
   (modus-themes-bold-constructs t)
-  (modus-themes-completions 'opinionated)
-  (modus-themes-headings '((t . rainbow)))
-  (modus-themes-mode-line '3d)
-  (modus-themes-org-blocks 'rainbow)
-  (modus-themes-paren-match 'intense-bold)
-  (modus-themes-prompts 'intense-accented)
-  (modus-themes-scale-title 2.5)
-  (modus-themes-scale-headings t)
-  (modus-themes-slanted-constructs t)
-  (modus-themes-variable-pitch-headings t)
+  (modus-themes-syntax '(yellow-comments))
+  (modus-themes-links '(neutral-underline))
+  (modus-themes-prompts '(intense bold))
+  (modus-themes-mode-line '(3d borderless))
+  (modus-themes-lang-checkers '(straight-underline faint))
+  (modus-themes-paren-match '(intense bold))
+  (modus-themes-region '(no-extend bg-only accented))
+  (modus-themes-org-blocks 'tinted-background)
   (modus-themes-org-agenda
    '((header-block . (scale-title))
      (header-date . (bold-today))
      (scheduled . rainbow)))
+  (modus-themes-headings '((t . (rainbow))))
+  (modus-themes-scale-headings t)
+  (modus-themes-scale-title 2.5)
   :config
   (load-theme 'modus-vivendi t))
 
@@ -211,7 +221,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                 :sentinel #'mpdupdate
                 :noquery t))
 (mpdupdate nil nil)
-(add-to-list 'global-mode-string #'current-song t)
+(add-to-list 'global-mode-string 'current-song t)
 
 (use-package tab-bar
   :custom
@@ -258,7 +268,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-indent-mode -1)
 
   ;; I keep accidentally archiving stuff
-  (unbind-key (kbd "C-c C-x C-s") org-mode-map))
+  (unbind-key (kbd "C-c C-x C-s") org-mode-map)
+
+  ;; For when I use org-babel to create images
+  :hook (org-babel-after-execute . org-redisplay-inline-images))
+
 
 (use-package org-goto
   :custom
@@ -287,6 +301,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      (holiday-fixed 7 1 "Canada Day (National Holiday)")
      (holiday-float 8 1 1 "Civic Holiday (Federal Holiday)")
      (holiday-float 9 1 1 "Labour Day (National Holiday)")
+     (holiday-fixed 9 30 "National Day for Truth and Reconciliation (Federal Holiday)")
      (holiday-float 10 1 2 "Thanksgiving (Federal and Ontario Holiday)")
      (holiday-fixed 11 11 "Remembrance Day (Federal Holiday)")
      (holiday-fixed 12 25 "Christmas Day (National Holiday)")
@@ -356,7 +371,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (org-agenda-show-all-dates nil)
          (org-agenda-show-log 'clockcheck)))))))
   :config
-  (defun dairy-last-work-day-of-month (&optional mark)
+  (defun dairy-last-work-day-of-month (&optional _mark)
     "Used to schedule an item for the last work day of the month"
     (with-no-warnings (defvar date) (defvar entry))
     (let* ((dayname (calendar-day-of-week date))
@@ -412,12 +427,11 @@ the current date."
   (org-clock-display-default-range 'untilnow)
   (org-clock-in-resume t)
   (org-clock-mode-line-total 'current)
-  (org-clock-out-remove-zero-time-clocks t)
+  (org-clock-ask-before-exiting nil)
   (org-clock-out-switch-to-state #'org-clock-out-state)
   (org-clock-persist t)
   (org-clock-persist-query-resume nil)
   (org-clock-report-include-clocking-task t)
-  (org-log-note-clock-out t)
   :config
   (defun org-clock-out-state (state)
     (if (string= state "HABIT")
@@ -427,7 +441,7 @@ the current date."
   (org-clock-persistence-insinuate))
 
 (use-package org-contacts
-  :init
+  :config
   (add-to-list 'org-link-abbrev-alist
                (cons "contact"  (concat (car org-contacts-files) "::%s")))
   :custom
@@ -446,16 +460,9 @@ the current date."
 ;;; Org Section Ends
 
 
-;;; Ledger Mode Section Begins
-(use-package ledger-mode)
-
-(use-package flycheck-ledger
-  :after (ledger-mode flycheck))
-;;; Ledger Mode Section Ends
-
-
 ;;; Programming Section Begins
 (use-package ggtags
+  :delight
   ;; Handy keybinds are
   ;; M-.     xref-find-definitions
   ;; M-,     xref-pop-marker-stack
@@ -467,13 +474,22 @@ the current date."
          ("M-p" . flymake-goto-prev-error))
   :hook (prog-mode . flymake-mode))
 
+(defun my-flymake-cc-command ()
+  "Use the makefile at project root."
+  (unless (executable-find "make") (error "Make not found"))
+  `("make"
+    "-s" "-C" ,(project-root (project-current t))
+    "check-syntax"
+    ,(format "CHK_SOURCES=-x %s -c -"
+             (cond ((derived-mode-p 'c++-mode) "c++")
+                   (t "c")))))
+
+(setq flymake-cc-command 'my-flymake-cc-command)
+
+
 (use-package flymake-shellcheck
   :custom (flymake-shellcheck-allow-external-files t)
   :init (add-hook 'sh-mode-hook 'flymake-shellcheck-load))
-
-(use-package flycheck
-  :custom (flycheck-emacs-lisp-load-path 'inherit)
-  :init (global-flycheck-mode))
 
 (use-package eldoc
   :delight)
@@ -514,9 +530,6 @@ the current date."
                (cons "guix" "elisp:(guix-packages-by-name \"%s\")"))
   :hook (scheme-mode . guix-devel-mode))
 
-(use-package flycheck-guile
-  :after (flycheck geiser))
-
 (use-package yasnippet
   :delight yas-minor-mode
   :config
@@ -548,8 +561,8 @@ the current date."
   :config (global-diff-hl-mode))
 
 (use-package ediff
-  :commands ediff
   :custom
+  (ediff-window-setup-function #'ediff-setup-windows-plain)
   (ediff-diff-options "-w"))
 
 (use-package ediff-wind
@@ -599,18 +612,6 @@ the current date."
   :config
   (ido-mode 1))
 
-(use-package company
-  :custom
-  (company-dabbrev-downcase nil)
-  (company-show-numbers t)
-  (company-tooltip-limit 20)
-  :config
-  (global-company-mode))
-
-(use-package company-quickhelp
-  :after company
-  :config (company-quickhelp-mode))
-
 (use-package which-key
   :delight
   :custom (which-key-idle-secondary-delay 0.05)
@@ -621,7 +622,8 @@ the current date."
 ;;; EWW Section Begins
  (use-package eww
    :custom
-   (eww-use-browse-url "\\`\\(gemini\\|gopher\\|mailto\\|magnet\\):"))
+   (eww-use-browse-url "\\`\\(?:gemini\\|gopher\\|mailto\\|magnet\\):\\|\\.\\(?:mp4\\|torrent\\)\\'")
+   (eww-auto-rename-buffer 'title))
 
 (use-package shr
   :custom
@@ -632,7 +634,7 @@ the current date."
   (shr-inhibit-images t)
   (shr-max-width nil)
   (shr-width nil)
-  (url-privacy-level 'paranoid))
+  (url-privacy-level 'high))
 
 (use-package elpher)
 
@@ -641,8 +643,17 @@ the current date."
   (browse-url-handlers
    '(("\\`\\(gemini\\|gopher\\)://" .
       (lambda (host-or-url &rest _) (elpher-go host-or-url)))
-     ("\\`magnet:" .
-      (lambda (host-or-url &rest _) (transmission-add host-or-url))))))
+     ("\\`magnet:\\|\\.torrent\\'" .
+      (lambda (host-or-url &rest _) (transmission-add host-or-url)))
+     ("\\.mp4\\'" .
+      (lambda (host-or-url &rest _)
+        (message "Downloading file")
+        (start-process
+            "wget" (generate-new-buffer "*wget*")
+            "wget"
+            (concat "--directory-prefix=" (xdg-user-dir "DOWNLOAD"))
+            "--progress=dot:mega"
+            host-or-url))))))
 ;;; EWW Section Ends
 
 
@@ -650,7 +661,7 @@ the current date."
 (use-package auth-source-pass
   :custom
   (auth-source-pass-filename
-   (expand-file-name "password-store" (getenv "XDG_DATA_HOME"))))
+   (expand-file-name "password-store" (xdg-data-home))))
 
 (use-package pinentry
   :if (not IS-INSIDE-EMACS)
@@ -662,13 +673,15 @@ the current date."
   (pinentry-start))
 ;;; auth Section Ends
 
+(use-package ledger-mode)
+
 (use-package literate-calc-mode)
 
 (use-package erc
   :custom
   (erc-nick "morgansmith")
   (erc-user-full-name "Morgan Smith")
-  (erc-server "irc.freenode.net")
+  (erc-server "irc.libera.chat")
   (erc-port 6667)
   (erc-anonymous-login t)
   (erc-prompt-for-nickserv-password nil)
@@ -723,31 +736,7 @@ the current date."
   (eshell-hist-ignoredups 'erase)
   :config
   (add-to-list 'eshell-modules-list 'eshell-tramp)
-  (setenv "PAGER" (executable-find "cat"))
-
-  (defvar-local eshell-current-command-start-time nil)
-  (defvar-local eshell-last-command-prompt nil)
-
-  (defun eshell-current-command-start ()
-    (setq eshell-current-command-start-time (current-time)))
-
-  (defun eshell-current-command-stop ()
-    (when eshell-current-command-start-time
-      (setq eshell-last-command-prompt
-            (format "(%i)(%.4fs)\n"
-                    eshell-last-command-status
-                    (float-time (time-subtract
-                                 (current-time)
-                                 eshell-current-command-start-time))))
-      (setq eshell-current-command-start-time nil))
-    (when eshell-last-command-prompt
-      (eshell-interactive-print eshell-last-command-prompt)))
-
-  (defun eshell-current-command-time-track ()
-    (add-hook 'eshell-pre-command-hook #'eshell-current-command-start nil t)
-    (add-hook 'eshell-post-command-hook #'eshell-current-command-stop nil t))
-
-  (add-hook 'eshell-mode-hook #'eshell-current-command-time-track))
+  (setenv "PAGER" (executable-find "cat")))
 
 (use-package eshell-syntax-highlighting
   :config
@@ -760,12 +749,12 @@ the current date."
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
   (dired-listing-switches
-   "--all --file-type --group-directories-first -l --si --sort=version"))
+   "-l --all --group-directories-first --si --sort=version"))
 
 (use-package dired-x
   :custom
   (dired-guess-shell-alist-user
-   `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm" ".m4v")) "mpv")
+   `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm" ".m4v" ".wav" ".mp3" ".opus")) "mpv")
      (,(regexp-opt '(".pdf")) "pdftotext"))))
 
 (use-package tramp
@@ -786,7 +775,18 @@ the current date."
 
 (use-package minibuffer
   :custom
-  (read-buffer-completion-ignore-case t))
+  (read-buffer-completion-ignore-case t)
+  (completions-format 'vertical)
+  (history-delete-duplicates t)
+  (completion-styles '(basic partial-completion emacs22 substring)))
+
+(use-package simple
+  :custom
+  (completion-show-help nil))
+
+(use-package desktop-environment
+  :custom
+  (desktop-environment-screenshot-directory (xdg-user-dir "PICTURES")))
 
 (use-package exwm
   :if (and (display-graphic-p) (not IS-INSIDE-EMACS) (or IS-LINUX IS-BSD))
@@ -799,25 +799,20 @@ the current date."
   (exwm-input-global-keys
    `(
      ;; Lock
-     ([?\s-x] . ,(lambda () (interactive) (shell-command "slock")))
+     ([?\s-x] . desktop-environment-lock-screen)
      ;; Music/Media bindings
-     ([?\s-p] . ,(lambda () (interactive) (call-process "mpc" nil nil t "toggle")))
-     (,(kbd "<s-up>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%+")))
-     (,(kbd "<s-down>") . ,(lambda () (interactive) (shell-command "amixer set Master 5%-")))
-     (,(kbd "<s-right>") . ,(lambda () (interactive) (call-process "mpc" nil nil t "next")))
-     (,(kbd "<s-left>") . ,(lambda () (interactive) (call-process "mpc" nil nil t "prev")))
+     ([?\s-p] . desktop-environment-toggle-music)
+     ([?\s-m] . desktop-environment-toggle-microphone-mute)
+     (,(kbd "<s-up>") . desktop-environment-volume-increment)
+     (,(kbd "<s-down>") . desktop-environment-volume-decrement)
+     (,(kbd "<s-right>") . desktop-environment-music-next)
+     (,(kbd "<s-left>") . desktop-environment-music-previous)
      ;; Char mode
      ([?\s-i] . exwm-input-release-keyboard)
      ;; Reset (to line-mode).
      ([?\s-r] . exwm-reset)
      ;; Fullscreen
      ([?\s-f] . exwm-layout-set-fullscreen)
-     ;; Switch focus.
-     ([?\s-j] . other-window)
-     ([?\s-k] . ,(lambda () (interactive) (other-window -1)))
-     ;; Split window.
-     ([?\s-\\] . split-window-horizontally)
-     ([?\s-\-] . split-window-vertically)
      ;; eshell
      (,(kbd "<s-return>") . eshell)
      ;; Launch application.
@@ -894,22 +889,18 @@ the current date."
   :config (pdf-tools-install))
 
 (use-package nov
-  :custom (nov-text-width fill-column)
   :mode ("\\.epub\\'" . nov-mode))
 
 (use-package djvu)
 
 (use-package undo-tree
   :delight
-  :config
-  (global-undo-tree-mode)
+  :config (global-undo-tree-mode)
   :custom
+  (undo-tree-history-directory-alist
+   `((".*" . ,(create-directory "undo-tree" user-emacs-directory))))
   (undo-tree-visualizer-timestamps t)
   (undo-tree-visualizer-diff t))
-
-(use-package youtube-dl
-  :custom
-  (youtube-dl-directory (create-directory (getenv "XDG_DOWNLOAD_DIR"))))
 
 (use-package transmission
   :custom
@@ -923,53 +914,6 @@ the current date."
   (time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
   :config
   (add-hook 'before-save-hook 'time-stamp))
-
-(defun download-file (&optional file-link)
-  "Downloads a file.
-Uses either `youtube-dl' or `transmission'.  Downloads either
-FILE-LINK, the URL at current point, or the URL in the clipboard"
-  (interactive)
-  (let* ((item (or file-link
-                  (thing-at-point 'url)
-                  (when interprogram-paste-function
-                    (funcall interprogram-paste-function))))
-        (link (url-encode-url item)))
-    (unless item
-          (error "No link provided"))
-    (cond ((string-match "^magnet" link) (transmission-add link))
-          ((youtube-dl-item-id (youtube-dl link)) nil)
-          ((string-match ".mp4$" link)
-           (start-process
-            "wget"
-            (generate-new-buffer "wget")
-            "wget"
-            (concat "--directory-prefix=" (getenv "XDG_DOWNLOAD_DIR"))
-            "--progress=dot:mega"
-            link))
-          ((string-match "^youtube-dl" item)
-           (async-shell-command link))
-          (t (error "Can't download link: %S" link)))
-    (message "Downloading link: %S" link)))
-
-(global-set-key (kbd "C-c d") #'download-file)
-
-
-(use-package auth-source-xoauth2
-  :after smtpmail
-  :config
-  (defun my-xoauth2-get-secrets (_host user _port)
-    (when (string= user (auth-source-pass-get "address" "email/work"))
-      (list
-       :token-url "https://accounts.google.com/o/oauth2/token"
-       :client-id (auth-source-pass-get "client-id" "email/work")
-       :client-secret (auth-source-pass-get "client-secret" "email/work")
-       :refresh-token (auth-source-pass-get "refresh-token" "email/work"))))
-  (setq auth-source-xoauth2-creds 'my-xoauth2-get-secrets)
-
-  (eval-when-compile
-    (require 'smtpmail))
-  (add-to-list 'smtpmail-auth-supported 'xoauth2)
-  (auth-source-xoauth2-enable))
 
 (use-package typit
   :custom-face
@@ -985,6 +929,51 @@ FILE-LINK, the URL at current point, or the URL in the clipboard"
 (use-package sr-speedbar
   :bind
   ("C-c s" . sr-speedbar-toggle))
+
+(use-package autoinsert
+  :custom
+  (auto-insert-query nil)
+  (auto-insert t)
+  :config
+  (mapc
+   (lambda (x) (push x auto-insert-alist))
+   '((("\\.sh\\'" . "Shell Script")
+      nil
+      "#!/bin/sh\n"
+      comment-start "Time-stamp: <>\n"
+      '(copyright) "\n")
+     (("\\.org\\'" . "Org mode file")
+      nil
+      "#+title: " (file-name-base buffer-file-name) "\n"
+      "Time-stamp: <>\n")))
+  (auto-insert-mode 1))
+
+(use-package copyright
+  :custom (copyright-names-regexp "Morgan Smith")
+  :config (setenv "ORGANIZATION" "Morgan Smith"))
+
+(use-package dictionary
+  :bind
+  (("C-c o" . #'dictionary-lookup-definition))
+  :custom
+  (dictionary-server "localhost"))
+
+(use-package register
+  ;; Use C-x r j to jump to a register
+  :config
+  (mapc
+   (lambda (args)
+     (set-register (car args) (cons 'file (cdr args))))
+   (list
+    (cons ?i (expand-file-name "inbox.org" org-directory))
+    (cons ?t (expand-file-name "agenda/todo.org" org-directory))
+    (cons ?c (locate-user-emacs-file "init.el"))
+    (cons ?d (xdg-user-dir "DOWNLOAD")))))
+
+(use-package irfc
+  :custom
+  (irfc-directory "~/.local/share/RFC")
+  (irfc-assoc-mode t))
 
 (provide 'init.el)
 ;;; init.el ends here
