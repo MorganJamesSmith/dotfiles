@@ -8,7 +8,7 @@
  ((gnu packages fonts) #:select (font-dejavu font-gnu-freefont font-wqy-zenhei))
  ((gnu packages fontutils) #:select (fontconfig))
  ((gnu packages ghostscript) #:select (gs-fonts))
- ((gnu packages linux) #:select (v4l2loopback-linux-module))
+ ((gnu packages linux) #:select (v4l2loopback-linux-module brightnessctl))
  ((gnu packages nano) #:select (nano))
  ((gnu packages nvi) #:select (nvi))
  ((gnu packages security-token) #:select (libu2f-host))
@@ -176,6 +176,7 @@
     ;; Security Keys
     (service pcscd-service-type)
     (udev-rules-service 'security-key libu2f-host)
+    (udev-rules-service 'brightnessctl brightnessctl)
 
     (service tlp-service-type
              (tlp-configuration
