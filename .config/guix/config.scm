@@ -21,6 +21,7 @@
  ((gnu services desktop) #:select (%desktop-services))
  ((gnu services dict) #:select (dicod-service))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
+ ((gnu services mail)); #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration))
  ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
@@ -147,6 +148,26 @@
 
   (services
    (cons*
+    (dovecot-service
+     #:config
+     (dovecot-configuration
+      (mail-location "maildir:~/.local/share/mail/local")
+      (listen '("127.0.0.1"))
+      ;; I do not need ssl support in a locally running dovecot.
+      (ssl? "no")
+      (protocols
+       (list (protocol-configuration
+              (name "lmtp")
+              (mail-max-userip-connections 1))))
+      (services (list
+                 (service-configuration
+                  (kind "lmtp")
+                  (client-limit 1)
+                  (process-limit 0)
+                  (listeners
+                   (list (unix-listener-configuration
+                          (path "lmtp") (mode "0666")))))))))
+
     (service xorg-server-service-type
              (xorg-configuration
               (keyboard-layout my-keyboard-layout)))

@@ -1,0 +1,6 @@
+account default
+protocol lmtp
+socket /var/run/dovecot/lmtp
+tls off
+auth off
+from local
