@@ -1,1 +1,4 @@
 -f bestvideo[height<=?1080]+bestaudio/best
+-o '|%(uploader)s|%(title)s|%(id)s.%(ext)s'
+--write-sub
+--sub-lang en
