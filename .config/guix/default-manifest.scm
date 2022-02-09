@@ -19,6 +19,13 @@
   '("firefox"
     "qutebrowser"))
 
+(define desktop-environment
+  '("sway"
+    "swayidle"
+    "bemenu"
+    "qtwayland"
+    "qt5ct"))
+
 (define stuff-only-needed-for-their-environment-variables
   '("man-db"     ;; MANPATH
     "texinfo"))  ;; INFOPATH
@@ -29,6 +36,7 @@
   downloaders
   programming
   web-browsing
+  desktop-environment
   stuff-only-needed-for-their-environment-variables
   '("aspell" ; spellchecker
     "aspell-dict-en"

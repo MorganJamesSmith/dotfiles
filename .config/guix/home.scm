@@ -35,7 +35,12 @@ eval \"$(guix package --search-paths=suffix --profile=$HOME/.config/guix/extra-p
 # Start graphical interface
 if [ \"$(tty)\" = \"/dev/tty7\" ]; then
     chvt 7
-    sx
+    export MOZ_ENABLE_WAYLAND=1
+    export QT_QPA_PLATFORM=wayland
+    export QT_QPA_PLATFORMTHEME=qt5ct
+    export CLUTTER_BACKEND=wayland
+    export SDL_VIDEODRIVER=wayland
+    ssh-agent -a \"$(gpgconf --list-dirs agent-ssh-socket)\" sway
 fi
 ")))
 

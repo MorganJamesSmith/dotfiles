@@ -25,7 +25,7 @@
  ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
- ((gnu services xorg) #:select (gdm-service-type xorg-server-service-type xorg-configuration))
+ ((gnu services xorg) #:select (gdm-service-type))
  ((gnu system setuid) #:select (file-like->setuid-program)))
 
 (define username "CHANGE ME")
@@ -168,9 +168,6 @@
                    (list (unix-listener-configuration
                           (path "lmtp") (mode "0666")))))))))
 
-    (service xorg-server-service-type
-             (xorg-configuration
-              (keyboard-layout my-keyboard-layout)))
     (dicod-service) ;; Dictionary server
 
     ;; Security Keys
