@@ -1,27 +1,20 @@
 (use-modules
  ((srfi srfi-1) #:select (remove))
  (gnu)
- ((gnu packages admin) #:select (opendoas sudo))
- ((gnu packages base) #:select (glibc-utf8-locales))
  ((gnu packages certs) #:select (nss-certs))
- ((gnu packages ed) #:select (ed))
  ((gnu packages fonts) #:select (font-dejavu font-gnu-freefont font-wqy-zenhei))
  ((gnu packages fontutils) #:select (fontconfig))
  ((gnu packages ghostscript) #:select (gs-fonts))
- ((gnu packages linux) #:select (v4l2loopback-linux-module brightnessctl))
- ((gnu packages nano) #:select (nano))
- ((gnu packages nvi) #:select (nvi))
+ ((gnu packages linux) #:select (brightnessctl))
+ ((gnu packages wm) #:select (swaylock))
  ((gnu packages security-token) #:select (libu2f-host))
  ((gnu packages embedded) #:select (openocd))
- ((gnu packages shells) #:select (dash))
- ((gnu packages suckless) #:select (slock))
- ((gnu packages text-editors) #:select (mg))
+ ((gnu packages gnome) #:select (adwaita-icon-theme))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration))
- ((gnu services pm) #:select (thermald-service-type tlp-service-type tlp-configuration))
  ((gnu services desktop) #:select (%desktop-services))
  ((gnu services dict) #:select (dicod-service))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
- ((gnu services mail)); #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration))
+ ((gnu services mail) #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration unix-listener-configuration userdb-configuration inet-listener-configuration passdb-configuration))
  ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
@@ -39,32 +32,18 @@
   (host-name host-name)
   (timezone "America/New_York")
 
-  ;; US keyboard but replace caps with ctrl
-  (keyboard-layout my-keyboard-layout)
-
-  (kernel-arguments
-   (list
-    "mitigations=off"
-    "numa=off"
-    (string-append
-     "modprobe.blacklist="
-     (string-join (cons*
-                   "pcspkr" "snd_pcsp" ; Stop the beeping
-                   "snd_hda_intel"     ; Only use my usb audio
-                   "sb_edac"           ; Stop EDAC warnings
-                   %default-modprobe-blacklist)
-                  ","))))
+  ;; https://someonewhocares.org/hosts/zero/hosts
+  (hosts-file (local-file "./hosts"))
 
   (issue "Morgan's GNU Guix Machine\n\n")
 
   ;; Use the UEFI variant of GRUB with the EFI System
   ;; Partition mounted on /boot/efi.
   (bootloader (bootloader-configuration
-                (bootloader grub-efi-bootloader)
-                (target "/boot/efi")
-                (keyboard-layout my-keyboard-layout)))
+               (bootloader grub-efi-bootloader)
+               (targets (list "/boot/efi"))))
 
-  (swap-devices (list "/swapfile"))
+  (swap-devices (list (swap-space (target "/swapfile"))))
 
   ;; Specify a mapped device for the encrypted root partition.
   ;; The UUID is that returned by 'cryptsetup luksUUID'.
@@ -104,36 +83,18 @@
                                    "kvm")))  ; qemu
           %base-user-accounts))
 
-  (sudoers-file #f)
-
   (setuid-programs
-   (cons*
-    (file-like->setuid-program (file-append opendoas "/bin/doas"))
-    (remove
-     (lambda (program)
-       (member program
-               (map file-like->setuid-program
-                    (list (file-append sudo "/bin/sudo")
-                          (file-append sudo "/bin/sudoedit")))))
-     %setuid-programs)))
-
-  (pam-services
    (cons
-    (unix-pam-service "doas")
-    (remove
-     (lambda (service)
-       (equal? (pam-service-name service) "sudo"))
-     (base-pam-services))))
+    (file-like->setuid-program (file-append swaylock "/bin/swaylock"))
+    %setuid-programs))
 
   ;; This is where we specify system-wide packages.
   (packages
    (cons*
     glibc-locales
     nss-certs
-    opendoas ; We already have the binary as it is a setuid-program. This is
-             ; for the documentation
-    ed ;; the standard editor
-
+    adwaita-icon-theme
+    
     ;; fonts
     fontconfig
     gs-fonts
@@ -141,24 +102,19 @@
     font-gnu-freefont
     font-wqy-zenhei
 
-    (remove
-     (lambda (package)
-       (memq package (list sudo nano nvi mg)))
-     %base-packages)))
+    %base-packages))
 
   (services
    (cons*
     (dovecot-service
      #:config
      (dovecot-configuration
-      (mail-location "maildir:~/.local/share/mail/local")
+      (mail-location "maildir:~")
       (listen '("127.0.0.1"))
-      ;; I do not need ssl support in a locally running dovecot.
       (ssl? "no")
       (protocols
-       (list (protocol-configuration
-              (name "lmtp")
-              (mail-max-userip-connections 1))))
+       (list (protocol-configuration (name "lmtp"))
+             (protocol-configuration (name "imap"))))
       (services (list
                  (service-configuration
                   (kind "lmtp")
@@ -166,21 +122,28 @@
                   (process-limit 0)
                   (listeners
                    (list (unix-listener-configuration
-                          (path "lmtp") (mode "0666")))))))))
+                          (path "lmtp") (mode "0666")))))
+                 (service-configuration
+                  (kind "imap")
+                  (client-limit 1))))
+      (passdbs (list
+                (passdb-configuration
+                 (driver "static")
+                 (args '("nopassword=y")))))
+      (userdbs (list
+                (userdb-configuration
+                 (driver "static")
+                 (args '("uid=1000" "gid=997" "allow_all_users=yes"
+                         "username_format=%n"
+                         "home=/home/pancake/.local/share/mail/%n")))))))
 
     (dicod-service) ;; Dictionary server
 
     ;; Security Keys
     (service pcscd-service-type)
     (udev-rules-service 'security-key libu2f-host)
+
     (udev-rules-service 'brightnessctl brightnessctl)
-
-    (service tlp-service-type
-             (tlp-configuration
-              (cpu-scaling-governor-on-ac (list "performance"))
-              (cpu-scaling-governor-on-bat (list "powersave"))))
-
-    (service thermald-service-type)
 
     (udev-rules-service 'openocd openocd)
 
@@ -210,16 +173,6 @@
        "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"1d50\", ATTR{idProduct}==\"6018\", MODE=\"0666\""
        (string #\newline))))
 
-    (simple-service
-     'opendoas-config etc-service-type
-     `(("doas.conf"
-        ,(plain-file
-          "doas.conf"
-          (string-join
-           (list
-            "permit persist"
-            "setenv { PATH=/bin:/usr/bin:/var/guix/profiles/system/profile/bin }"
-            username (string #\newline)))))))
     (service transmission-daemon-service-type
              (transmission-daemon-configuration
               (download-dir "/torrents")))
@@ -244,24 +197,7 @@
     (modify-services
         %desktop-services
 
-      (guix-service-type config =>
-                         (guix-configuration
-                          (inherit config)
-                          (discover? #t)
-                          (authorized-keys
-                           (append (list (local-file "./desktop.pub"))
-                                   %default-authorized-guix-keys))))
-      (delete gdm-service-type)
-
-      ;; Helps with IO related freezing
-      (sysctl-service-type
-       config =>
-       (sysctl-configuration
-        (settings (append
-                   '(("vm.dirty_background_ratio" . "5")
-                     ("vm.dirty_ratio" . "25")
-                     ("kernel.hung_task_timeout_secs" . "30"))
-                   %default-sysctl-settings)))))))
+      (delete gdm-service-type))))
 
   ;; Allow resolution of '.local' host names with mDNS.
   (name-service-switch %mdns-host-lookup-nss))
