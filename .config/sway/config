@@ -5,6 +5,7 @@ focus_follows_mouse no
 mouse_warping none
 seat seat0 hide_cursor 1000
 
+for_window [title=".*"] floating disable
 
 ### Variables
 #
