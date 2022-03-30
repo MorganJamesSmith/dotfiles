@@ -10,11 +10,8 @@
                                 home-files-service-type
                                 home-run-on-first-login-service-type))
  ((gnu packages glib) #:select (dbus))
- ((gnu packages gnupg) #:select (gnupg))
- ((gnu packages linux) #:select (brightnessctl pipewire-0.3))
+ ((gnu packages linux) #:select (brightnessctl))
  ((gnu packages mpd) #:select (mpdris2))
- ((gnu packages music) #:select (playerctl))
- ((gnu packages ssh) #:select (openssh))
  ((gnu services) #:select (service simple-service))
  ((guix gexp) #:select (file-append gexp plain-file))
  )
@@ -60,16 +57,21 @@ fi
      (default
        '((application/x-bittorrent . transmission.desktop)
          (x-scheme-handler/magnet  . transmission.desktop)
-         (x-scheme-handler/mailto  . emacsmail.desktop)
+         (x-scheme-handler/unknown . emacsurl.desktop)
+         (x-scheme-handler/about   . emacsurl.desktop)
+         (x-scheme-handler/https   . emacsurl.desktop)
+         (x-scheme-handler/http    . emacsurl.desktop)
+         (text/html                . emacsurl.desktop)
+         (x-scheme-handler/mailto  . emacsurl.desktop)
          (application/pdf          . emacs.desktop)
          (application/postscript   . emacs.desktop)
          (application/x-csv        . emacs.desktop)
          (image/gif                . emacs.desktop)
          (image/jpeg               . emacs.desktop)
          (image/png                . emacs.desktop)
+         (inode/directory          . emacs.desktop)
          (text/plain               . emacs.desktop)
-         (text/x-shellscript       . emacs.desktop)
-         (inode/directory          . emacs.desktop)))
+         (text/x-shellscript       . emacs.desktop)))
      (desktop-entries
       (list
        (xdg-desktop-entry
@@ -83,59 +85,10 @@ fi
         (type 'application)
         (config '((exec . "emacsclient -a emacs %u"))))
        (xdg-desktop-entry
-        (file "emacsmail")
-        (name "Emacs Mail")
+        (file "emacsurl")
+        (name "Emacs URL")
         (type 'application)
-        (config '((exec . "emacsclient -a emacs --eval \"(browse-url-mail \\\"%u\\\")\""))))))))
-
-   (simple-service
-    'start-daemons
-    home-run-on-first-login-service-type
-    #~(begin
-        (system
-         (string-join
-          (append
-           (map
-            (lambda (command)
-              ;; Put the environment variables in a file that can be sourced in
-              ;; our profile and also set them now so the other daemons have
-              ;; access to them
-              (string-append "eval $( " command " | tee -a /tmp/daemon-env-vars )"))
-            (list
-             (string-append #$(file-append dbus "/bin/dbus-launch") " --sh-syntax")
-             (string-append #$(file-append openssh "/bin/ssh-agent") " -s -a \"$(gpgconf --list-dirs agent-ssh-socket)\"")
-             (string-append #$(file-append gnupg "/bin/gpg-agent") " --homedir \"$GNUPGHOME\" --daemon -s")))
-           (map
-            (lambda (command)
-              (string-append command " &"))
-            (list
-             (string-append #$(file-append pipewire-0.3 "/bin/pipewire"))
-             (string-append #$(file-append pipewire-0.3 "/bin/pipewire-media-session"))
-             (string-append #$(file-append pipewire-0.3 "/bin/pipewire-pulse"))
-             (string-append #$(file-append mpdris2 "/bin/mpDris2")))))
-          "\n"))))
-
-   (simple-service 'mkdirs
-                   home-run-on-first-login-service-type
-                   #~(begin
-                       (use-modules (guix build utils))
-                       (map
-                        (compose
-                         mkdir-p
-                         (lambda (dir)
-                           (string-append (getenv (car dir)) "/" (cdr dir))))
-                        '(("HOME" . ".config/mpd")
-                          ("XDG_CONFIG_HOME" . "aspell")
-                          ("CARGO_HOME" . "")
-                          ("GNUPGHOME" . "")
-                          ("XDG_CONFIG_HOME" . "readline")
-                          ("PASSWORD_STORE_DIR" . "")
-                          ("TEXMFCONFIG" . "")
-                          ("TEXMFHOME" . "")
-                          ("TEXMFVAR" . "")
-                          ("XDG_CONFIG_HOME" . "wget")
-                          ("XDG_CONFIG_HOME" . "java")
-                          ("XDG_CONFIG_HOME" . "simplescreenrecorder")))))
+        (config '((exec . "emacsclient -a emacs --eval \"(browse-url \\\\\"%u\\\\\")\""))))))))
 
    (simple-service 'some-useful-env-vars-service
           		   home-environment-variables-service-type
@@ -164,9 +117,4 @@ fi
                    home-files-service-type
                    (list `("config/wget/wgetrc"
                                 ,(plain-file "wgetrc"
-                                             "hsts-file=~/.cache/wget-hsts\n"))))
-
-   (simple-service 'git-pass
-                   home-files-service-type
-                   (list `("config/pass-git-helper/git-pass-mapping.ini"
-                                ,(plain-file "git-pass" "[*outlook.com*]\ntarget=email/morganjsmith\n")))))))
+                                             "hsts-file=~/.cache/wget-hsts\n")))))))
