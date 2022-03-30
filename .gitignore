@@ -6,12 +6,13 @@
 !.config/git/config
 !.config/guix/channels.scm
 !.config/guix/config.scm
-!.config/guix/desktop.pub
-!.config/guix/home.scm
 !.config/guix/default-manifest.scm
+!.config/guix/desktop.pub
 !.config/guix/emacs-manifest.scm
+!.config/guix/home.scm
 !.config/guix/update
 !.config/msmtp/config
+!.config/sway/config
 !.config/sx/sxrc
 !.config/yt-dlp/config
 !.gitignore
