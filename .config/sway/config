@@ -157,4 +157,5 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 exec swaymsg "workspace 1; exec emacs -f server-start"
-exec swaymsg 'exec gpg-connect-agent "UPDATESTARTUPTTY" /bye'
+exec gpg-connect-agent "UPDATESTARTUPTTY" /bye
+exec dbus-update-activation-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
