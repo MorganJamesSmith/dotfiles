@@ -23,8 +23,12 @@
 
 (customize-set-variable 'gnus-interactive-exit nil)
 
-(bind-key "m" #'gnus-summary-mark-as-processable gnus-summary-mode-map)
-(bind-key "u" #'gnus-summary-clear-mark-forward gnus-summary-mode-map)
+(keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
+(keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward)
+
+;; Encrypted emails are sent with the subject "...".  Don't assume they're all
+;; part of the same thread
+(setopt gnus-summary-gather-exclude-subject "^ *$\\|^...$\\|^(none)$")
 
 ;; f runs the command mbsync
 (defun get-mail ()
@@ -38,28 +42,13 @@
 
 (define-key gnus-group-mode-map (kbd "f") #'get-mail)
 
-;; Perfer plain text email
-(with-eval-after-load "mm-decode"
-  (add-to-list 'mm-discouraged-alternatives "text/html")
-  (add-to-list 'mm-discouraged-alternatives "text/richtext"))
-
 ;; Don't ask how many messages I want to see. I want them all
 (customize-set-variable 'gnus-large-newsgroup nil)
 
-;; Leave the cursor where it is damn it!
-(customize-set-variable 'gnus-auto-select-subject 'first)
-(customize-set-variable 'gnus-summary-goto-unread 'never)
-(customize-set-variable 'gnus-group-goto-unread nil)
-
-;; All groups are new each time gnus is run
+;; Don't check for new newsgroups
 (customize-set-variable 'gnus-save-killed-list nil)
+(customize-set-variable 'gnus-check-new-newsgroups nil)
 
-(customize-set-variable 'gnus-ignored-newsgroups
-                        (regexp-opt
-                         '("Notes" "Outbox" "Scheduled" "Calendar" "Contacts"
-                           "Conversation" "Clutter" "Journal" "Tasks"
-                           "[Gmail]/Trash" "[Gmail]/Important" "Starred" "Unwanted" "Drafts"
-                           "Deleted" "All Mail")))
 
 (customize-set-variable 'gnus-message-archive-group nil)
 
@@ -83,13 +72,22 @@
 (customize-set-variable 'gnus-parameters `(("." (display . all))))
 
 
+
+;; TODO: figure out how to specifiy my nnvirtual groups from here
+;; (nnvirtual "INBOX\\|Inbox\\|Junk\\|Spam")
+;; (nnvirtual "[^l].\\(INBOX\\|Inbox\\|Junk\\|Spam\\)")
+
 ;; Receiving email stuff
 (customize-set-variable 'gnus-select-method '(nnnil ""))
 (customize-set-variable
  'gnus-secondary-select-methods
  (mapcar
   (lambda (x)
-    `(nnimap ,x (nnimap-stream shell)))
+    `(nnimap ,x
+             (nnimap-user ,x)
+             (nnimap-address "localhost")
+             (nnimap-stream network)
+             (nnimap-server-port 143)))
   '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local")))
 
 
