@@ -75,6 +75,11 @@ fi
      (desktop-entries
       (list
        (xdg-desktop-entry
+        (file "mpv")
+        (name "mpv")
+        (type 'application)
+        (config '((exec . "mpv -- %U"))))
+       (xdg-desktop-entry
         (file "transmission")
         (name "Transmission")
         (type 'application)
