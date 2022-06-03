@@ -98,6 +98,14 @@ fi
    (simple-service 'some-useful-env-vars-service
           		   home-environment-variables-service-type
           		   `(
+                     ;; Wayland variables
+                     ("MOZ_ENABLE_WAYLAND" . "1")
+                     ("QT_QPA_PLATFORM" . "wayland")
+                     ("QT_QPA_PLATFORMTHEME" . "qt5ct")
+                     ("CLUTTER_BACKEND" . "wayland")
+                     ("GDK_BACKEND" . "wayland")
+                     ("SDL_VIDEODRIVER" . "wayland")
+
                      ("ASPELL_CONF" . "\"per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl\"")
                      ("CARGO_HOME" . "$XDG_DATA_HOME/cargo")
                      ("GNUPGHOME" . "$XDG_DATA_HOME/gnupg")
