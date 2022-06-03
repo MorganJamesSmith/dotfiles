@@ -2,10 +2,10 @@
  ((srfi srfi-1) #:select (remove))
  (gnu)
  ((gnu packages certs) #:select (nss-certs))
- ((gnu packages fonts) #:select (font-dejavu font-gnu-freefont font-wqy-zenhei))
+ ((gnu packages fonts) #:select (font-dejavu font-gnu-freefont font-wqy-zenhei font-google-noto))
  ((gnu packages fontutils) #:select (fontconfig))
- ((gnu packages ghostscript) #:select (gs-fonts))
- ((gnu packages linux) #:select (brightnessctl))
+ ((gnu packages ghostscript) #:select (font-ghostscript))
+ ((gnu packages linux) #:select (brightnessctl fuse-3 pipewire-0.3))
  ((gnu packages wm) #:select (swaylock))
  ((gnu packages security-token) #:select (libu2f-host))
  ((gnu packages embedded) #:select (openocd))
@@ -18,15 +18,20 @@
  ((gnu services security-token) #:select (pcscd-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
- ((gnu services xorg) #:select (gdm-service-type))
- ((gnu system setuid) #:select (file-like->setuid-program)))
+ ((gnu services xorg) #:select (gdm-service-type screen-locker-service screen-locker-service-type))
+ ((gnu system setuid) #:select (file-like->setuid-program setuid-program)))
 
 (define username "CHANGE ME")
 (define host-name "CHANGE ME")
-(define my-keyboard-layout (keyboard-layout "us" #:options '("ctrl:nocaps")))
 
 ;; Things not exported by (gnu system)
 (define %default-modprobe-blacklist (@@ (gnu system) %default-modprobe-blacklist))
+
+(define my-glibc-locales
+       (make-glibc-utf8-locales
+        glibc
+        #:locales (list "en_US")
+        #:name "glibc-us-utf8-locales"))
 
 (operating-system
   (host-name host-name)
@@ -74,7 +79,7 @@
            (name username)
            (comment username)
            (group "users")
-           (supplementary-groups '("wheel"   ; polkit group
+           (supplementary-groups '("wheel"
                                    "video"
                                    "audio"   ; amixer commands
                                    "transmission"
@@ -84,23 +89,24 @@
           %base-user-accounts))
 
   (setuid-programs
-   (cons
-    (file-like->setuid-program (file-append swaylock "/bin/swaylock"))
-    %setuid-programs))
+   (append (list (setuid-program
+                  (program (file-append fuse-3 "/bin/fusermount3"))))
+           %setuid-programs))
 
   ;; This is where we specify system-wide packages.
   (packages
    (cons*
-    glibc-locales
+    my-glibc-locales
     nss-certs
     adwaita-icon-theme
     
     ;; fonts
     fontconfig
-    gs-fonts
+    font-ghostscript
     font-dejavu
     font-gnu-freefont
-    font-wqy-zenhei
+    font-wqy-zenhei  ; asain
+    font-google-noto ; emoji
 
     %base-packages))
 
@@ -138,6 +144,10 @@
                          "home=/home/pancake/.local/share/mail/%n")))))))
 
     (dicod-service) ;; Dictionary server
+
+    (screen-locker-service swaylock)
+
+    (udev-rules-service 'pipewire pipewire-0.3)
 
     ;; Security Keys
     (service pcscd-service-type)
@@ -197,7 +207,8 @@
     (modify-services
         %desktop-services
 
-      (delete gdm-service-type))))
+      (delete gdm-service-type)
+      (delete screen-locker-service-type))))
 
   ;; Allow resolution of '.local' host names with mDNS.
   (name-service-switch %mdns-host-lookup-nss))
