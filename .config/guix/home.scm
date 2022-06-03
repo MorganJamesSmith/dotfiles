@@ -88,7 +88,7 @@ fi
         (file "emacsurl")
         (name "Emacs URL")
         (type 'application)
-        (config '((exec . "emacsclient -a emacs --eval \"(browse-url \\\\\"%u\\\\\")\""))))))))
+        (config '((exec . "emacsclient -a emacs --eval \"(browse-url (string-remove-suffix \\\"'\\\" (string-remove-prefix \\\"'\\\" \\\"%u\\\")))\""))))))))
 
    (simple-service 'some-useful-env-vars-service
           		   home-environment-variables-service-type
