@@ -17,4 +17,5 @@
 !.config/yt-dlp/config
 !.gitignore
 !.local/share/gnupg/gpg-agent.conf
+!.ssh/config
 !LICENSE
