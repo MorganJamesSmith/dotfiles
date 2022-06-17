@@ -11,6 +11,7 @@
 !.config/guix/emacs-manifest.scm
 !.config/guix/home.scm
 !.config/guix/update
+!.config/guix/upgrade
 !.config/msmtp/config
 !.config/pantalaimon/pantalaimon.conf
 !.config/sway/config
