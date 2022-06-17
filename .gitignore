@@ -12,6 +12,7 @@
 !.config/guix/home.scm
 !.config/guix/update
 !.config/msmtp/config
+!.config/pantalaimon/pantalaimon.conf
 !.config/sway/config
 !.config/swaylock/config
 !.config/sx/sxrc
