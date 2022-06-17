@@ -13,6 +13,7 @@
 !.config/guix/update
 !.config/msmtp/config
 !.config/sway/config
+!.config/swaylock/config
 !.config/sx/sxrc
 !.config/yt-dlp/config
 !.gitignore
