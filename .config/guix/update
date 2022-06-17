@@ -1,10 +1,26 @@
 #!/bin/sh
 
-manifest="$HOME"/.config/guix/manifest.scm
+guix pull || exit $?
 
-default_profile_location="$HOME"/.config/guix/extra-profiles/default
-default_profile="$default_profile_location"/default
+# Update local Emacs source
+cd /home/pancake/src/emacs/emacs || exit $?
+git stash || exit $?
+git pull --rebase --no-gpg-sign || exit $?
 
-mkdir -p "$default_profile_location"
+# Update local org-mode source
+cd /home/pancake/src/emacs/org-mode || exit $?
+git stash || exit $?
+git pull --rebase --no-gpg-sign || exit $?
 
-guix package -p "$default_profile" -m "$manifest"
+# build manifest
+guix build --keep-going -m /home/pancake/.config/guix/default-manifest.scm
+guix build --keep-going -m /home/pancake/.config/guix/emacs-manifest.scm
+
+# build system
+guix system build --keep-going /home/pancake/.config/guix/config.scm
+
+# build home
+guix home build --keep-going /home/pancake/.config/guix/home.scm
+
+# Display news
+guix pull --news
