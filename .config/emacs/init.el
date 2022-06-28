@@ -212,7 +212,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         org-src-window-setup 'current-window
         org-html-postamble nil
         org-special-ctrl-a/e t
-        org-catch-invisible-edits 'show-and-error
+        org-fold-catch-invisible-edits 'show-and-error
         org-todo-keywords
         '((sequence "TODO" "DONE")
           (sequence "HABIT" "DONE")
@@ -739,6 +739,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt dired-recursive-deletes 'always)
 (setopt dired-listing-switches
         "-l --all --group-directories-first --si --sort=version")
+(setopt dired-omit-line dired-re-dot)
 
 (setopt dired-create-destination-dirs 'ask)
 
