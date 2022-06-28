@@ -468,8 +468,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (add-hook 'conf-mode-hook #'display-line-numbers-mode)
 
-
-(setopt debbugs-gnu-default-packages '("guix" "guix-patches"))
+(defun debbugs-gnu-guix ()
+  "List Guix issues."
+  (interactive)
+  (debbugs-gnu '("serious" "important" "normal")
+               '("guix" "guix-patches")))
 
 (setopt gdb-many-windows t)
 
