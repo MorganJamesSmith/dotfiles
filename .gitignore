@@ -12,6 +12,8 @@
 !.config/guix/home.scm
 !.config/guix/update
 !.config/guix/upgrade
+!.config/mpv/input.conf
+!.config/mpv/mpv.conf
 !.config/msmtp/config
 !.config/pantalaimon/pantalaimon.conf
 !.config/sway/config
