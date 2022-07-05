@@ -11,16 +11,15 @@
                                 home-run-on-first-login-service-type))
  (gnu home services shepherd)
  ((gnu packages glib) #:select (dbus))
- ((gnu packages linux) #:select (brightnessctl pipewire-0.3 wireplumber))
+ ((gnu packages linux) #:select (brightnessctl pipewire-0.3 wireplumber alsa-utils))
  ((gnu packages mpd) #:select (mpdris2))
- ((gnu packages wm) #:select (sway swayidle))
+ ((gnu packages wm) #:select (sway swayidle mako))
  (gnu packages xdisorg)
  (gnu packages qt)
  (gnu packages freedesktop)
  (gnu packages matrix)
  ((gnu services) #:select (service simple-service service-type service-extension))
- ((guix gexp) #:select (file-append gexp plain-file)))
-
+ ((guix gexp) #:select (file-append gexp plain-file mixed-text-file)))
 
 (define dbus-socket-location ".local/dbus")
 
@@ -134,6 +133,7 @@
             xdg-desktop-portal
             xdg-desktop-portal-wlr
             xdg-desktop-portal-gtk
+            mako
             ))
  (services
   (list
@@ -250,6 +250,13 @@ fi
       ;; Prevent wget from creating history file in home directory
       (".config/wget/wgetrc"
        ,(plain-file "wgetrc" "hsts-file=~/.cache/wget-hsts\n"))
+
+      ;; Play audio sound on notification
+      (".config/mako/config"
+       ,(mixed-text-file "mako-config"
+                         "on-notify=exec "
+                         alsa-utils "/bin/aplay"
+                         " /home/pancake/documents/configs/notification.wav\n"))
 
       ;; Ensure gpg-agent is running and knows what terminal we are using.  This
       ;; is because ssh-agent will using pinentry through gpg-agent
