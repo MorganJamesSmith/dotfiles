@@ -241,9 +241,48 @@ fi
                      ("HISTSIZE" . "100000")
                      ("HISTTIMEFORMAT" . "\"[%F %T] \"")))
 
-   ;; Prevent wget from creating history file in home directory
-   (simple-service 'wgetrc
-                   home-files-service-type
-                   (list `(".config/wget/wgetrc"
-                                ,(plain-file "wgetrc"
-                                             "hsts-file=~/.cache/wget-hsts\n")))))))
+   
+   (simple-service
+    'dotfiles
+    home-files-service-type
+    `(
+
+      ;; Prevent wget from creating history file in home directory
+      (".config/wget/wgetrc"
+       ,(plain-file "wgetrc" "hsts-file=~/.cache/wget-hsts\n"))
+
+      ;; Ensure gpg-agent is running and knows what terminal we are using.  This
+      ;; is because ssh-agent will using pinentry through gpg-agent
+      (".ssh/config"
+       ,(plain-file "ssh-config"
+                    "Match host * exec \"gpg-connect-agent UPDATESTARTUPTTY /bye\"\n"))
+
+      ;; Enable ssh-agent support and allow use of emacs-pinentry
+      (".local/share/gnupg/gpg-agent.conf"
+       ,(plain-file "gpg-agent-config"
+                    "enable-ssh-support\nallow-emacs-pinentry\nallow-loopback-pinentry\n"))
+
+      ;; Plain black lockscreen 
+      (".config/swaylock/config"
+       ,(plain-file "swaylock-config" "color=000000FF\nscaling=solid_color\n"))
+
+      ;; Always create a graphical window even if there is no video.  This makes
+      ;; is easy to close mpv
+      (".config/mpv/mpv.conf"
+       ,(plain-file "mpv-config" "force-window=yes\n"))
+
+      ;; Move between chapters using '(' and ')'
+      (".config/mpv/input.conf"
+       ,(plain-file "mpv-input-config" ") add chapter 1\n( add chapter -1\n"))
+      
+      ;; Only download 1080p or lower.  Place in ~/downloads/videos with a
+      ;; specific filename.  Grab English subtitles if we can.  Add
+      ;; sponderblock metadata
+      (".config/yt-dlp/config"
+       ,(plain-file "yt-dlp-config"
+                    "\
+-f bestvideo[height<=?1080]+bestaudio/best
+-o '~/downloads/videos/|%(upload_date>%Y-%m-%d)s|%(uploader)s|%(title)s|%(id)s.%(ext)s'
+--write-sub
+--sub-lang en
+--sponsorblock-mark all\n")))))))
