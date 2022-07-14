@@ -887,13 +887,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                     (mode . scheme-mode)
                     (mode . lisp-mode)))
            ("internet" (or
-                        (and
-                         (mode . exwm-mode)
-                         (or
-                          (name . "^qutebrowser")
-                          (name . "^icecat")
-                          (name . "^chromium")
-                          (name . "^Nightly")))
                         (mode . eww-mode)
                         (mode . eww-history-mode)
                         (mode . eww-bookmark-mode)))
