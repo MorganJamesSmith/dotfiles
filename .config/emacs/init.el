@@ -636,7 +636,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                         "--progress=dot:mega"
                         host-or-url)
               :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))
-          ("youtube.com" .
+          ("\\(youtube.com\\|youtu.be\\)" .
            (lambda (host-or-url &rest _)
              (message "Downloading file")
              (make-process
