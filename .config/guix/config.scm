@@ -9,7 +9,7 @@
  ((gnu packages wm) #:select (swaylock))
  ((gnu packages security-token) #:select (libu2f-host))
  ((gnu packages embedded) #:select (openocd))
- ((gnu packages gnome) #:select (adwaita-icon-theme))
+ ((gnu packages gnome) #:select (adwaita-icon-theme hicolor-icon-theme))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration))
  ((gnu services desktop) #:select (%desktop-services))
  ((gnu services dict) #:select (dicod-service))
@@ -99,6 +99,7 @@
     my-glibc-locales
     nss-certs
     adwaita-icon-theme
+    hicolor-icon-theme
     
     ;; fonts
     fontconfig
