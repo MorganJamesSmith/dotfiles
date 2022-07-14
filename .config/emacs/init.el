@@ -94,6 +94,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         auth-source-save-behavior t
         auth-source-gpg-encrypt-to (list user-mail-address))
 
+(setopt browse-url-default-scheme "https")
+
 (setopt text-quoting-style 'grave)
 
 ;; Date should always be big to small (year/month/day)
