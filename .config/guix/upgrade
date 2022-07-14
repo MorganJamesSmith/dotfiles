@@ -5,6 +5,6 @@ mkdir -p /home/pancake/.config/guix/extra-profiles || exit $?
 guix package -p /home/pancake/.config/guix/extra-profiles/default/default -m /home/pancake/.config/guix/default-manifest.scm || exit $?
 guix package -p /home/pancake/.config/guix/extra-profiles/emacs/emacs -m /home/pancake/.config/guix/emacs-manifest.scm || exit $?
 
-guix home reconfigure --allow-downgrades /home/pancake/.config/guix/home.scm || exit $?
+guix home reconfigure /home/pancake/.config/guix/home.scm || exit $?
 
 guix package -u || exit $?
