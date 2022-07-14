@@ -63,6 +63,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt shell-kill-buffer-on-exit t)
 
 (savehist-mode 1)
+(recentf-mode)
 
 ;; Use ibuffer
 (keymap-global-set "C-x C-b" #'ibuffer)
