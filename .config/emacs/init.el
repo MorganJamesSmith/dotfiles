@@ -930,16 +930,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (global-auto-composition-mode -1)
 
-
-
-;; Make all the frames on all the workspaces!
-(call-process "swaymsg" nil nil nil "workspace" "2")
-(make-frame '((fullscreen)))
-(call-process "swaymsg" nil nil nil "workspace" "3")
-(make-frame '((fullscreen)))
-(call-process "swaymsg" nil nil nil "workspace" "2")
-
-
 ;; Music/Media bindings
 (load "desktop-environment")
 (keymap-global-set "s-p"  #'desktop-environment-toggle-music)
