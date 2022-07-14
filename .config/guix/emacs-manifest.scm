@@ -50,6 +50,7 @@
   (append!
    '("emacs-pgtk-native-comp"
      "pinentry-emacs"
+     "mupdf"       ; allows Emacs to preview EPUB
      "ghostscript" ; allows Emacs to preview PostScript
      "unoconv")    ; allows Emacs to preview docx files
    (map
