@@ -9,6 +9,7 @@
 !.config/guix/default-manifest.scm
 !.config/guix/desktop.pub
 !.config/guix/emacs-manifest.scm
+!.config/guix/gc
 !.config/guix/home.scm
 !.config/guix/update
 !.config/guix/upgrade
