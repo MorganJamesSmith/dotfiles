@@ -224,7 +224,7 @@ fi
                      ("GDK_BACKEND" . "wayland")
                      ("SDL_VIDEODRIVER" . "wayland")
 
-                     ("ASPELL_CONF" . "\"per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl\"")
+                     ("ASPELL_CONF" . "per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl")
                      ("CARGO_HOME" . "$XDG_DATA_HOME/cargo")
                      ("GNUPGHOME" . "$XDG_DATA_HOME/gnupg")
                      ("HISTFILE" . "$XDG_DATA_HOME/shell-history")
@@ -239,7 +239,7 @@ fi
                      ("EDITOR" . "emacsclient")
                      ("HISTFILESIZE" . "100000")
                      ("HISTSIZE" . "100000")
-                     ("HISTTIMEFORMAT" . "\"[%F %T] \"")))
+                     ("HISTTIMEFORMAT" . "[%F %T] ")))
 
    
    (simple-service
