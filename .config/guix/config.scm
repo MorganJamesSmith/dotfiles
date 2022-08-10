@@ -5,7 +5,7 @@
  ((gnu packages fonts) #:select (font-dejavu font-gnu-freefont font-wqy-zenhei font-google-noto))
  ((gnu packages fontutils) #:select (fontconfig))
  ((gnu packages ghostscript) #:select (font-ghostscript))
- ((gnu packages linux) #:select (brightnessctl fuse-3))
+ ((gnu packages linux) #:select (brightnessctl))
  ((gnu packages wm) #:select (swaylock))
  ((gnu packages security-token) #:select (libu2f-host))
  ((gnu packages embedded) #:select (openocd))
@@ -87,11 +87,6 @@
                                    "plugdev" ; security key
                                    "kvm")))  ; qemu
           %base-user-accounts))
-
-  (setuid-programs
-   (append (list (setuid-program
-                  (program (file-append fuse-3 "/bin/fusermount3"))))
-           %setuid-programs))
 
   ;; This is where we specify system-wide packages.
   (packages
