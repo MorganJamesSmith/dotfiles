@@ -247,6 +247,11 @@ fi
     home-files-service-type
     `(
 
+      ;; Dark theme
+      (".config/gtk-3.0/settings.ini"
+       ,(plain-file "settings.ini" "[Settings]
+gtk-application-prefer-dark-theme=1\n"))
+
       ;; Prevent wget from creating history file in home directory
       (".config/wget/wgetrc"
        ,(plain-file "wgetrc" "hsts-file=~/.cache/wget-hsts\n"))
