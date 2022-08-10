@@ -1,6 +1,5 @@
 *
 !.config/emacs/early-init.el
-!.config/emacs/eww-bookmarks
 !.config/emacs/gnus.el
 !.config/emacs/init.el
 !.config/git/config
