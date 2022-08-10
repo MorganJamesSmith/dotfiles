@@ -5,7 +5,7 @@
  ((gnu packages fonts) #:select (font-dejavu font-gnu-freefont font-wqy-zenhei font-google-noto))
  ((gnu packages fontutils) #:select (fontconfig))
  ((gnu packages ghostscript) #:select (font-ghostscript))
- ((gnu packages linux) #:select (brightnessctl fuse-3 pipewire-0.3))
+ ((gnu packages linux) #:select (brightnessctl fuse-3))
  ((gnu packages wm) #:select (swaylock))
  ((gnu packages security-token) #:select (libu2f-host))
  ((gnu packages embedded) #:select (openocd))
@@ -147,8 +147,6 @@
     (dicod-service) ;; Dictionary server
 
     (screen-locker-service swaylock)
-
-    (udev-rules-service 'pipewire pipewire-0.3)
 
     ;; Security Keys
     (service pcscd-service-type)

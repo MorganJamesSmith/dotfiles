@@ -11,7 +11,7 @@
                                 home-run-on-first-login-service-type))
  (gnu home services shepherd)
  ((gnu packages glib) #:select (dbus))
- ((gnu packages linux) #:select (brightnessctl pipewire-0.3 wireplumber alsa-utils))
+ ((gnu packages linux) #:select (brightnessctl alsa-utils))
  ((gnu packages mpd) #:select (mpdris2))
  ((gnu packages wm) #:select (sway swayidle mako))
  (gnu packages xdisorg)
@@ -29,33 +29,6 @@
          (format #f "~a/.local/var/log"
                  (getenv "HOME")))
      "/" #$name ".log"))
-
-(define (pipewire-shepherd-service config)
-  (list
-   (shepherd-service
-    (documentation "Run pipewire")
-    (requirement '(home-dbus))
-    (provision '(pipewire))
-    (start #~(make-forkexec-constructor
-              (list #$(file-append pipewire-0.3 "/bin/pipewire"))
-              #:log-file #$(log-file-location "pipewire")))
-    (stop  #~(make-kill-destructor)))
-   (shepherd-service
-    (documentation "Run pipewire-pulse")
-    (requirement '(pipewire))
-    (provision '(pipewire-pulse))
-    (start #~(make-forkexec-constructor
-              (list #$(file-append pipewire-0.3 "/bin/pipewire-pulse"))
-              #:log-file #$(log-file-location "pipewire-pulse")))
-    (stop  #~(make-kill-destructor)))
-   (shepherd-service
-    (documentation "Run wireplumber")
-    (requirement '(pipewire))
-    (provision '(wireplumber))
-    (start #~(make-forkexec-constructor
-              (list #$(file-append wireplumber "/bin/wireplumber"))
-              #:log-file #$(log-file-location "wireplumber")))
-    (stop  #~(make-kill-destructor)))))
 
 (define (mpdris2-shepherd-service config)
   (list
@@ -90,14 +63,6 @@
               (list #$(file-append pantalaimon "/bin/pantalaimon"))
               #:log-file #$(log-file-location "pantalaimon")))
     (stop  #~(make-kill-destructor)))))
-
-(define home-pipewire-service-type
-  (service-type
-   (name 'home-pipewire)
-   (extensions (list (service-extension home-shepherd-service-type
-                                        pipewire-shepherd-service)))
-   (default-value '())
-   (description "Pipewire")))
 
 (define home-mpdris2-service-type
   (service-type
@@ -138,7 +103,6 @@
  (services
   (list
    (service home-shepherd-service-type)
-   (service home-pipewire-service-type)
    (service home-mpdris2-service-type)
    (service home-dbus-service-type)
    (service home-pantalaimon-service-type)
