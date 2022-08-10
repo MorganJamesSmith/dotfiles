@@ -5,12 +5,14 @@
  ((gnu packages fonts) #:select (font-dejavu font-gnu-freefont font-wqy-zenhei font-google-noto))
  ((gnu packages fontutils) #:select (fontconfig))
  ((gnu packages ghostscript) #:select (font-ghostscript))
+ ((gnu packages cups) #:select (cups))
  ((gnu packages linux) #:select (brightnessctl))
  ((gnu packages wm) #:select (swaylock))
  ((gnu packages security-token) #:select (libu2f-host))
  ((gnu packages embedded) #:select (openocd))
  ((gnu packages gnome) #:select (adwaita-icon-theme hicolor-icon-theme))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration))
+ ((gnu services cups) #:select (cups-service-type cups-configuration))
  ((gnu services desktop) #:select (%desktop-services))
  ((gnu services dict) #:select (dicod-service))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
@@ -104,6 +106,8 @@
     font-wqy-zenhei  ; asain
     font-google-noto ; emoji
 
+    cups
+
     %base-packages))
 
   (services
@@ -139,6 +143,10 @@
                          "username_format=%n"
                          "home=/home/pancake/.local/share/mail/%n")))))))
 
+    (service cups-service-type
+             (cups-configuration
+                (web-interface? #t)))
+    
     (dicod-service) ;; Dictionary server
 
     (screen-locker-service swaylock)
