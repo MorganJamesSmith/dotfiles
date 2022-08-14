@@ -2,9 +2,6 @@
  ((srfi srfi-1) #:select (remove))
  (gnu)
  ((gnu packages certs) #:select (nss-certs))
- ((gnu packages fonts) #:select (font-dejavu font-gnu-freefont font-wqy-zenhei font-google-noto))
- ((gnu packages fontutils) #:select (fontconfig))
- ((gnu packages ghostscript) #:select (font-ghostscript))
  ((gnu packages cups) #:select (cups))
  ((gnu packages linux) #:select (brightnessctl))
  ((gnu packages wm) #:select (swaylock))
@@ -97,14 +94,6 @@
     nss-certs
     adwaita-icon-theme
     hicolor-icon-theme
-    
-    ;; fonts
-    fontconfig
-    font-ghostscript
-    font-dejavu
-    font-gnu-freefont
-    font-wqy-zenhei  ; asain
-    font-google-noto ; emoji
 
     cups
 
