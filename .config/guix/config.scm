@@ -1,24 +1,18 @@
 (use-modules
- ((srfi srfi-1) #:select (remove))
  (gnu)
  ((gnu packages certs) #:select (nss-certs))
  ((gnu packages cups) #:select (cups))
  ((gnu packages linux) #:select (brightnessctl))
  ((gnu packages wm) #:select (swaylock))
- ((gnu packages security-token) #:select (libu2f-host))
- ((gnu packages embedded) #:select (openocd))
  ((gnu packages gnome) #:select (adwaita-icon-theme hicolor-icon-theme))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration))
  ((gnu services cups) #:select (cups-service-type cups-configuration))
  ((gnu services desktop) #:select (%desktop-services))
  ((gnu services dict) #:select (dicod-service))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
- ((gnu services mail) #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration unix-listener-configuration userdb-configuration inet-listener-configuration passdb-configuration))
- ((gnu services security-token) #:select (pcscd-service-type))
+ ((gnu services mail) #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration unix-listener-configuration userdb-configuration passdb-configuration))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
- ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
- ((gnu services xorg) #:select (gdm-service-type screen-locker-service screen-locker-service-type))
- ((gnu system setuid) #:select (file-like->setuid-program setuid-program)))
+ ((gnu services xorg) #:select (gdm-service-type screen-locker-service screen-locker-service-type)))
 
 (define username "CHANGE ME")
 (define host-name "CHANGE ME")
@@ -94,9 +88,7 @@
     nss-certs
     adwaita-icon-theme
     hicolor-icon-theme
-
     cups
-
     %base-packages))
 
   (services
@@ -140,39 +132,7 @@
 
     (screen-locker-service swaylock)
 
-    ;; Security Keys
-    (service pcscd-service-type)
-    (udev-rules-service 'security-key libu2f-host)
-
     (udev-rules-service 'brightnessctl brightnessctl)
-
-    (udev-rules-service 'openocd openocd)
-
-    (udev-rules-service
-     'planck-dfu
-     (udev-rule
-      "99-planck.rules"
-      "ACTION==\"add\", SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0483\", ATTR{idProduct}==\"df11\", GROUP=\"dialout\", MODE=\"0660\"\n"))
-
-    (udev-rules-service
-     'jlink
-     (udev-rule
-      "99-jlink.rules"
-      "ACTION==\"add\", SUBSYSTEM==\"usb\", ATTR{product}==\"J-Link\", ATTR{manufacturer}==\"SEGGER\", GROUP=\"dialout\", MODE=\"0660\"\n"))
-
-    (udev-rules-service
-     'blackmagic
-     (udev-rule
-      "99-blackmagic.rules"
-      (string-append
-       "SUBSYSTEM==\"tty\", ACTION==\"add\", ATTRS{interface}==\"Black Magic GDB Server\", SYMLINK+=\"ttyBmpGdb\""
-       (string #\newline)
-       "SUBSYSTEM==\"tty\", ACTION==\"add\", ATTRS{interface}==\"Black Magic UART Port\", SYMLINK+=\"ttyBmpTarg\""
-       (string #\newline)
-       "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"1d50\", ATTR{idProduct}==\"6017\", MODE=\"0666\""
-       (string #\newline)
-       "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"1d50\", ATTR{idProduct}==\"6018\", MODE=\"0666\""
-       (string #\newline))))
 
     (service transmission-daemon-service-type
              (transmission-daemon-configuration
@@ -186,11 +146,6 @@
               (db-file "~/.config/mpd/database")
               (state-file "~/.config/mpd/state")
               (sticker-file "~/.config/mpd/sticker.sql")))
-    (service guix-publish-service-type
-             (guix-publish-configuration
-              (host "0.0.0.0")
-              (port 3000)
-              (advertise? #t)))
     (service mingetty-service-type
              (mingetty-configuration
               (tty "tty7")
