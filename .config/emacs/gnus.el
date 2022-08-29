@@ -87,7 +87,8 @@
              (nnimap-user ,x)
              (nnimap-address "localhost")
              (nnimap-stream network)
-             (nnimap-server-port 143)))
+             (nnimap-server-port 143)
+             (nnimap-fetch-partial-articles t)))
   '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local")))
 
 
