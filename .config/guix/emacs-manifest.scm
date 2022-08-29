@@ -58,7 +58,10 @@
      "unoconv")    ; allows Emacs to preview docx files
    (map
     (lambda (x) (string-append "emacs-" x))
-    '("crdt"
+    '(
+      "buffer-env"
+      "crdt"
+      "csv-mode"
       "debbugs"
       "delight"
       "desktop-environment"
@@ -71,7 +74,7 @@
       "geiser-guile"
       "ggtags"
       "guix"
-      "ledger-mode"
+      "hledger-mode"
       "literate-calc-mode"
       "logos"
       "magit"
