@@ -10,7 +10,7 @@
                                 home-files-service-type
                                 home-run-on-first-login-service-type))
  (gnu home services shepherd)
- ((gnu packages fonts) #:select (font-hack font-openmoji font-wqy-zenhei))
+ ((gnu packages fonts) #:select (font-openmoji font-wqy-zenhei))
  ((gnu packages glib) #:select (dbus))
  ((gnu packages linux) #:select (brightnessctl alsa-utils))
  ((gnu packages mpd) #:select (mpdris2))
@@ -100,7 +100,6 @@
             xdg-desktop-portal-wlr
             xdg-desktop-portal-gtk
             mako
-            font-hack
             font-openmoji ; emoji
             font-wqy-zenhei ; Asian
             ))
@@ -214,53 +213,6 @@ fi
     'dotfiles
     home-files-service-type
     `(
-
-      (".config/fontconfig/conf.d/09-no-store-fonts.conf"
-       ,(plain-file
-         "09-no-store-fonts.conf"
-         "<?xml version='1.0'?>
-<!DOCTYPE fontconfig SYSTEM 'urn:fontconfig:fonts.dtd'>
-<fontconfig>
-  <description>Do not use fonts under /gnu/*</description>
-  <selectfont>
-    <rejectfont>
-      <glob>/gnu/*</glob>
-    </rejectfont>
-  </selectfont>
-</fontconfig>"))
-
-      (".config/fontconfig/conf.d/70-Hack.conf"
-       ,(plain-file
-         "70-Hack.conf"
-         "<?xml version='1.0'?>
-<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
-<fontconfig>
-  <description>Set Hack as the default font</description>
-  <alias>
-    <family>monospace</family>
-    <prefer><family>Hack</family></prefer>
-  </alias>
-  <alias>
-    <family>serif</family>
-    <prefer><family>Hack</family></prefer>
-  </alias>
-  <alias>
-    <family>sans-serif</family>
-    <prefer><family>Hack</family></prefer>
-  </alias>
-  <alias>
-    <family>fantasy</family>
-    <prefer><family>Hack</family></prefer>
-  </alias>
-  <alias>
-    <family>cursive</family>
-    <prefer><family>Hack</family></prefer>
-  </alias>
-  <alias>
-    <family>system-ui</family>
-    <prefer><family>Hack</family></prefer>
-  </alias>
-</fontconfig>"))
 
       (".config/fontconfig/conf.d/71-color-emoji.conf"
        ,(plain-file
