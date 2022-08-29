@@ -1,7 +1,5 @@
 #!/bin/sh
 
-guix pull || exit $?
-
 # Update local Emacs source
 cd /home/pancake/src/emacs/emacs || exit $?
 git stash || exit $?
@@ -11,6 +9,8 @@ git pull --rebase --no-gpg-sign || exit $?
 cd /home/pancake/src/emacs/org-mode || exit $?
 git stash || exit $?
 git pull --rebase --no-gpg-sign || exit $?
+
+guix pull || exit $?
 
 # build manifest
 guix build --keep-going -m /home/pancake/.config/guix/default-manifest.scm
