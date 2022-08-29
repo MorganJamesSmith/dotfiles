@@ -324,7 +324,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      (agenda
       ""
       ((org-agenda-overriding-header "Time Tracking:")
-       (org-agenda-prefix-format "%-18s | %-11t | ")
+       (org-agenda-prefix-format "%-11t | %-17s | ")
        (org-agenda-show-all-dates nil)
        (org-agenda-show-log 'clockcheck)))))))
 
@@ -475,7 +475,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   "List Guix issues."
   (interactive)
   (debbugs-gnu '("serious" "important" "normal")
-               '("guix" "guix-patches")))
+               '("guix" "guix-patches")
+               nil
+               t))
 
 (setopt gdb-many-windows t)
 
@@ -567,9 +569,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt require-final-newline t)
 
 
-;; (setq ws-butler-global-exempt-modes '(eshell-mode))
-;; (ws-butler-global-mode)
-;; (delight 'ws-butler-mode nil 'ws-butler)
+(setq ws-butler-global-exempt-modes '(eshell-mode))
+(ws-butler-global-mode)
+(delight 'ws-butler-mode nil 'ws-butler)
 
 
 (setopt adaptive-fill-mode nil)
@@ -834,7 +836,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      (("\\.org\\'" . "Org mode file")
       nil
       "#+title: " (file-name-base buffer-file-name) "\n"
-      "Time-stamp: <>\n"))))
+      "Time-stamp: <>\n")
+     (("\\.scm\\'" . "Guile Script")
+      nil
+      "#!/usr/bin/env sh\n"
+      "exec guile -s \"$0\" \"$@\"\n"
+      "!#"))))
 (auto-insert-mode 1)
 
 (setopt copyright-names-regexp "Morgan Smith")
@@ -852,7 +859,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (cons ?t (expand-file-name "agenda/todo.org" org-directory))
   (cons ?c (locate-user-emacs-file "init.el"))
   (cons ?d (xdg-user-dir "DOWNLOAD"))
-  (cons ?p (expand-file-name "possessions.org" org-directory))))
+  (cons ?p (expand-file-name "wiki/possessions.org" org-directory))))
 
 
 (with-eval-after-load "pdf-view"
