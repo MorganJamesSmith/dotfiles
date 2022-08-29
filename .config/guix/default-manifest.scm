@@ -41,8 +41,6 @@
   '("aspell" ; spellchecker
     "aspell-dict-en"
     "brightnessctl"
-    "flameshot" ; Screenshots
-    "flatpak"
     "gnupg"
     "libreoffice"
     "man-pages"
