@@ -4,9 +4,6 @@
  ((guix transformations) #:select (options->transformation))
  ((guix build utils) #:select (with-directory-excursion)))
 
-(use-modules
- (flat packages emacs))
-
 (define (git-commit path)
   (let* ((pipe (with-directory-excursion path
                  (open-pipe* OPEN_READ "git" "rev-parse" "HEAD")))
@@ -21,23 +18,25 @@
 (define transformations
   (options->transformation
    `(
-     (with-commit  . ,(string-append "emacs-pgtk-native-comp=" emacs-git-commit))
-     (with-git-url . "emacs-pgtk-native-comp=/home/pancake/src/emacs/emacs")
+     (with-commit  . ,(string-append "emacs-next-pgtk=" emacs-git-commit))
+     (with-git-url . "emacs-next-pgtk=/home/pancake/src/emacs/emacs")
 
      (with-commit  . ,(string-append "emacs-org=" org-git-commit))
      (with-git-url . "emacs-org=/home/pancake/src/emacs/org-mode")
 
-     (with-input   . "emacs=emacs-pgtk-native-comp")
-     (with-input   . "emacs-minimal=emacs-pgtk-native-comp")
-     (with-input   . "emacs-no-x=emacs-pgtk-native-comp")
-     (with-input   . "emacs-no-x-toolkit=emacs-pgtk-native-comp")
+     (with-input   . "emacs=emacs-next-pgtk")
+     (with-input   . "emacs-minimal=emacs-next-pgtk")
+     (with-input   . "emacs-no-x=emacs-next-pgtk")
+     (with-input   . "emacs-no-x-toolkit=emacs-next-pgtk")
+
+     (without-tests . "emacs-rainbow-delimiters")
 
      (without-tests . "emacs-kv")
-     (without-tests . "emacs-buttercup")
-     (without-tests . "emacs-s")
-     (without-tests . "emacs-clojure-mode")
-     (without-tests . "emacs-org")
-     (without-tests . "emacs-yasnippet") ;; Problem with 0.14.0.  Fixed in elpa
+     ;; (without-tests . "emacs-buttercup")
+     ;; (without-tests . "emacs-s")
+     ;; (without-tests . "emacs-clojure-mode")
+     ;; (without-tests . "emacs-org")
+     ;; (without-tests . "emacs-yasnippet") ;; Problem with 0.14.0.  Fixed in elpa
      )))
 
 (define (specifications->manifest-with-transformations packages)
@@ -51,7 +50,7 @@
 
 (define emacs-packages
   (append!
-   '("emacs-pgtk-native-comp"
+   '("emacs-next-pgtk"
      "pinentry-emacs"
      "mupdf"       ; allows Emacs to preview EPUB
      "ghostscript" ; allows Emacs to preview PostScript
@@ -79,9 +78,10 @@
       "logos"
       "magit"
       "nov-el"
-      "org-contrib" ;; for org-passwords
+      ;; "org-passwords" ;; not packaged yet
+      ;; "org" ;; TODO: won't build
       "osm"
-      "pdf-tools"
+      ;; "pdf-tools" ;; TODO: won't build
       "pinentry"
       "plantuml-mode"
       "rainbow-delimiters"
