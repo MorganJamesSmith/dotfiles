@@ -267,7 +267,7 @@ gtk-application-prefer-dark-theme=1\n"))
       ;; Always create a graphical window even if there is no video.  This makes
       ;; is easy to close mpv
       (".config/mpv/mpv.conf"
-       ,(plain-file "mpv-config" "force-window=yes\n"))
+       ,(plain-file "mpv-config" "force-window=yes\nhwdec=auto-safe"))
 
       ;; Move between chapters using '(' and ')'
       (".config/mpv/input.conf"
