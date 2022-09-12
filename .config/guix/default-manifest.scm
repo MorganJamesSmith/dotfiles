@@ -1,5 +1,6 @@
 (define audio
   '("alsa-utils" ; alsamixer
+    "pulseaudio"
     "pulsemixer"
     "mpd-mpc"     ; Music Playing Daemon CLI
     "playerctl")) ; Lets me play and pause using dbus
@@ -40,8 +41,11 @@
   stuff-only-needed-for-their-environment-variables
   '("aspell" ; spellchecker
     "aspell-dict-en"
+    "atool" ; compression stuff
     "brightnessctl"
+    "duc"
     "gnupg"
+    "hledger"
     "libreoffice"
     "man-pages"
     "mpv" ; video player
