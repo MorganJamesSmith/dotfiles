@@ -55,6 +55,8 @@
   (append!
    '("emacs-next-pgtk"
      "pinentry-emacs"
+     "graphicsmagick" ; image-dired thumbnail generation
+     "libjpeg"        ; image-dired rotate images
      "mupdf"       ; allows Emacs to preview EPUB
      "ghostscript" ; allows Emacs to preview PostScript
      "unoconv")    ; allows Emacs to preview docx files
