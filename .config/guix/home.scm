@@ -258,7 +258,13 @@ gtk-application-prefer-dark-theme=1\n"))
       ;; Enable ssh-agent support and allow use of emacs-pinentry
       (".local/share/gnupg/gpg-agent.conf"
        ,(plain-file "gpg-agent-config"
-                    "enable-ssh-support\nallow-emacs-pinentry\nallow-loopback-pinentry\n"))
+                    (string-join
+                     '("enable-ssh-support"
+                       "allow-emacs-pinentry"
+                       "allow-loopback-pinentry"
+                       "pinentry-program /home/pancake/.config/guix/extra-profiles/emacs/emacs/bin/pinentry-emacs")
+                     "\n"
+                     'suffix)))
 
       ;; Plain black lockscreen 
       (".config/swaylock/config"
