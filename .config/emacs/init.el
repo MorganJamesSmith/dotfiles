@@ -202,6 +202,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Useful for more then just org
 (keymap-global-set "C-c ." #'org-time-stamp)
 (keymap-global-set "C-c !" #'org-time-stamp-inactive)
+(keymap-global-set "C-c C-o" #'org-open-at-point)
 
 (setopt org-directory "~/documents/"
         org-default-notes-file (expand-file-name "notes.org" org-directory)
