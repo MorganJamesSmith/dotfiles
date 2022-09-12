@@ -120,9 +120,9 @@
       (userdbs (list
                 (userdb-configuration
                  (driver "static")
-                 (args '("uid=1000" "gid=997" "allow_all_users=yes"
+                 (args `("uid=1000" "gid=997" "allow_all_users=yes"
                          "username_format=%n"
-                         "home=/home/pancake/.local/share/mail/%n")))))))
+                         ,(string-append "home=/home/" username "/.local/share/mail/%n"))))))))
 
     (service cups-service-type
              (cups-configuration
