@@ -280,7 +280,9 @@ gtk-application-prefer-dark-theme=1\n"))
        ,(plain-file "yt-dlp-config"
                     "\
 -f bestvideo[height<=?1080]+bestaudio/best
--o '~/downloads/videos/|%(upload_date>%Y-%m-%d)s|%(uploader)s|%(title)s|%(id)s.%(ext)s'
+-o '|%(upload_date>%Y-%m-%d)+U|%(uploader)+U|%(title)+U|%(id)+U.%(ext)+U'
+--paths '~/downloads/videos/'
+--replace-in-metadata title,uploader '\\|' '-'
 --write-sub
 --sub-lang en
 --sponsorblock-mark all\n")))))))
