@@ -10,6 +10,11 @@ cd /home/pancake/src/emacs/org-mode || exit $?
 git stash || exit $?
 git pull --rebase --no-gpg-sign || exit $?
 
+# Update local emms source
+cd /home/pancake/src/emacs/emms || exit $?
+git stash || exit $?
+git pull --rebase --no-gpg-sign || exit $?
+
 guix pull || exit $?
 
 # build manifest

@@ -13,7 +13,7 @@
 
 (define emacs-git-commit (git-commit "/home/pancake/src/emacs/emacs"))
 (define org-git-commit (git-commit "/home/pancake/src/emacs/org-mode"))
-
+(define emms-git-commit (git-commit "/home/pancake/src/emacs/emms"))
 
 (define transformations
   (options->transformation
@@ -23,6 +23,9 @@
 
      (with-commit  . ,(string-append "emacs-org=" org-git-commit))
      (with-git-url . "emacs-org=/home/pancake/src/emacs/org-mode")
+
+     (with-commit  . ,(string-append "emacs-emms=" emms-git-commit))
+     (with-git-url . "emacs-emms=/home/pancake/src/emacs/emms")
 
      (with-input   . "emacs=emacs-next-pgtk")
      (with-input   . "emacs-minimal=emacs-next-pgtk")
@@ -67,6 +70,7 @@
       "diff-hl"
       "disk-usage"
       "elpher"
+      "emms"
       "eshell-syntax-highlighting"
       "flymake-shellcheck"
       "geiser"
