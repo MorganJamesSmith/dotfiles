@@ -841,6 +841,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      (("\\.scm\\'" . "Guile Script")
       nil
       "#!/usr/bin/env sh\n"
+      "# -*- mode: scheme; -*-\n"
       "exec guile -s \"$0\" \"$@\"\n"
       "!#"))))
 (auto-insert-mode 1)
