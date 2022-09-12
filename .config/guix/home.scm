@@ -187,9 +187,11 @@ fi
                      ("MOZ_ENABLE_WAYLAND" . "1")
                      ("QT_QPA_PLATFORM" . "wayland")
                      ("QT_QPA_PLATFORMTHEME" . "qt5ct")
+                     ("QT_WAYLAND_DISABLE_WINDOWDECORATION" . "1")
                      ("CLUTTER_BACKEND" . "wayland")
                      ("GDK_BACKEND" . "wayland")
                      ("SDL_VIDEODRIVER" . "wayland")
+                     ("GTK_USE_PORTAL" . "1")
 
                      ("ASPELL_CONF" . "per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl")
                      ("CARGO_HOME" . "$XDG_DATA_HOME/cargo")
