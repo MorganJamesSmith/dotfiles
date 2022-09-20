@@ -17,6 +17,10 @@ git pull --rebase --no-gpg-sign || exit $?
 
 guix pull || exit $?
 
+# dev environment
+rm /home/pancake/.config/guix/dev
+guix shell --pure -D guix -D emacs-next-pgtk --root=/home/pancake/.config/guix/dev -- echo "done"
+
 # build manifest
 guix build --keep-going -m /home/pancake/.config/guix/default-manifest.scm
 guix build --keep-going -m /home/pancake/.config/guix/emacs-manifest.scm
