@@ -43,16 +43,18 @@
     "aspell-dict-en"
     "atool" ; compression stuff
     "brightnessctl"
+    "dino" ; XMPP
     "duc"
     "gnupg"
     "hledger"
-    "libreoffice"
+    "jami" ; SIP
     "man-pages"
     "mpv" ; video player
     "openscad" ; 3D modeling program
     "openssh"
     "password-store"
     "pwgen" ; Password Generator
+    "quaternion" ; Matrix
     "rmlint"
     "recutils"
     "unzip"
