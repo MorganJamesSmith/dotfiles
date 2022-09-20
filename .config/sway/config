@@ -32,7 +32,9 @@ output * bg #000000 solid_color
 ### Idle configuration
 exec swayidle -w \
          timeout 300 'swaylock -f' \
-         timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"'
+         timeout 600 'swaymsg "output * dpms off"' \
+         resume 'swaymsg "output * dpms on"' \
+         before-sleep 'swaylock -f'
 
 input "type:keyboard" {
       repeat_delay 200
