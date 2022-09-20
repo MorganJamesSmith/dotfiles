@@ -1,5 +1,6 @@
 (use-modules
  (gnu)
+ ((gnu packages games) #:select (steam-devices-udev-rules))
  ((gnu packages certs) #:select (nss-certs))
  ((gnu packages cups) #:select (cups))
  ((gnu packages linux) #:select (brightnessctl))
@@ -133,6 +134,7 @@
     (screen-locker-service swaylock)
 
     (udev-rules-service 'brightnessctl brightnessctl)
+    (udev-rules-service 'steam-devices steam-devices-udev-rules)
 
     (service transmission-daemon-service-type
              (transmission-daemon-configuration
