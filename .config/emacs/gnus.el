@@ -54,6 +54,7 @@
 
 ;; We don't need to cache since we use a local dovecot server
 (customize-set-variable 'gnus-agent nil)
+(customize-set-variable 'gnus-use-cache nil)
 
 ;; Encrypt email by default and also encrypt to self
 (add-hook 'message-setup-hook 'mml-secure-message-encrypt)
@@ -71,6 +72,8 @@
 
 (customize-set-variable 'gnus-parameters `(("." (display . all))))
 
+;; Speeds up display of large groups quite a bit
+(setopt gnus-show-threads nil)
 
 
 ;; TODO: figure out how to specifiy my nnvirtual groups from here
@@ -87,8 +90,7 @@
              (nnimap-user ,x)
              (nnimap-address "localhost")
              (nnimap-stream network)
-             (nnimap-server-port 143)
-             (nnimap-fetch-partial-articles t)))
+             (nnimap-server-port 143)))
   '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local")))
 
 
