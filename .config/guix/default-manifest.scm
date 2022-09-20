@@ -1,3 +1,5 @@
+(use-modules (gnu packages fontutils))
+
 (define audio
   '("alsa-utils" ; alsamixer
     "pulseaudio"
@@ -29,34 +31,40 @@
 
 (define stuff-only-needed-for-their-environment-variables
   '("man-db"     ;; MANPATH
-    "texinfo"))  ;; INFOPATH
+    "texinfo"    ;; INFOPATH
+    ;; fontconfig ;; XDG_DATA_DIRS
+    ))
 
-(specifications->manifest
- (append!
-  audio
-  downloaders
-  programming
-  email
-  terminal-tools
-  stuff-only-needed-for-their-environment-variables
-  '("aspell" ; spellchecker
-    "aspell-dict-en"
-    "atool" ; compression stuff
-    "brightnessctl"
-    "dino" ; XMPP
-    "duc"
-    "gnupg"
-    "hledger"
-    "jami" ; SIP
-    "man-pages"
-    "mpv" ; video player
-    "openscad" ; 3D modeling program
-    "openssh"
-    "password-store"
-    "pwgen" ; Password Generator
-    "quaternion" ; Matrix
-    "rmlint"
-    "recutils"
-    "unzip"
-    "xpdf" ; pdftotext
-    "zip")))
+(concatenate-manifests
+ (list
+  (packages->manifest
+   (list fontconfig))
+  (specifications->manifest
+   (append!
+    audio
+    downloaders
+    programming
+    email
+    terminal-tools
+    stuff-only-needed-for-their-environment-variables
+    '("aspell" ; spellchecker
+      "aspell-dict-en"
+      "atool" ; compression stuff
+      "brightnessctl"
+      "dino" ; XMPP
+      "duc"
+      "gnupg"
+      "hledger"
+      "jami" ; SIP
+      "man-pages"
+      "mpv" ; video player
+      "openscad" ; 3D modeling program
+      "openssh"
+      "password-store"
+      "pwgen" ; Password Generator
+      "quaternion" ; Matrix
+      "rmlint"
+      "recutils"
+      "unzip"
+      "xpdf" ; pdftotext
+      "zip")))))
