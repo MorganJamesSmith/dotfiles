@@ -37,10 +37,10 @@
   (issue "Morgan's GNU Guix Machine\n\n")
 
   ;; Use the UEFI variant of GRUB with the EFI System
-  ;; Partition mounted on /boot/efi.
+  ;; Partition mounted on /boot.
   (bootloader (bootloader-configuration
                (bootloader grub-efi-bootloader)
-               (targets (list "/boot/efi"))))
+               (targets (list "/boot"))))
 
   (swap-devices (list (swap-space (target "/swapfile"))))
 
@@ -56,11 +56,15 @@
                  (list (file-system
                          (device (file-system-label "guix-root"))
                          (mount-point "/")
-                         (type "ext4")
+                         (type "btrfs")
+                         (flags '(lazy-time))
+                         (options
+                          (alist->file-system-options
+                           '(("compress" . "lzo"))))
                          (dependencies mapped-devices))
                        (file-system
                          (device (uuid "CHANGE ME" 'fat))
-                         (mount-point "/boot/efi")
+                         (mount-point "/boot")
                          (type "vfat")))
                  %base-file-systems))
 
