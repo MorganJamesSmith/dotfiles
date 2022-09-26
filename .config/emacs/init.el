@@ -177,22 +177,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt mode-line-compact 'long)
 
-(defvar current-song ""
-  "The song MPD is currently playing.")
-(defun mpdupdate (_process _change)
-  "Always know what song is playing."
-  (setq current-song
-        (if (string-search "playing" (shell-command-to-string "mpc status"))
-            (string-trim (shell-command-to-string "mpc current"))
-          ""))
-  (force-mode-line-update t)
-  (make-process :name "mpdupdate"
-                :command '("mpc" "idle")
-                :sentinel #'mpdupdate
-                :noquery t))
-(mpdupdate nil nil)
-(add-to-list 'global-mode-string 'current-song t)
-
 (setopt tab-bar-format '(tab-bar-format-global))
 (tab-bar-mode)
 ;;; Modeline/Tab Bar Section Ends
