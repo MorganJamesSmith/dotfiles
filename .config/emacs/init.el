@@ -148,7 +148,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt modus-themes-org-agenda
 		'((header-block . (2.5))
 		  (header-date . (bold-today))
-		  (scheduled . (rainbow))))
+		  (scheduled . rainbow)))
 (setopt modus-themes-headings '((t . (rainbow))))
 
 (load-theme 'modus-vivendi t)
