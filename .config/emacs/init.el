@@ -521,28 +521,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; VC/Diffs Section Begins
-(with-eval-after-load "magit"
-  (add-hook 'after-save-hook #'magit-after-save-refresh-status))
-
-(setopt magit-section-initial-visibility-alist
-        '((stashes . hide) (untracked . hide))
-        magit-auto-revert-immediately t
-        magit-diff-refine-hunk t
-        magit-log-margin-show-committer-date t
-        magit-no-confirm '(safe-with-wip)
-        magit-save-repository-buffers 'dontask
-        magit-wip-merge-branch t
-        magit-diff-paint-whitespace nil)
-
-
-(delight 'magit-wip-mode nil 'magit-wip)
-(magit-wip-mode 1)
-(add-to-list 'magit-process-find-password-functions
-             'magit-process-password-auth-source)
 
 (global-diff-hl-mode)
-(add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
-(add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
 
 
 (setopt ediff-window-setup-function #'ediff-setup-windows-plain
@@ -925,7 +905,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                        (mode . org-mode))
                       (mode . diary-mode)
                       (mode . org-agenda-mode)))
-           ("magit" (name . "magit"))
            ("dired" (mode . dired-mode))
            ("commands" (or
                         (name . ,shell-command-buffer-name-async)

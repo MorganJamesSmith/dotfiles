@@ -83,7 +83,6 @@
       "hledger-mode"
       "literate-calc-mode"
       "logos"
-      "magit"
       "nov-el"
       ;; "org-passwords" ;; not packaged yet
       ;; "org" ;; TODO: won't build
