@@ -895,7 +895,44 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (global-auto-composition-mode -1)
 
-;; Music/Media bindings
+;; EMMS
+(keymap-global-set "s-p" #'emms-pause)
+(keymap-global-set "s-<right>" #'emms-next)
+(keymap-global-set "s-<left>" #'emms-previous)
+(keymap-global-set "s-<up>" #'emms-volume-raise)
+(keymap-global-set "s-<down>" #'emms-volume-lower)
+
+(emms-all)
+(setopt emms-playing-time-display-mode nil)
+(setopt emms-player-list '(emms-player-mpd
+                           emms-player-mpv))
+(setopt emms-player-mpd-music-directory (xdg-user-dir "MUSIC"))
+(setopt emms-repeat-playlist t)
+(setopt emms-info-functions nil)
+
+;; TODO: add normal mixer support to emms-volume-amixer-change.  Currently it
+;; only supports simple mixers
+(setopt emms-volume-change-function #'emms-volume-pulse-change)
+
+(setopt emms-volume-change-amount 5)
+(setopt emms-mode-line-format " %s")
+
+;; TODO: auto get decoders from server
+;; (emms-player-mpd-send "decoders" nil (lambda (_ string) (print string)))
+(setopt emms-player-mpd-supported-regexp
+        (emms-player-simple-regexp
+         "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"
+         "opus" "m4a" "webm"))
+
+(defun music-setup ()
+  "Setup my music."
+  (interactive)
+  (emms-stop)
+  (emms-playlist-current-clear)
+  (emms-add-directory-tree emms-player-mpd-music-directory)
+  (emms-shuffle)
+  (emms-start))
+
 (keymap-global-set "s-<return>" #'eshell)
 
 (delight 'abbrev-mode nil 'abbrev)
