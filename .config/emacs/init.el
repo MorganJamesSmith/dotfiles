@@ -513,9 +513,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 (delight 'yas-minor-mode nil 'yasnippet)
-
-(with-eval-after-load "yasnippet"
-  (add-to-list 'yas-snippet-dirs "~/src/guix/etc/snippets"))
 (yas-global-mode 1)
 ;;; Programming Section Ends
 
