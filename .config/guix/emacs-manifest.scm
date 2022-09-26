@@ -69,7 +69,6 @@
       "csv-mode"
       "debbugs"
       "delight"
-      "desktop-environment"
       "diff-hl"
       "disk-usage"
       "elpher"

@@ -776,30 +776,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (autoload 'xdg-user-dir "xdg")
 
-(setopt desktop-environment-screenshot-directory (xdg-user-dir "PICTURES"))
-
-
-(advice-add
- #'desktop-environment-toggle-microphone-mute
- :around
- (lambda (_)
-   (let ((output (shell-command-to-string desktop-environment-volume-toggle-microphone-command)))
-     (string-match "\\(\\[off\\]\\|\\[on\\]\\)" output)
-     (message "Microphone: %s" (match-string 1 output)))))
-
-(defun desktop-environment-volume-microphone-increment ()
-  "Increment microphone volume by 5%."
-  (interactive)
-  (let ((output (shell-command-to-string "amixer set Capture 5%+")))
-    (string-match desktop-environment-volume-get-regexp output)
-    (message "Microphone: %s" (match-string 1 output))))
-(defun desktop-environment-volume-microphone-decrement ()
-  "Decrement microphone volume by 5%."
-  (interactive)
-  (let ((output (shell-command-to-string "amixer set Capture 5%-")))
-    (string-match desktop-environment-volume-get-regexp output)
-    (message "Microphone: %s" (match-string 1 output))))
-
 ;; Tell gpg what screen to use for pinentry
 ;; (shell-command "gpg-connect-agent \"UPDATESTARTUPTTY\" /bye")
 
@@ -936,16 +912,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (global-auto-composition-mode -1)
 
 ;; Music/Media bindings
-(load "desktop-environment")
-(keymap-global-set "s-p"  #'desktop-environment-toggle-music)
-(keymap-global-set "s-m" #'desktop-environment-toggle-microphone-mute)
-(keymap-global-set "S-s-<up>" #'desktop-environment-volume-microphone-increment)
-(keymap-global-set "S-s-<down>" #'desktop-environment-volume-microphone-decrement)
-(keymap-global-set "s-<up>" #'desktop-environment-volume-increment)
-(keymap-global-set "s-<down>" #'desktop-environment-volume-decrement)
-(keymap-global-set "s-<right>" #'desktop-environment-music-next)
-(keymap-global-set "s-<left>" #'desktop-environment-music-previous)
-
 (keymap-global-set "s-<return>" #'eshell)
 
 (delight 'abbrev-mode nil 'abbrev)
