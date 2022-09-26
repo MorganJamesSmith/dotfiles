@@ -21,7 +21,7 @@
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
-(customize-set-variable 'gnus-interactive-exit nil)
+(setopt gnus-interactive-exit nil)
 
 (keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
 (keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward)
@@ -43,34 +43,34 @@
 (define-key gnus-group-mode-map (kbd "f") #'get-mail)
 
 ;; Don't ask how many messages I want to see. I want them all
-(customize-set-variable 'gnus-large-newsgroup nil)
+(setopt gnus-large-newsgroup nil)
 
 ;; Don't check for new newsgroups
-(customize-set-variable 'gnus-save-killed-list nil)
-(customize-set-variable 'gnus-check-new-newsgroups nil)
+(setopt gnus-save-killed-list nil)
+(setopt gnus-check-new-newsgroups nil)
 
 
-(customize-set-variable 'gnus-message-archive-group nil)
+(setopt gnus-message-archive-group nil)
 
 ;; We don't need to cache since we use a local dovecot server
-(customize-set-variable 'gnus-agent nil)
-(customize-set-variable 'gnus-use-cache nil)
+(setopt gnus-agent nil)
+(setopt gnus-use-cache nil)
 
 ;; Encrypt email by default and also encrypt to self
 (add-hook 'message-setup-hook 'mml-secure-message-encrypt)
-(customize-set-variable 'mml-secure-openpgp-encrypt-to-self t)
-(customize-set-variable 'mml-secure-smime-encrypt-to-self t)
+(setopt mml-secure-openpgp-encrypt-to-self t)
+(setopt mml-secure-smime-encrypt-to-self t)
 
 ;; Always decrypt messages without asking me
-(customize-set-variable 'mm-decrypt-option 'always)
+(setopt mm-decrypt-option 'always)
 
-(customize-set-variable 'gnus-completing-read-function #'gnus-ido-completing-read)
+(setopt gnus-completing-read-function #'gnus-ido-completing-read)
 ;; Always show all my groups
-(customize-set-variable 'gnus-permanently-visible-groups ".")
+(setopt gnus-permanently-visible-groups ".")
 
-(customize-set-variable 'gnus-visible-headers (concat gnus-visible-headers "\\|^Message-ID:"))
+(setopt gnus-visible-headers (concat gnus-visible-headers "\\|^Message-ID:"))
 
-(customize-set-variable 'gnus-parameters `(("." (display . all))))
+(setopt gnus-parameters `(("." (display . all))))
 
 ;; Speeds up display of large groups quite a bit
 (setopt gnus-show-threads nil)
@@ -81,9 +81,9 @@
 ;; (nnvirtual "[^l].\\(INBOX\\|Inbox\\|Junk\\|Spam\\)")
 
 ;; Receiving email stuff
-(customize-set-variable 'gnus-select-method '(nnnil ""))
-(customize-set-variable
- 'gnus-secondary-select-methods
+(setopt gnus-select-method '(nnnil ""))
+(setopt
+ gnus-secondary-select-methods
  (mapcar
   (lambda (x)
     `(nnimap ,x
@@ -98,7 +98,7 @@
 
  ;; Split windows horizontally instead of vertically when reading articles
 
-(customize-set-variable 'gnus-summary-line-format
+(setopt gnus-summary-line-format
                         (concat
                          "%0{%U%R%z%}"
                          "%3{|%}" "%1{%&user-date;%}" "%3{|%}" ;; date
@@ -110,9 +110,9 @@
                          "%1{%B%}"
                          "%s\n"))
 
-(customize-set-variable 'gnus-user-date-format-alist `((t . ,time-stamp-format)))
-(customize-set-variable 'gnus-group-line-format "%5y:%B%(%c%)\n")
-(customize-set-variable 'gnus-summary-display-arrow t)
+(setopt gnus-user-date-format-alist `((t . ,time-stamp-format)))
+(setopt gnus-group-line-format "%5y:%B%(%c%)\n")
+(setopt gnus-summary-display-arrow t)
 
 (provide 'my-gnus.el)
 ;;; gnus.el ends here
