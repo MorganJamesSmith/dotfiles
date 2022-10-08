@@ -21,6 +21,8 @@
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
+(setopt gnus-dbus-close-on-sleep t)
+
 (setopt gnus-interactive-exit nil)
 
 (keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
@@ -30,7 +32,6 @@
 ;; part of the same thread
 (setopt gnus-summary-gather-exclude-subject "^ *$\\|^...$\\|^(none)$")
 
-;; f runs the command mbsync
 (defun get-mail ()
   "Get mail."
   (interactive)
@@ -68,8 +69,6 @@
 ;; Always show all my groups
 (setopt gnus-permanently-visible-groups ".")
 
-(setopt gnus-visible-headers (concat gnus-visible-headers "\\|^Message-ID:"))
-
 (setopt gnus-parameters `(("." (display . all))))
 
 ;; Speeds up display of large groups quite a bit
@@ -95,8 +94,6 @@
 
 
 ;; Make stuff pretty section
-
- ;; Split windows horizontally instead of vertically when reading articles
 
 (setopt gnus-summary-line-format
                         (concat
