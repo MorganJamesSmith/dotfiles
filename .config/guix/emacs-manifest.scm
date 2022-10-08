@@ -87,7 +87,6 @@
       ;; "org" ;; TODO: won't build
       "osm"
       "pinentry"
-      "plantuml-mode"
       "rainbow-delimiters"
       "rec-mode"
       "scad-mode"

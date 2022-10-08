@@ -14,8 +14,7 @@
     "yt-dlp")) ; Downloads more than just YouTube
 
 (define programming
-  '("plantuml"
-    "global"
+  '("global"
     "git"
     "git:send-email"))
 

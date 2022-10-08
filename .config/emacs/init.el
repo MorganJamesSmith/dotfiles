@@ -763,9 +763,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Tell gpg what screen to use for pinentry
 ;; (shell-command "gpg-connect-agent \"UPDATESTARTUPTTY\" /bye")
 
-(setopt plantuml-default-exec-mode 'executable)
-(setopt org-plantuml-exec-mode 'plantuml)
-
 
 (setopt time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
 (add-hook 'before-save-hook 'time-stamp)
