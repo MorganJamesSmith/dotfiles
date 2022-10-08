@@ -92,7 +92,6 @@
       "rainbow-delimiters"
       "rec-mode"
       "scad-mode"
-      "sr-speedbar"
       "transmission"
       "tup-mode"
       "vterm"

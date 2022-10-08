@@ -776,8 +776,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-to-list 'disk-usage-available-filters 'disk-usage-filter-proc)
   (add-to-list 'disk-usage-default-filters 'disk-usage-filter-proc))
 
-(keymap-global-set "C-c s" #'sr-speedbar-toggle)
-
 (setopt auto-insert-query nil)
 (setopt auto-insert t)
 (with-eval-after-load "autoinsert"
