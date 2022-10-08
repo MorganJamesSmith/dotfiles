@@ -816,9 +816,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (cons ?p (expand-file-name "wiki/possessions.org" org-directory))))
 
 
-(with-eval-after-load "pdf-view"
-  (keymap-set pdf-view-mode-map "r" #'image-rotate))
-(pdf-tools-install)
+(with-eval-after-load "doc-view"
+  (keymap-set doc-view-mode-map "r" #'image-rotate))
 
 (setopt ibuffer-expert t)
 (setopt ibuffer-saved-filter-groups

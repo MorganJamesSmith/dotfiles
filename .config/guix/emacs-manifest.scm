@@ -86,7 +86,6 @@
       ;; "org-passwords" ;; not packaged yet
       ;; "org" ;; TODO: won't build
       "osm"
-      ;; "pdf-tools" ;; TODO: won't build
       "pinentry"
       "plantuml-mode"
       "rainbow-delimiters"
