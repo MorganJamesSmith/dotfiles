@@ -1,8 +1,8 @@
 #!/bin/sh
 
 mkdir -p /home/pancake/.config/guix/extra-profiles || exit $?
-mkdir -p /home/pancake/.config/guix/extra-profiles/default/default || exit $?
-mkdir -p /home/pancake/.config/guix/extra-profiles/emacs/emacs || exit $?
+mkdir -p /home/pancake/.config/guix/extra-profiles/default || exit $?
+mkdir -p /home/pancake/.config/guix/extra-profiles/emacs || exit $?
 
 guix package -p /home/pancake/.config/guix/extra-profiles/default/default -m /home/pancake/.config/guix/default-manifest.scm || exit $?
 guix package -p /home/pancake/.config/guix/extra-profiles/emacs/emacs -m /home/pancake/.config/guix/emacs-manifest.scm || exit $?
