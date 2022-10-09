@@ -491,13 +491,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt org-link-elisp-confirm-function nil)
 (setopt org-link-descriptive nil)
+(setopt org-link-abbrev-alist
+        '(("contact" . "elisp:(get-contact \"%s\")")
+          ("guix" . "elisp:(guix-packages-by-name \"%s\")")
+          ("possessions" . "file:~/documents/wiki/possessions.org::*")
+          ("money" . "file:~/documents/money/money.ledger::[[possessions:%s]]")))
 
-(add-to-list 'org-link-abbrev-alist
-             (cons "contact" "elisp:(get-contact \"%s\")"))
 
-
-(add-to-list 'org-link-abbrev-alist
-             (cons "guix" "elisp:(guix-packages-by-name \"%s\")"))
 ;; (add-hook 'scheme-mode-hook #'guix-devel-mode)
 
 (setopt scheme-program-name "guile")
