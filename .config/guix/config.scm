@@ -31,6 +31,22 @@
   (host-name host-name)
   (timezone "America/New_York")
 
+  (kernel-arguments
+   (list
+    "quiet"
+    "numa=off" ; idk
+    "mitigations=off" ; more performance
+    "nowatchdog" ; more performance
+    (string-append
+     "modprobe.blacklist="
+     (string-join (cons*
+                   "sp5100_tco" ; disable watchdog timer
+                   "pcspkr" "snd_pcsp" ; Stop the beeping
+                   "btusb" "bluetooth" ; bluetooth
+                   "uhci_hcd" ; USB 1.1
+                   %default-modprobe-blacklist)
+                  ","))))
+
   ;; https://someonewhocares.org/hosts/zero/hosts
   (hosts-file (local-file "./hosts"))
 
