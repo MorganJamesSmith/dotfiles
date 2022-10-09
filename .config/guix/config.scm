@@ -175,6 +175,12 @@
     (modify-services
         %desktop-services
 
+      (elogind-service-type
+       config =>
+       (elogind-configuration
+        (inherit config)
+        (handle-power-key 'suspend)))
+      
       (delete gdm-service-type)
       (delete screen-locker-service-type))))
 
