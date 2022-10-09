@@ -35,12 +35,7 @@
 
      (without-tests . "emacs-rainbow-delimiters")
 
-     (without-tests . "emacs-kv")
-     ;; (without-tests . "emacs-buttercup")
-     ;; (without-tests . "emacs-s")
-     ;; (without-tests . "emacs-clojure-mode")
      ;; (without-tests . "emacs-org")
-     ;; (without-tests . "emacs-yasnippet") ;; Problem with 0.14.0.  Fixed in elpa
      )))
 
 (define (specifications->manifest-with-transformations packages)
