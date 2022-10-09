@@ -285,6 +285,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-todo-ignore-timestamp 'future)
        (org-agenda-skip-function
         '(or
+          ;; Low priority is shown in "Eventually maybe" section
+          (org-agenda-skip-entry-if 'regexp "\\[#C\\]")
           (org-agenda-skip-entry-before-SHOWFROMTIME-property)
           (org-agenda-skip-entry-before-SHOWFROMDATE-property)))))
      (todo
@@ -306,6 +308,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           (org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF" "LECTURE"))
           (org-agenda-skip-entry-before-SHOWFROMDATE-property)
           (org-agenda-skip-entry-EXCEPTIONS-property)))))
+     (todo
+      "TODO"
+      ((org-agenda-overriding-header "Eventually maybe:")
+       (org-agenda-prefix-format "%?T%s")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))))
      (agenda
       ""
       ((org-agenda-overriding-header "Time Tracking:")
