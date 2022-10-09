@@ -56,6 +56,7 @@
   (append!
    '("emacs-next-pgtk"
      "pinentry-emacs"
+     "shellcheck"  ; flymake shell files
      "graphicsmagick" ; image-dired thumbnail generation
      "libjpeg"        ; image-dired rotate images
      "mupdf"       ; allows Emacs to preview EPUB
@@ -74,7 +75,6 @@
       "elpher"
       "emms"
       "eshell-syntax-highlighting"
-      "flymake-shellcheck"
       "geiser"
       "geiser-guile"
       "ggtags"

@@ -434,9 +434,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt flymake-cc-command 'my-flymake-cc-command)
 
-(setopt flymake-shellcheck-allow-external-files t)
-(add-hook 'sh-mode-hook #'flymake-shellcheck-load)
-
 (global-cwarn-mode)
 (delight 'cwarn-mode nil 'cwarn)
 
