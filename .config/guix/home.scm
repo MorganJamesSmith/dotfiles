@@ -13,7 +13,6 @@
  ((gnu packages fonts) #:select (font-openmoji font-wqy-zenhei))
  ((gnu packages glib) #:select (dbus))
  ((gnu packages linux) #:select (brightnessctl alsa-utils))
- ((gnu packages mpd) #:select (mpdris2))
  ((gnu packages wm) #:select (sway swayidle mako))
  (gnu packages xdisorg)
  (gnu packages qt)
@@ -30,17 +29,6 @@
          (format #f "~a/.local/var/log"
                  (getenv "HOME")))
      "/" #$name ".log"))
-
-(define (mpdris2-shepherd-service config)
-  (list
-   (shepherd-service
-    (documentation "Run mpdris2")
-    (requirement '(home-dbus))
-    (provision '(mpdris2))
-    (start #~(make-forkexec-constructor
-              (list #$(file-append mpdris2 "/bin/mpDris2"))
-              #:log-file #$(log-file-location "mpdris2")))
-    (stop  #~(make-kill-destructor)))))
 
 (define (home-dbus-shepherd-service config)
   (list
@@ -64,14 +52,6 @@
               (list #$(file-append pantalaimon "/bin/pantalaimon"))
               #:log-file #$(log-file-location "pantalaimon")))
     (stop  #~(make-kill-destructor)))))
-
-(define home-mpdris2-service-type
-  (service-type
-   (name 'home-mpdris2)
-   (extensions (list (service-extension home-shepherd-service-type
-                                        mpdris2-shepherd-service)))
-   (default-value '())
-   (description "mpdris2")))
 
 (define home-dbus-service-type
   (service-type
@@ -106,7 +86,6 @@
  (services
   (list
    (service home-shepherd-service-type)
-   (service home-mpdris2-service-type)
    (service home-dbus-service-type)
    (service home-pantalaimon-service-type)
    (service home-bash-service-type)

@@ -4,8 +4,7 @@
   '("alsa-utils" ; alsamixer
     "pulseaudio"
     "pulsemixer"
-    "mpd-mpc"     ; Music Playing Daemon CLI
-    "playerctl")) ; Lets me play and pause using dbus
+    "mpd-mpc"))   ; Music Playing Daemon CLI
 
 (define downloaders
   '("curl"
