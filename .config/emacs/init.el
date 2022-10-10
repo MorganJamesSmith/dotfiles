@@ -62,6 +62,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt shell-kill-buffer-on-exit t)
 
+(setopt view-read-only t)
+
 (savehist-mode 1)
 (recentf-mode)
 
@@ -198,13 +200,17 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         org-use-speed-commands t
         org-src-ask-before-returning-to-edit-buffer nil
         org-src-window-setup 'current-window
-        org-html-postamble nil
         org-special-ctrl-a/e t
         org-fold-catch-invisible-edits 'show-and-error
         org-todo-keywords
         '((sequence "TODO" "DONE")
           (sequence "HABIT" "DONE")
           (sequence "DAYOF" "DONE")))
+
+(setopt org-html-preamble nil
+        org-html-postamble nil
+        org-html-head-include-default-style nil
+        org-html-meta-tags nil)
 
 (with-eval-after-load "org"
   (push 'org-habit org-modules)
@@ -495,8 +501,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           ("money" . "file:~/documents/money/money.ledger::[[possessions:%s]]")))
 
 
-;; (add-hook 'scheme-mode-hook #'guix-devel-mode)
-
+(add-hook 'scheme-mode-hook #'guix-devel-mode)
 (setopt scheme-program-name "guile")
 (setopt scheme-mit-dialect nil)
 
@@ -510,6 +515,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (global-diff-hl-mode)
 
+(setopt vc-handled-backends '(Git))
+(setopt auto-revert-check-vc-info t)
 
 (setopt ediff-window-setup-function #'ediff-setup-windows-plain
         ediff-diff-options "-w"
@@ -536,7 +543,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt require-final-newline t)
 
 
-(setq ws-butler-global-exempt-modes '(eshell-mode))
+(setq ws-butler-global-exempt-modes '(eshell-mode gnus-mode))
 (ws-butler-global-mode)
 (delight 'ws-butler-mode nil 'ws-butler)
 
@@ -741,9 +748,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm" ".m4v" ".wav" ".mp3" ".opus" ".ogv" ".flac")) "mpv")
           (,(regexp-opt '(".pdf")) "pdftotext")))
 (setopt dired-omit-size-limit nil)
-
-
-
 
 ;; TODO: why don't this work!
 ;; (setopt image-dired-thumbnail-storage 'standard)
