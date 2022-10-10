@@ -8,7 +8,7 @@
  ((gnu packages gnome) #:select (adwaita-icon-theme hicolor-icon-theme))
  ((gnu services audio) #:select (mpd-service-type mpd-configuration))
  ((gnu services cups) #:select (cups-service-type cups-configuration))
- ((gnu services desktop) #:select (%desktop-services))
+ ((gnu services desktop) #:select (%desktop-services elogind-service-type elogind-configuration))
  ((gnu services dict) #:select (dicod-service))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
  ((gnu services mail) #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration unix-listener-configuration userdb-configuration passdb-configuration))
