@@ -93,8 +93,23 @@
    (simple-service 'stuff
                    home-shell-profile-service-type
                    (list (plain-file "profile" "
-eval \"$(guix package --search-paths=suffix --profile=$HOME/.config/guix/extra-profiles/emacs/emacs)\"
-eval \"$(guix package --search-paths=suffix --profile=$HOME/.config/guix/extra-profiles/default/default)\"
+DEFAULT_PROFILE=$HOME/.config/guix/extra-profiles/default/default
+EMACS_PROFILE=$HOME/.config/guix/extra-profiles/emacs/emacs
+
+eval \"$(guix package --search-paths=suffix --profile=$DEFAULT_PROFILE)\"
+eval \"$(guix package --search-paths=suffix --profile=$EMACS_PROFILE)\"
+
+export MANPATH=$DEFAULT_PROFILE/share/man${MANPATH:+:}$MANPATH
+export MANPATH=$EMACS_PROFILE/share/man${MANPATH:+:}$MANPATH
+
+export INFOPATH=$DEFAULT_PROFILE/share/info${INFOPATH:+:}$INFOPATH
+export INFOPATH=$EMACS_PROFILE/share/info${INFOPATH:+:}$INFOPATH
+
+export XDG_DATA_DIRS=$DEFAULT_PROFILE/share${XDG_DATA_DIRS:+:}$XDG_DATA_DIRS
+export XDG_DATA_DIRS=$EMACS_PROFILE/share${XDG_DATA_DIRS:+:}$XDG_DATA_DIRS
+
+export XDG_CONFIG_DIRS=$DEFAULT_PROFILE/etc/xdg${XDG_CONFIG_DIRS:+:}$XDG_CONFIG_DIRS
+export XDG_CONFIG_DIRS=$EMACS_PROFILE/etc/xdg${XDG_CONFIG_DIRS:+:}$XDG_CONFIG_DIRS
 
 # Start graphical interface
 if [ \"$(tty)\" = \"/dev/tty7\" ]; then

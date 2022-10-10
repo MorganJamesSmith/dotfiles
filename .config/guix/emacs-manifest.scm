@@ -2,8 +2,7 @@
  ((ice-9 popen) #:select (open-pipe* close-pipe))
  ((ice-9 rdelim) #:select (read-line))
  ((guix transformations) #:select (options->transformation))
- ((guix build utils) #:select (with-directory-excursion))
- (gnu packages fontutils))
+ ((guix build utils) #:select (with-directory-excursion)))
 
 (define (git-commit path)
   (let* ((pipe (with-directory-excursion path
@@ -93,17 +92,5 @@
       "ws-butler"
       "yasnippet"))))
 
-(define stuff-only-needed-for-their-environment-variables
-  '("man-db"     ;; MANPATH
-    "texinfo"    ;; INFOPATH
-    ;; fontconfig ;; XDG_DATA_DIRS
-    ))
-
-(concatenate-manifests
- (list
-  (packages->manifest
-   (list fontconfig))
-  (specifications->manifest-with-transformations
-   (append!
-    emacs-packages
-    stuff-only-needed-for-their-environment-variables))))
+(specifications->manifest-with-transformations
+ emacs-packages)
