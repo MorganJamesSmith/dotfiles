@@ -272,6 +272,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  org-agenda-time-leading-zero t
  org-agenda-window-setup 'current-window
  org-agenda-todo-keyword-format ""
+ org-agenda-remove-tags t
 
  org-agenda-files
  (list
@@ -290,18 +291,19 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-todo-ignore-scheduled 'future)
        (org-agenda-todo-ignore-timestamp 'future)
        (org-agenda-skip-function
-        '(or
-          ;; Low priority is shown in "Eventually maybe" section
-          (org-agenda-skip-entry-if 'regexp "\\[#C\\]")
-          (org-agenda-skip-entry-before-SHOWFROMTIME-property)
-          (org-agenda-skip-entry-before-SHOWFROMDATE-property)))))
-     (todo
-      "HABIT"
-      ((org-agenda-overriding-header "Today's Habits:")
+        ;; Low priority is shown in "Eventually maybe" section
+        '(org-agenda-skip-entry-if 'regexp "\\[#C\\]"))))
+     (agenda
+      ""
+      (;; I do the header funny to avoid an extra newline
+       (org-agenda-overriding-header (lambda () "Today's Habits: "))
+       (org-agenda-format-date "")
        (org-agenda-prefix-format "")
-       (org-agenda-todo-ignore-scheduled 'future)
+       (org-agenda-span 'day)
+       (org-habit-show-all-today t)
+       (org-habit-clock-completes-habit t)
        (org-agenda-skip-function
-        'org-agenda-skip-entry-before-SHOWFROMTIME-property)))
+        '(org-agenda-skip-entry-if 'nottodo '("HABIT")))))
      (agenda
       ""
       ((org-agenda-overriding-header "Schedule:")
@@ -310,10 +312,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-deadline-warning-days 0)
        (org-agenda-include-diary t) ;; For holidays
        (org-agenda-skip-function
-        '(or
-          (org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF" "LECTURE"))
-          (org-agenda-skip-entry-before-SHOWFROMDATE-property)
-          (org-agenda-skip-entry-EXCEPTIONS-property)))))
+        '(org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF")))))
      (todo
       "TODO"
       ((org-agenda-overriding-header "Eventually maybe:")
@@ -326,50 +325,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-prefix-format "%-11t | %-17s | ")
        (org-agenda-show-all-dates nil)
        (org-agenda-show-log 'clockcheck)))))))
-
-(with-eval-after-load "org-agenda"
-  (defun dairy-last-work-day-of-month (&optional _mark)
-    "Used to schedule an item for the last work day of the month."
-    (with-no-warnings (defvar date) (defvar entry))
-    (let* ((dayname (calendar-day-of-week date))
-           (day (calendar-extract-day date))
-           (month (calendar-extract-month date))
-           (year (calendar-extract-year date))
-           (lastday (calendar-last-day-of-month month year)))
-      (or (and (= day lastday) (memq dayname '(1 2 3 4 5)))
-          (and (>= day (- lastday 2)) (= dayname 5)))))
-
-  (defun org-agenda-skip-entry-before-SHOWFROMTIME-property ()
-    "Skip entry if :SHOWFROMTIME: property is set and time of day is before it."
-    (org-back-to-heading t)
-    (let ((time-string
-           (org-entry-get (point) "SHOWFROMTIME")))
-      (when time-string
-	    (let* ((cur-decoded-time (decode-time))
-               (cur-time-of-day (+ (* (decoded-time-hour cur-decoded-time) 100)
-                                   (decoded-time-minute cur-decoded-time))))
-          (unless (< (org-get-time-of-day time-string) cur-time-of-day)
-            (org-entry-end-position))))))
-
-  (defun org-agenda-skip-entry-before-SHOWFROMDATE-property ()
-    "Skip entry if :SHOWFROMDATE: property is set and is before the current date."
-    (org-back-to-heading t)
-    (let ((date-string
-           (org-entry-get (point) "SHOWFROMDATE")))
-      (when date-string
-	    (unless (time-less-p (org-2ft date-string) (current-time))
-          (org-entry-end-position)))))
-
-  (defun org-agenda-skip-entry-EXCEPTIONS-property ()
-    "Skip entry if :EXCEPTIONS: property has today's date in it."
-    (org-back-to-heading t)
-    (let ((date-string (org-entry-get (point) "EXCEPTIONS" 'inherit)))
-      (when date-string
-	    (when (memq 0
-                    (mapcar
-                     #'org-time-stamp-to-now
-                     (split-string date-string "," t " ")))
-          (org-entry-end-position))))))
 
 (setopt
  org-agenda-clock-consistency-checks '(:max-gap "0:00")
