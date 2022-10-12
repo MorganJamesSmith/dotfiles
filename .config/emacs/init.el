@@ -763,6 +763,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (keymap-global-set "C-c o" #'dictionary-lookup-definition)
 (setopt dictionary-server "localhost")
+(setopt dictionary-use-single-buffer t)
 
 ;; Use C-x r j to jump to a register
 (mapc
