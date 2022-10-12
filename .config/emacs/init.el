@@ -516,22 +516,21 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Ignore compiled guile files
 (add-to-list 'completion-ignored-extensions ".go")
 
+(setopt completion-styles '(basic partial-completion emacs22 substring))
+
+(setopt completions-format 'one-column)
+(setopt completions-header-format nil)
+(setopt completion-show-help nil)
+
 (setopt completion-ignore-case t)
 (setopt read-buffer-completion-ignore-case t)
 (setopt read-file-name-completion-ignore-case t)
 
-(setopt completions-format 'vertical)
 (setopt history-delete-duplicates t)
-(setopt completion-styles '(basic partial-completion emacs22 substring))
-
-(setopt completion-show-help nil)
-
-
 
 (setopt ido-enable-flex-matching t)
 (setopt ido-everywhere t)
 (setopt ido-auto-merge-work-directories-length -1)
-
 (ido-mode 1)
 
 (delight 'which-key-mode nil 'which-key)
