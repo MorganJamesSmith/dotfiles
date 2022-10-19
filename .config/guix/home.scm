@@ -1,81 +1,30 @@
 (use-modules
+ ((gnu home services desktop) #:select (home-dbus-service-type))
  ((gnu home services shells) #:select (home-bash-service-type
                                        home-shell-profile-service-type))
+ ((gnu home services shepherd) #:select (home-shepherd-service-type))
  ((gnu home services xdg) #:select (home-xdg-mime-applications-configuration
                                     home-xdg-mime-applications-service-type
                                     home-xdg-user-directories-configuration
-                                    home-xdg-user-directories-service-type
-                                    xdg-desktop-entry))
+                                    home-xdg-user-directories-service-type xdg-desktop-entry))
  ((gnu home services) #:select (home-environment-variables-service-type
                                 home-files-service-type
                                 home-run-on-first-login-service-type))
- (gnu home services shepherd)
  ((gnu packages fonts) #:select (font-openmoji font-wqy-zenhei))
- ((gnu packages glib) #:select (dbus))
- ((gnu packages linux) #:select (brightnessctl alsa-utils))
+ ((gnu packages freedesktop) #:select (xdg-desktop-portal
+                                       xdg-desktop-portal-wlr
+                                       xdg-desktop-portal-gtk))
+ ((gnu packages linux) #:select (alsa-utils))
  ((gnu packages wm) #:select (sway swayidle mako))
- (gnu packages xdisorg)
- (gnu packages qt)
- (gnu packages freedesktop)
- (gnu packages matrix)
- ((gnu services) #:select (service simple-service service-type service-extension))
- ((guix gexp) #:select (file-append gexp plain-file mixed-text-file)))
-
-(define dbus-socket-location ".local/dbus")
-
-(define (log-file-location name)
-  #~(string-append
-     (or (getenv "XDG_LOG_HOME")
-         (format #f "~a/.local/var/log"
-                 (getenv "HOME")))
-     "/" #$name ".log"))
-
-(define (home-dbus-shepherd-service config)
-  (list
-   (shepherd-service
-    (documentation "Run dbus")
-    (provision '(home-dbus))
-    (start #~(make-forkexec-constructor
-              (list #$(file-append dbus "/bin/dbus-daemon")
-                    "--session" (format #f "--address=unix:path=~a/~a"
-                                        (getenv "HOME")
-                                        #$dbus-socket-location))
-              #:log-file #$(log-file-location "dbus")))
-    (stop  #~(make-kill-destructor)))))
-
-(define (home-pantalaimon-shepherd-service config)
-  (list
-   (shepherd-service
-    (documentation "Run pantalaimon")
-    (provision '(pantalaimon))
-    (start #~(make-forkexec-constructor
-              (list #$(file-append pantalaimon "/bin/pantalaimon"))
-              #:log-file #$(log-file-location "pantalaimon")))
-    (stop  #~(make-kill-destructor)))))
-
-(define home-dbus-service-type
-  (service-type
-   (name 'home-dbus)
-   (extensions (list (service-extension home-shepherd-service-type
-                                        home-dbus-shepherd-service)))
-   (default-value '())
-   (description "dbus")))
-
-(define home-pantalaimon-service-type
-  (service-type
-   (name 'home-pantalaimon)
-   (extensions (list (service-extension home-shepherd-service-type
-                                        home-pantalaimon-shepherd-service)))
-   (default-value '())
-   (description "pantalaimon")))
+ ((gnu packages xdisorg) #:select (bemenu))
+ ((gnu services) #:select (service simple-service))
+ ((guix gexp) #:select (file-append plain-file mixed-text-file)))
 
 (home-environment
  (packages (list
             sway
             swayidle
             bemenu ;; so dbus can use this
-            qtwayland
-            qt5ct
             xdg-desktop-portal
             xdg-desktop-portal-wlr
             xdg-desktop-portal-gtk
@@ -87,7 +36,6 @@
   (list
    (service home-shepherd-service-type)
    (service home-dbus-service-type)
-   (service home-pantalaimon-service-type)
    (service home-bash-service-type)
 
    (simple-service 'stuff
@@ -175,17 +123,21 @@ fi
    (simple-service 'some-useful-env-vars-service
           		   home-environment-variables-service-type
           		   `(
-                     ("DBUS_SESSION_BUS_ADDRESS" . ,(string-append "unix:path=$HOME/" dbus-socket-location))
-                     
+
                      ;; Wayland variables
                      ("MOZ_ENABLE_WAYLAND" . "1")
-                     ("QT_QPA_PLATFORM" . "wayland")
-                     ("QT_QPA_PLATFORMTHEME" . "qt5ct")
-                     ("QT_WAYLAND_DISABLE_WINDOWDECORATION" . "1")
                      ("CLUTTER_BACKEND" . "wayland")
                      ("GDK_BACKEND" . "wayland")
                      ("SDL_VIDEODRIVER" . "wayland")
                      ("GTK_USE_PORTAL" . "1")
+
+                     ;; TODO: get QT to use wayland
+                     ;; - add qtwayland and qt5ct packages to profile
+                     ;; - fix bug#57742
+                     ;; ("QT_QPA_PLATFORM" . "wayland")
+                     ;; ("QT_QPA_PLATFORMTHEME" . "qt5ct")
+                     ;; ("QT_WAYLAND_DISABLE_WINDOWDECORATION" . "1")
+
 
                      ("ASPELL_CONF" . "per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl")
                      ("CARGO_HOME" . "$XDG_DATA_HOME/cargo")
@@ -243,7 +195,8 @@ gtk-application-prefer-dark-theme=1\n"))
        ,(mixed-text-file "mako-config"
                          "on-notify=exec "
                          alsa-utils "/bin/aplay"
-                         " /home/pancake/documents/configs/notification.wav\n"))
+                         " /home/pancake/documents/configs/notification.wav\n"
+                         "ignore-timeout=1"))
 
       ;; Ensure gpg-agent is running and knows what terminal we are using.  This
       ;; is because ssh-agent will using pinentry through gpg-agent
