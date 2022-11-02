@@ -71,10 +71,6 @@
 
 (setopt gnus-parameters `(("." (display . all))))
 
-;; Speeds up display of large groups quite a bit
-(setopt gnus-show-threads nil)
-
-
 ;; TODO: figure out how to specifiy my nnvirtual groups from here
 ;; (nnvirtual "INBOX\\|Inbox\\|Junk\\|Spam")
 ;; (nnvirtual "[^l].\\(INBOX\\|Inbox\\|Junk\\|Spam\\)")
@@ -85,13 +81,17 @@
  gnus-secondary-select-methods
  (mapcar
   (lambda (x)
-    `(nnimap ,x
+    `(nnimap ,@(if (stringp x)
+                   (list x)
+                 x)
              (nnimap-user ,x)
              (nnimap-address "localhost")
              (nnimap-stream network)
              (nnimap-server-port 143)))
-  '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local")))
-
+  '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work"
+    ("local"
+     ;; Speeds up display of large groups quite a bit
+     (gnus-show-threads nil)))))
 
 ;; Make stuff pretty section
 
