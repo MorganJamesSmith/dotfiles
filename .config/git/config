@@ -2,6 +2,8 @@
 	ui = always
 [commit]
 	gpgSign = true
+[stash]
+	showPatch = true
 [pull]
 	ff = only
 [user]
