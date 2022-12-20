@@ -13,6 +13,7 @@
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
  ((gnu services mail) #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration unix-listener-configuration userdb-configuration passdb-configuration))
  ((gnu services mcron) #:select (mcron-service-type))
+ ((gnu services pm) #:select (tlp-service-type tlp-configuration))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
  ((gnu services xorg) #:select (gdm-service-type screen-locker-service screen-locker-service-type))
@@ -127,6 +128,11 @@
                               (system* (string-append #$findutils "/bin/updatedb")
                                        "--prunepaths=/tmp /var/tmp /gnu/store"))
                             "updatedb")))
+
+    (service tlp-service-type
+             (tlp-configuration
+              ;; Disable runtime-pm as this messes with my USBs
+              (runtime-pm-on-bat "on")))
 
     (dovecot-service
      #:config
