@@ -12,6 +12,7 @@
  ((gnu services dict) #:select (dicod-service))
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
  ((gnu services mail) #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration unix-listener-configuration userdb-configuration passdb-configuration))
+ ((gnu services mcron) #:select (mcron-service-type))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
  ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
  ((gnu services xorg) #:select (gdm-service-type screen-locker-service screen-locker-service-type))
@@ -116,6 +117,17 @@
 
   (services
    (cons*
+
+    (simple-service 'my-cron-jobs
+                    mcron-service-type
+                    (list
+                     ;; Run 'updatedb' at 3AM every day
+                     #~(job '(next-hour '(3))
+                            (lambda ()
+                              (system* (string-append #$findutils "/bin/updatedb")
+                                       "--prunepaths=/tmp /var/tmp /gnu/store"))
+                            "updatedb")))
+
     (dovecot-service
      #:config
      (dovecot-configuration
