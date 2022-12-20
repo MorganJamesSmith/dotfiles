@@ -841,8 +841,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                    (mode . gdb-registers-mode)))
            ("help" (or
                     (mode . help-mode)
-                    (mode . Info-mode)))
-           ("EXWM" (mode . exwm-mode)))))
+                    (mode . Info-mode))))))
 
 (with-eval-after-load "ibuffer"
   (add-hook 'ibuffer-mode-hook (lambda () (ibuffer-switch-to-saved-filter-groups "default"))))
