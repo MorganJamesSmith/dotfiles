@@ -13,7 +13,9 @@
  ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
  ((gnu services mail) #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration unix-listener-configuration userdb-configuration passdb-configuration))
  ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
- ((gnu services xorg) #:select (gdm-service-type screen-locker-service screen-locker-service-type)))
+ ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
+ ((gnu services xorg) #:select (gdm-service-type screen-locker-service screen-locker-service-type))
+)
 
 (define username "CHANGE ME")
 (define host-name "CHANGE ME")
@@ -182,7 +184,16 @@
         (handle-power-key 'suspend)))
       
       (delete gdm-service-type)
-      (delete screen-locker-service-type))))
+      (delete screen-locker-service-type)
+      ;; Transmission daemon wants this
+      (sysctl-service-type
+       config =>
+       (sysctl-configuration
+        (settings (append
+                   '(
+                     ("net.core.rmem_max" . "4194304")
+                     ("net.core.wmem_max" . "1048576"))
+                   %default-sysctl-settings)))))))
 
   ;; Allow resolution of '.local' host names with mDNS.
   (name-service-switch %mdns-host-lookup-nss))
