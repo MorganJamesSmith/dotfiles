@@ -33,8 +33,7 @@
      (with-input   . "emacs-no-x-toolkit=emacs-next-pgtk")
 
      (without-tests . "emacs-rainbow-delimiters")
-
-     ;; (without-tests . "emacs-org")
+     (without-tests . "emacs-yasnippet")
      )))
 
 (define (specifications->manifest-with-transformations packages)
@@ -70,6 +69,7 @@
       "elpher"
       "emms"
       "eshell-syntax-highlighting"
+      "flymake-proselint"
       "geiser"
       "geiser-guile"
       "ggtags"
@@ -79,7 +79,7 @@
       "logos"
       "nov-el"
       ;; "org-passwords" ;; not packaged yet
-      ;; "org" ;; TODO: won't build
+      "org"
       "osm"
       "pinentry"
       "rainbow-delimiters"
