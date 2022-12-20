@@ -446,7 +446,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt org-link-abbrev-alist
         `(("guix" . "elisp:(guix-packages-by-name \"%s\")")
           ("possessions" . "file:~/documents/wiki/possessions.org::*")
-          ("money" . "file:~/documents/money/money.ledger::[[possessions:%s]]")))
+          ("money" . ,(concat "file:" (getenv "LEDGER_FILE") "::[[possessions:%s]]"))))
 
 
 (add-hook 'scheme-mode-hook #'guix-devel-mode)

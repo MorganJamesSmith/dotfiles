@@ -124,6 +124,8 @@ fi
           		   home-environment-variables-service-type
           		   `(
 
+                     ("LEDGER_FILE" . "$HOME/documents/money/money.ledger")
+
                      ;; Wayland variables
                      ("MOZ_ENABLE_WAYLAND" . "1")
                      ("CLUTTER_BACKEND" . "wayland")
