@@ -286,7 +286,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     ((todo
       "TODO|DAYOF"
       ((org-agenda-overriding-header "Todo:")
-       (org-agenda-prefix-format "%?T%s")
+       (org-agenda-prefix-format "%s")
        (org-agenda-todo-ignore-deadlines 'future)
        (org-agenda-todo-ignore-scheduled 'future)
        (org-agenda-todo-ignore-timestamp 'future)
