@@ -441,17 +441,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt geiser-mode-smart-tab-p t)
 
-(defun get-contact (name)
-  "Get contact information for NAME."
-  (interactive "sContact name:")
-  (find-file "~/documents/contactlist.rec")
-  (rec-cmd-jump-to-sex t (concat "Name ~ '" name "'")))
-
 (setopt org-link-elisp-confirm-function nil)
 (setopt org-link-descriptive nil)
 (setopt org-link-abbrev-alist
-        '(("contact" . "elisp:(get-contact \"%s\")")
-          ("guix" . "elisp:(guix-packages-by-name \"%s\")")
+        `(("guix" . "elisp:(guix-packages-by-name \"%s\")")
           ("possessions" . "file:~/documents/wiki/possessions.org::*")
           ("money" . "file:~/documents/money/money.ledger::[[possessions:%s]]")))
 

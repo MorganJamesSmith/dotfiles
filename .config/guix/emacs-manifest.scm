@@ -83,7 +83,6 @@
       "osm"
       "pinentry"
       "rainbow-delimiters"
-      "rec-mode"
       "scad-mode"
       "transmission"
       "tup-mode"
