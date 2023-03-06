@@ -200,6 +200,16 @@ color-scheme='prefer-dark'\n"))
       (".config/wget/wgetrc"
        ,(plain-file "wgetrc" "hsts-file=~/.cache/wget-hsts\n"))
 
+      (".config/duc/ducrc"
+       ,(plain-file "ducrc"
+                    (string-join
+                     '("[index]"
+                       "one-file-system"
+                       "check-hard-links"
+                       "progress")
+                     "\n"
+                     'suffix)))
+
       ;; Play audio sound on notification
       (".config/mako/config"
        ,(mixed-text-file "mako-config"
