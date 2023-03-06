@@ -28,6 +28,8 @@
 (keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
 (keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward)
 
+(setopt message-generate-hashcash t)
+
 ;; Encrypted emails are sent with the subject "...".  Don't assume they're all
 ;; part of the same thread
 (setopt gnus-summary-gather-exclude-subject "^ *$\\|^...$\\|^(none)$")
