@@ -14,7 +14,7 @@
 
 ;; This is non-nil for instances of Emacs started from within an
 ;; instance of Emacs
-(defconst IS-INSIDE-EMACS   (getenv "INSIDE_EMACS"))
+(defconst IS-INSIDE-EMACS (getenv "INSIDE_EMACS"))
 
 (setopt user-full-name "Morgan Smith")
 (setopt user-mail-address "Morgan.J.Smith@outlook.com")
@@ -333,15 +333,17 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (defun org-clock-out-state (state)
   "State we should be after we clock out of STATE."
-  (if (string= state "HABIT")
+  (if (or (string= state "HABIT")
+          (string= state "DAYOF"))
       "DONE"
     state))
 (org-clock-persistence-insinuate)
 
-(keymap-global-set "C-c q" #'org-passwords)
-(with-eval-after-load "org-passwords"
-  (keymap-set org-passwords-mode-map "C-c u" #'org-passwords-copy-username)
-  (keymap-set org-passwords-mode-map "C-c p" #'org-passwords-copy-password))
+;; TODO: package org-passwords for guix
+;; (keymap-global-set "C-c q" #'org-passwords)
+;; (with-eval-after-load "org-passwords"
+;;   (keymap-set org-passwords-mode-map "C-c u" #'org-passwords-copy-username)
+;;   (keymap-set org-passwords-mode-map "C-c p" #'org-passwords-copy-password))
 
 (setopt org-passwords-file (expand-file-name "codes.gpg" org-directory))
 ;;; Org Section Ends
@@ -350,6 +352,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Programming Section Begins
 (delight 'emacs-lisp-mode nil 'elisp-mode)
 (delight 'eldoc-mode nil 'eldoc)
+
+(add-hook 'prog-mode-hook #'elide-head-mode)
 
 ;; Handy keybinds are
 ;; M-.     xref-find-definitions
@@ -456,6 +460,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt vc-handled-backends '(Git))
 (setopt auto-revert-check-vc-info t)
+(setopt vc-log-short-style '(directory file))
+(setopt vc-git-annotate-switches "-w")
 
 (setopt ediff-window-setup-function #'ediff-setup-windows-plain
         ediff-diff-options "-w"
@@ -482,7 +488,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt require-final-newline t)
 
 
-(setq ws-butler-global-exempt-modes '(eshell-mode gnus-mode))
+(setopt ws-butler-global-exempt-modes '(eshell-mode gnus-mode))
 (ws-butler-global-mode)
 (delight 'ws-butler-mode nil 'ws-butler)
 
@@ -515,6 +521,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt ido-enable-flex-matching t)
 (setopt ido-everywhere t)
 (setopt ido-auto-merge-work-directories-length -1)
+(setopt ido-default-file-method 'selected-window)
+(setopt ido-default-buffer-method 'selected-window)
+(setopt ido-use-filename-at-point 'guess)
 (ido-mode 1)
 
 (delight 'which-key-mode nil 'which-key)
@@ -524,13 +533,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; EWW Section Begins
-(setopt eww-use-browse-url "\\`\\(?:gemini\\|gopher\\|mailto\\|magnet\\):\\|\\.\\(?:mp[34]\\|torrent\\)\\'")
 (setopt eww-auto-rename-buffer 'title)
 
 (setopt browse-url-browser-function 'eww-browse-url)
 (setopt shr-use-xwidgets-for-media t)
 (setopt shr-use-colors nil)
 (setopt shr-use-fonts nil)
+(setopt shr-indentation 0)
 (setopt shr-cookie-policy nil)
 (setopt shr-max-width nil)
 (setopt shr-width nil)
@@ -544,16 +553,19 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
             ((or "www.reddit.com" "reddit.com") "teddit.net")
             ((or "www.twitter.com" "twitter.com") "nitter.net")
             (_ (url-host urlobj))))
-    (setf (url-type urlobj)
-          (pcase (url-type urlobj)
-            ("http" "https")
-            (_ (url-type urlobj))))
+    ;; TODO: I'd like to use https when available but this fails when a site only offers http
+    ;; (setf (url-type urlobj)
+    ;;       (pcase (url-type urlobj)
+    ;;         ("http" "https")
+    ;;         (_ (url-type urlobj))))
+
     (url-recreate-url urlobj)))
 
 (setopt shr-url-transformer #'my-shr-url-transformer)
 (with-eval-after-load "eww"
   (add-to-list 'eww-url-transformers #'my-shr-url-transformer))
 
+(setopt eww-use-browse-url "\\`\\(?:gemini\\|gopher\\|mailto\\|magnet\\):\\|\\(youtube.com\\|youtu.be\\)\\|\\.\\(?:mp[34]\\|torrent\\)\\'")
 (setopt browse-url-handlers
         '(("\\`\\(gemini\\|gopher\\)://" .
            (lambda (host-or-url &rest _) (elpher-go host-or-url)))
@@ -625,9 +637,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'before-save-hook #'backup-buffer)
 
 (setopt backup-directory-alist
-        `((".*" . ,(create-directory "backups" user-emacs-directory))))
+        `(("." . ,(create-directory "backups" user-emacs-directory))))
 (setopt auto-save-file-name-transforms
-        `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
+        `(("." ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
 (setopt trash-directory (create-directory "trash" user-emacs-directory))
 (setopt make-backup-files t)
 (setopt backup-by-copying t)
@@ -754,6 +766,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  (lambda (args)
    (set-register (car args) (cons 'file (cdr args))))
  (list
+  (cons ?m (expand-file-name "money/money.ledger" org-directory))
   (cons ?i (expand-file-name "inbox.org" org-directory))
   (cons ?t (expand-file-name "agenda/todo.org" org-directory))
   (cons ?c (locate-user-emacs-file "init.el"))
@@ -763,6 +776,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (with-eval-after-load "doc-view"
   (keymap-set doc-view-mode-map "r" #'image-rotate))
+
+(setopt doc-view-imenu-flatten t)
+
+;; mupdf 1.21.1 doesn't produce valid svg's
+(setopt doc-view-mupdf-use-svg nil)
+(setopt doc-view-resolution 400)
+
 
 (setopt ibuffer-expert t)
 (setopt ibuffer-saved-filter-groups
@@ -789,7 +809,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                             (mode . debbugs-gnu-mode)))
            ("geiser" (or
                       (mode . geiser-repl-mode)
-                      (mode . geiser-messages-mode)))
+                      (mode . geiser-messages-mode)
+                      (mode . geiser-debug-mode)))
            ("lisp" (or
                     (mode . emacs-lisp-mode)
                     (mode . scheme-mode)
@@ -875,11 +896,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (emms-start))
 
 (keymap-global-set "s-<return>" #'eshell)
+(keymap-global-set "s-RET" #'eshell)
 
 (delight 'abbrev-mode nil 'abbrev)
-
-(setopt ido-default-file-method 'selected-window)
-(setopt ido-default-buffer-method 'selected-window)
 
 ;; Wayland pgtk stuff
 (defun fix-input () (pgtk-use-im-context nil))
@@ -892,6 +911,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt logos-outlines-are-pages t)
 
 (with-eval-after-load "osm"
+  (setopt osm-copyright nil)
   (keymap-set osm-mode-map "<remap> <next-line>" #'osm-down)
   (keymap-set osm-mode-map "<remap> <previous-line>" #'osm-up)
   (keymap-set osm-mode-map "<remap> <forward-char>" #'osm-right)
