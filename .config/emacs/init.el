@@ -139,19 +139,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Pretty Visuals Section Begins
 (setopt modus-themes-bold-constructs t)
-(setopt modus-themes-syntax '(yellow-comments))
-(setopt modus-themes-links '(neutral-underline))
-(setopt modus-themes-prompts '(intense bold))
-(setopt modus-themes-mode-line '(3d borderless))
-(setopt modus-themes-lang-checkers '(straight-underline faint))
-(setopt modus-themes-paren-match '(intense bold))
-(setopt modus-themes-region '(no-extend bg-only accented))
+(setopt modus-themes-prompts '(bold))
 (setopt modus-themes-org-blocks 'tinted-background)
-(setopt modus-themes-org-agenda
-		'((header-block . (2.5))
-		  (header-date . (bold-today))
-		  (scheduled . rainbow)))
-(setopt modus-themes-headings '((t . (rainbow))))
+(setopt modus-themes-headings '((0 . (2.5))
+                                (agenda-structure . (2.5))))
 
 (load-theme 'modus-vivendi t)
 
