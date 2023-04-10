@@ -1,26 +1,43 @@
 (use-modules
  (gnu)
- ((gnu packages games) #:select (steam-devices-udev-rules))
- ((gnu packages certs) #:select (nss-certs))
- ((gnu packages cups) #:select (cups))
- ((gnu packages linux) #:select (brightnessctl))
- ((gnu packages wm) #:select (swaylock))
- ((gnu packages gnome) #:select (adwaita-icon-theme hicolor-icon-theme))
- ((gnu services audio) #:select (mpd-service-type mpd-configuration))
- ((gnu services cups) #:select (cups-service-type cups-configuration))
- ((gnu services desktop) #:select (%desktop-services elogind-service-type elogind-configuration))
- ((gnu services dict) #:select (dicod-service))
- ((gnu services file-sharing) #:select (transmission-daemon-service-type transmission-daemon-configuration))
- ((gnu services mail) #:select (dovecot-service dovecot-configuration protocol-configuration service-configuration unix-listener-configuration userdb-configuration passdb-configuration))
- ((gnu services mcron) #:select (mcron-service-type))
- ((gnu services pm) #:select (tlp-service-type tlp-configuration))
- ((gnu services syncthing) #:select (syncthing-service-type syncthing-configuration))
- ((gnu services sysctl) #:select (sysctl-service-type sysctl-configuration %default-sysctl-settings))
- ((gnu services xorg) #:select (gdm-service-type screen-locker-service screen-locker-service-type))
-)
+ (gnu packages games)
+ (gnu packages certs)
+ (gnu packages linux)
+ (gnu packages wm)
+ (gnu packages security-token)
+ (gnu packages gnome)
+ (gnu services audio)
+ (gnu services desktop)
+ (gnu services avahi)
+ (gnu services dbus)
+ (gnu services desktop)
+ (gnu services dict)
+ (gnu services file-sharing)
+ (gnu services mail)
+ (gnu services mcron)
+ (gnu services networking)
+ (gnu services pm)
+ (gnu services security-token)
+ (gnu services sound)
+ (gnu services syncthing)
+ (gnu services sysctl)
+ (gnu services xorg))
 
 (define username "CHANGE ME")
 (define host-name "CHANGE ME")
+
+(define user
+  (user-account
+   (name username)
+   (comment username)
+   (group "users")
+   (supplementary-groups '("wheel"
+                           "video"
+                           "audio"   ; amixer commands
+                           "transmission"
+                           "dialout" ; serial TTYs
+                           "plugdev" ; security key
+                           "kvm")))) ; qemu
 
 ;; Things not exported by (gnu system)
 (define %default-modprobe-blacklist (@@ (gnu system) %default-modprobe-blacklist))
@@ -62,8 +79,6 @@
                (bootloader grub-efi-bootloader)
                (targets (list "/boot"))))
 
-  (swap-devices (list (swap-space (target "/swapfile"))))
-
   ;; Specify a mapped device for the encrypted root partition.
   ;; The UUID is that returned by 'cryptsetup luksUUID'.
   (mapped-devices
@@ -71,6 +86,9 @@
           (source (uuid "CHANGE ME"))
           (target "guix-root")
           (type luks-device-mapping))))
+
+  (swap-devices (list (swap-space (target "/swapfile")
+                                  (dependencies mapped-devices))))
 
   (file-systems (append
                  (list (file-system
@@ -93,17 +111,7 @@
            %base-groups))
 
   (users (cons
-          (user-account
-           (name username)
-           (comment username)
-           (group "users")
-           (supplementary-groups '("wheel"
-                                   "video"
-                                   "audio"   ; amixer commands
-                                   "transmission"
-                                   "dialout" ; serial TTYs
-                                   "plugdev" ; security key
-                                   "kvm")))  ; qemu
+          user
           %base-user-accounts))
 
   ;; This is where we specify system-wide packages.
@@ -134,8 +142,7 @@
               ;; Disable runtime-pm as this messes with my USBs
               (runtime-pm-on-bat "on")))
 
-    (dovecot-service
-     #:config
+    (service dovecot-service-type
      (dovecot-configuration
       (mail-location "maildir:~")
       (listen '("127.0.0.1"))
@@ -167,11 +174,19 @@
 
     (service cups-service-type
              (cups-configuration
-                (web-interface? #t)))
-    
-    (dicod-service) ;; Dictionary server
+              (web-interface? #t)))
 
-    (screen-locker-service swaylock)
+    (service dicod-service-type) ;; Dictionary server
+
+    (service screen-locker-service-type
+             (screen-locker-configuration
+              "swaylock" (file-append swaylock "/bin/swaylock") #f))
+
+    ;; Security Keys
+    (service pcscd-service-type)
+    (udev-rules-service 'security-key libu2f-host)
+    (udev-rules-service 'nitro-devices libnitrokey)
+
 
     (udev-rules-service 'brightnessctl brightnessctl)
     (udev-rules-service 'steam-devices steam-devices-udev-rules)
@@ -182,9 +197,9 @@
     (service syncthing-service-type (syncthing-configuration (user username)))
     (service mpd-service-type
              (mpd-configuration
-              (user username)
-              (music-dir "~/music")
-              (playlist-dir "~/.config/mpd/playlists")
+              (user user)
+              (music-directory "~/music")
+              (playlist-directory "~/.config/mpd/playlists")
               (db-file "~/.config/mpd/database")
               (state-file "~/.config/mpd/state")
               (sticker-file "~/.config/mpd/sticker.sql")))
@@ -192,17 +207,43 @@
              (mingetty-configuration
               (tty "tty7")
               (auto-login username)))
-    (modify-services
-        %desktop-services
 
-      (elogind-service-type
-       config =>
-       (elogind-configuration
-        (inherit config)
-        (handle-power-key 'suspend)))
-      
-      (delete gdm-service-type)
-      (delete screen-locker-service-type)
+      polkit-wheel-service
+      fontconfig-file-system-service
+
+      (service network-manager-service-type
+               (network-manager-configuration
+                (dns "dnsmasq")))
+      ;; (service dhcp-client-service-type)
+      (service wpa-supplicant-service-type)    ;needed by NetworkManager
+      ;; (service modem-manager-service-type)
+      (service usb-modeswitch-service-type)
+
+      ;; The D-Bus clique.
+      (service avahi-service-type)
+      ;; (udisks-service)
+      (service upower-service-type)
+      ;; (accountsservice-service)
+      ;; (service cups-pk-helper-service-type)
+      ;; (service colord-service-type)
+      ;; (geoclue-service)
+      (service polkit-service-type)
+      (service elogind-service-type
+               (elogind-configuration
+                (handle-power-key 'suspend)))
+      (service dbus-root-service-type)
+
+      (service openntpd-service-type)
+
+      (service x11-socket-directory-service-type)
+
+      (service pulseaudio-service-type)
+      (service alsa-service-type)
+
+    (modify-services
+        %base-services
+
+
       ;; Transmission daemon wants this
       (sysctl-service-type
        config =>
