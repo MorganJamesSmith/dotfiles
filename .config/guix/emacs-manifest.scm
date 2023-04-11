@@ -48,7 +48,6 @@
 (define emacs-packages
   (append!
    '("emacs-next-pgtk"
-     "pinentry-emacs"
      "hashcash"    ; send emails with proof of work thingy
      "shellcheck"  ; flymake shell files
      "graphicsmagick" ; image-dired thumbnail generation

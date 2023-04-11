@@ -1,5 +1,7 @@
 (use-modules
  ((gnu home services desktop) #:select (home-dbus-service-type))
+ ((gnu home services gnupg) #:select (home-gpg-agent-service-type
+                                      home-gpg-agent-configuration))
  ((gnu home services shells) #:select (home-bash-service-type
                                        home-shell-profile-service-type))
  ((gnu home services shepherd) #:select (home-shepherd-service-type))
@@ -14,6 +16,7 @@
  ((gnu packages freedesktop) #:select (xdg-desktop-portal
                                        xdg-desktop-portal-wlr
                                        xdg-desktop-portal-gtk))
+ ((gnu packages gnupg) #:select (pinentry-emacs))
  ((gnu packages linux) #:select (alsa-utils))
  ((gnu packages wm) #:select (sway swayidle mako))
  ((gnu packages xdisorg) #:select (bemenu))
@@ -37,6 +40,12 @@
    (service home-shepherd-service-type)
    (service home-dbus-service-type)
    (service home-bash-service-type)
+
+   (service home-gpg-agent-service-type
+            (home-gpg-agent-configuration
+             (pinentry-program
+              (file-append pinentry-emacs "/bin/pinentry-emacs"))
+             (ssh-support? #t)))
 
    (simple-service 'stuff
                    home-shell-profile-service-type
@@ -62,7 +71,7 @@ export XDG_CONFIG_DIRS=$EMACS_PROFILE/etc/xdg${XDG_CONFIG_DIRS:+:}$XDG_CONFIG_DI
 # Start graphical interface
 if [ \"$(tty)\" = \"/dev/tty7\" ]; then
     chvt 7
-    ssh-agent -a \"$(gpgconf --list-dirs agent-ssh-socket)\" sway
+    sway
 fi
 ")))
 
@@ -143,7 +152,6 @@ fi
 
                      ("ASPELL_CONF" . "per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl")
                      ("CARGO_HOME" . "$XDG_DATA_HOME/cargo")
-                     ("GNUPGHOME" . "$XDG_DATA_HOME/gnupg")
                      ("HISTFILE" . "$XDG_DATA_HOME/shell-history")
                      ("INPUTRC" . "$XDG_CONFIG_HOME/readline/inputrc")
                      ("PASSWORD_STORE_DIR" . "$XDG_DATA_HOME/password-store")
@@ -218,24 +226,7 @@ color-scheme='prefer-dark'\n"))
                          " /home/pancake/documents/configs/notification.wav\n"
                          "ignore-timeout=1"))
 
-      ;; Ensure gpg-agent is running and knows what terminal we are using.  This
-      ;; is because ssh-agent will using pinentry through gpg-agent
-      (".ssh/config"
-       ,(plain-file "ssh-config"
-                    "Match host * exec \"gpg-connect-agent UPDATESTARTUPTTY /bye\"\n"))
-
-      ;; Enable ssh-agent support and allow use of emacs-pinentry
-      (".local/share/gnupg/gpg-agent.conf"
-       ,(plain-file "gpg-agent-config"
-                    (string-join
-                     '("enable-ssh-support"
-                       "allow-emacs-pinentry"
-                       "allow-loopback-pinentry"
-                       "pinentry-program /home/pancake/.config/guix/extra-profiles/emacs/emacs/bin/pinentry-emacs")
-                     "\n"
-                     'suffix)))
-
-      ;; Plain black lockscreen 
+      ;; Plain black lockscreen
       (".config/swaylock/config"
        ,(plain-file "swaylock-config" "color=000000FF\nscaling=solid_color\n"))
 
