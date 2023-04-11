@@ -121,7 +121,6 @@
     nss-certs
     adwaita-icon-theme
     hicolor-icon-theme
-    cups
     %base-packages))
 
   (services
@@ -171,10 +170,6 @@
                  (args `("uid=1000" "gid=997" "allow_all_users=yes"
                          "username_format=%n"
                          ,(string-append "home=/home/" username "/.local/share/mail/%n"))))))))
-
-    (service cups-service-type
-             (cups-configuration
-              (web-interface? #t)))
 
     (service dicod-service-type) ;; Dictionary server
 
