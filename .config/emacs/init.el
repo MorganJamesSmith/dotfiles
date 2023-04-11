@@ -74,6 +74,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt compilation-scroll-output 'first-error)
 
 (setopt grep-highlight-matches 'always)
+(setopt grep-use-headings t)
 
 (setopt read-mail-command 'gnus)
 (setopt mail-user-agent 'gnus-user-agent)
@@ -143,8 +144,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt modus-themes-org-blocks 'tinted-background)
 (setopt modus-themes-headings '((0 . (2.5))
                                 (agenda-structure . (2.5))))
-
 (load-theme 'modus-vivendi t)
+
+(setopt proced-enable-color-flag t)
 
 ;; I dislike gui stuff
 (setopt use-file-dialog nil)
@@ -511,6 +513,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt completions-format 'one-column)
 (setopt completions-header-format nil)
 (setopt completion-show-help nil)
+(setopt completion-auto-help 'visible)
 
 (setopt completion-ignore-case t)
 (setopt read-buffer-completion-ignore-case t)
@@ -783,6 +786,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt doc-view-mupdf-use-svg nil)
 (setopt doc-view-resolution 400)
 
+(setopt image-use-external-converter t)
 
 (setopt ibuffer-expert t)
 (setopt ibuffer-saved-filter-groups
