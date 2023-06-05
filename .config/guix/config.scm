@@ -15,6 +15,7 @@
  (gnu services file-sharing)
  (gnu services mail)
  (gnu services mcron)
+ (gnu services monitoring)
  (gnu services networking)
  (gnu services pm)
  (gnu services security-token)
@@ -125,6 +126,8 @@
 
   (services
    (cons*
+
+    (service vnstat-service-type)
 
     (simple-service 'my-cron-jobs
                     mcron-service-type
