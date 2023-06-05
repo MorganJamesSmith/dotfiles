@@ -81,8 +81,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt sendmail-program "msmtp"
         send-mail-function #'sendmail-send-it
-        message-sendmail-envelope-from 'header)
-
+        message-sendmail-envelope-from 'header
+        message-interactive nil) ;; prevents lockup from emacs-pinentry
 
 ;; Move gnus folders to the `user-emacs-directory'
 (setopt gnus-init-file (expand-file-name "gnus" user-emacs-directory))
@@ -105,8 +105,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt calendar-date-style 'iso)
 
 (setopt fill-column 79)
-
-(setopt completions-detailed t)
 
 (setopt next-error-message-highlight t)
 
@@ -355,6 +353,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (delight 'emacs-lisp-mode nil 'elisp-mode)
 (delight 'eldoc-mode nil 'eldoc)
 
+(add-hook 'ielm-mode-hook 'eldoc-mode)
+
 (add-hook 'prog-mode-hook #'elide-head-mode)
 
 ;; Handy keybinds are
@@ -424,6 +424,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (interactive)
   (debbugs-gnu '("serious" "important" "normal")
                '("guix" "guix-patches")
+               nil
+               t))
+
+(defun debbugs-gnu-guile ()
+  "List guile issues."
+  (interactive)
+  (debbugs-gnu '("serious" "important" "normal")
+               '("guile")
                nil
                t))
 
@@ -508,12 +516,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Ignore compiled guile files
 (add-to-list 'completion-ignored-extensions ".go")
 
+(setopt completions-detailed t)
+
 (setopt completion-styles '(basic partial-completion emacs22 substring))
 
 (setopt completions-format 'one-column)
 (setopt completions-header-format nil)
 (setopt completion-show-help nil)
 (setopt completion-auto-help 'visible)
+(setopt completion-fail-discreetly t)
 
 (setopt completion-ignore-case t)
 (setopt read-buffer-completion-ignore-case t)
@@ -546,7 +557,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt shr-cookie-policy nil)
 (setopt shr-max-width nil)
 (setopt shr-width nil)
-(setopt url-privacy-level 'high)
+(setopt url-privacy-level 'paranoid)
 
 (defun my-shr-url-transformer (url)
   "Transform URL."
@@ -714,7 +725,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (with-eval-after-load "tramp"
   ;; guix system bin
-  (add-to-list 'tramp-remote-path "/run/current-system/profile/bin"))
+  (add-to-list 'tramp-remote-path "/run/current-system/profile/bin")
+  (add-to-list 'tramp-remote-path "/run/setuid-programs"))
+
 
 (load "tramp") ;; else sudo won't work
 
