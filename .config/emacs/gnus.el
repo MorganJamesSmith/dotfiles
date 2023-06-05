@@ -27,8 +27,21 @@
 
 (keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
 (keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward)
+(keymap-set gnus-summary-mode-map "r" #'gnus-summary-very-wide-reply)
+(keymap-set gnus-summary-mode-map "R" #'gnus-summary-very-wide-reply-with-original)
 
 (setopt message-generate-hashcash t)
+
+(setopt gnus-summary-stop-at-end-of-message t)
+
+(setopt gnus-treat-unsplit-urls t)
+
+(setopt gnus-treat-display-smileys nil)
+
+(setopt gnus-treat-strip-trailing-blank-lines t
+        gnus-treat-strip-leading-blank-lines t
+        gnus-treat-strip-multiple-blank-lines t
+        gnus-treat-strip-cr t)
 
 ;; Encrypted emails are sent with the subject "...".  Don't assume they're all
 ;; part of the same thread
@@ -109,6 +122,8 @@
                          "%1{%B%}"
                          "%s\n"))
 
+(setopt gnus-article-date-headers '(user-defined))
+(setopt gnus-article-time-format time-stamp-format)
 (setopt gnus-user-date-format-alist `((t . ,time-stamp-format)))
 (setopt gnus-group-line-format "%5y:%B%(%c%)\n")
 (setopt gnus-summary-display-arrow t)
