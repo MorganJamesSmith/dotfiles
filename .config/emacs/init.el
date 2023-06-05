@@ -640,18 +640,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'before-save-hook #'backup-buffer)
 
 (setopt backup-directory-alist
-        `(("." . ,(create-directory "backups" user-emacs-directory))))
+        `((".*" . ,(create-directory "backups" user-emacs-directory))))
 (setopt auto-save-file-name-transforms
-        `(("." ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
+        `((".*" ,(expand-file-name "auto-save-list/" user-emacs-directory) t)))
+(setopt delete-auto-save-files nil)
 (setopt trash-directory (create-directory "trash" user-emacs-directory))
 (setopt make-backup-files t)
 (setopt backup-by-copying t)
 (setopt version-control t)
 (setopt vc-make-backup-files t)
 (setopt delete-old-versions -1)
-(setopt auto-save-default t)
-(setopt auto-save-timeout 20)
-(setopt auto-save-interval 200)
 (setopt delete-by-moving-to-trash t)
 
 (setopt custom-file (expand-file-name "custom-garbage" trash-directory))
