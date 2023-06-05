@@ -18,7 +18,7 @@
                                        xdg-desktop-portal-gtk))
  ((gnu packages gnupg) #:select (pinentry-emacs))
  ((gnu packages linux) #:select (alsa-utils))
- ((gnu packages wm) #:select (sway swayidle mako))
+ ((gnu packages wm) #:select (sway swaylock swayidle mako))
  ((gnu packages xdisorg) #:select (bemenu))
  ((gnu services) #:select (service simple-service))
  ((guix gexp) #:select (file-append plain-file mixed-text-file)))
@@ -26,6 +26,7 @@
 (home-environment
  (packages (list
             sway
+            swaylock
             swayidle
             bemenu ;; so dbus can use this
             xdg-desktop-portal

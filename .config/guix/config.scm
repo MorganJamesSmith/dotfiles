@@ -177,8 +177,11 @@
     (service dicod-service-type) ;; Dictionary server
 
     (service screen-locker-service-type
-             (screen-locker-configuration
-              "swaylock" (file-append swaylock "/bin/swaylock") #f))
+         (screen-locker-configuration
+           (name "swaylock")
+           (program (file-append swaylock "/bin/swaylock"))
+           (using-pam? #t)
+           (using-setuid? #f)))
 
     ;; Security Keys
     (service pcscd-service-type)
