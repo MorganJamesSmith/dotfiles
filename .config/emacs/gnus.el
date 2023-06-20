@@ -25,10 +25,16 @@
 
 (setopt gnus-interactive-exit nil)
 
-(keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
-(keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward)
+;; Always do wide replys
 (keymap-set gnus-summary-mode-map "r" #'gnus-summary-very-wide-reply)
 (keymap-set gnus-summary-mode-map "R" #'gnus-summary-very-wide-reply-with-original)
+
+;; Make it consistent with dired
+(keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
+(keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward)
+
+;; Make it consistent with eww
+(keymap-set gnus-url-button-map "w" #'gnus-article-copy-string)
 
 (setopt message-generate-hashcash t)
 
