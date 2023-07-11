@@ -90,7 +90,8 @@
 ;; Always show all my groups
 (setopt gnus-permanently-visible-groups ".")
 
-(setopt gnus-parameters `(("." (display . all))))
+(setopt gnus-parameters '(("." (display . all))
+                          ("local" (gnus-show-threads nil) (display . default))))
 
 ;; TODO: figure out how to specifiy my nnvirtual groups from here
 ;; (nnvirtual "INBOX\\|Inbox\\|Junk\\|Spam")
@@ -102,17 +103,12 @@
  gnus-secondary-select-methods
  (mapcar
   (lambda (x)
-    `(nnimap ,@(if (stringp x)
-                   (list x)
-                 x)
+    `(nnimap ,x
              (nnimap-user ,x)
              (nnimap-address "localhost")
              (nnimap-stream network)
              (nnimap-server-port 143)))
-  '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work"
-    ("local"
-     ;; Speeds up display of large groups quite a bit
-     (gnus-show-threads nil)))))
+  '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local")))
 
 ;; Make stuff pretty section
 
