@@ -64,7 +64,6 @@
      (string-join (cons*
                    "sp5100_tco" ; disable watchdog timer
                    "pcspkr" "snd_pcsp" ; Stop the beeping
-                   "btusb" "bluetooth" ; bluetooth
                    "uhci_hcd" ; USB 1.1
                    %default-modprobe-blacklist)
                   ","))))
@@ -173,6 +172,8 @@
                  (args `("uid=1000" "gid=997" "allow_all_users=yes"
                          "username_format=%n"
                          ,(string-append "home=/home/" username "/.local/share/mail/%n"))))))))
+
+    (service bluetooth-service-type)
 
     (service dicod-service-type) ;; Dictionary server
 
