@@ -58,6 +58,7 @@
    (map
     (lambda (x) (string-append "emacs-" x))
     '(
+      "bluetooth"
       "buffer-env"
       "crdt"
       "csv-mode"
