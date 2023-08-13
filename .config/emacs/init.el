@@ -59,6 +59,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (global-auto-revert-mode t)
 (setopt global-auto-revert-non-file-buffers t)
 (setopt revert-without-query '("."))
+(setopt auto-revert-avoid-polling t)
+(setopt dired-auto-revert-buffer t)
 
 (setopt shell-kill-buffer-on-exit t)
 
@@ -98,6 +100,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         auth-source-gpg-encrypt-to (list user-mail-address))
 
 (setopt browse-url-default-scheme "https")
+
+;; save after every modification
+(setopt bookmark-save-flag 0)
 
 (setopt text-quoting-style 'grave)
 
@@ -141,7 +146,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt modus-themes-prompts '(bold))
 (setopt modus-themes-org-blocks 'tinted-background)
 (setopt modus-themes-headings '((0 . (2.5))
-                                (agenda-structure . (2.5))))
+                                (agenda-structure . (1.5))))
 (load-theme 'modus-vivendi t)
 
 (setopt proced-enable-color-flag t)
@@ -250,7 +255,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  org-agenda-dim-blocked-tasks nil
  org-agenda-inhibit-startup t
  org-agenda-use-tag-inheritance nil
- org-agenda-ignore-properties '(effort appt stats category)
+ org-agenda-ignore-properties '(stats)
+ org-agenda-skip-comment-trees nil
+ org-agenda-skip-archived-trees nil
 
  org-agenda-sticky t
  org-agenda-format-date "%F %A"
@@ -379,6 +386,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (setopt flymake-mode-line-format
           '("" flymake-mode-line-exception
             flymake-mode-line-counters)))
+
+(setopt flymake-show-diagnostics-at-end-of-line t)
 
 (defun my-flymake-cc-command ()
   "Use the makefile at project root."
