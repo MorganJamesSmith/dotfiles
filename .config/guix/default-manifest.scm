@@ -1,3 +1,6 @@
+(use-modules
+ ((guix transformations) #:select (options->transformation)))
+
 (define audio
   '("alsa-utils" ; alsamixer
     "pulseaudio"
@@ -25,7 +28,20 @@
     "tree"
     "htop"))
 
-(specifications->manifest
+(define transformations
+  (options->transformation
+   `((without-tests . "duc"))))
+
+(define (specifications->manifest-with-transformations packages)
+  (packages->manifest
+   (map
+    (compose
+     (lambda (package output)
+       (list (transformations package) output))
+     specification->package+output)
+    packages)))
+
+(specifications->manifest-with-transformations
  (append!
   audio
   downloaders
