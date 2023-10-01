@@ -128,6 +128,7 @@
 
     (service vnstat-service-type)
 
+    (service package-database-service-type)
     (service file-database-service-type)
 
     (service tlp-service-type
