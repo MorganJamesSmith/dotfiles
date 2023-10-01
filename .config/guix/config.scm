@@ -1,5 +1,6 @@
 (use-modules
  (gnu)
+ (gnu packages audio)
  (gnu packages games)
  (gnu packages certs)
  (gnu packages linux)
@@ -121,6 +122,7 @@
     nss-certs
     adwaita-icon-theme
     hicolor-icon-theme
+    bluez-alsa ;; bluetooth audio
     %base-packages))
 
   (services
