@@ -7,5 +7,6 @@ guix package -p /home/pancake/.config/guix/extra-profiles/default/default --dele
 guix package -p /home/pancake/.config/guix/extra-profiles/emacs/emacs --delete-generations=1w
 guix pull --delete-generations=1w
 guix gc
-# guix gc --vacuum-database
+guix gc --clear-failures
+# sudo guix gc --vacuum-database
 # guix gc --optimize
