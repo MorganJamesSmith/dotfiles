@@ -18,6 +18,7 @@
                                        xdg-desktop-portal-gtk))
  ((gnu packages gnupg) #:select (pinentry-emacs))
  ((gnu packages linux) #:select (alsa-utils))
+ ((gnu packages qt) #:select (qtwayland qtbase))
  ((gnu packages wm) #:select (sway swaylock swayidle mako))
  ((gnu packages xdisorg) #:select (bemenu))
  ((gnu services) #:select (service simple-service))
@@ -35,6 +36,11 @@
             mako
             font-openmoji ; emoji
             font-wqy-zenhei ; Asian
+            qtbase
+            qtwayland
+            ;; TODO: Can't add these to profile.  See https://issues.guix.gnu.org/65508
+            ;; qtbase-5
+            ;; qtwayland-5
             ))
  (services
   (list
@@ -143,12 +149,8 @@ fi
                      ("SDL_VIDEODRIVER" . "wayland")
                      ("GTK_USE_PORTAL" . "1")
 
-                     ;; TODO: get QT to use wayland
-                     ;; - add qtwayland and qt5ct packages to profile
-                     ;; - fix bug#57742
-                     ;; ("QT_QPA_PLATFORM" . "wayland")
-                     ;; ("QT_QPA_PLATFORMTHEME" . "qt5ct")
-                     ;; ("QT_WAYLAND_DISABLE_WINDOWDECORATION" . "1")
+                     ("QT_QPA_PLATFORM" . "wayland")
+                     ("QT_WAYLAND_DISABLE_WINDOWDECORATION" . "1")
 
 
                      ("ASPELL_CONF" . "per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl")
