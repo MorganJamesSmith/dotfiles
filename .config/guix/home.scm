@@ -1,10 +1,12 @@
 (use-modules
  ((gnu home services desktop) #:select (home-dbus-service-type))
+ ((gnu home services dict) #:select (home-dicod-service-type))
  ((gnu home services gnupg) #:select (home-gpg-agent-service-type
                                       home-gpg-agent-configuration))
  ((gnu home services shells) #:select (home-bash-service-type
                                        home-shell-profile-service-type))
  ((gnu home services shepherd) #:select (home-shepherd-service-type))
+ ((gnu home services syncthing) #:select (home-syncthing-service-type))
  ((gnu home services xdg) #:select (home-xdg-mime-applications-configuration
                                     home-xdg-mime-applications-service-type
                                     home-xdg-user-directories-configuration
@@ -47,6 +49,9 @@
    (service home-shepherd-service-type)
    (service home-dbus-service-type)
    (service home-bash-service-type)
+
+   (service home-dicod-service-type) ;; Dictionary server
+   (service home-syncthing-service-type)
 
    (service home-gpg-agent-service-type
             (home-gpg-agent-configuration
