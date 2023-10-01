@@ -7,6 +7,7 @@
  (gnu packages wm)
  (gnu packages security-token)
  (gnu packages gnome)
+ (gnu services admin)
  (gnu services audio)
  (gnu services desktop)
  (gnu services avahi)
@@ -14,7 +15,6 @@
  (gnu services desktop)
  (gnu services file-sharing)
  (gnu services mail)
- (gnu services mcron)
  (gnu services monitoring)
  (gnu services networking)
  (gnu services pm)
@@ -128,15 +128,7 @@
 
     (service vnstat-service-type)
 
-    (simple-service 'my-cron-jobs
-                    mcron-service-type
-                    (list
-                     ;; Run 'updatedb' at 3AM every day
-                     #~(job '(next-hour '(3))
-                            (lambda ()
-                              (system* (string-append #$findutils "/bin/updatedb")
-                                       "--prunepaths=/tmp /var/tmp /gnu/store"))
-                            "updatedb")))
+    (service file-database-service-type)
 
     (service tlp-service-type
              (tlp-configuration
