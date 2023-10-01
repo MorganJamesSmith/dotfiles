@@ -12,7 +12,6 @@
  (gnu services avahi)
  (gnu services dbus)
  (gnu services desktop)
- (gnu services dict)
  (gnu services file-sharing)
  (gnu services mail)
  (gnu services mcron)
@@ -21,7 +20,6 @@
  (gnu services pm)
  (gnu services security-token)
  (gnu services sound)
- (gnu services syncthing)
  (gnu services sysctl)
  (gnu services xorg))
 
@@ -177,8 +175,6 @@
 
     (service bluetooth-service-type)
 
-    (service dicod-service-type) ;; Dictionary server
-
     (service screen-locker-service-type
          (screen-locker-configuration
            (name "swaylock")
@@ -198,7 +194,6 @@
     (service transmission-daemon-service-type
              (transmission-daemon-configuration
               (download-dir "/torrents")))
-    (service syncthing-service-type (syncthing-configuration (user username)))
     (service mpd-service-type
              (mpd-configuration
               (user user)
