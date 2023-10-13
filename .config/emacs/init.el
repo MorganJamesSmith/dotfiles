@@ -782,10 +782,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt doc-view-imenu-flatten t)
 
-;; mupdf 1.21.1 doesn't produce valid svg's
-(setopt doc-view-mupdf-use-svg nil)
-(setopt doc-view-resolution 400)
-
 (setopt image-use-external-converter t)
 
 (setopt ibuffer-expert t)
