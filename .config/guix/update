@@ -3,17 +3,17 @@
 # Update local Emacs source
 cd /home/pancake/src/emacs/emacs || exit $?
 git stash || exit $?
-git pull --rebase --no-gpg-sign || exit $?
+git rebase --no-gpg-sign || exit $?
 
 # Update local org-mode source
 cd /home/pancake/src/emacs/org-mode || exit $?
 git stash || exit $?
-git pull --rebase --no-gpg-sign || exit $?
+git rebase --no-gpg-sign || exit $?
 
 # Update local emms source
 cd /home/pancake/src/emacs/emms || exit $?
 git stash || exit $?
-git pull --rebase --no-gpg-sign || exit $?
+git rebase --no-gpg-sign || exit $?
 
 guix pull || exit $?
 
