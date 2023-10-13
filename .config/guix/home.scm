@@ -234,12 +234,12 @@ color-scheme='prefer-dark'\n"))
       ;; Always create a graphical window even if there is no video.  This makes
       ;; is easy to close mpv
       (".config/mpv/mpv.conf"
-       ,(plain-file "mpv-config" "force-window=yes\nhwdec=auto-safe"))
+       ,(plain-file "mpv-config" "force-window=yes\nhwdec=auto-safe\n"))
 
       ;; Move between chapters using '(' and ')'
       (".config/mpv/input.conf"
        ,(plain-file "mpv-input-config" ") add chapter 1\n( add chapter -1\n"))
-      
+
       ;; Only download 1080p or lower.  Place in ~/downloads/videos with a
       ;; specific filename.  Grab English subtitles if we can.  Add
       ;; sponderblock metadata
