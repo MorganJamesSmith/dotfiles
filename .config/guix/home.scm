@@ -249,7 +249,8 @@ color-scheme='prefer-dark'\n"))
 -f bestvideo[height<=?1080]+bestaudio/best
 -o '|%(upload_date>%Y-%m-%d)+U|%(uploader)+U|%(title)+U|%(id)+U.%(ext)+U'
 --paths '~/downloads/videos/'
---replace-in-metadata title,uploader '\\|' '-'
+--restrict-filenames
+--concurrent-fragments 10
 --write-sub
 --sub-lang en
 --sponsorblock-mark all\n")))))))
