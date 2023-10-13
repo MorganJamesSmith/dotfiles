@@ -568,26 +568,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt shr-width nil)
 (setopt url-privacy-level 'paranoid)
 
-(defun my-shr-url-transformer (url)
-  "Transform URL."
-  (let ((urlobj (url-generic-parse-url url)))
-    (setf (url-host urlobj)
-          (pcase (url-host urlobj)
-            ((or "www.reddit.com" "reddit.com") "teddit.net")
-            ((or "www.twitter.com" "twitter.com") "nitter.net")
-            (_ (url-host urlobj))))
-    ;; TODO: I'd like to use https when available but this fails when a site only offers http
-    ;; (setf (url-type urlobj)
-    ;;       (pcase (url-type urlobj)
-    ;;         ("http" "https")
-    ;;         (_ (url-type urlobj))))
-
-    (url-recreate-url urlobj)))
-
-(setopt shr-url-transformer #'my-shr-url-transformer)
-(with-eval-after-load "eww"
-  (add-to-list 'eww-url-transformers #'my-shr-url-transformer))
-
 (setopt eww-use-browse-url "\\`\\(?:gemini\\|gopher\\|mailto\\|magnet\\):\\|\\(youtube.com\\|youtu.be\\)\\|\\.\\(?:mp[34]\\|torrent\\)\\'")
 (setopt browse-url-handlers
         '(("\\`\\(gemini\\|gopher\\)://" .
