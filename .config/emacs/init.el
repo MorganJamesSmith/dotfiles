@@ -94,6 +94,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt gnus-save-newsrc-file nil)
 (setopt gnus-read-newsrc-file nil)
 
+(setopt imenu-space-replacement nil)
+(setopt imenu-auto-rescan t)
+
+(setopt Man-notify-method 'aggressive)
+
 ;; Use only encrypted authinfo
 (setopt auth-sources `((:source ,(expand-file-name "authinfo.gpg" user-emacs-directory)))
         auth-source-save-behavior t
@@ -511,6 +516,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (ws-butler-global-mode)
 (delight 'ws-butler-mode nil 'ws-butler)
 
+(setopt diff-whitespace-style '(face trailing tabs missing-newline-at-eof tab-mark))
+(add-hook 'diff-mode-hook #'whitespace-mode)
 
 (setopt adaptive-fill-mode nil)
 
@@ -784,6 +791,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt image-use-external-converter t)
 
+(setopt ebdb-default-country "Canada")
+(setopt ebdb-sources "~/documents/configs/ebdb")
+(setopt ebdb-default-phone-country 1)
+(setopt ebdb-save-on-exit t)
+
 (setopt ibuffer-expert t)
 (setopt ibuffer-saved-filter-groups
         `(("default"
@@ -901,7 +913,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (delight 'abbrev-mode nil 'abbrev)
 
 ;; Wayland pgtk stuff
-(defun fix-input () (pgtk-use-im-context nil))
+(defun fix-input () "." (pgtk-use-im-context nil))
 (add-hook 'emacs-startup-hook 'fix-input)
 
 
