@@ -1,6 +1,7 @@
 (use-modules
  ((gnu home services desktop) #:select (home-dbus-service-type))
  ((gnu home services dict) #:select (home-dicod-service-type))
+ ((gnu home services fontutils) #:select (home-fontconfig-service-type))
  ((gnu home services gnupg) #:select (home-gpg-agent-service-type
                                       home-gpg-agent-configuration))
  ((gnu home services shells) #:select (home-bash-service-type
@@ -174,30 +175,22 @@ fi
                      ("HISTSIZE" . "100000")
                      ("HISTTIMEFORMAT" . "[%F %T] ")))
 
-   
+   ;; Color emoji using OpenMoji
+   (simple-service 'additional-fonts-service
+                   home-fontconfig-service-type
+                   (list '(rejectfont
+                           (pattern
+                            (patelt
+                             (@ (name "family"))
+                             (string "OpenMoji"))
+                            (patelt
+                             (@ (name "style"))
+                             (string "Black"))))))
+
    (simple-service
     'dotfiles
     home-files-service-type
     `(
-
-      (".config/fontconfig/conf.d/71-color-emoji.conf"
-       ,(plain-file
-         "71-color-emoji.conf"
-         "<?xml version='1.0'?>
-<!DOCTYPE fontconfig SYSTEM 'urn:fontconfig:fonts.dtd'>
-<fontconfig>
-  <description>Color emoji using openmoji</description>
-  <rejectfont>
-    <pattern>
-      <patelt name='family'>
-        <string>OpenMoji</string>
-      </patelt>
-      <patelt name='style'>
-        <string>Black</string>
-      </patelt>
-    </pattern>
-  </rejectfont>
-</fontconfig>"))
 
       ;; Dark theme
       (".config/gtk-3.0/settings.ini"
