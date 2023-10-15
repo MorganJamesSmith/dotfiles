@@ -736,6 +736,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
 (add-hook 'before-save-hook 'time-stamp)
 
+(add-to-list 'auto-mode-alist '("\\.ledger\\'" . hledger-mode))
+(setopt hledger-jfile (expand-file-name "money/money.ledger" org-directory))
+(setopt hledger-currency-string "$")
+(setopt hledger-comments-column 4)
+
 (with-eval-after-load "disk-usage"
   (defun disk-usage-filter-proc (path _attributes)
     (not (string-match "\\(^/proc\\|:/proc\\)" path)))
