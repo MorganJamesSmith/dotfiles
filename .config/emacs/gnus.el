@@ -34,7 +34,8 @@
 (keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward)
 
 ;; Make it consistent with eww
-(keymap-set gnus-url-button-map "w" #'gnus-article-copy-string)
+(with-eval-after-load "gnus-art"
+  (keymap-set gnus-url-button-map "w" #'gnus-article-copy-string))
 
 (setopt message-generate-hashcash t)
 
@@ -78,8 +79,6 @@
 (setopt gnus-agent nil)
 (setopt gnus-use-cache nil)
 
-;; Encrypt email by default and also encrypt to self
-(add-hook 'message-setup-hook 'mml-secure-message-encrypt)
 (setopt mml-secure-openpgp-encrypt-to-self t)
 (setopt mml-secure-smime-encrypt-to-self t)
 
