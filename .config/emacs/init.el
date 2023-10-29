@@ -801,6 +801,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt image-use-external-converter t)
 
+;; TODO: upstream this
+(autoload 'ebdb-diary-anniversaries "ebdb")
+
 (setopt ebdb-default-country "Canada")
 (setopt ebdb-sources "~/documents/configs/ebdb")
 (setopt ebdb-default-phone-country 1)
