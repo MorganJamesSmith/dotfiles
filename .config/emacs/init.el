@@ -790,13 +790,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 (with-eval-after-load "doc-view"
-  (keymap-set doc-view-mode-map "r" #'image-rotate))
+  (keymap-set doc-view-mode-map "r" #'image-rotate)
+
+  ;; Applying dark theme to SVGs often hides stuff and looks wrong so just don't
+  (set-face-foreground 'doc-view-svg-face "black")
+  (set-face-background 'doc-view-svg-face "white"))
 
 (setopt doc-view-imenu-flatten t)
 
-;; Applying dark theme to SVGs often hides stuff and looks wrong so just don't
-(set-face-foreground 'doc-view-svg-face "black")
-(set-face-background 'doc-view-svg-face "white")
 
 (setopt image-use-external-converter t)
 
