@@ -32,6 +32,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; Don't be so in my face with issues
 (setopt warning-minimum-level :emergency)
+(setopt process-error-pause-time 0)
 
 ;;; Make buffers appear where I want them to
 (setopt display-buffer-alist
@@ -66,6 +67,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt view-read-only t)
 
+(setopt savehist-additional-variables '(register-alist kill-ring))
 (savehist-mode 1)
 (recentf-mode)
 
@@ -267,7 +269,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  org-agenda-sticky t
  org-agenda-format-date "%F %A"
  org-agenda-show-outline-path nil
- org-agenda-block-separator nil
+ org-agenda-block-separator ""
  org-agenda-scheduled-leaders '("" "")
  org-agenda-deadline-leaders '("" "" "")
  org-agenda-start-on-weekday nil
