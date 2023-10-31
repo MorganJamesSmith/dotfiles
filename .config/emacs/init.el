@@ -72,6 +72,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (recentf-mode)
 
 ;; Use ibuffer
+;; TODO: make this respect global-auto-revert-non-file-buffers
+;; TODO: make this not jump my cursor around on refresh when window not active
+;; (add-hook 'ibuffer-hook 'ibuffer-auto-mode) ;; auto-revert ibuffer
 (keymap-global-set "C-x C-b" #'ibuffer)
 
 (keymap-global-set "C-c c" #'compile)
@@ -95,6 +98,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt mail-source-directory (create-directory "Mail" gnus-home-directory))
 (setopt gnus-save-newsrc-file nil)
 (setopt gnus-read-newsrc-file nil)
+
+(add-hook 'message-mode-hook 'footnote-mode)
+(setopt mm-uu-hide-markers nil)
+(setopt mml-attach-file-at-the-end t)
 
 (setopt imenu-space-replacement nil)
 (setopt imenu-auto-rescan t)
@@ -321,15 +328,26 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      (todo
       "TODO"
       ((org-agenda-overriding-header "Eventually maybe:")
-       (org-agenda-prefix-format "%?T%s")
+       (org-agenda-prefix-format " %?T%s")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))))
      (agenda
       ""
       ((org-agenda-overriding-header "Time Tracking:")
        (org-agenda-prefix-format "%-11t | %-17s | ")
+       (org-agenda-span 15)
        (org-agenda-show-all-dates nil)
-       (org-agenda-show-log 'clockcheck)))))))
+       (org-agenda-show-log 'clockcheck)
+       (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))))
+
+(setopt org-habit-graph-column 23)
+(setopt org-habit-following-days 3)
+(setopt org-habit-preceding-days (- 103 org-habit-following-days org-habit-graph-column))
+;; org-habit as too many colors.  Use fewer
+(setopt org-habit-show-done-always-green t)
+(setopt face-remapping-alist '((org-habit-clear-face . org-habit-ready-face)
+                               (org-habit-alert-future-face . org-habit-overdue-face)
+                               (org-habit-clear-future-face . org-habit-ready-future-face)))
 
 (setopt
  org-agenda-clock-consistency-checks '(:max-gap "0:00")
@@ -575,7 +593,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt shr-cookie-policy nil)
 (setopt shr-max-width nil)
 (setopt shr-width nil)
-(setopt url-privacy-level 'paranoid)
+;; Send user agent as many sites require it
+(setopt url-privacy-level '(email os emacs lastloc cookies))
 
 (setopt eww-use-browse-url "\\`\\(?:gemini\\|gopher\\|mailto\\|magnet\\):\\|\\(youtube.com\\|youtu.be\\)\\|\\.\\(?:mp[34]\\|torrent\\)\\'")
 (setopt browse-url-handlers
