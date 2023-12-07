@@ -210,12 +210,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         org-use-speed-commands t
         org-src-ask-before-returning-to-edit-buffer nil
         org-src-window-setup 'current-window
+        org-read-date-popup-calendar nil
         org-special-ctrl-a/e t
         org-fold-catch-invisible-edits 'show-and-error
         org-todo-keywords
         '((sequence "TODO" "DONE")
           (sequence "HABIT" "DONE")
-          (sequence "DAYOF" "DONE")))
+          (sequence "WEEKLY-GOAL" "|" "FAILED" "DONE")
+          (sequence "MONTHLY-GOAL" "|" "FAILED" "DONE")
+          (sequence "ANNUAL-GOAL" "|" "FAILED" "DONE")))
 
 (setopt org-html-preamble nil
         org-html-postamble nil
@@ -285,23 +288,49 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  org-agenda-window-setup 'current-window
  org-agenda-todo-keyword-format ""
  org-agenda-remove-tags t
+ org-agenda-tags-todo-honor-ignore-options t
 
  org-agenda-files
  (list
   (expand-file-name "agenda/daily.org" org-directory)
   (expand-file-name "agenda/events.org" org-directory)
+  (expand-file-name "agenda/goals.org" org-directory)
   (expand-file-name "agenda/timetracking.org" org-directory)
   (expand-file-name "agenda/todo.org" org-directory))
 
  org-agenda-custom-commands
- '(("o" "My Agenda"
+ '(("l" "Clocking for all time"
+    ((agenda
+      ""
+      ((org-agenda-log-mode-items '(clock))
+       (org-agenda-start-day "2019-05-05")
+       (org-agenda-span 2000)
+       (org-agenda-overriding-header "Time Tracking:")
+       (org-agenda-prefix-format "%-11t | %-17s | ")
+       (org-agenda-show-all-dates nil)
+       (org-agenda-show-log 'clockcheck)
+       (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))
+   ("o" "My Agenda"
     ((todo
-      "TODO|DAYOF"
+      "WEEKLY-GOAL"
+      ((org-agenda-overriding-header "Weekly Goals:")
+       (org-agenda-prefix-format " %s")))
+     (todo
+      "MONTHLY-GOAL"
+      ((org-agenda-overriding-header "Monthly Goals:")
+       (org-agenda-prefix-format " %s")))
+     (todo
+      "ANNUAL-GOAL"
+      ((org-agenda-overriding-header "Annual Goals:")
+       (org-agenda-prefix-format " %s")))
+     (todo
+      "TODO"
       ((org-agenda-overriding-header "Todo:")
-       (org-agenda-prefix-format "%s")
-       (org-agenda-todo-ignore-deadlines 'future)
-       (org-agenda-todo-ignore-scheduled 'future)
-       (org-agenda-todo-ignore-timestamp 'future)
+       (org-agenda-prefix-format " %s")
+       ;; Will show up in "Schedule" section
+       (org-agenda-todo-ignore-deadlines 'all)
+       (org-agenda-todo-ignore-scheduled 'all)
+       (org-agenda-todo-ignore-timestamp 'all)
        (org-agenda-skip-function
         ;; Low priority is shown in "Eventually maybe" section
         '(org-agenda-skip-entry-if 'regexp "\\[#C\\]"))))
@@ -312,8 +341,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-format-date "")
        (org-agenda-prefix-format "")
        (org-agenda-span 'day)
-       (org-habit-show-all-today t)
        (org-habit-clock-completes-habit t)
+       ;; (org-habit-show-done-always-green t) ;; TODO: doesn't take effect here
+       ;; (org-habit-graph-column 23) ;; TODO: doesn't take effect here
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'nottodo '("HABIT")))))
      (agenda
@@ -324,7 +354,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-deadline-warning-days 0)
        (org-agenda-include-diary t) ;; For holidays
        (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'todo '("DONE" "HABIT" "DAYOF")))))
+        '(org-agenda-skip-entry-if 'todo '("HABIT")))))
      (todo
       "TODO"
       ((org-agenda-overriding-header "Eventually maybe:")
@@ -340,11 +370,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-show-log 'clockcheck)
        (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))))
 
+(setopt org-habit-show-done-always-green t)
 (setopt org-habit-graph-column 23)
 (setopt org-habit-following-days 3)
 (setopt org-habit-preceding-days (- 103 org-habit-following-days org-habit-graph-column))
 ;; org-habit as too many colors.  Use fewer
-(setopt org-habit-show-done-always-green t)
 (setopt face-remapping-alist '((org-habit-clear-face . org-habit-ready-face)
                                (org-habit-alert-future-face . org-habit-overdue-face)
                                (org-habit-clear-future-face . org-habit-ready-future-face)))
@@ -365,11 +395,33 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (defun org-clock-out-state (state)
   "State we should be after we clock out of STATE."
-  (if (or (string= state "HABIT")
-          (string= state "DAYOF"))
+  (if (string= state "HABIT")
       "DONE"
     state))
 (org-clock-persistence-insinuate)
+
+(with-eval-after-load "org-clock"
+  (plist-put org-clocktable-defaults :compact t)
+  (plist-put org-clocktable-defaults :narrow '20!)
+  (plist-put org-clocktable-defaults :formula '%)
+  (plist-put org-clocktable-defaults :match "-ignore")
+  (plist-put org-clocktable-defaults :maxlevel 1))
+
+;; org-capture-before-finalize-hook
+(keymap-global-set "C-c c" #'org-capture)
+(setopt org-capture-bookmark nil)
+(setopt org-capture-templates
+        '(
+          ("i" "Inbox" entry (file "inbox.org") "* %?" :prepend t)
+          ("w" "Weight"
+           table-line (file+headline "wiki/morgan.org" "weight")
+           "| %? | %U |" :jump-to-captured t :prepend t)
+          ("m" "Mood"
+           table-line (file+headline "wiki/morgan.org" "mood")
+           "| %? | %U |" :jump-to-captured t :prepend t)
+          ("a" "Alertness"
+           table-line (file+headline "wiki/morgan.org" "alertness")
+           "| %? | %U |" :jump-to-captured t :prepend t)))
 
 ;; TODO: package org-passwords for guix
 ;; (keymap-global-set "C-c q" #'org-passwords)
