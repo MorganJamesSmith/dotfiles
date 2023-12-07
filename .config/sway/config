@@ -5,7 +5,12 @@ focus_follows_mouse no
 mouse_warping none
 seat seat0 hide_cursor 1000
 
-for_window [title=".*"] floating disable
+# Logitech trackman
+input 1133:50184:Logitech_USB_Trackball
+{
+    scroll_button BTN_SIDE
+    scroll_method on_button_down
+}
 
 ### Variables
 #
@@ -22,6 +27,14 @@ set $right l
 # Note: pass the final command to swaymsg so that the resulting window can be opened
 # on the original workspace that the command was run on.
 set $menu bemenu-run -p "" -i | xargs swaymsg exec --
+
+# swaybar no work for nm-applet.  has to be waybar
+# https://github.com/swaywm/sway/pull/6249
+# bar swaybar_command waybar
+# bar position top
+# bar workspace_buttons no
+# bar mode hide
+# exec_always nm-applet --indicator
 
 ### Output configuration
 
