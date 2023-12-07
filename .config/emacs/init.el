@@ -196,8 +196,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Org Section Begins
 ;; Useful for more then just org
-(keymap-global-set "C-c ." #'org-time-stamp)
-(keymap-global-set "C-c !" #'org-time-stamp-inactive)
+(keymap-global-set "C-c ." #'org-timestamp)
+(keymap-global-set "C-c !" #'org-timestamp-inactive)
 (keymap-global-set "C-c C-o" #'org-open-at-point)
 
 (setopt org-directory "~/documents/"
@@ -703,7 +703,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-to-list 'eshell-visual-commands "weechat")
   (add-to-list 'eshell-visual-commands "pw-top"))
 
-(setenv "PAGER" (executable-find "cat"))
+(setopt comint-pager "cat")
 
 (eshell-syntax-highlighting-global-mode +1)
 
@@ -715,9 +715,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt dired-listing-switches
         "-l --all --group-directories-first --si --sort=version")
 (setopt dired-omit-line dired-re-dot)
+(setopt dired-filename-display-length 'window)
 
 (setopt dired-create-destination-dirs 'ask)
-
+(setopt wdired-allow-to-change-permissions t)
 (add-hook 'dired-mode-hook #'turn-on-gnus-dired-mode)
 
 ;; (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
@@ -802,12 +803,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  (lambda (args)
    (set-register (car args) (cons 'file (cdr args))))
  (list
-  (cons ?m (expand-file-name "money/money.ledger" org-directory))
-  (cons ?i (expand-file-name "inbox.org" org-directory))
-  (cons ?t (expand-file-name "agenda/todo.org" org-directory))
   (cons ?c (locate-user-emacs-file "init.el"))
   (cons ?d (xdg-user-dir "DOWNLOAD"))
-  (cons ?p (expand-file-name "wiki/possessions.org" org-directory))))
+  (cons ?i (expand-file-name "inbox.org" org-directory))
+  (cons ?j (expand-file-name "wiki/journal.org" org-directory))
+  (cons ?m (expand-file-name "money/money.ledger" org-directory))
+  (cons ?p (expand-file-name "wiki/possessions.org" org-directory))
+  (cons ?r (expand-file-name "wiki/routines.org" org-directory))
+  (cons ?t (expand-file-name "agenda/todo.org" org-directory))))
 
 
 (with-eval-after-load "doc-view"
