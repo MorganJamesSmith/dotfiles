@@ -30,7 +30,7 @@
 
 (define transformations
   (options->transformation
-   `((without-tests . "duc"))))
+   '()))
 
 (define (specifications->manifest-with-transformations packages)
   (packages->manifest
@@ -53,7 +53,6 @@
     "atool" ; compression stuff
     "brightnessctl"
     "dino" ; XMPP
-    "duc"
     "gnupg"
     "hledger"
     "jami" ; SIP
