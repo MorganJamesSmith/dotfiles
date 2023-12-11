@@ -105,6 +105,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt imenu-space-replacement nil)
 (setopt imenu-auto-rescan t)
+(setopt imenu-auto-rescan-maxout 50000000)
 
 (setopt Man-notify-method 'aggressive)
 
@@ -401,6 +402,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (org-clock-persistence-insinuate)
 
 (with-eval-after-load "org-clock"
+  ;; This sorting doesn't work if there are multiple un-compacted levels.  But
+  ;; as far as I can tell there is no built-in way to sort in that scenario
+  (plist-put org-clocktable-defaults :sort '(2 . ?T))
   (plist-put org-clocktable-defaults :compact t)
   (plist-put org-clocktable-defaults :narrow '20!)
   (plist-put org-clocktable-defaults :formula '%)
@@ -430,10 +434,35 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;   (keymap-set org-passwords-mode-map "C-c p" #'org-passwords-copy-password))
 
 (setopt org-passwords-file (expand-file-name "codes.gpg" org-directory))
+
+(setopt org-link-elisp-confirm-function nil)
+(setopt org-link-descriptive nil)
+(setopt org-link-abbrev-alist
+        `(("guix" . "elisp:(guix-packages-by-name \"%s\")")
+          ("possessions" . "file:~/documents/wiki/possessions.org::*")
+          ("money" . ,(concat "file:" (getenv "LEDGER_FILE") "::[[possessions:%s]]"))))
+
+(setopt org-imenu-flatten t) ;; my custom patch
+(setopt org-imenu-depth 5)
 ;;; Org Section Ends
 
 
 ;;; Programming Section Begins
+
+;; TODO: I love using buffer-env to get dependencies but I wish I could enable
+;; it for specific directories
+(defun buffer-env-setup ()
+  "."
+  (interactive)
+  (add-hook 'hack-local-variables-hook #'buffer-env-update)
+  (add-hook 'comint-mode-hook #'hack-dir-local-variables-non-file-buffer))
+
+(defun buffer-env-go-away ()
+  "."
+  (interactive)
+  (remove-hook 'hack-local-variables-hook #'buffer-env-update)
+  (remove-hook 'comint-mode-hook #'hack-dir-local-variables-non-file-buffer))
+
 (delight 'emacs-lisp-mode nil 'elisp-mode)
 (delight 'eldoc-mode nil 'eldoc)
 
@@ -523,24 +552,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt gdb-many-windows t)
 
-;; Guix development
-(setopt geiser-repl-history-filename
-        (expand-file-name "geiser_history" user-emacs-directory))
+(require 'debbugs-gnu)
+(add-hook 'log-view-mode-hook #'bug-reference-mode)
+(setopt bug-reference-url-format "https://debbugs.gnu.org/%s")
+;; Show feature requests.
+(setq debbugs-gnu-default-severities
+      '("serious" "important" "normal" "minor" "wishlist"))
 
-(with-eval-after-load 'geiser-guile
-  (add-to-list 'geiser-guile-load-path "~/src/guix"))
-
-(setopt geiser-mode-smart-tab-p t)
-
-(setopt org-link-elisp-confirm-function nil)
-(setopt org-link-descriptive nil)
-(setopt org-link-abbrev-alist
-        `(("guix" . "elisp:(guix-packages-by-name \"%s\")")
-          ("possessions" . "file:~/documents/wiki/possessions.org::*")
-          ("money" . ,(concat "file:" (getenv "LEDGER_FILE") "::[[possessions:%s]]"))))
-
-
-(add-hook 'scheme-mode-hook #'guix-devel-mode)
 (setopt scheme-program-name "guile")
 (setopt scheme-mit-dialect nil)
 
