@@ -562,6 +562,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt scheme-program-name "guile")
 (setopt scheme-mit-dialect nil)
 
+(defun set-emacs-lisp-compile-command ()
+  "Set elisp compile command to run checkdoc and `native-compile'."
+  (setq-local compile-command
+              (string-join
+               (list "emacs -Q --batch"
+                     (concat "--eval="
+                             (shell-quote-argument
+                              (concat "(checkdoc-file \"" buffer-file-name "\")")))
+                     "-f batch-native-compile"
+                     buffer-file-name)
+               " ")))
+(add-hook 'emacs-lisp-mode-hook #'set-emacs-lisp-compile-command)
 
 (delight 'yas-minor-mode nil 'yasnippet)
 (yas-global-mode 1)
@@ -728,9 +740,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 (add-hook 'text-mode-hook #'flyspell-mode)
-(add-hook 'message-mode-hook #'flyspell-mode)
 (setopt flyspell-mode-line-string "")
 (setopt flyspell-use-meta-tab nil)
+(keymap-global-set "M-$" #'ispell-word)
 
 
 ;; Backups and auto-saves and deleting
@@ -833,11 +845,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt hledger-currency-string "$")
 (setopt hledger-comments-column 4)
 
-(with-eval-after-load "disk-usage"
-  (defun disk-usage-filter-proc (path _attributes)
-    (not (string-match "\\(^/proc\\|:/proc\\)" path)))
-  (add-to-list 'disk-usage-available-filters 'disk-usage-filter-proc)
-  (add-to-list 'disk-usage-default-filters 'disk-usage-filter-proc))
 
 (setopt auto-insert-query nil)
 (setopt auto-insert t)
@@ -1028,6 +1035,42 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (keymap-global-set "<remap> <forward-page>" #'logos-forward-page-dwim)
 (keymap-global-set "<remap> <backward-page>" #'logos-backward-page-dwim)
 (setopt logos-outlines-are-pages t)
+
+(defun occur-non-ascii ()
+  "Find any non-ascii characters in the current buffer."
+  (interactive)
+  (occur "[^[:ascii:]]"))
+
+(defun cleanup ()
+  "Cleanup stuff."
+  (interactive)
+  (buffer-env-go-away)
+  (save-some-buffers)
+  (mapc #'kill-buffer (match-buffers "^ \\*diff-syntax"))
+  (mapc #'kill-buffer (match-buffers "^\\*disk-usage"))
+  (when dired-buffers
+    (mapc #'kill-buffer (mapcar #'cdr dired-buffers)))
+  (mapc
+   (lambda (buffer)
+     (ignore-errors
+       (kill-buffer buffer)))
+   '("*Async-native-compile-log*"
+     "*Backtrace*"
+     "*Completions*"
+     "*Dictionary*"
+     "*Flymake log*"
+     "*Help*"
+     "*info*"
+     "*Messages*"
+     "*Multiple Choice Help*"
+     "*Native-compile-Log*"
+     "*gcc-flymake*"
+     "*vc*"))
+  (native-compile-prune-cache)
+  (url-cookie-delete-cookies)
+  (url-gc-dead-buffers)
+  (org-persist-gc)
+  (garbage-collect))
 
 (with-eval-after-load "osm"
   (setopt osm-copyright nil)
