@@ -67,9 +67,6 @@
                    %default-modprobe-blacklist)
                   ","))))
 
-  ;; https://someonewhocares.org/hosts/zero/hosts
-  (hosts-file (local-file "./hosts"))
-
   (issue "Morgan's GNU Guix Machine\n\n")
 
   ;; Use the UEFI variant of GRUB with the EFI System
@@ -203,6 +200,11 @@
       polkit-wheel-service
       fontconfig-file-system-service
 
+      ;; https://big.oisd.nl/dnsmasq2
+      ;; these ones didn't seem to work.  Maybe they aren't using the new dnsmasq syntax?
+      ;; https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dnsmasq/pro.plus.txt
+      ;; https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dnsmasq/ultimate.txt
+      (extra-special-file "/etc/NetworkManager/dnsmasq.d/adblock.conf" (local-file "./dnsmasq2"))
       (service network-manager-service-type
                (network-manager-configuration
                 (dns "dnsmasq")))
