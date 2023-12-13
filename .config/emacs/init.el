@@ -742,6 +742,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'text-mode-hook #'flyspell-mode)
 (setopt flyspell-mode-line-string "")
 (setopt flyspell-use-meta-tab nil)
+(add-to-list 'ispell-skip-region-alist (list "ispell-skip-region-start"
+                                             "ispell-skip-region-end"))
 (keymap-global-set "M-$" #'ispell-word)
 
 
@@ -889,6 +891,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (cons ?r (expand-file-name "wiki/routines.org" org-directory))
   (cons ?t (expand-file-name "agenda/todo.org" org-directory))))
 
+(setopt register-use-preview nil)
 
 (with-eval-after-load "doc-view"
   (keymap-set doc-view-mode-map "r" #'image-rotate)

@@ -89,7 +89,7 @@
 ;; Always show all my groups
 (setopt gnus-permanently-visible-groups ".")
 
-(setopt gnus-parameters '(("." (display . all))
+(setopt gnus-parameters '(("." (display . all) (gcc-self . t))
                           ("local" (gnus-show-threads nil) (display . default))))
 
 ;; TODO: figure out how to specifiy my nnvirtual groups from here
