@@ -48,6 +48,7 @@
 (define emacs-packages
   (append!
    '("emacs-next-pgtk"
+     "gnuplot"
      "hashcash"    ; send emails with proof of work thingy
      "shellcheck"  ; flymake shell files
      "graphicsmagick" ; image-dired thumbnail generation
@@ -74,6 +75,7 @@
       "geiser"
       "geiser-guile"
       "ggtags"
+      "gnuplot"
       "guix"
       "hledger-mode"
       "literate-calc-mode"
