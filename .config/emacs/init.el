@@ -406,7 +406,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   ;; as far as I can tell there is no built-in way to sort in that scenario
   (plist-put org-clocktable-defaults :sort '(2 . ?T))
   (plist-put org-clocktable-defaults :compact t)
-  (plist-put org-clocktable-defaults :narrow '20!)
+  ;; Same width as header so tables are always the same width regardless of
+  ;; contents
+  (plist-put org-clocktable-defaults :narrow '12!)
   (plist-put org-clocktable-defaults :formula '%)
   (plist-put org-clocktable-defaults :match "-ignore")
   (plist-put org-clocktable-defaults :maxlevel 1))
@@ -444,6 +446,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt org-imenu-flatten t) ;; my custom patch
 (setopt org-imenu-depth 5)
+
+;; Half my 1920x1080 screen
+(setopt org-plot/gnuplot-term-extra "size 960,1080")
+;; Add a nice grid
+(setopt org-plot/gnuplot-script-preamble "set grid")
 ;;; Org Section Ends
 
 
@@ -588,6 +595,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt auto-revert-check-vc-info t)
 (setopt vc-log-short-style '(directory file))
 (setopt vc-git-annotate-switches "-w")
+(setopt vc-git-print-log-follow t)
 
 (setopt ediff-window-setup-function #'ediff-setup-windows-plain
         ediff-diff-options "-w"
@@ -810,7 +818,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt dired-guess-shell-alist-user
         `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm" ".m4v" ".wav" ".mp3" ".opus" ".ogv" ".flac")) "mpv")
-          (,(regexp-opt '(".pdf")) "pdftotext")))
+          (,(regexp-opt '(".pdf")) "pdftotext -nopgbrk -enc UTF-8 -eol unix -layout")))
 (setopt dired-omit-size-limit nil)
 
 ;; TODO: why don't this work!
