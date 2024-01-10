@@ -9,11 +9,11 @@
  (gnu packages gnome)
  (gnu services admin)
  (gnu services audio)
- (gnu services desktop)
  (gnu services avahi)
  (gnu services dbus)
  (gnu services desktop)
  (gnu services file-sharing)
+ (gnu services linux)
  (gnu services mail)
  (gnu services monitoring)
  (gnu services networking)
@@ -55,7 +55,6 @@
   (kernel-arguments
    (list
     "quiet"
-    "numa=off" ; idk
     "mitigations=off" ; more performance
     "nowatchdog" ; more performance
     (string-append
@@ -122,6 +121,7 @@
 
   (services
    (cons*
+    (service earlyoom-service-type)
 
     (service vnstat-service-type)
 
@@ -227,7 +227,12 @@
                 (handle-power-key 'suspend)))
       (service dbus-root-service-type)
 
-      (service openntpd-service-type)
+      (service openntpd-service-type
+               (openntpd-configuration
+                (sensor (list "*"))
+                (constraint-from (list "9.9.9.9" ;; quad9 v4 without DNS
+                                       "2620:fe::fe")) ;; quad9 v6 without DNS
+                (constraints-from (list "www.google.com"))))
 
       (service x11-socket-directory-service-type)
 
