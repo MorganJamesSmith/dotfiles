@@ -104,43 +104,20 @@ fi
      (default
        '((application/x-bittorrent . transmission.desktop)
          (x-scheme-handler/magnet  . transmission.desktop)
-         (x-scheme-handler/unknown . emacsurl.desktop)
-         (x-scheme-handler/about   . emacsurl.desktop)
-         (x-scheme-handler/https   . emacsurl.desktop)
-         (x-scheme-handler/http    . emacsurl.desktop)
-         (text/html                . emacsurl.desktop)
-         (x-scheme-handler/mailto  . emacsurl.desktop)
-         (application/pdf          . emacs.desktop)
-         (application/postscript   . emacs.desktop)
-         (application/x-csv        . emacs.desktop)
-         (image/gif                . emacs.desktop)
-         (image/jpeg               . emacs.desktop)
-         (image/png                . emacs.desktop)
-         (inode/directory          . emacs.desktop)
-         (text/plain               . emacs.desktop)
-         (text/x-shellscript       . emacs.desktop)))
+         (application/pdf          . emacsclient.desktop)
+         (application/postscript   . emacsclient.desktop)
+         (application/x-csv        . emacsclient.desktop)
+         (image/gif                . emacsclient.desktop)
+         (image/jpeg               . emacsclient.desktop)
+         (image/png                . emacsclient.desktop)
+         (inode/directory          . emacsclient.desktop)))
      (desktop-entries
       (list
-       (xdg-desktop-entry
-        (file "mpv")
-        (name "mpv")
-        (type 'application)
-        (config '((exec . "mpv -- %U"))))
        (xdg-desktop-entry
         (file "transmission")
         (name "Transmission")
         (type 'application)
-        (config '((exec . "transmission-remote -a %u"))))
-       (xdg-desktop-entry
-        (file "emacs")
-        (name "Emacs")
-        (type 'application)
-        (config '((exec . "emacsclient -a emacs %u"))))
-       (xdg-desktop-entry
-        (file "emacsurl")
-        (name "Emacs URL")
-        (type 'application)
-        (config '((exec . "emacsclient -a emacs --eval \"(browse-url (string-remove-suffix \\\"'\\\" (string-remove-prefix \\\"'\\\" \\\"%u\\\")))\""))))))))
+        (config '((exec . "transmission-remote -a %u"))))))))
 
    (simple-service 'some-useful-env-vars-service
           		   home-environment-variables-service-type
