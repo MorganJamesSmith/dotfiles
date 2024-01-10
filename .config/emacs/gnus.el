@@ -26,7 +26,9 @@
 (setopt gnus-interactive-exit nil)
 
 ;; Always do wide replys
+(keymap-set gnus-article-mode-map "r" #'gnus-summary-very-wide-reply)
 (keymap-set gnus-summary-mode-map "r" #'gnus-summary-very-wide-reply)
+(keymap-set gnus-article-mode-map "R" #'gnus-summary-very-wide-reply-with-original)
 (keymap-set gnus-summary-mode-map "R" #'gnus-summary-very-wide-reply-with-original)
 
 ;; Make it consistent with dired

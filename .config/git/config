@@ -14,8 +14,6 @@
 	envelopeSender = auto
 	sendmailcmd = msmtp
 	confirm = always
-	suppresscc = self
-	suppressfrom = true
 [alias]
 	pushall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git push --all --follow-tags
 	fetchall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git fetch
