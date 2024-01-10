@@ -214,12 +214,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         org-read-date-popup-calendar nil
         org-special-ctrl-a/e t
         org-fold-catch-invisible-edits 'show-and-error
+        org-enforce-todo-dependencies t
         org-todo-keywords
         '((sequence "TODO" "DONE")
           (sequence "HABIT" "DONE")
-          (sequence "WEEKLY-GOAL" "|" "FAILED" "DONE")
+          (sequence "ANNUAL-GOAL" "|" "FAILED" "DONE")
           (sequence "MONTHLY-GOAL" "|" "FAILED" "DONE")
-          (sequence "ANNUAL-GOAL" "|" "FAILED" "DONE")))
+          (sequence "WEEKLY-GOAL" "|" "FAILED" "DONE")))
 
 (setopt org-html-preamble nil
         org-html-postamble nil
@@ -270,7 +271,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
    (holiday-fixed 12 26 "Boxing Day (Federal and Ontario Holiday)"))
 
  ;; Optimization
- org-agenda-dim-blocked-tasks nil
  org-agenda-inhibit-startup t
  org-agenda-use-tag-inheritance nil
  org-agenda-ignore-properties '(stats)
@@ -290,6 +290,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  org-agenda-todo-keyword-format ""
  org-agenda-remove-tags t
  org-agenda-tags-todo-honor-ignore-options t
+ org-agenda-remove-timeranges-from-blocks t
+ ;; sent a fix for this upstream
+ org-agenda-skip-scheduled-if-deadline-is-shown 'repeated-after-deadline
 
  org-agenda-files
  (list
@@ -313,17 +316,20 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))
    ("o" "My Agenda"
     ((todo
-      "WEEKLY-GOAL"
-      ((org-agenda-overriding-header "Weekly Goals:")
-       (org-agenda-prefix-format " %s")))
+      "ANNUAL-GOAL"
+      ((org-agenda-overriding-header "Annual Goals:")
+       (org-agenda-prefix-format " ")
+       (org-agenda-todo-ignore-timestamp 'future)))
      (todo
       "MONTHLY-GOAL"
       ((org-agenda-overriding-header "Monthly Goals:")
-       (org-agenda-prefix-format " %s")))
+       (org-agenda-prefix-format " ")
+       (org-agenda-todo-ignore-timestamp 'future)))
      (todo
-      "ANNUAL-GOAL"
-      ((org-agenda-overriding-header "Annual Goals:")
-       (org-agenda-prefix-format " %s")))
+      "WEEKLY-GOAL"
+      ((org-agenda-overriding-header "Weekly Goals:")
+       (org-agenda-prefix-format " ")
+       (org-agenda-todo-ignore-timestamp 'future)))
      (todo
       "TODO"
       ((org-agenda-overriding-header "Todo:")
@@ -354,6 +360,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-span 60)
        (org-deadline-warning-days 0)
        (org-agenda-include-diary t) ;; For holidays
+       (org-agenda-dim-blocked-tasks 'invisible)
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'todo '("HABIT")))))
      (todo
