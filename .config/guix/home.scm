@@ -1,31 +1,25 @@
 (use-modules
- ((gnu home services desktop) #:select (home-dbus-service-type))
- ((gnu home services dict) #:select (home-dicod-service-type))
- ((gnu home services fontutils) #:select (home-fontconfig-service-type))
- ((gnu home services gnupg) #:select (home-gpg-agent-service-type
-                                      home-gpg-agent-configuration))
- ((gnu home services shells) #:select (home-bash-service-type
-                                       home-shell-profile-service-type))
- ((gnu home services shepherd) #:select (home-shepherd-service-type))
- ((gnu home services syncthing) #:select (home-syncthing-service-type))
- ((gnu home services xdg) #:select (home-xdg-mime-applications-configuration
-                                    home-xdg-mime-applications-service-type
-                                    home-xdg-user-directories-configuration
-                                    home-xdg-user-directories-service-type xdg-desktop-entry))
- ((gnu home services) #:select (home-environment-variables-service-type
-                                home-files-service-type
-                                home-run-on-first-login-service-type))
- ((gnu packages fonts) #:select (font-openmoji font-wqy-zenhei))
- ((gnu packages freedesktop) #:select (xdg-desktop-portal
-                                       xdg-desktop-portal-wlr
-                                       xdg-desktop-portal-gtk))
- ((gnu packages gnupg) #:select (pinentry-emacs))
- ((gnu packages linux) #:select (alsa-utils))
- ((gnu packages qt) #:select (qtwayland qtbase))
- ((gnu packages wm) #:select (sway swaylock swayidle mako))
- ((gnu packages xdisorg) #:select (bemenu))
- ((gnu services) #:select (service simple-service))
- ((guix gexp) #:select (file-append plain-file mixed-text-file)))
+ (gnu home services desktop)
+ (gnu home services dict)
+ (gnu home services fontutils)
+ (gnu home services gnupg)
+ (gnu home services mail)
+ (gnu home services pm)
+ (gnu home services shells)
+ (gnu home services shepherd)
+ (gnu home services sound)
+ (gnu home services syncthing)
+ (gnu home services xdg)
+ (gnu home services)
+ (gnu packages fonts)
+ (gnu packages freedesktop)
+ (gnu packages gnupg)
+ (gnu packages linux)
+ (gnu packages qt)
+ (gnu packages wm)
+ (gnu packages xdisorg)
+ (gnu services)
+ (guix gexp))
 
 (home-environment
  (packages (list
@@ -53,6 +47,25 @@
 
    (service home-dicod-service-type) ;; Dictionary server
    (service home-syncthing-service-type)
+
+   (service home-pipewire-service-type)
+
+   (service home-msmtp-service-type
+            (home-msmtp-configuration
+             (defaults
+               (msmtp-configuration
+                (port 587)))
+             (accounts
+              (list
+               (msmtp-account
+                (name "default")
+                (configuration
+                 (msmtp-configuration
+                  (auth? #f)
+                  (tls? #f)
+                  (from "local")
+                  (extra-content "protocol lmtp
+socket /var/run/dovecot/lmtp"))))))))
 
    (service home-gpg-agent-service-type
             (home-gpg-agent-configuration
@@ -164,6 +177,7 @@ fi
                              (@ (name "style"))
                              (string "Black"))))))
 
+   ;; Maybe use this instead: home-xdg-configuration-files-service-type
    (simple-service
     'dotfiles
     home-files-service-type

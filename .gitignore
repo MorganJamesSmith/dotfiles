@@ -13,7 +13,6 @@
 !.config/guix/home.scm
 !.config/guix/update
 !.config/guix/upgrade
-!.config/msmtp/config
 !.config/sway/config
 !.gitignore
 !LICENSE
