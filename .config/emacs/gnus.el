@@ -95,6 +95,8 @@
                           ("local" (gnus-show-threads nil) (display . default))))
 
 ;; TODO: figure out how to specifiy my nnvirtual groups from here
+;; G V (gnus-group-make-empty-virtual)
+;; G E (gnus-group-edit-group)
 ;; (nnvirtual "INBOX\\|Inbox\\|Junk\\|Spam")
 ;; (nnvirtual "[^l].\\(INBOX\\|Inbox\\|Junk\\|Spam\\)")
 
