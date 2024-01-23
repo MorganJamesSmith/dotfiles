@@ -137,10 +137,7 @@
     (service package-database-service-type)
     (service file-database-service-type)
 
-    (service tlp-service-type
-             (tlp-configuration
-              ;; Disable runtime-pm as this messes with my USBs
-              (runtime-pm-on-bat "on")))
+    (service tlp-service-type)
 
     (service dovecot-service-type
      (dovecot-configuration
