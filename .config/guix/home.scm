@@ -19,6 +19,7 @@
  (gnu packages wm)
  (gnu packages xdisorg)
  (gnu services)
+ (gnu system shadow)
  (guix gexp))
 
 (home-environment
@@ -181,7 +182,10 @@ fi
    (simple-service
     'dotfiles
     home-files-service-type
-    `(
+    `((".guile" ,%default-dotguile)
+      (".Xdefaults" ,%default-xdefaults)
+      (".config/gdb/gdbinit" ,%default-gdbinit)
+      (".config/nano/nanorc" ,%default-nanorc)
 
       ;; Dark theme
       (".config/gtk-3.0/settings.ini"
