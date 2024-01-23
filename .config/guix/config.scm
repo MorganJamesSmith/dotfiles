@@ -121,6 +121,15 @@
 
   (services
    (cons*
+
+    ;; Allow users to control their dconf config with a "user.txt" file
+    (simple-service
+     'dconf-config
+     etc-service-type
+     (list `("dconf/profile/user"
+             ,(plain-file "dconf-conf"
+                          "user-db:user\nservice-db:keyfile/user\n"))))
+
     (service earlyoom-service-type)
 
     (service vnstat-service-type)

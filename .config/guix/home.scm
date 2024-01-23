@@ -192,6 +192,10 @@ gtk-application-prefer-dark-theme=1\n"))
        ,(plain-file "settings.ini" "[Settings]
 gtk-application-prefer-dark-theme=1\n"))
 
+      (".config/dconf/user.txt"
+       ,(plain-file "dark-theme" "[org/gnome/desktop/interface]
+color-scheme='prefer-dark'\n"))
+
       (".config/glib-2.0/settings/keyfile"
        ,(plain-file "keyfile" "[org/gnome/desktop/interface]
 color-scheme='prefer-dark'\n"))
