@@ -477,6 +477,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (remove-hook 'hack-local-variables-hook #'buffer-env-update)
   (remove-hook 'comint-mode-hook #'hack-dir-local-variables-non-file-buffer))
 
+;; Ignore translation files
+(setopt project-vc-ignores (list "*.po"))
+
 (delight 'emacs-lisp-mode nil 'elisp-mode)
 (delight 'eldoc-mode nil 'eldoc)
 
@@ -975,9 +978,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                         (name . ,shell-command-buffer-name)
                         (mode . shell-mode)
                         (name . "*Async-native-compile-log*")))
-           ("PDF" (or
-                   (mode . pdf-view-mode)
-                   (mode . pdf-outline-buffer-mode)))
+           ("DocView" (mode . doc-view-mode))
            ("GDB" (or
                    (mode . gud-mode)
                    (mode . gdb-locals-mode)
