@@ -19,3 +19,7 @@
 	fetchall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git fetch
 [transfer]
 	fsckObjects = true
+[log]
+	date = format-local:%c
+[format]
+	pretty = fuller
