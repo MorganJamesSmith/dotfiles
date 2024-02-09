@@ -10,6 +10,12 @@
 (require 'gnus)
 (require 'gnus-util)
 
+;; Fixes Dovecot/isync incompatibility
+;; When gnus assumes that Dovecot's MOVE doesn't work, it moves messages to
+;; other mailboxes while maintaining their UID.  This UID could be a duplicate
+;; of an existing message already there and causes problems.
+(setq nnimap-quirks nil)
+
 ;; Exit gnus on Emacs exit
 (defun exit-gnus-on-exit ()
   "Exits gnus non-interactively."
