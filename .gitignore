@@ -5,7 +5,6 @@
 !.config/emacs/init.el
 !.config/git/attributes
 !.config/git/config
-!.config/guix/channels.scm
 !.config/guix/config.scm
 !.config/guix/default-manifest.scm
 !.config/guix/desktop.pub
