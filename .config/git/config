@@ -23,3 +23,5 @@
 	date = format-local:%c
 [format]
 	pretty = fuller
+[diff "org"]
+  xfuncname = "^(\\*+ +.*|#\\+TITLE: .*)$"
