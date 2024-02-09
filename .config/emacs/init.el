@@ -190,7 +190,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt mode-line-compact 'long)
 
-(setopt tab-bar-format '(tab-bar-format-global))
+(setopt tab-bar-format '(tab-bar-format-global)
+        tab-bar-auto-width nil)
 (tab-bar-mode)
 ;;; Modeline/Tab Bar Section Ends
 
@@ -530,6 +531,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (which-function-mode)
 (electric-layout-mode)
 (electric-pair-mode)
+;; (add-to-list 'electric-pair-pairs '(?\' . ?\'))
 (global-prettify-symbols-mode)
 (setq-default c-auto-newline t)
 (setq-default c-hungry-delete-key t)
@@ -594,6 +596,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (delight 'yas-minor-mode nil 'yasnippet)
 (yas-global-mode 1)
+
+(defun set-texinfo-compile-command ()
+  "Set texinfo compile command to run proselint."
+  (setq-local compile-command
+              (string-join
+               (list "proselint" buffer-file-name)
+               " ")))
+(add-hook 'texinfo-mode-hook #'set-texinfo-compile-command)
 ;;; Programming Section Ends
 
 
@@ -720,6 +730,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
               :name "yt-dlp" :buffer (generate-new-buffer "*yt-dlp*")
               :command (list "yt-dlp" host-or-url)
               :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))))
+
+;; Elpher
+;; make keybindings like eww
+(keymap-set elpher-mode-map "p" #'elpher-back)
 ;;; EWW Section Ends
 
 
@@ -905,6 +919,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (cons ?i (expand-file-name "inbox.org" org-directory))
   (cons ?j (expand-file-name "wiki/journal.org" org-directory))
   (cons ?m (expand-file-name "money/money.ledger" org-directory))
+  (cons ?o (expand-file-name "wiki/contributions.org" org-directory))
   (cons ?p (expand-file-name "wiki/possessions.org" org-directory))
   (cons ?r (expand-file-name "wiki/routines.org" org-directory))
   (cons ?t (expand-file-name "agenda/todo.org" org-directory))))
