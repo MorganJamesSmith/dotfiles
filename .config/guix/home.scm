@@ -136,6 +136,8 @@ fi
    (simple-service 'some-useful-env-vars-service
           		   home-environment-variables-service-type
           		   `(
+                     ;; display dates and times using ISO8601
+                     ("LC_TIME" . "en_DK.utf8")
 
                      ("LEDGER_FILE" . "$HOME/documents/money/money.ledger")
 

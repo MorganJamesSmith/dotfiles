@@ -1,5 +1,6 @@
 (use-modules
  (gnu)
+ (gnu system locale)
  (gnu packages audio)
  (gnu packages games)
  (gnu packages certs)
@@ -42,15 +43,17 @@
 ;; Things not exported by (gnu system)
 (define %default-modprobe-blacklist (@@ (gnu system) %default-modprobe-blacklist))
 
-(define my-glibc-locales
-       (make-glibc-utf8-locales
-        glibc
-        #:locales (list "en_US")
-        #:name "glibc-us-utf8-locales"))
-
 (operating-system
   (host-name host-name)
   (timezone "America/New_York")
+  (locale-definitions
+   (list
+    ;; I set LC_TIME=en_DK.utf8 because it displays dates using ISO8601
+    ;; TODO: should this be in the default definitions?
+    (locale-definition
+     (name "en_DK.utf8") (source "en_DK"))
+    (locale-definition
+     (name "en_US.utf8") (source "en_US"))))
 
   (kernel-arguments
    (list
@@ -112,7 +115,6 @@
   ;; This is where we specify system-wide packages.
   (packages
    (cons*
-    my-glibc-locales
     nss-certs
     adwaita-icon-theme
     hicolor-icon-theme
