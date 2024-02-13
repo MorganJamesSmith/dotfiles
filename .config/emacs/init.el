@@ -733,7 +733,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; Elpher
 ;; make keybindings like eww
-(keymap-set elpher-mode-map "p" #'elpher-back)
+(with-eval-after-load "elpher"
+  (keymap-set elpher-mode-map "p" #'elpher-back))
 ;;; EWW Section Ends
 
 
