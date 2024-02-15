@@ -217,11 +217,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         org-fold-catch-invisible-edits 'show-and-error
         org-enforce-todo-dependencies t
         org-todo-keywords
-        '((sequence "TODO" "DONE")
+        '((sequence "TODO" "|" "DONE" "FAILED")
           (sequence "HABIT" "DONE")
-          (sequence "ANNUAL-GOAL" "|" "FAILED" "DONE")
-          (sequence "MONTHLY-GOAL" "|" "FAILED" "DONE")
-          (sequence "WEEKLY-GOAL" "|" "FAILED" "DONE")))
+          (sequence "PROJECT" "DONE")))
 
 (setopt org-html-preamble nil
         org-html-postamble nil
@@ -273,12 +271,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
  ;; Optimization
  org-agenda-inhibit-startup t
+ org-use-tag-inheritance nil
  org-agenda-use-tag-inheritance nil
  org-agenda-ignore-properties '(stats)
  org-agenda-skip-comment-trees nil
  org-agenda-skip-archived-trees nil
 
  org-agenda-sticky t
+ org-agenda-prefix-format " "
  org-agenda-format-date "%F %A"
  org-agenda-show-outline-path nil
  org-agenda-block-separator ""
@@ -292,8 +292,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  org-agenda-remove-tags t
  org-agenda-tags-todo-honor-ignore-options t
  org-agenda-remove-timeranges-from-blocks t
- ;; sent a fix for this upstream
- org-agenda-skip-scheduled-if-deadline-is-shown 'repeated-after-deadline
+ org-agenda-skip-timestamp-if-deadline-is-shown t
+ org-agenda-skip-scheduled-if-deadline-is-shown t
+ org-agenda-skip-scheduled-repeats-after-deadline t
+
+ org-stuck-projects '("TODO=\"PROJECT\"" ("TODO") nil "")
 
  org-agenda-files
  (list
@@ -309,6 +312,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       ""
       ((org-agenda-log-mode-items '(clock))
        (org-agenda-start-day "2019-05-05")
+       (org-agenda-entry-types '())
        (org-agenda-span 2000)
        (org-agenda-overriding-header "Time Tracking:")
        (org-agenda-prefix-format "%-11t | %-17s | ")
@@ -316,42 +320,38 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-show-log 'clockcheck)
        (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))
    ("o" "My Agenda"
-    ((todo
-      "ANNUAL-GOAL"
+    ((tags-todo
+      "+annual_goal"
       ((org-agenda-overriding-header "Annual Goals:")
-       (org-agenda-prefix-format " ")
        (org-agenda-todo-ignore-timestamp 'future)))
-     (todo
-      "MONTHLY-GOAL"
+     (tags-todo
+      "+monthly_goal"
       ((org-agenda-overriding-header "Monthly Goals:")
-       (org-agenda-prefix-format " ")
        (org-agenda-todo-ignore-timestamp 'future)))
-     (todo
-      "WEEKLY-GOAL"
+     (tags-todo
+      "+weekly_goal"
       ((org-agenda-overriding-header "Weekly Goals:")
-       (org-agenda-prefix-format " ")
        (org-agenda-todo-ignore-timestamp 'future)))
      (todo
       "TODO"
       ((org-agenda-overriding-header "Todo:")
-       (org-agenda-prefix-format " %s")
+       (org-agenda-prefix-format "%-4.4T: ")
        ;; Will show up in "Schedule" section
        (org-agenda-todo-ignore-deadlines 'all)
        (org-agenda-todo-ignore-scheduled 'all)
-       (org-agenda-todo-ignore-timestamp 'all)
-       (org-agenda-skip-function
-        ;; Low priority is shown in "Eventually maybe" section
-        '(org-agenda-skip-entry-if 'regexp "\\[#C\\]"))))
+       (org-agenda-todo-ignore-timestamp 'all)))
      (agenda
       ""
       (;; I do the header funny to avoid an extra newline
        (org-agenda-overriding-header (lambda () "Today's Habits: "))
        (org-agenda-format-date "")
-       (org-agenda-prefix-format "")
+       (org-agenda-prefix-format "%-4.4T: ")
        (org-agenda-span 'day)
        (org-habit-clock-completes-habit t)
        ;; (org-habit-show-done-always-green t) ;; TODO: doesn't take effect here
        ;; (org-habit-graph-column 23) ;; TODO: doesn't take effect here
+       (org-agenda-entry-types '(:scheduled))
+       (org-agenda-sorting-strategy '(tag-up timestamp-down))
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'nottodo '("HABIT")))))
      (agenda
@@ -361,18 +361,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-span 60)
        (org-deadline-warning-days 0)
        (org-agenda-include-diary t) ;; For holidays
-       (org-agenda-dim-blocked-tasks 'invisible)
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'todo '("HABIT")))))
      (todo
-      "TODO"
-      ((org-agenda-overriding-header "Eventually maybe:")
-       (org-agenda-prefix-format " %?T%s")
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))))
+      "PROJECT"
+      ((org-agenda-overriding-header "Projects:")))
+     ;; Don't need a list of stuck projects because any stuck projects will
+     ;; show up as unblocked in the project section
+     ;; (stuck "")
      (agenda
       ""
       ((org-agenda-overriding-header "Time Tracking:")
+       (org-agenda-entry-types '())
        (org-agenda-prefix-format "%-11t | %-17s | ")
        (org-agenda-span 15)
        (org-agenda-show-all-dates nil)
@@ -380,10 +380,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))))
 
 (setopt org-habit-show-done-always-green t)
-(setopt org-habit-graph-column 23)
+(setopt org-habit-graph-column 29)
 (setopt org-habit-following-days 3)
 (setopt org-habit-preceding-days (- 103 org-habit-following-days org-habit-graph-column))
-;; org-habit as too many colors.  Use fewer
+;; org-habit has too many colors.  Use fewer
 (setopt face-remapping-alist '((org-habit-clear-face . org-habit-ready-face)
                                (org-habit-alert-future-face . org-habit-overdue-face)
                                (org-habit-clear-future-face . org-habit-ready-future-face)))
