@@ -232,11 +232,6 @@ color-scheme='prefer-dark'\n"))
       (".config/swaylock/config"
        ,(plain-file "swaylock-config" "color=000000FF\nscaling=solid_color\n"))
 
-      ;; Always create a graphical window even if there is no video.  This makes
-      ;; is easy to close mpv
-      (".config/mpv/mpv.conf"
-       ,(plain-file "mpv-config" "force-window=yes\nhwdec=auto-safe\n"))
-
       ;; Move between chapters using '(' and ')'
       (".config/mpv/input.conf"
        ,(plain-file "mpv-input-config" ") add chapter 1\n( add chapter -1\n"))

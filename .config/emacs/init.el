@@ -822,9 +822,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt comint-pager "cat")
 
+(keymap-global-set "s-<return>" #'eshell)
+(keymap-global-set "s-RET" #'eshell)
+
 (eshell-syntax-highlighting-global-mode +1)
 
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+
+(with-eval-after-load "dired"
+  (keymap-set dired-mode-map "C-c e a" #'emms-add-dired)
+  (keymap-set dired-mode-map "C-c e p" #'emms-play-dired))
 
 (setopt dired-dwim-target t)
 (setopt dired-recursive-copies 'always)
@@ -841,9 +848,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
 (load "dired-x")
 
-(setopt dired-guess-shell-alist-user
-        `((,(regexp-opt '(".amv" ".avi" ".flv" ".mkv" ".mov" ".mp4" ".webm" ".m4v" ".wav" ".mp3" ".opus" ".ogv" ".flac")) "mpv")
-          (,(regexp-opt '(".pdf")) "pdftotext -nopgbrk -enc UTF-8 -eol unix -layout")))
 (setopt dired-omit-size-limit nil)
 
 ;; TODO: why don't this work!
@@ -1018,20 +1022,23 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (global-auto-composition-mode -1)
 
-;; EMMS
+;;; EMMS
+(require 'emms)
+(require 'emms-setup)
+(emms-all)
+(keymap-global-set "C-c p" #'emms-playlist-mode-go)
 (keymap-global-set "s-p" #'emms-pause)
 (keymap-global-set "s-<right>" #'emms-next)
 (keymap-global-set "s-<left>" #'emms-previous)
 (keymap-global-set "s-<up>" #'emms-volume-raise)
 (keymap-global-set "s-<down>" #'emms-volume-lower)
 
-(emms-all)
 (setopt emms-playing-time-display-mode nil)
-(setopt emms-player-list '(emms-player-mpd
+(setopt emms-player-list '(;; emms-player-mpd
                            emms-player-mpv))
 (setopt emms-player-mpd-music-directory (xdg-user-dir "MUSIC"))
-(setopt emms-repeat-playlist t)
-(setopt emms-info-functions nil)
+;; (setopt emms-repeat-playlist t)
+;; (setopt emms-info-functions nil) ;; why did I do this?
 
 ;; TODO: add normal mixer support to emms-volume-amixer-change.  Currently it
 ;; only supports simple mixers
@@ -1055,9 +1062,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (emms-add-directory-tree emms-player-mpd-music-directory)
   (emms-shuffle)
   (emms-start))
-
-(keymap-global-set "s-<return>" #'eshell)
-(keymap-global-set "s-RET" #'eshell)
 
 (delight 'abbrev-mode nil 'abbrev)
 
