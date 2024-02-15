@@ -1111,6 +1111,21 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-persist-gc)
   (garbage-collect))
 
+;;; viper Section Begins
+(setopt viper-expert-level 5) ;; viper-max-expert-level == 5
+(setopt viper-inhibit-startup-message t)
+
+(setopt viper-want-ctl-h-help t)
+(setopt viper-ex-style-editing nil)
+(setopt viper-no-multiple-ESC nil)
+(setopt viper-syntax-preference 'emacs)
+(setopt viper-vi-style-in-minibuffer nil)
+
+(copy-face 'default 'viper-minibuffer-vi)
+(copy-face 'default 'viper-minibuffer-insert)
+(copy-face 'default 'viper-minibuffer-emacs)
+;;; viper Section Ends
+
 (with-eval-after-load "osm"
   (setopt osm-copyright nil)
   (keymap-set osm-mode-map "<remap> <next-line>" #'osm-down)
