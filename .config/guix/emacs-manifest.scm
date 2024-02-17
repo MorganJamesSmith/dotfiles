@@ -55,6 +55,7 @@
      "libjpeg"        ; image-dired rotate images
      "mupdf"       ; allows Emacs to preview EPUB
      "ghostscript" ; allows Emacs to preview PostScript
+     "djvulibre"   ; allows Emacs to preview djvu files
      "unoconv")    ; allows Emacs to preview docx files
    (map
     (lambda (x) (string-append "emacs-" x))
