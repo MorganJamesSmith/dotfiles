@@ -17,11 +17,19 @@
 [alias]
 	pushall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git push --all --follow-tags
 	fetchall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git fetch
+	staash = stash --all
 [transfer]
 	fsckObjects = true
 [log]
 	date = format-local:%c
 [format]
 	pretty = fuller
+	forceinbodyfrom = true
+[rerere]
+	enabled = true
+[branch]
+	sort = -committerdate
+[fetch]
+	writeCommitGraph = true
 [diff "org"]
   xfuncname = "^(\\*+ +.*|#\\+TITLE: .*)$"

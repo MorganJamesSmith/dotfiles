@@ -615,7 +615,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt vc-handled-backends '(Git))
 (setopt auto-revert-check-vc-info t)
 (setopt vc-log-short-style '(directory file))
-(setopt vc-git-annotate-switches "-w")
+(setopt vc-git-annotate-switches "-w -C -C -C")
 (setopt vc-git-print-log-follow t)
 
 (setopt ediff-window-setup-function #'ediff-setup-windows-plain
