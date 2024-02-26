@@ -1,5 +1,4 @@
 *
-!.config/emacs/diary
 !.config/emacs/early-init.el
 !.config/emacs/gnus.el
 !.config/emacs/init.el

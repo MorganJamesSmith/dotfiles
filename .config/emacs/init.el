@@ -300,6 +300,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
  org-agenda-files
  (list
+  (expand-file-name "contacts.org" org-directory)
   (expand-file-name "agenda/daily.org" org-directory)
   (expand-file-name "agenda/events.org" org-directory)
   (expand-file-name "agenda/goals.org" org-directory)
@@ -360,7 +361,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-prefix-format "    %-12t| %?-12:c %s")
        (org-agenda-span 60)
        (org-deadline-warning-days 0)
-       (org-agenda-include-diary t) ;; For holidays
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'todo '("HABIT")))))
      (todo
@@ -942,14 +942,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 (setopt image-use-external-converter t)
-
-;; TODO: upstream this
-(autoload 'ebdb-diary-anniversaries "ebdb")
-
-(setopt ebdb-default-country "Canada")
-(setopt ebdb-sources "~/documents/configs/ebdb")
-(setopt ebdb-default-phone-country 1)
-(setopt ebdb-save-on-exit t)
 
 (setopt ibuffer-expert t)
 (setopt ibuffer-saved-filter-groups

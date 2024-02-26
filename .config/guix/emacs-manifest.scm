@@ -68,7 +68,6 @@
       "delight"
       "diff-hl"
       "disk-usage"
-      "ebdb"
       "elpher"
       "emms"
       "eshell-syntax-highlighting"
