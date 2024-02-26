@@ -295,6 +295,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  org-agenda-skip-timestamp-if-deadline-is-shown t
  org-agenda-skip-scheduled-if-deadline-is-shown t
  org-agenda-skip-scheduled-repeats-after-deadline t
+ org-agenda-skip-deadline-if-done t
 
  org-stuck-projects '("TODO=\"PROJECT\"" ("TODO") nil "")
 
@@ -303,7 +304,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (expand-file-name "contacts.org" org-directory)
   (expand-file-name "agenda/daily.org" org-directory)
   (expand-file-name "agenda/events.org" org-directory)
-  (expand-file-name "agenda/goals.org" org-directory)
   (expand-file-name "agenda/timetracking.org" org-directory)
   (expand-file-name "agenda/todo.org" org-directory))
 
@@ -321,18 +321,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-show-log 'clockcheck)
        (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))
    ("o" "My Agenda"
-    ((tags-todo
-      "+annual_goal"
-      ((org-agenda-overriding-header "Annual Goals:")
-       (org-agenda-todo-ignore-timestamp 'future)))
-     (tags-todo
-      "+monthly_goal"
-      ((org-agenda-overriding-header "Monthly Goals:")
-       (org-agenda-todo-ignore-timestamp 'future)))
-     (tags-todo
-      "+weekly_goal"
-      ((org-agenda-overriding-header "Weekly Goals:")
-       (org-agenda-todo-ignore-timestamp 'future)))
+    (
      (todo
       "TODO"
       ((org-agenda-overriding-header "Todo:")
@@ -363,6 +352,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-deadline-warning-days 0)
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'todo '("HABIT")))))
+     (tags-todo
+      "+annual_goal"
+      ((org-agenda-overriding-header "Annual Goals:")
+       (org-agenda-todo-ignore-timestamp 'future)))
+     (tags-todo
+      "+monthly_goal"
+      ((org-agenda-overriding-header "Monthly Goals:")
+       (org-agenda-todo-ignore-timestamp 'future)))
+     (tags-todo
+      "+weekly_goal"
+      ((org-agenda-overriding-header "Weekly Goals:")
+       (org-agenda-todo-ignore-timestamp 'future)))
      (todo
       "PROJECT"
       ((org-agenda-overriding-header "Projects:")))
