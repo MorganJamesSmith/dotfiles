@@ -23,9 +23,8 @@
   "Return DIR as a directory and create DIR if it doesn't already exist.
 If DIR is relative, it will be relative to DEFAULT-DIR
 If DEFAULT-DIR isn't provided, DIR is relative to ~"
-  (unless default-dir
-    (setq default-dir "~"))
-  (let ((directory (file-name-as-directory (expand-file-name dir default-dir))))
+  (let ((directory (file-name-as-directory
+                    (expand-file-name dir (or default-dir "~")))))
     (unless (file-exists-p directory)
       (make-directory directory t))
     directory))
@@ -76,6 +75,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; TODO: make this not jump my cursor around on refresh when window not active
 ;; (add-hook 'ibuffer-hook 'ibuffer-auto-mode) ;; auto-revert ibuffer
 (keymap-global-set "C-x C-b" #'ibuffer)
+;; Buffer-menu-group-by
 
 (keymap-global-set "C-c c" #'compile)
 (setopt compilation-scroll-output 'first-error)
@@ -228,9 +228,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (with-eval-after-load "org"
   (push 'org-habit org-modules)
-  (push "SHOWFROMTIME" org-default-properties)
-  (push "SHOWFROMDATE" org-default-properties)
-  (push "EXCEPTIONS" org-default-properties)
 
   ;; I keep accidentally archiving stuff
   (keymap-unset org-mode-map "C-c C-x C-s"))
@@ -326,6 +323,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       "TODO"
       ((org-agenda-overriding-header "Todo:")
        (org-agenda-prefix-format "%-4.4T: ")
+       (org-agenda-sorting-strategy '(priority-down tag-up timestamp-down))
        ;; Will show up in "Schedule" section
        (org-agenda-todo-ignore-deadlines 'all)
        (org-agenda-todo-ignore-scheduled 'all)
@@ -338,6 +336,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-prefix-format "%-4.4T: ")
        (org-agenda-span 'day)
        (org-habit-clock-completes-habit t)
+       (org-enforce-todo-dependencies nil)
        ;; (org-habit-show-done-always-green t) ;; TODO: doesn't take effect here
        ;; (org-habit-graph-column 23) ;; TODO: doesn't take effect here
        (org-agenda-entry-types '(:scheduled))
@@ -369,6 +368,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       ((org-agenda-overriding-header "Projects:")))
      ;; Don't need a list of stuck projects because any stuck projects will
      ;; show up as unblocked in the project section
+     ;; TODO: not true
      ;; (stuck "")
      (agenda
       ""
@@ -438,14 +438,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
            table-line (file+headline "wiki/morgan.org" "alertness")
            "| %? | %U |" :jump-to-captured t :prepend t)))
 
-;; TODO: package org-passwords for guix
-;; (keymap-global-set "C-c q" #'org-passwords)
-;; (with-eval-after-load "org-passwords"
-;;   (keymap-set org-passwords-mode-map "C-c u" #'org-passwords-copy-username)
-;;   (keymap-set org-passwords-mode-map "C-c p" #'org-passwords-copy-password))
-
-(setopt org-passwords-file (expand-file-name "codes.gpg" org-directory))
-
 (setopt org-link-elisp-confirm-function nil)
 (setopt org-link-descriptive nil)
 (setopt org-link-abbrev-alist
@@ -497,10 +489,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook
  'c-mode-common-hook
  (lambda ()
+   (cwarn-mode 1)
    (ggtags-mode 1)
    (setq-local imenu-create-index-function #'ggtags-build-imenu-index)))
 (setopt ggtags-enable-navigation-keys nil)
 
+(delight 'cwarn-mode nil 'cwarn)
 (delight 'ggtags-mode nil 'ggtags)
 
 (add-hook 'prog-mode-hook #'flymake-mode)
@@ -525,9 +519,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                    (t "c")))))
 
 (setopt flymake-cc-command 'my-flymake-cc-command)
-
-(global-cwarn-mode)
-(delight 'cwarn-mode nil 'cwarn)
 
 (which-function-mode)
 (electric-layout-mode)
@@ -615,7 +606,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt vc-handled-backends '(Git))
 (setopt auto-revert-check-vc-info t)
 (setopt vc-log-short-style '(directory file))
-(setopt vc-git-annotate-switches "-w -C -C -C")
+(setopt vc-git-annotate-switches '("-w" "-C" "-C" "-C"))
 (setopt vc-git-print-log-follow t)
 
 (setopt ediff-window-setup-function #'ediff-setup-windows-plain
@@ -653,8 +644,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt adaptive-fill-mode nil)
 
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
-(add-hook 'org-mode-hook 'turn-on-auto-fill)
-(add-hook 'message-mode-hook 'turn-on-auto-fill)
 ;;; Whitespace Section Ends
 
 
@@ -839,17 +828,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt dired-recursive-deletes 'always)
 (setopt dired-listing-switches
         "-l --all --group-directories-first --si --sort=version")
-(setopt dired-omit-line dired-re-dot)
 (setopt dired-filename-display-length 'window)
 
 (setopt dired-create-destination-dirs 'ask)
 (setopt wdired-allow-to-change-permissions t)
 (add-hook 'dired-mode-hook #'turn-on-gnus-dired-mode)
-
-;; (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
-(load "dired-x")
-
-(setopt dired-omit-size-limit nil)
 
 ;; TODO: why don't this work!
 ;; (setopt image-dired-thumbnail-storage 'standard)
@@ -872,10 +855,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (load "tramp") ;; else sudo won't work
 
 (autoload 'xdg-user-dir "xdg")
-
-;; Tell gpg what screen to use for pinentry
-;; (shell-command "gpg-connect-agent \"UPDATESTARTUPTTY\" /bye")
-
 
 (setopt time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
 (add-hook 'before-save-hook 'time-stamp)
@@ -983,6 +962,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                       (and
                        (filename . "/agenda/")
                        (mode . org-mode))
+                      (filename . "contacts.org")
                       (mode . diary-mode)
                       (mode . org-agenda-mode)))
            ("dired" (mode . dired-mode))

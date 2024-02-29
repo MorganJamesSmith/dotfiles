@@ -81,7 +81,6 @@
       "literate-calc-mode"
       "logos"
       "nov-el"
-      ;; "org-passwords" ;; not packaged yet
       "org"
       "osm"
       "pinentry"
