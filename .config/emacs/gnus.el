@@ -113,6 +113,10 @@
              (nnimap-server-port 143)))
   '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local")))
 
+(setopt gnus-posting-styles
+        '(("hotbutterypancake" (address "hotbutterypancake@gmail.com"))
+          ("grommin" (address "grommin@hotmail.com"))
+          ("morganjsmith" (address "morgan.j.smith@outlook.com"))))
 ;; Make stuff pretty section
 
 (setopt gnus-summary-line-format
