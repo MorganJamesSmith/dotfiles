@@ -52,6 +52,12 @@
         gnus-treat-strip-multiple-blank-lines t
         gnus-treat-strip-cr t)
 
+(with-eval-after-load "mm-decode"
+  (add-to-list 'mm-file-name-rewrite-functions
+               #'mm-file-name-replace-whitespace)
+  (add-to-list 'mm-file-name-rewrite-functions
+               #'mm-file-name-trim-whitespace))
+
 ;; Encrypted emails are sent with the subject "...".  Don't assume they're all
 ;; part of the same thread
 (setopt gnus-summary-gather-exclude-subject "^ *$\\|^...$\\|^(none)$")
@@ -117,6 +123,10 @@
         '(("hotbutterypancake" (address "hotbutterypancake@gmail.com"))
           ("grommin" (address "grommin@hotmail.com"))
           ("morganjsmith" (address "morgan.j.smith@outlook.com"))))
+
+(setopt mail-dont-reply-to-names
+        (regexp-opt (mapcar #'cadadr gnus-posting-styles)))
+
 ;; Make stuff pretty section
 
 (setopt gnus-summary-line-format
@@ -124,7 +134,7 @@
                          "%0{%U%R%z%}"
                          "%3{|%}" "%1{%&user-date;%}" "%3{|%}" ;; date
                          "  "
-                         "%4{%-20,20f%}"             ;; name
+                         "%4{%-20,20n%}"             ;; name
                          "  "
                          "%3{|%}"
                          " "
