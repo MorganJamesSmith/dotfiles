@@ -41,6 +41,7 @@ set $menu bemenu-run -p "" -i | xargs swaymsg exec --
 # Black background
 output * bg #000000 solid_color
 output * adaptive_sync on
+output * scale 1
 
 
 ### Idle configuration
