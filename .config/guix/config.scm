@@ -190,18 +190,6 @@
     (service transmission-daemon-service-type
              (transmission-daemon-configuration
               (download-dir "/torrents")))
-    (service mpd-service-type
-             (mpd-configuration
-              (user user)
-              (music-directory "~/music")
-              (playlist-directory "~/.config/mpd/playlists")
-              (db-file "~/.config/mpd/database")
-              (state-file "~/.config/mpd/state")
-              (sticker-file "~/.config/mpd/sticker.sql")))
-    (service mingetty-service-type
-             (mingetty-configuration
-              (tty "tty7")
-              (auto-login username)))
 
       polkit-wheel-service
       fontconfig-file-system-service
