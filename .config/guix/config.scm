@@ -66,6 +66,7 @@
                    "sp5100_tco" ; disable watchdog timer
                    "pcspkr" "snd_pcsp" ; Stop the beeping
                    "uhci_hcd" ; USB 1.1
+                   "btusb" "bluetooth"
                    %default-modprobe-blacklist)
                   ","))))
 
@@ -118,7 +119,6 @@
     nss-certs
     adwaita-icon-theme
     hicolor-icon-theme
-    bluez-alsa ;; bluetooth audio
     %base-packages))
 
   (services
@@ -170,8 +170,6 @@
                  (args `("uid=1000" "gid=997" "allow_all_users=yes"
                          "username_format=%n"
                          ,(string-append "home=/home/" username "/.local/share/mail/%n"))))))))
-
-    (service bluetooth-service-type)
 
     (service screen-locker-service-type
          (screen-locker-configuration
