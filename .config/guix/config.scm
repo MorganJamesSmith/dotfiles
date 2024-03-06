@@ -60,6 +60,8 @@
     "quiet"
     "mitigations=off" ; more performance
     "nowatchdog" ; more performance
+    "acpi_osi=\"!Windows 2020\"" ; framework laptop suspend issue
+    "mem_sleep_default=deep" ; framework laptop suspend
     (string-append
      "modprobe.blacklist="
      (string-join (cons*
@@ -75,7 +77,7 @@
   ;; Use the UEFI variant of GRUB with the EFI System
   ;; Partition mounted on /boot.
   (bootloader (bootloader-configuration
-               (bootloader grub-efi-bootloader)
+               (bootloader grub-efi-removable-bootloader)
                (targets (list "/boot"))))
 
   ;; Specify a mapped device for the encrypted root partition.
@@ -140,6 +142,7 @@
     (service file-database-service-type)
 
     (service tlp-service-type)
+    (service thermald-service-type)
 
     (service dovecot-service-type
      (dovecot-configuration
