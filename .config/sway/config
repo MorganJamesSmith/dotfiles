@@ -44,11 +44,8 @@ output * adaptive_sync on
 
 
 ### Idle configuration
-exec swayidle -w \
-         timeout 300 'swaylock -f' \
-         timeout 600 'swaymsg "output * dpms off"' \
-         resume 'swaymsg "output * dpms on"' \
-         before-sleep 'swaylock -f'
+# Use idlehint to alert elogind which will do the suspend
+exec swayidle -w idlehint 300 before-sleep 'swaylock -f'
 
 input "type:keyboard" {
       repeat_delay 200

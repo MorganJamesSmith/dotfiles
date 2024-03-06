@@ -232,7 +232,9 @@
       (service polkit-service-type)
       (service elogind-service-type
                (elogind-configuration
-                (handle-power-key 'suspend)))
+                (handle-power-key 'ignore)
+                (idle-action-seconds (* 5 60))
+                (idle-action 'suspend)))
       (service dbus-root-service-type)
 
       (service openntpd-service-type
