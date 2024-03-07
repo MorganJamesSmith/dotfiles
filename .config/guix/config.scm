@@ -61,7 +61,9 @@
     "mitigations=off" ; more performance
     "nowatchdog" ; more performance
     "acpi_osi=\"!Windows 2020\"" ; framework laptop suspend issue
-    "mem_sleep_default=deep" ; framework laptop suspend
+    "resume=/dev/mapper/guix-root"
+    ; btrfs inspect-internal map-swapfile -r /swapfile
+    "resume_offset=CHANGE ME"
     (string-append
      "modprobe.blacklist="
      (string-join (cons*
@@ -141,7 +143,11 @@
     (service package-database-service-type)
     (service file-database-service-type)
 
-    (service tlp-service-type)
+    (service tlp-service-type
+             (tlp-configuration
+              (cpu-scaling-governor-on-ac (list "performance"))
+              (cpu-scaling-governor-on-bat (list "powersave"))
+              (sched-powersave-on-bat? #t)))
     (service thermald-service-type)
 
     (service dovecot-service-type
@@ -221,7 +227,7 @@
       (service polkit-service-type)
       (service elogind-service-type
                (elogind-configuration
-                (handle-power-key 'ignore)
+                (handle-power-key 'hibernate)
                 (idle-action-seconds (* 5 60))
                 (idle-action 'suspend)))
       (service dbus-root-service-type)
