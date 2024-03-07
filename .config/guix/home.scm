@@ -27,6 +27,7 @@
             sway
             swaylock
             swayidle
+            xss-lock
             bemenu ;; so dbus can use this
             xdg-desktop-portal
             xdg-desktop-portal-wlr

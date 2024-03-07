@@ -45,8 +45,10 @@ output * scale 1
 
 
 ### Idle configuration
-# Use idlehint to alert elogind which will do the suspend
-exec swayidle -w idlehint 300 before-sleep 'swaylock -f'
+# Use idlehint to alert elogind which will do the suspend and lock
+exec swayidle -w idlehint 300
+# Tell elogind how to lock
+exec xss-lock -- swaylock
 
 input "type:keyboard" {
       repeat_delay 200
