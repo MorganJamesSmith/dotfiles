@@ -1,21 +1,27 @@
 #!/bin/sh
 
+# exit on error
+set -e
+
 # Update local Emacs source
-cd /home/pancake/src/emacs/emacs || exit $?
-git stash || exit $?
-git rebase --no-gpg-sign || exit $?
+cd /home/pancake/src/emacs/emacs
+git stash
+git rebase --no-gpg-sign
 
 # Update local org-mode source
-cd /home/pancake/src/emacs/org-mode || exit $?
-git stash || exit $?
-git rebase --no-gpg-sign || exit $?
+cd /home/pancake/src/emacs/org-mode
+git stash
+git rebase --no-gpg-sign
 
 # Update local emms source
-cd /home/pancake/src/emacs/emms || exit $?
-git stash || exit $?
-git rebase --no-gpg-sign || exit $?
+cd /home/pancake/src/emacs/emms
+git stash
+git rebase --no-gpg-sign
 
-guix pull || exit $?
+guix pull
+
+# don't stop on error
+set +e
 
 # dev environment
 rm /home/pancake/.config/guix/dev
