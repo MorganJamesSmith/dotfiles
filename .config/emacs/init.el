@@ -218,6 +218,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         org-enforce-todo-dependencies t
         org-todo-keywords
         '((sequence "TODO" "|" "DONE" "FAILED")
+          (sequence "WAITINGFOR" "DONE")
           (sequence "HABIT" "DONE")
           (sequence "PROJECT" "DONE")))
 
@@ -319,16 +320,19 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))
    ("o" "My Agenda"
     (
-     (todo
-      "TODO"
-      ((org-agenda-overriding-header "Todo:")
-       (org-agenda-prefix-format "%-4.4T: ")
-       (org-agenda-sorting-strategy '(priority-down tag-up timestamp-down))
-       ;; Will show up in "Schedule" section
-       (org-agenda-todo-ignore-deadlines 'all)
-       (org-agenda-todo-ignore-scheduled 'all)
-       (org-agenda-todo-ignore-timestamp 'all)))
-     (agenda
+     (tags-todo
+      "+annual_goal"
+      ((org-agenda-overriding-header "Annual Goals:")
+       (org-agenda-todo-ignore-timestamp 'future)))
+     (tags-todo
+      "+monthly_goal"
+      ((org-agenda-overriding-header "Monthly Goals:")
+       (org-agenda-todo-ignore-timestamp 'future)))
+     (tags-todo
+      "+weekly_goal"
+      ((org-agenda-overriding-header "Weekly Goals:")
+       (org-agenda-todo-ignore-timestamp 'future)))
+     (agenda ;; habits
       ""
       (;; I do the header funny to avoid an extra newline
        (org-agenda-overriding-header (lambda () "Today's Habits: "))
@@ -343,7 +347,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-sorting-strategy '(tag-up timestamp-down))
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'nottodo '("HABIT")))))
-     (agenda
+     (agenda ;; schedule
       ""
       ((org-agenda-overriding-header "Schedule:")
        (org-agenda-prefix-format "    %-12t| %?-12:c %s")
@@ -351,18 +355,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-deadline-warning-days 0)
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'todo '("HABIT")))))
-     (tags-todo
-      "+annual_goal"
-      ((org-agenda-overriding-header "Annual Goals:")
-       (org-agenda-todo-ignore-timestamp 'future)))
-     (tags-todo
-      "+monthly_goal"
-      ((org-agenda-overriding-header "Monthly Goals:")
-       (org-agenda-todo-ignore-timestamp 'future)))
-     (tags-todo
-      "+weekly_goal"
-      ((org-agenda-overriding-header "Weekly Goals:")
-       (org-agenda-todo-ignore-timestamp 'future)))
+     (todo ;; todo
+      "TODO"
+      ((org-agenda-overriding-header "Todo:")
+       (org-agenda-prefix-format "%-4.4T: ")
+       (org-agenda-sorting-strategy '(priority-down tag-up timestamp-down))
+       ;; Will show up in "Schedule" section
+       (org-agenda-todo-ignore-deadlines 'all)
+       (org-agenda-todo-ignore-scheduled 'all)
+       (org-agenda-todo-ignore-timestamp 'all)))
+     (todo ;; waiting for
+      "WAITINGFOR"
+      ((org-agenda-overriding-header "Waiting for:")))
      (todo
       "PROJECT"
       ((org-agenda-overriding-header "Projects:")))
