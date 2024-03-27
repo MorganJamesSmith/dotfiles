@@ -20,6 +20,9 @@ git rebase --no-gpg-sign
 
 guix pull
 
+mv -f /home/pancake/.config/guix/dnsmasq2 /home/pancake/.config/guix/dnsmasq2.bak
+wget -P /home/pancake/.config/guix https://big.oisd.nl/dnsmasq2
+
 # don't stop on error
 set +e
 
