@@ -1,12 +1,14 @@
 #!/bin/sh
 
-mkdir -p /home/pancake/.config/guix/extra-profiles || exit $?
-mkdir -p /home/pancake/.config/guix/extra-profiles/default || exit $?
-mkdir -p /home/pancake/.config/guix/extra-profiles/emacs || exit $?
+set -e
 
-guix package -p /home/pancake/.config/guix/extra-profiles/default/default -m /home/pancake/.config/guix/default-manifest.scm || exit $?
-guix package -p /home/pancake/.config/guix/extra-profiles/emacs/emacs -m /home/pancake/.config/guix/emacs-manifest.scm || exit $?
+mkdir -p /home/pancake/.config/guix/extra-profiles
+mkdir -p /home/pancake/.config/guix/extra-profiles/default
+mkdir -p /home/pancake/.config/guix/extra-profiles/emacs
 
-guix home reconfigure /home/pancake/.config/guix/home.scm || exit $?
+guix package -p /home/pancake/.config/guix/extra-profiles/default/default -m /home/pancake/.config/guix/default-manifest.scm
+guix package -p /home/pancake/.config/guix/extra-profiles/emacs/emacs -m /home/pancake/.config/guix/emacs-manifest.scm
 
-guix package -u || exit $?
+guix home reconfigure /home/pancake/.config/guix/home.scm
+
+guix package -u
