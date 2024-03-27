@@ -769,6 +769,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'text-mode-hook #'flyspell-mode)
 (setopt flyspell-mode-line-string "")
 (setopt flyspell-use-meta-tab nil)
+(setopt flyspell-check-changes t)
 (add-to-list 'ispell-skip-region-alist (list "ispell-skip-region-start"
                                              "ispell-skip-region-end"))
 (keymap-global-set "M-$" #'ispell-word)
@@ -819,7 +820,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (keymap-global-set "s-<return>" #'eshell)
 (keymap-global-set "s-RET" #'eshell)
 
-(eshell-syntax-highlighting-global-mode +1)
+(add-hook 'eshell-mode-hook #'eshell-syntax-highlighting-mode)
 
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 
@@ -1109,8 +1110,40 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (keymap-set osm-mode-map "<remap> <previous-line>" #'osm-up)
   (keymap-set osm-mode-map "<remap> <forward-char>" #'osm-right)
   (keymap-set osm-mode-map "<remap> <backward-char>" #'osm-left)
-  (keymap-set osm-mode-map "=" #'osm-zoom-in))
+  (keymap-set osm-mode-map "=" #'osm-zoom-in)
+  (add-to-list 'osm-server-list
+               '(arcgisonline :name "arcgisonline" :description "satellite map" :url
+                              "https://services.arcgisonline.com/ArcGis/rest/services/World_Imagery/MapServer/tile/%z/%y/%x.jpeg"
+                              :group "Satallite" :copyright ("idk")
+                              :min-zoom 0 :max-zoom 23  :subdomains ("nope"))))
 
+;; https://github.com/minad/osm/discussions/39
+(defun osm-override-bookmarks ()
+  "Override bookmarks with links in current org buffer."
+  (when (eq (with-current-buffer (window-buffer) major-mode) 'org-mode)
+    (make-local-variable 'bookmark-alist)
+    (setq bookmark-alist '())
+    (let ((bookmark-save-flag nil))
+      (org-element-map (with-current-buffer (window-buffer) (org-element-parse-buffer))
+          '(link)
+        (lambda (elem)
+          (let ((url (org-element-property :path elem)))
+            (if (and (string-equal "geo" (org-element-property :type elem))
+                     ;; string-match bit copied from osm.el
+                     (string-match
+                      "\\`\\([0-9.-]+\\),\\([0-9.-]+\\)\\(?:,[0-9.-]+\\)?\\(;.+\\'\\|\\'\\)" url))
+                (let* ((lat (string-to-number (match-string 1 url)))
+                       (lon (string-to-number (match-string 2 url)))
+                       (args (url-parse-args (match-string 3 url) ""))
+                       (osm--zoom (cdr (assoc "z" args)))
+                       ;; (server (cdr (assoc "s" args)))
+                       (name (car (org-element-contents elem)))
+                       (bookmark-make-record-function
+                        (lambda () (osm--bookmark-record name lat lon name))))
+                  (bookmark-set
+                   (osm--bookmark-name lat lon name))))))))))
+
+(add-hook 'osm-mode-hook 'osm-override-bookmarks)
 
 (provide 'init.el)
 ;;; init.el ends here
