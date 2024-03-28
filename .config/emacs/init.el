@@ -456,6 +456,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt org-plot/gnuplot-term-extra "size 960,1080")
 ;; Add a nice grid
 (setopt org-plot/gnuplot-script-preamble "set grid")
+
+(defun replace-region-with-org-timestamp (beg end)
+  "Replace region with an org timestamp."
+  (interactive "r")
+  (kill-region beg end)
+  (org-insert-timestamp (date-to-time (car kill-ring)) nil t))
 ;;; Org Section Ends
 
 
