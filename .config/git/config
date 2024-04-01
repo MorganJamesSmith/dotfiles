@@ -6,6 +6,8 @@
 	showPatch = true
 [pull]
 	ff = only
+[push]
+	autoSetupRemote = true
 [user]
 	email = Morgan.J.Smith@outlook.com
 	name = Morgan Smith
