@@ -235,7 +235,14 @@ color-scheme='prefer-dark'\n"))
 
       ;; Move between chapters using '(' and ')'
       (".config/mpv/input.conf"
-       ,(plain-file "mpv-input-config" ") add chapter 1\n( add chapter -1\n"))
+       ,(plain-file "mpv-input-config"
+                    (string-join
+                     '(") add chapter 1"
+                       "( add chapter -1"
+                       ;; Fix for when audio in only on one side
+                       "h cycle-values audio-channels auto-safe mono")
+                     "\n"
+                     'suffix)))
 
       ;; Only download 1080p or lower.  Place in ~/downloads/videos with a
       ;; specific filename.  Grab English subtitles if we can.  Add
