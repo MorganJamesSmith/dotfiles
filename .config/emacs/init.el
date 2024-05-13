@@ -64,6 +64,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt shell-kill-buffer-on-exit t)
 
+(setopt fit-window-to-buffer-horizontally t)
+
 (setopt view-read-only t)
 
 (setopt savehist-additional-variables '(register-alist kill-ring))
@@ -103,6 +105,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt mm-uu-hide-markers nil)
 (setopt mml-attach-file-at-the-end t)
 
+(setopt imenu-flatten t)
 (setopt imenu-space-replacement nil)
 (setopt imenu-auto-rescan t)
 (setopt imenu-auto-rescan-maxout 50000000)
@@ -200,7 +203,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Useful for more then just org
 (keymap-global-set "C-c ." #'org-timestamp)
 (keymap-global-set "C-c !" #'org-timestamp-inactive)
-(keymap-global-set "C-c C-o" #'org-open-at-point)
 
 (setopt org-directory "~/documents/"
         org-default-notes-file (expand-file-name "notes.org" org-directory)
@@ -449,7 +451,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           ("possessions" . "file:~/documents/wiki/possessions.org::*")
           ("money" . ,(concat "file:" (getenv "LEDGER_FILE") "::[[possessions:%s]]"))))
 
-(setopt org-imenu-flatten t) ;; my custom patch
 (setopt org-imenu-depth 5)
 
 ;; Half my 1920x1080 screen
@@ -461,7 +462,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   "Replace region with an org timestamp."
   (interactive "r")
   (kill-region beg end)
-  (org-insert-timestamp (date-to-time (car kill-ring)) nil t))
+  (let* ((time-string (downcase (car kill-ring)))
+         (correction (or (and (string-suffix-p "pm" time-string) (* 60 60 12))
+                         0)))
+   (org-insert-timestamp (time-add (date-to-time time-string) correction) t t)))
 ;;; Org Section Ends
 
 
@@ -582,6 +586,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt scheme-program-name "guile")
 (setopt scheme-mit-dialect nil)
+(setopt geiser-mode-auto-p nil)
+(defalias 'pcomplete/guix #'ignore) ;; Freezes up eshell
+(require 'arei)
 
 (defun set-emacs-lisp-compile-command ()
   "Set elisp compile command to run checkdoc and `native-compile'."
@@ -644,7 +651,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt require-final-newline t)
 
 
-(setopt ws-butler-global-exempt-modes '(eshell-mode gnus-mode))
+(setopt ws-butler-global-exempt-modes '(eshell-mode gnus-mode org-agenda-mode))
 (ws-butler-global-mode)
 (delight 'ws-butler-mode nil 'ws-butler)
 
@@ -661,6 +668,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; Ignore compiled guile files
 (add-to-list 'completion-ignored-extensions ".go")
+
+(global-completion-preview-mode)
 
 (setopt completions-detailed t)
 
@@ -924,6 +933,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (with-eval-after-load "doc-view"
   (keymap-set doc-view-mode-map "r" #'image-rotate)
+  (keymap-set doc-view-mode-map "<remap> <fit-window-to-buffer>" #'doc-view-fit-window-to-page)
 
   ;; Applying dark theme to SVGs often hides stuff and looks wrong so just don't
   (set-face-foreground 'doc-view-svg-face "black")
@@ -957,7 +967,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                             (name . "^\\.bbdb$")
                             (name . "^\\.newsrc-dribble")
                             (mode . debbugs-gnu-mode)))
-           ("geiser" (or
+           ("repl things" (or
+                      (mode . arei-connection-mode)
                       (mode . geiser-repl-mode)
                       (mode . geiser-messages-mode)
                       (mode . geiser-debug-mode)))
@@ -1006,6 +1017,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (global-auto-composition-mode -1)
 
+(setopt repeat-exit-timeout 5)
+(with-eval-after-load "em-prompt"
+  ;; I want to use C-n and C-p for next and previous line
+  (setq eshell-prompt-repeat-map nil))
+
+(repeat-mode 1)
+
 ;;; EMMS
 (require 'emms)
 (require 'emms-setup)
@@ -1021,8 +1039,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt emms-player-list '(;; emms-player-mpd
                            emms-player-mpv))
 (setopt emms-player-mpd-music-directory (xdg-user-dir "MUSIC"))
+(setopt emms-info-functions nil)
 ;; (setopt emms-repeat-playlist t)
-;; (setopt emms-info-functions nil) ;; why did I do this?
 
 ;; TODO: add normal mixer support to emms-volume-amixer-change.  Currently it
 ;; only supports simple mixers
@@ -1043,7 +1061,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (interactive)
   (emms-stop)
   (emms-playlist-current-clear)
-  (emms-add-directory-tree emms-player-mpd-music-directory)
+  (emms-add-playlist (expand-file-name "playlist.pls" (xdg-user-dir "MUSIC")))
   (emms-shuffle)
   (emms-start))
 
