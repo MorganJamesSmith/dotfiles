@@ -222,7 +222,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         '((sequence "TODO" "|" "DONE" "FAILED")
           (sequence "WAITINGFOR" "DONE")
           (sequence "HABIT" "DONE")
-          (sequence "PROJECT" "DONE")))
+          (sequence "PROJECT" "DONE"))
+        org-tags-exclude-from-inheritance
+        '("annual_goal" "monthly_goal" "weekly_goal"))
 
 (setopt org-html-preamble nil
         org-html-postamble nil
@@ -233,7 +235,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (push 'org-habit org-modules)
 
   ;; I keep accidentally archiving stuff
-  (keymap-unset org-mode-map "C-c C-x C-s"))
+  (keymap-unset org-mode-map "C-c C-x C-s")
+
+  (keymap-set org-mode-map "M-p" #'org-metaup)
+  (keymap-set org-mode-map "M-n" #'org-metadown))
 
 (with-eval-after-load "org-indent"
   (org-indent-mode -1))
@@ -271,9 +276,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
  ;; Optimization
  org-agenda-inhibit-startup t
- org-use-tag-inheritance nil
- org-agenda-use-tag-inheritance nil
- org-agenda-ignore-properties '(stats)
  org-agenda-skip-comment-trees nil
  org-agenda-skip-archived-trees nil
 
@@ -296,7 +298,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  org-agenda-skip-scheduled-if-deadline-is-shown t
  org-agenda-skip-scheduled-repeats-after-deadline t
  org-agenda-skip-deadline-if-done t
-
+ org-agenda-sorting-strategy '(time-up priority-down category-keep)
  org-stuck-projects '("TODO=\"PROJECT\"" ("TODO") nil "")
 
  org-agenda-files
@@ -334,6 +336,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       "+weekly_goal"
       ((org-agenda-overriding-header "Weekly Goals:")
        (org-agenda-todo-ignore-timestamp 'future)))
+     (tags-todo
+      "+daily_goal"
+      ((org-agenda-overriding-header "Daily Goals:")
+       (org-agenda-prefix-format " %-4e |%l")
+       (org-agenda-dim-blocked-tasks nil)))
      (agenda ;; habits
       ""
       (;; I do the header funny to avoid an extra newline
@@ -342,11 +349,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-agenda-prefix-format "%-4.4T: ")
        (org-agenda-span 'day)
        (org-habit-clock-completes-habit t)
-       (org-enforce-todo-dependencies nil)
        ;; (org-habit-show-done-always-green t) ;; TODO: doesn't take effect here
        ;; (org-habit-graph-column 23) ;; TODO: doesn't take effect here
        (org-agenda-entry-types '(:scheduled))
-       (org-agenda-sorting-strategy '(tag-up timestamp-down))
+       (org-agenda-sorting-strategy '(tag-up timestamp-down category-keep))
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'nottodo '("HABIT")))))
      (agenda ;; schedule
@@ -361,7 +367,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       "TODO"
       ((org-agenda-overriding-header "Todo:")
        (org-agenda-prefix-format "%-4.4T: ")
-       (org-agenda-sorting-strategy '(priority-down tag-up timestamp-down))
        ;; Will show up in "Schedule" section
        (org-agenda-todo-ignore-deadlines 'all)
        (org-agenda-todo-ignore-scheduled 'all)
@@ -595,6 +600,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (setq-local compile-command
               (string-join
                (list "emacs -Q --batch"
+                     (shell-quote-argument "--eval=(setq byte-compile-warnings 'all)")
                      (concat "--eval="
                              (shell-quote-argument
                               (concat "(checkdoc-file \"" buffer-file-name "\")")))
