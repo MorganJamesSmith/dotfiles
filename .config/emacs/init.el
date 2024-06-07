@@ -1071,12 +1071,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (defun fix-input () "." (pgtk-use-im-context nil))
 (add-hook 'emacs-startup-hook 'fix-input)
 
-
-(keymap-global-set "<remap> <narrow-to-region>" #'logos-narrow-dwim)
-(keymap-global-set "<remap> <forward-page>" #'logos-forward-page-dwim)
-(keymap-global-set "<remap> <backward-page>" #'logos-backward-page-dwim)
-(setopt logos-outlines-are-pages t)
-
 (defun occur-non-ascii ()
   "Find any non-ascii characters in the current buffer."
   (interactive)

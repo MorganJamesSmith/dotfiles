@@ -78,7 +78,6 @@
       "guix"
       "hledger-mode"
       "literate-calc-mode"
-      "logos"
       "nov-el"
       "org"
       "osm"
