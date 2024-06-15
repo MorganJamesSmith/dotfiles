@@ -105,7 +105,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt mm-uu-hide-markers nil)
 (setopt mml-attach-file-at-the-end t)
 
-(setopt imenu-flatten t)
+(setopt imenu-flatten 'prefix)
 (setopt imenu-space-replacement nil)
 (setopt imenu-auto-rescan t)
 (setopt imenu-auto-rescan-maxout 50000000)
@@ -204,6 +204,38 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (keymap-global-set "C-c ." #'org-timestamp)
 (keymap-global-set "C-c !" #'org-timestamp-inactive)
 
+(setopt org-fast-tag-selection-single-key t)
+(setopt org-tag-alist '((:startgrouptag)
+                        ("computer")
+                        (:grouptags)
+                        ("research")
+                        (:endgrouptag)
+                        (:startgrouptag)
+                        ("event" . ?e)
+                        (:grouptags)
+                        ("programming_social")
+                        ("shopping")
+                        ("festival")
+                        (:endgrouptag)
+                        (:startgroup)
+                        ("goals" . ?g)
+                        (:grouptags)
+                        ("annual_goal")
+                        ("monthly_goal")
+                        ("weekly_goal")
+                        ("daily_goal" . ?d)
+                        (:endgroup)
+                        (:startgrouptag)
+                        ("health")
+                        (:grouptags)
+                        ;; ("sleep")
+                        ("exercise")
+                        ("food")
+                        ("mental_health")
+                        (:endgrouptag)
+                        ("tinkering" . ?t)
+                        ("ignore")))
+
 (setopt org-directory "~/documents/"
         org-default-notes-file (expand-file-name "notes.org" org-directory)
         org-preview-latex-image-directory "~/.cache/org-preview-latex/"
@@ -211,7 +243,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         org-duration-format 'h:mm
         org-log-done 'time
         org-edit-src-content-indentation 0
-        org-use-speed-commands t
+        org-use-speed-commands t ; org-speed-commands
         org-src-ask-before-returning-to-edit-buffer nil
         org-src-window-setup 'current-window
         org-read-date-popup-calendar nil
@@ -222,9 +254,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         '((sequence "TODO" "|" "DONE" "FAILED")
           (sequence "WAITINGFOR" "DONE")
           (sequence "HABIT" "DONE")
-          (sequence "PROJECT" "DONE"))
-        org-tags-exclude-from-inheritance
-        '("annual_goal" "monthly_goal" "weekly_goal"))
+          (sequence "PROJECT" "DONE")))
 
 (setopt org-html-preamble nil
         org-html-postamble nil
@@ -298,7 +328,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
  org-agenda-skip-scheduled-if-deadline-is-shown t
  org-agenda-skip-scheduled-repeats-after-deadline t
  org-agenda-skip-deadline-if-done t
- org-agenda-sorting-strategy '(time-up priority-down category-keep)
+ org-agenda-sorting-strategy '(time-up priority-down tag-up category-keep)
  org-stuck-projects '("TODO=\"PROJECT\"" ("TODO") nil "")
 
  org-agenda-files
@@ -327,14 +357,17 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      (tags-todo
       "+annual_goal"
       ((org-agenda-overriding-header "Annual Goals:")
+       (org-use-tag-inheritance nil)
        (org-agenda-todo-ignore-timestamp 'future)))
      (tags-todo
       "+monthly_goal"
       ((org-agenda-overriding-header "Monthly Goals:")
+       (org-use-tag-inheritance nil)
        (org-agenda-todo-ignore-timestamp 'future)))
      (tags-todo
       "+weekly_goal"
       ((org-agenda-overriding-header "Weekly Goals:")
+       (org-use-tag-inheritance nil)
        (org-agenda-todo-ignore-timestamp 'future)))
      (tags-todo
       "+daily_goal"
@@ -352,7 +385,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        ;; (org-habit-show-done-always-green t) ;; TODO: doesn't take effect here
        ;; (org-habit-graph-column 23) ;; TODO: doesn't take effect here
        (org-agenda-entry-types '(:scheduled))
-       (org-agenda-sorting-strategy '(tag-up timestamp-down category-keep))
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'nottodo '("HABIT")))))
      (agenda ;; schedule
@@ -363,8 +395,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
        (org-deadline-warning-days 0)
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'todo '("HABIT")))))
-     (todo ;; todo
-      "TODO"
+     (tags-todo ;; todo
+      "TODO=\"TODO\"-goals"
       ((org-agenda-overriding-header "Todo:")
        (org-agenda-prefix-format "%-4.4T: ")
        ;; Will show up in "Schedule" section
@@ -478,6 +510,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; TODO: I love using buffer-env to get dependencies but I wish I could enable
 ;; it for specific directories
+;; TODO: check out `hack-dir-local-get-variables-functions'
 (defun buffer-env-setup ()
   "."
   (interactive)
@@ -631,6 +664,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt vc-log-short-style '(directory file))
 (setopt vc-git-annotate-switches '("-w" "-C" "-C" "-C"))
 (setopt vc-git-print-log-follow t)
+(setopt vc-log-finish-functions nil)  ; no buffer resizing!
+(setopt vc-diff-finish-functions nil) ; no buffer resizing!
 
 (setopt ediff-window-setup-function #'ediff-setup-windows-plain
         ediff-diff-options "-w"
@@ -657,7 +692,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt require-final-newline t)
 
 
-(setopt ws-butler-global-exempt-modes '(eshell-mode gnus-mode org-agenda-mode))
+(setopt ws-butler-global-exempt-modes
+        '(eshell-mode gnus-mode org-agenda-mode
+          minibuffer-inactive-mode minibuffer-mode))
+
 (ws-butler-global-mode)
 (delight 'ws-butler-mode nil 'ws-butler)
 
@@ -1107,6 +1145,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      "*Native-compile-Log*"
      "*gcc-flymake*"
      "*vc*"))
+  (setq values '()) ;; TODO: is this a good idea?
   (native-compile-prune-cache)
   (url-cookie-delete-cookies)
   (url-gc-dead-buffers)
