@@ -2,12 +2,12 @@
  (gnu)
  (gnu system locale)
  (gnu packages audio)
- (gnu packages games)
  (gnu packages certs)
- (gnu packages linux)
- (gnu packages wm)
- (gnu packages security-token)
+ (gnu packages games)
  (gnu packages gnome)
+ (gnu packages linux)
+ (gnu packages security-token)
+ (gnu packages wm)
  (gnu services admin)
  (gnu services audio)
  (gnu services avahi)
@@ -120,7 +120,6 @@
   ;; This is where we specify system-wide packages.
   (packages
    (cons*
-    nss-certs
     adwaita-icon-theme
     hicolor-icon-theme
     %base-packages))
@@ -141,7 +140,9 @@
     (service vnstat-service-type)
 
     (service package-database-service-type)
-    (service file-database-service-type)
+    (service file-database-service-type
+             (file-database-configuration
+              (schedule "0 * * * *")))
 
     (service tlp-service-type
              (tlp-configuration
