@@ -10,6 +10,9 @@
 
 ;;; Code:
 
+(autoload 'xdg-user-dir "xdg")
+(autoload 'xdg-cache-home "xdg")
+
 (setopt source-directory "~/src/emacs/emacs")
 
 ;; This is non-nil for instances of Emacs started from within an
@@ -71,6 +74,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt savehist-additional-variables '(register-alist kill-ring))
 (savehist-mode 1)
 (recentf-mode)
+
+(setopt help-enable-variable-value-editing t)
 
 ;; Use ibuffer
 ;; TODO: make this respect global-auto-revert-non-file-buffers
@@ -187,6 +192,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt display-time-day-and-date t)
 (display-time-mode)
 
+(setopt battery-mode-line-format "[%b%p%%, %r] ")
 (display-battery-mode)
 (size-indication-mode)
 (column-number-mode)
@@ -238,7 +244,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt org-directory "~/documents/"
         org-default-notes-file (expand-file-name "notes.org" org-directory)
-        org-preview-latex-image-directory "~/.cache/org-preview-latex/"
+        org-preview-latex-image-directory
+        (file-name-as-directory (expand-file-name "org-preview-latex" (xdg-cache-home)))
+        org-refile-targets
+        `((,(expand-file-name "agenda/todo.org" org-directory) .
+           (:regexp . "refile target"))
+          (nil . (:maxlevel . 2)))
+        org-outline-path-complete-in-steps nil
         org-blank-before-new-entry '((heading . nil) (plain-list-item . nil))
         org-duration-format 'h:mm
         org-log-done 'time
@@ -917,8 +929,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 (load "tramp") ;; else sudo won't work
-
-(autoload 'xdg-user-dir "xdg")
 
 (setopt time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
 (add-hook 'before-save-hook 'time-stamp)
