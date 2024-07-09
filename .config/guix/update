@@ -31,14 +31,14 @@ rm /home/pancake/.config/guix/dev
 guix shell --pure -D guix -D emacs-next-pgtk --root=/home/pancake/.config/guix/dev -- echo "done"
 
 # build manifest
-guix build --keep-going -m /home/pancake/.config/guix/default-manifest.scm
-guix build --keep-going -m /home/pancake/.config/guix/emacs-manifest.scm
+guix build --max-jobs=4 --keep-going -m /home/pancake/.config/guix/default-manifest.scm
+guix build --max-jobs=4 --keep-going -m /home/pancake/.config/guix/emacs-manifest.scm
 
 # build system
-guix system build --keep-going /home/pancake/.config/guix/config.scm
+guix system build --max-jobs=4 --keep-going /home/pancake/.config/guix/config.scm
 
 # build home
-guix home build --keep-going /home/pancake/.config/guix/home.scm
+guix home build --max-jobs=4 --keep-going /home/pancake/.config/guix/home.scm
 
 # Display news
 guix pull --news

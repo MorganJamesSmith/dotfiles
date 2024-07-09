@@ -11,4 +11,4 @@ guix package -p /home/pancake/.config/guix/extra-profiles/emacs/emacs -m /home/p
 
 guix home reconfigure /home/pancake/.config/guix/home.scm
 
-guix package -u
+guix package --max-jobs=4 -u
