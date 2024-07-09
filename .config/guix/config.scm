@@ -62,7 +62,7 @@
     "nowatchdog" ; more performance
     "acpi_osi=\"!Windows 2020\"" ; framework laptop suspend issue
     "resume=/dev/mapper/guix-root"
-    ; btrfs inspect-internal map-swapfile -r /swapfile
+    ;; btrfs inspect-internal map-swapfile -r /swapfile
     "resume_offset=CHANGE ME"
     (string-append
      "modprobe.blacklist="
@@ -151,7 +151,8 @@
               (sched-powersave-on-bat? #t)))
     (service thermald-service-type)
 
-    (service dovecot-service-type
+    (service
+     dovecot-service-type
      (dovecot-configuration
       (mail-location "maildir:~")
       (listen '("127.0.0.1"))
@@ -182,11 +183,11 @@
                          ,(string-append "home=/home/" username "/.local/share/mail/%n"))))))))
 
     (service screen-locker-service-type
-         (screen-locker-configuration
-           (name "swaylock")
-           (program (file-append swaylock "/bin/swaylock"))
-           (using-pam? #t)
-           (using-setuid? #f)))
+             (screen-locker-configuration
+              (name "swaylock")
+              (program (file-append swaylock "/bin/swaylock"))
+              (using-pam? #t)
+              (using-setuid? #f)))
 
     ;; Security Keys
     (service pcscd-service-type)
@@ -201,49 +202,49 @@
              (transmission-daemon-configuration
               (download-dir "/torrents")))
 
-      polkit-wheel-service
-      fontconfig-file-system-service
+    polkit-wheel-service
+    fontconfig-file-system-service
 
-      ;; https://big.oisd.nl/dnsmasq2
-      ;; these ones didn't seem to work.  Maybe they aren't using the new dnsmasq syntax?
-      ;; https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dnsmasq/pro.plus.txt
-      ;; https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dnsmasq/ultimate.txt
-      (extra-special-file "/etc/NetworkManager/dnsmasq.d/adblock.conf" (local-file "./dnsmasq2"))
-      (service network-manager-service-type
-               (network-manager-configuration
-                (dns "dnsmasq")))
-      ;; (service dhcp-client-service-type)
-      (service wpa-supplicant-service-type)    ;needed by NetworkManager
-      ;; (service modem-manager-service-type)
-      (service usb-modeswitch-service-type)
+    ;; https://big.oisd.nl/dnsmasq2
+    ;; these ones didn't seem to work.  Maybe they aren't using the new dnsmasq syntax?
+    ;; https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dnsmasq/pro.plus.txt
+    ;; https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dnsmasq/ultimate.txt
+    (extra-special-file "/etc/NetworkManager/dnsmasq.d/adblock.conf" (local-file "./dnsmasq2"))
+    (service network-manager-service-type
+             (network-manager-configuration
+              (dns "dnsmasq")))
+    ;; (service dhcp-client-service-type)
+    (service wpa-supplicant-service-type)    ;needed by NetworkManager
+    ;; (service modem-manager-service-type)
+    (service usb-modeswitch-service-type)
 
-      ;; The D-Bus clique.
-      (service avahi-service-type)
-      ;; (udisks-service)
-      (service upower-service-type)
-      ;; (accountsservice-service)
-      ;; (service cups-pk-helper-service-type)
-      ;; (service colord-service-type)
-      ;; (geoclue-service)
-      (service polkit-service-type)
-      (service elogind-service-type
-               (elogind-configuration
-                (handle-power-key 'hibernate)
-                (idle-action-seconds (* 5 60))
-                (idle-action 'suspend)))
-      (service dbus-root-service-type)
+    ;; The D-Bus clique.
+    (service avahi-service-type)
+    ;; (udisks-service)
+    (service upower-service-type)
+    ;; (accountsservice-service)
+    ;; (service cups-pk-helper-service-type)
+    ;; (service colord-service-type)
+    ;; (geoclue-service)
+    (service polkit-service-type)
+    (service elogind-service-type
+             (elogind-configuration
+              (handle-power-key 'hibernate)
+              (idle-action-seconds (* 5 60))
+              (idle-action 'suspend)))
+    (service dbus-root-service-type)
 
-      (service openntpd-service-type
-               (openntpd-configuration
-                (sensor (list "*"))
-                (constraint-from (list "9.9.9.9" ;; quad9 v4 without DNS
-                                       "2620:fe::fe")) ;; quad9 v6 without DNS
-                (constraints-from (list "www.google.com"))))
+    (service openntpd-service-type
+             (openntpd-configuration
+              (sensor (list "*"))
+              (constraint-from (list "9.9.9.9" ;; quad9 v4 without DNS
+                                     "2620:fe::fe")) ;; quad9 v6 without DNS
+              (constraints-from (list "www.google.com"))))
 
-      (service x11-socket-directory-service-type)
+    (service x11-socket-directory-service-type)
 
-      (service pulseaudio-service-type)
-      (service alsa-service-type)
+    (service pulseaudio-service-type)
+    (service alsa-service-type)
 
     (modify-services
         %base-services
