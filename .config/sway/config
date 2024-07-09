@@ -53,6 +53,7 @@ input type:keyboard {
 input type:touchpad {
     tap enabled
 }
+bindsym XF86AudioMedia input type:touchpad events toggle enabled disabled
 
 # Logitech trackman
 input 1133:50184:Logitech_USB_Trackball
@@ -65,8 +66,10 @@ input 1133:50184:Logitech_USB_Trackball
 #
 # Basics:
 #
-    # Start a terminal
-    # bindsym $mod+Return exec $term
+    # Media Keys
+    bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+    bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+    bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
 
     # Kill focused window
     bindsym $mod+Shift+q kill
