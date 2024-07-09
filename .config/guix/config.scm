@@ -249,11 +249,12 @@
     (modify-services
         %base-services
 
-      (guix-service-type
-       config =>
-       (guix-configuration
-        (inherit config)
-        (extra-options '("--cache-failures"))))
+      ;; `guix gc --clear-failures` doesn't seem to work properly
+      ;; (guix-service-type
+      ;;  config =>
+      ;;  (guix-configuration
+      ;;   (inherit config)
+      ;;   (extra-options '("--cache-failures"))))
 
       ;; Transmission daemon wants this
       (sysctl-service-type
