@@ -21,6 +21,7 @@
 (define email
   '("msmtp" ; sending emails
     "isync" ; receiving emails
+    "icedove-minimal"
     "rss2email"))
 
 (define terminal-tools
@@ -62,7 +63,7 @@
     "openssh"
     "password-store"
     "pwgen" ; Password Generator
-    "quaternion" ; Matrix
+    ;; "quaternion" ; Matrix
     "rmlint"
     "recutils"
     "unzip"
