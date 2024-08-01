@@ -15,7 +15,22 @@
 (define org-git-commit (git-commit "/home/pancake/src/emacs/org-mode"))
 (define emms-git-commit (git-commit "/home/pancake/src/emacs/emms"))
 
-(define transformations
+
+;; We do these separately as they don't combine with our source transformations
+;; unless they are done as a separate step.
+;;
+;; Our source transformations also clear the patches that would normally be
+;; applied so I add them back in
+(define patch-transformations
+  (options->transformation
+   `(
+     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-exec-path.patch")
+     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-fix-scheme-indent-function.patch")
+     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-native-comp-driver-options.patch")
+     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-pgtk-super-key-fix.patch"))))
+
+
+(define other-transformations
   (options->transformation
    `(
      (with-commit  . ,(string-append "emacs-next-pgtk=" emacs-git-commit))
@@ -32,9 +47,12 @@
      (with-input   . "emacs-no-x=emacs-next-pgtk")
      (with-input   . "emacs-no-x-toolkit=emacs-next-pgtk")
 
-     (without-tests . "emacs-rainbow-delimiters")
+     (without-tests . "emacs-org")
      (without-tests . "emacs-yasnippet")
-     )))
+     (without-tests . "emacs-buttercup"))))
+
+(define (transformations package)
+  (patch-transformations (other-transformations package)))
 
 (define (specifications->manifest-with-transformations packages)
   (packages->manifest
@@ -56,7 +74,7 @@
      "mupdf"       ; allows Emacs to preview EPUB
      "ghostscript" ; allows Emacs to preview PostScript
      "djvulibre"   ; allows Emacs to preview djvu files
-     "unoconv")    ; allows Emacs to preview docx files
+     "libreoffice") ; allows Emacs to preview docx files
    (map
     (lambda (x) (string-append "emacs-" x))
     '(
@@ -88,7 +106,6 @@
       "tup-mode"
       "vterm"
       "vundo"
-      "which-key"
       "ws-butler"
       "yasnippet"))))
 
