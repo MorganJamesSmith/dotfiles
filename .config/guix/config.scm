@@ -1,8 +1,8 @@
 (use-modules
  (gnu)
- (gnu system locale)
  (gnu packages audio)
  (gnu packages certs)
+ (gnu packages cryptsetup)
  (gnu packages games)
  (gnu packages gnome)
  (gnu packages linux)
@@ -22,7 +22,8 @@
  (gnu services security-token)
  (gnu services sound)
  (gnu services sysctl)
- (gnu services xorg))
+ (gnu services xorg)
+ (gnu system locale))
 
 (define username "CHANGE ME")
 (define host-name "CHANGE ME")
@@ -122,6 +123,7 @@
    (cons*
     adwaita-icon-theme
     hicolor-icon-theme
+    cryptsetup
     %base-packages))
 
   (services
@@ -249,12 +251,14 @@
     (modify-services
         %base-services
 
-      ;; `guix gc --clear-failures` doesn't seem to work properly
-      ;; (guix-service-type
-      ;;  config =>
-      ;;  (guix-configuration
-      ;;   (inherit config)
-      ;;   (extra-options '("--cache-failures"))))
+      (guix-service-type
+       config =>
+       (guix-configuration
+        (inherit config)
+        (extra-options '(;; `guix gc --clear-failures` doesn't seem to work properly
+                         ;; "--cache-failures"
+                         "--gc-keep-derivations=yes"
+                         "--gc-keep-outputs=yes"))))
 
       ;; Transmission daemon wants this
       (sysctl-service-type
