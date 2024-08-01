@@ -37,6 +37,7 @@
             font-wqy-zenhei ; Asian
             qtbase
             qtwayland
+            xdg-utils
             ;; TODO: Can't add these to profile.  See https://issues.guix.gnu.org/65508
             ;; qtbase-5
             ;; qtwayland-5
@@ -231,7 +232,7 @@ color-scheme='prefer-dark'\n"))
 
       ;; Plain black lockscreen
       (".config/swaylock/config"
-       ,(plain-file "swaylock-config" "color=000000FF\nscaling=solid_color\n"))
+       ,(plain-file "swaylock-config" "color=000000FF\nscaling=solid_color\nindicator-idle-visible\n"))
 
       ;; Move between chapters using '(' and ')'
       (".config/mpv/input.conf"
