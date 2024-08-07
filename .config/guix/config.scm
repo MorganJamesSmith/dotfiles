@@ -25,8 +25,8 @@
  (gnu services xorg)
  (gnu system locale))
 
-(define username "CHANGE ME")
-(define host-name "CHANGE ME")
+(define username "USERNAME")
+(define host-name "HOSTNAME")
 
 (define user
   (user-account
@@ -64,7 +64,7 @@
     "acpi_osi=\"!Windows 2020\"" ; framework laptop suspend issue
     "resume=/dev/mapper/guix-root"
     ;; btrfs inspect-internal map-swapfile -r /swapfile
-    "resume_offset=CHANGE ME"
+    "resume_offset=SWAP_OFFSET"
     (string-append
      "modprobe.blacklist="
      (string-join (cons*
@@ -87,7 +87,7 @@
   ;; The UUID is that returned by 'cryptsetup luksUUID'.
   (mapped-devices
    (list (mapped-device
-          (source (uuid "CHANGE ME"))
+          (source (uuid "LINUX_UUID"))
           (target "guix-root")
           (type luks-device-mapping))))
 
@@ -105,7 +105,7 @@
                            '(("compress" . "lzo"))))
                          (dependencies mapped-devices))
                        (file-system
-                         (device (uuid "CHANGE ME" 'fat))
+                         (device (uuid "BOOT_UUID" 'fat))
                          (mount-point "/boot")
                          (type "vfat")))
                  %base-file-systems))
