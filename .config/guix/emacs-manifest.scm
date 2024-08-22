@@ -13,7 +13,7 @@
 
 (define emacs-git-commit (git-commit "/home/pancake/src/emacs/emacs"))
 (define org-git-commit (git-commit "/home/pancake/src/emacs/org-mode"))
-(define emms-git-commit (git-commit "/home/pancake/src/emacs/emms"))
+(define emacs-arei-git-commit (git-commit "/home/pancake/src/emacs/emacs-arei"))
 
 
 ;; We do these separately as they don't combine with our source transformations
@@ -39,8 +39,8 @@
      (with-commit  . ,(string-append "emacs-org=" org-git-commit))
      (with-git-url . "emacs-org=/home/pancake/src/emacs/org-mode")
 
-     (with-commit  . ,(string-append "emacs-emms=" emms-git-commit))
-     (with-git-url . "emacs-emms=/home/pancake/src/emacs/emms")
+     (with-commit  . ,(string-append "emacs-arei=" emacs-arei-git-commit))
+     (with-git-url . "emacs-arei=/home/pancake/src/emacs/emacs-arei")
 
      (with-input   . "emacs=emacs-next-pgtk")
      (with-input   . "emacs-minimal=emacs-next-pgtk")
@@ -78,6 +78,7 @@
    (map
     (lambda (x) (string-append "emacs-" x))
     '(
+      "arei"
       "buffer-env"
       "crdt"
       "csv-mode"

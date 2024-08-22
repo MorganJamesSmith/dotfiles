@@ -13,8 +13,8 @@ cd /home/pancake/src/emacs/org-mode
 git stash
 git rebase --no-gpg-sign
 
-# Update local emms source
-cd /home/pancake/src/emacs/emms
+# Update local arei source
+cd /home/pancake/src/emacs/emacs-arei
 git stash
 git rebase --no-gpg-sign
 
