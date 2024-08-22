@@ -41,6 +41,8 @@
 
 (setopt message-generate-hashcash t)
 
+(setopt gnus-auto-select-next nil)
+(setopt gnus-summary-goto-unread 'never)
 (setopt gnus-summary-stop-at-end-of-message t)
 
 (setopt gnus-treat-unsplit-urls t)
