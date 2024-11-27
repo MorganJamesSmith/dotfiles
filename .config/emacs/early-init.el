@@ -12,9 +12,10 @@
 (setq package-archives nil)
 
 ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
-(push '(menu-bar-lines . 0)   default-frame-alist)
-(push '(tool-bar-lines . 0)   default-frame-alist)
-(push '(vertical-scroll-bars) default-frame-alist)
+(when (not (eq system-type 'android))
+  (push '(menu-bar-lines . 0)   default-frame-alist)
+  (push '(tool-bar-lines . 0)   default-frame-alist)
+  (push '(vertical-scroll-bars) default-frame-alist))
 (push '(background-color . "#000000") default-frame-alist)
 
 ;; Resizing the Emacs frame can be a terribly expensive part of changing the
@@ -24,6 +25,12 @@
 
 ;; Ignore X resources
 (advice-add #'x-apply-session-resources :override #'ignore)
+
+;; Android - Termux integration
+(when (eq system-type 'android)
+  (setenv "PATH" (format "%s:%s" "/data/data/com.termux/files/usr/bin"
+                         (getenv "PATH")))
+  (push "/data/data/com.termux/files/usr/bin" exec-path))
 
 (provide 'early-init)
 ;;; early-init.el ends here

@@ -147,6 +147,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt kill-read-only-ok t)
 (setopt save-interprogram-paste-before-kill t)
 (setopt kill-whole-line t)
+
+(with-eval-after-load "Info"
+  (add-hook 'Info-mode-hook #'visual-line-mode)
+  (keymap-set Info-mode-map "<remap> <scroll-up>" #'Info-scroll-up))
+
+(setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
 ;;; Sensible Defaults Section Ends
 
 
@@ -175,14 +181,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt proced-enable-color-flag t)
 
 ;; I dislike gui stuff
+(setopt visible-bell t)
 (setopt use-file-dialog nil)
 (setopt use-dialog-box nil)
-(setopt visible-bell t)
-(tool-bar-mode -1)
-(tooltip-mode -1)
-(scroll-bar-mode -1)
-(menu-bar-mode -1)
 (blink-cursor-mode -1)
+;; Ok I need these on android
+(when (not (eq system-type 'android))
+  (tool-bar-mode -1)
+  (tooltip-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1))
 ;;; Pretty Visuals Section Ends
 
 
@@ -384,7 +392,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      (tags-todo
       "+daily_goal"
       ((org-agenda-overriding-header "Daily Goals:")
-       (org-agenda-prefix-format " %-4e |%l")
+       (org-agenda-todo-ignore-timestamp 'future)
        (org-agenda-dim-blocked-tasks nil)))
      (agenda ;; habits
       ""
@@ -489,9 +497,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           ("m" "Mood"
            table-line (file+headline "wiki/morgan.org" "mood")
            "| %? | %U |" :jump-to-captured t :prepend t)
-          ("a" "Alertness"
-           table-line (file+headline "wiki/morgan.org" "alertness")
-           "| %? | %U |" :jump-to-captured t :prepend t)))
+          ("e" "Energy"
+           table-line (file+headline "wiki/morgan.org" "energy")
+           "| %^{Energy level
+1: Eye's feel heavy
+2: Yawning now and then
+3: Average
+4: Excited
+5: Bursting with energy!
+||1|2|3|4|5} | %U |" :prepend t :immediate-finish t)))
 
 (setopt org-link-elisp-confirm-function nil)
 (setopt org-link-descriptive nil)
@@ -841,6 +855,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt flyspell-mode-line-string "")
 (setopt flyspell-use-meta-tab nil)
 (setopt flyspell-check-changes t)
+(setopt flyspell-delay-use-timer t)
 (add-to-list 'ispell-skip-region-alist (list "ispell-skip-region-start"
                                              "ispell-skip-region-end"))
 (keymap-global-set "M-$" #'ispell-word)
@@ -894,6 +909,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'eshell-mode-hook #'eshell-syntax-highlighting-mode)
 
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+(setopt dired-hide-details-hide-symlink-targets nil)
 
 (with-eval-after-load "dired"
   (keymap-set dired-mode-map "C-c e a" #'emms-add-dired)
