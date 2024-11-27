@@ -13,7 +13,9 @@
  (gnu home services)
  (gnu packages fonts)
  (gnu packages freedesktop)
+ (gnu packages glib)
  (gnu packages gnupg)
+ (gnu packages librewolf)
  (gnu packages linux)
  (gnu packages qt)
  (gnu packages wm)
@@ -28,6 +30,7 @@
             swaylock
             swayidle
             xss-lock
+            dbus ;; so sway can use "dbus-update-activation-environment"
             bemenu ;; so dbus can use this
             xdg-desktop-portal
             xdg-desktop-portal-wlr
@@ -38,6 +41,7 @@
             qtbase
             qtwayland
             xdg-utils
+            librewolf
             ;; TODO: Can't add these to profile.  See https://issues.guix.gnu.org/65508
             ;; qtbase-5
             ;; qtwayland-5
