@@ -31,9 +31,10 @@
 (keymap-set gnus-article-mode-map "R" #'gnus-summary-very-wide-reply-with-original)
 (keymap-set gnus-summary-mode-map "R" #'gnus-summary-very-wide-reply-with-original)
 
-;; Make it consistent with dired
-(keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
-(keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward)
+(with-eval-after-load "gnus-sum"
+  ;; Make it consistent with dired
+  (keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
+  (keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward))
 
 ;; Make it consistent with eww
 (with-eval-after-load "gnus-art"
