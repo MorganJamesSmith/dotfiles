@@ -51,6 +51,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt initial-scratch-message nil)
 (fset #'display-startup-echo-area-message #'ignore)
 
+;; Not entirely sure what this does.  Does it affect the system clipboard?
+(setopt select-active-regions nil)
+
+;; Not sure what this does either
+(setopt overriding-text-conversion-style nil)
+
 ;; Only matters on multi-user systems
 (setopt create-lockfiles nil)
 
@@ -298,6 +304,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'org-babel-after-execute-hook #'org-redisplay-inline-images)
 
 (keymap-global-set "C-c a" (lambda () (interactive) (org-agenda nil "o")))
+
+(keymap-global-set "C-c l" (lambda () (interactive) (org-agenda nil "l")))
 
 (setopt
  calendar-holidays
