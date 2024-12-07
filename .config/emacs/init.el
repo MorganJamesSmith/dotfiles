@@ -13,11 +13,14 @@
 (autoload 'xdg-user-dir "xdg")
 (autoload 'xdg-cache-home "xdg")
 
+(setopt use-package-always-demand t)
+
 (setopt source-directory "~/src/emacs/emacs")
 
 ;; This is non-nil for instances of Emacs started from within an
 ;; instance of Emacs
 (defconst IS-INSIDE-EMACS (getenv "INSIDE_EMACS"))
+(setenv "INSIDE_EMACS" emacs-version)
 
 (setopt user-full-name "Morgan Smith")
 (setopt user-mail-address "Morgan.J.Smith@outlook.com")
@@ -99,27 +102,35 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt read-mail-command 'gnus)
 (setopt mail-user-agent 'gnus-user-agent)
 
-(setopt sendmail-program "msmtp"
-        send-mail-function #'sendmail-send-it
-        message-sendmail-envelope-from 'header
+(use-package sendmail
+  :custom
+  (sendmail-program "msmtp")
+  (send-mail-function #'sendmail-send-it))
+
+(setopt message-sendmail-envelope-from 'header
         message-interactive nil) ;; prevents lockup from emacs-pinentry
 
 ;; Move gnus folders to the `user-emacs-directory'
-(setopt gnus-init-file (expand-file-name "gnus" user-emacs-directory))
-(setopt gnus-home-directory (create-directory "gnus-files" user-emacs-directory))
-(setopt gnus-directory (create-directory "News" gnus-home-directory))
+(use-package gnus
+  :defines gnus-home-directory
+  :custom
+  (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
+  (gnus-home-directory (create-directory "gnus-files" user-emacs-directory))
+  (gnus-directory (create-directory "News" gnus-home-directory))
+  (gnus-save-newsrc-file nil)
+  (gnus-read-newsrc-file nil))
 (setopt mail-source-directory (create-directory "Mail" gnus-home-directory))
-(setopt gnus-save-newsrc-file nil)
-(setopt gnus-read-newsrc-file nil)
 
 (add-hook 'message-mode-hook 'footnote-mode)
 (setopt mm-uu-hide-markers nil)
 (setopt mml-attach-file-at-the-end t)
 
-(setopt imenu-flatten 'prefix)
-(setopt imenu-space-replacement nil)
-(setopt imenu-auto-rescan t)
-(setopt imenu-auto-rescan-maxout 50000000)
+(use-package imenu
+  :custom
+  (imenu-flatten 'prefix)
+  (imenu-space-replacement nil)
+  (imenu-auto-rescan t)
+  (imenu-auto-rescan-maxout 50000000))
 
 (setopt Man-notify-method 'aggressive)
 
@@ -154,9 +165,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt save-interprogram-paste-before-kill t)
 (setopt kill-whole-line t)
 
-(with-eval-after-load "Info"
-  (add-hook 'Info-mode-hook #'visual-line-mode)
-  (keymap-set Info-mode-map "<remap> <scroll-up>" #'Info-scroll-up))
+(use-package info
+  :hook (Info-mode . visual-line-mode)
+  :bind
+  (:map Info-mode-map
+        ("<remap> <scroll-up>" . Info-scroll-up)))
 
 (setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
 ;;; Sensible Defaults Section Ends
@@ -177,12 +190,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; Pretty Visuals Section Begins
-(setopt modus-themes-bold-constructs t)
-(setopt modus-themes-prompts '(bold))
-(setopt modus-themes-org-blocks 'tinted-background)
-(setopt modus-themes-headings '((0 . (2.5))
-                                (agenda-structure . (1.5))))
-(load-theme 'modus-vivendi t)
+(use-package emacs  ;; built-in themes can't be loaded
+  :custom
+  (modus-themes-bold-constructs t)
+  (modus-themes-prompts '(bold))
+  (modus-themes-org-blocks 'tinted-background)
+  (modus-themes-headings '((0 . (2.5))
+                           (agenda-structure . (1.5))))
+  :config
+  (load-theme 'modus-vivendi t))
 
 (setopt proced-enable-color-flag t)
 
@@ -220,10 +236,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; Org Section Begins
-;; Useful for more then just org
-(keymap-global-set "C-c ." #'org-timestamp)
-(keymap-global-set "C-c !" #'org-timestamp-inactive)
-
 (setopt org-fast-tag-selection-single-key t)
 (setopt org-tag-alist '((:startgrouptag)
                         ("computer")
@@ -256,56 +268,64 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                         ("tinkering" . ?t)
                         ("ignore")))
 
-(setopt org-directory "~/documents/"
-        org-default-notes-file (expand-file-name "notes.org" org-directory)
-        org-preview-latex-image-directory
-        (file-name-as-directory (expand-file-name "org-preview-latex" (xdg-cache-home)))
-        org-refile-targets
-        `((,(expand-file-name "agenda/todo.org" org-directory) .
-           (:regexp . "refile target"))
-          (nil . (:maxlevel . 2)))
-        org-outline-path-complete-in-steps nil
-        org-blank-before-new-entry '((heading . nil) (plain-list-item . nil))
-        org-duration-format 'h:mm
-        org-log-done 'time
-        org-edit-src-content-indentation 0
-        org-use-speed-commands t ; org-speed-commands
-        org-src-ask-before-returning-to-edit-buffer nil
-        org-src-window-setup 'current-window
-        org-read-date-popup-calendar nil
-        org-special-ctrl-a/e t
-        org-fold-catch-invisible-edits 'show-and-error
-        org-enforce-todo-dependencies t
-        org-todo-keywords
-        '((sequence "TODO" "|" "DONE" "FAILED")
-          (sequence "WAITINGFOR" "DONE")
-          (sequence "HABIT" "DONE")
-          (sequence "PROJECT" "DONE")))
+(use-package ox-html
+  :custom
+  (org-html-preamble nil)
+  (org-html-postamble nil)
+  (org-html-head-include-default-style nil)
+  (org-html-meta-tags nil))
 
-(setopt org-html-preamble nil
-        org-html-postamble nil
-        org-html-head-include-default-style nil
-        org-html-meta-tags nil)
-
-(with-eval-after-load "org"
+(use-package org
+  :functions org-insert-timestamp
+  :custom
+  (org-directory "~/documents/")
+  (org-default-notes-file (expand-file-name "notes.org" org-directory))
+  (org-preview-latex-image-directory
+   (file-name-as-directory (expand-file-name "org-preview-latex" (xdg-cache-home))))
+  (org-refile-targets
+   `((,(expand-file-name "agenda/todo.org" org-directory) .
+      (:regexp . "refile target"))
+     (nil . (:maxlevel . 2))))
+  (org-outline-path-complete-in-steps nil)
+  (org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
+  (org-duration-format 'h:mm)
+  (org-log-done 'time)
+  (org-edit-src-content-indentation 0)
+  (org-use-speed-commands t) ; org-speed-commands
+  (org-src-ask-before-returning-to-edit-buffer nil)
+  (org-src-window-setup 'current-window)
+  (org-read-date-popup-calendar nil)
+  (org-special-ctrl-a/e t)
+  (org-fold-catch-invisible-edits 'show-and-error)
+  (org-enforce-todo-dependencies t)
+  (org-todo-keywords
+   '((sequence "TODO" "|" "DONE" "FAILED")
+     (sequence "WAITINGFOR" "DONE")
+     (sequence "HABIT" "DONE")
+     (sequence "PROJECT" "DONE")))
+  :config
   (push 'org-habit org-modules)
 
   ;; I keep accidentally archiving stuff
   (keymap-unset org-mode-map "C-c C-x C-s")
+  :bind
+  (;; Useful for more then just org
+   ("C-c ." . org-timestamp)
+   ("C-c !" . org-timestamp-inactive)
 
-  (keymap-set org-mode-map "M-p" #'org-metaup)
-  (keymap-set org-mode-map "M-n" #'org-metadown))
+   (:map org-mode-map
+         ("M-p" . org-metaup)
+         ("M-n" . org-metadown))))
 
-(with-eval-after-load "org-indent"
-  (org-indent-mode -1))
+(use-package org-indent
+  :defer t
+  :functions org-indent-mode
+  :config (org-indent-mode -1))
 
 
 ;; For when I use org-babel to create images
-(add-hook 'org-babel-after-execute-hook #'org-redisplay-inline-images)
-
-(keymap-global-set "C-c a" (lambda () (interactive) (org-agenda nil "o")))
-
-(keymap-global-set "C-c l" (lambda () (interactive) (org-agenda nil "l")))
+(autoload 'org-link-preview-refresh "org-compat")
+(add-hook 'org-babel-after-execute-hook #'org-link-preview-refresh)
 
 (setopt
  calendar-holidays
@@ -330,135 +350,143 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
    (holiday-float 10 1 2 "Thanksgiving (Federal and Ontario Holiday)")
    (holiday-fixed 11 11 "Remembrance Day (Federal Holiday)")
    (holiday-fixed 12 25 "Christmas Day (National Holiday)")
-   (holiday-fixed 12 26 "Boxing Day (Federal and Ontario Holiday)"))
+   (holiday-fixed 12 26 "Boxing Day (Federal and Ontario Holiday)")))
 
- ;; Optimization
- org-agenda-inhibit-startup t
- org-agenda-skip-comment-trees nil
- org-agenda-skip-archived-trees nil
+(use-package org-agenda
+  :bind
+  (("C-c a" . (lambda () (interactive) (org-agenda nil "o")))
+   ("C-c l" . (lambda () (interactive) (org-agenda nil "l"))))
+  :custom
+  ;; Optimization
+  (org-agenda-inhibit-startup t)
+  (org-agenda-skip-comment-trees nil)
+  (org-agenda-skip-archived-trees nil)
 
- org-agenda-sticky t
- org-agenda-prefix-format " "
- org-agenda-format-date "%F %A"
- org-agenda-show-outline-path nil
- org-agenda-block-separator ""
- org-agenda-scheduled-leaders '("" "")
- org-agenda-deadline-leaders '("" "" "")
- org-agenda-start-on-weekday nil
- org-agenda-use-time-grid nil
- org-agenda-time-leading-zero t
- org-agenda-window-setup 'current-window
- org-agenda-todo-keyword-format ""
- org-agenda-remove-tags t
- org-agenda-tags-todo-honor-ignore-options t
- org-agenda-remove-timeranges-from-blocks t
- org-agenda-skip-timestamp-if-deadline-is-shown t
- org-agenda-skip-scheduled-if-deadline-is-shown t
- org-agenda-skip-scheduled-repeats-after-deadline t
- org-agenda-skip-deadline-if-done t
- org-agenda-sorting-strategy '(time-up priority-down tag-up category-keep)
- org-stuck-projects '("TODO=\"PROJECT\"" ("TODO") nil "")
+  (org-agenda-sticky t)
+  (org-agenda-prefix-format " ")
+  (org-agenda-format-date "%F %A")
+  (org-agenda-show-outline-path nil)
+  (org-agenda-block-separator "")
+  (org-agenda-scheduled-leaders '("" ""))
+  (org-agenda-deadline-leaders '("" "" ""))
+  (org-agenda-start-on-weekday nil)
+  (org-agenda-use-time-grid nil)
+  (org-agenda-time-leading-zero t)
+  (org-agenda-window-setup 'current-window)
+  (org-agenda-todo-keyword-format "")
+  (org-agenda-remove-tags t)
+  (org-agenda-tags-todo-honor-ignore-options t)
+  (org-agenda-remove-timeranges-from-blocks t)
+  (org-agenda-skip-timestamp-if-deadline-is-shown t)
+  (org-agenda-skip-scheduled-if-deadline-is-shown t)
+  (org-agenda-skip-scheduled-repeats-after-deadline t)
+  (org-agenda-skip-deadline-if-done t)
+  (org-agenda-sorting-strategy '(time-up priority-down tag-up category-keep))
+  (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO") nil ""))
 
- org-agenda-files
- (list
-  (expand-file-name "contacts.org" org-directory)
-  (expand-file-name "agenda/daily.org" org-directory)
-  (expand-file-name "agenda/events.org" org-directory)
-  (expand-file-name "agenda/timetracking.org" org-directory)
-  (expand-file-name "agenda/todo.org" org-directory))
+  (org-agenda-files
+   (list
+    (expand-file-name "contacts.org" org-directory)
+    (expand-file-name "agenda/daily.org" org-directory)
+    (expand-file-name "agenda/events.org" org-directory)
+    (expand-file-name "agenda/timetracking.org" org-directory)
+    (expand-file-name "agenda/todo.org" org-directory)))
 
- org-agenda-custom-commands
- '(("l" "Clocking for all time"
-    ((agenda
-      ""
-      ((org-agenda-log-mode-items '(clock))
-       (org-agenda-start-day "2019-05-05")
-       (org-agenda-entry-types '())
-       (org-agenda-span 2000)
-       (org-agenda-overriding-header "Time Tracking:")
-       (org-agenda-prefix-format "%-11t | %-17s | ")
-       (org-agenda-show-all-dates nil)
-       (org-agenda-show-log 'clockcheck)
-       (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))
-   ("o" "My Agenda"
-    (
-     (tags-todo
-      "+annual_goal"
-      ((org-agenda-overriding-header "Annual Goals:")
-       (org-use-tag-inheritance nil)
-       (org-agenda-todo-ignore-timestamp 'future)))
-     (tags-todo
-      "+monthly_goal"
-      ((org-agenda-overriding-header "Monthly Goals:")
-       (org-use-tag-inheritance nil)
-       (org-agenda-todo-ignore-timestamp 'future)))
-     (tags-todo
-      "+weekly_goal"
-      ((org-agenda-overriding-header "Weekly Goals:")
-       (org-use-tag-inheritance nil)
-       (org-agenda-todo-ignore-timestamp 'future)))
-     (tags-todo
-      "+daily_goal"
-      ((org-agenda-overriding-header "Daily Goals:")
-       (org-agenda-todo-ignore-timestamp 'future)
-       (org-agenda-dim-blocked-tasks nil)))
-     (agenda ;; habits
-      ""
-      (;; I do the header funny to avoid an extra newline
-       (org-agenda-overriding-header (lambda () "Today's Habits: "))
-       (org-agenda-format-date "")
-       (org-agenda-prefix-format "%-4.4T: ")
-       (org-agenda-span 'day)
-       (org-habit-clock-completes-habit t)
-       ;; (org-habit-show-done-always-green t) ;; TODO: doesn't take effect here
-       ;; (org-habit-graph-column 23) ;; TODO: doesn't take effect here
-       (org-agenda-entry-types '(:scheduled))
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'nottodo '("HABIT")))))
-     (agenda ;; schedule
-      ""
-      ((org-agenda-overriding-header "Schedule:")
-       (org-agenda-prefix-format "    %-12t| %?-12:c %s")
-       (org-agenda-span 60)
-       (org-deadline-warning-days 0)
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'todo '("HABIT")))))
-     (tags-todo ;; todo
-      "TODO=\"TODO\"-goals"
-      ((org-agenda-overriding-header "Todo:")
-       (org-agenda-prefix-format "%-4.4T: ")
-       ;; Will show up in "Schedule" section
-       (org-agenda-todo-ignore-deadlines 'all)
-       (org-agenda-todo-ignore-scheduled 'all)
-       (org-agenda-todo-ignore-timestamp 'all)))
-     (todo ;; waiting for
-      "WAITINGFOR"
-      ((org-agenda-overriding-header "Waiting for:")))
-     (todo
-      "PROJECT"
-      ((org-agenda-overriding-header "Projects:")))
-     ;; Don't need a list of stuck projects because any stuck projects will
-     ;; show up as unblocked in the project section
-     ;; TODO: not true
-     ;; (stuck "")
-     (agenda
-      ""
-      ((org-agenda-overriding-header "Time Tracking:")
-       (org-agenda-entry-types '())
-       (org-agenda-prefix-format "%-11t | %-17s | ")
-       (org-agenda-span 15)
-       (org-agenda-show-all-dates nil)
-       (org-agenda-show-log 'clockcheck)
-       (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))))
+  (org-agenda-custom-commands
+   '(("l" "Clocking for all time"
+      ((agenda
+        ""
+        ((org-agenda-log-mode-items '(clock))
+         (org-agenda-start-day "2019-05-05")
+         (org-agenda-entry-types '())
+         (org-agenda-span 2000)
+         (org-agenda-overriding-header "Time Tracking:")
+         (org-agenda-prefix-format "%-11t | %-17s | ")
+         (org-agenda-show-all-dates nil)
+         (org-agenda-show-log 'clockcheck)
+         (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))
+     ("o" "My Agenda"
+      (
+       (tags-todo
+        "+annual_goal"
+        ((org-agenda-overriding-header "Annual Goals:")
+         (org-use-tag-inheritance nil)
+         (org-agenda-todo-ignore-timestamp 'future)))
+       (tags-todo
+        "+monthly_goal"
+        ((org-agenda-overriding-header "Monthly Goals:")
+         (org-use-tag-inheritance nil)
+         (org-agenda-todo-ignore-timestamp 'future)))
+       (tags-todo
+        "+weekly_goal"
+        ((org-agenda-overriding-header "Weekly Goals:")
+         (org-use-tag-inheritance nil)
+         (org-agenda-todo-ignore-timestamp 'future)))
+       (tags-todo
+        "+daily_goal"
+        ((org-agenda-overriding-header "Daily Goals:")
+         (org-agenda-todo-ignore-timestamp 'future)
+         (org-agenda-dim-blocked-tasks nil)))
+       (agenda ;; habits
+        ""
+        (;; I do the header funny to avoid an extra newline
+         (org-agenda-overriding-header (lambda () "Today's Habits: "))
+         (org-agenda-format-date "")
+         (org-agenda-prefix-format "%-4.4T: ")
+         (org-agenda-span 'day)
+         (org-habit-clock-completes-habit t)
+         ;; (org-habit-show-done-always-green t) ;; TODO: doesn't take effect here
+         ;; (org-habit-graph-column 23) ;; TODO: doesn't take effect here
+         (org-agenda-entry-types '(:scheduled))
+         (org-agenda-skip-function
+          '(org-agenda-skip-entry-if 'nottodo '("HABIT")))))
+       (agenda ;; schedule
+        ""
+        ((org-agenda-overriding-header "Schedule:")
+         (org-agenda-prefix-format "    %-12t| %?-12:c %s")
+         (org-agenda-span 60)
+         (org-deadline-warning-days 0)
+         (org-agenda-skip-function
+          '(org-agenda-skip-entry-if 'todo '("HABIT")))))
+       (tags-todo ;; todo
+        "TODO=\"TODO\"-goals"
+        ((org-agenda-overriding-header "Todo:")
+         (org-agenda-prefix-format "%-4.4T: ")
+         ;; Will show up in "Schedule" section
+         (org-agenda-todo-ignore-deadlines 'all)
+         (org-agenda-todo-ignore-scheduled 'all)
+         (org-agenda-todo-ignore-timestamp 'all)))
+       (todo ;; waiting for
+        "WAITINGFOR"
+        ((org-agenda-overriding-header "Waiting for:")))
+       (todo
+        "PROJECT"
+        ((org-agenda-overriding-header "Projects:")))
+       ;; Don't need a list of stuck projects because any stuck projects will
+       ;; show up as unblocked in the project section
+       ;; TODO: not true
+       ;; (stuck "")
+       (agenda
+        ""
+        ((org-agenda-overriding-header "Time Tracking:")
+         (org-agenda-entry-types '())
+         (org-agenda-prefix-format "%-11t | %-17s | ")
+         (org-agenda-span 15)
+         (org-agenda-show-all-dates nil)
+         (org-agenda-show-log 'clockcheck)
+         (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory))))))))))
 
-(setopt org-habit-show-done-always-green t)
-(setopt org-habit-graph-column 29)
-(setopt org-habit-following-days 3)
-(setopt org-habit-preceding-days (- 103 org-habit-following-days org-habit-graph-column))
-;; org-habit has too many colors.  Use fewer
-(setopt face-remapping-alist '((org-habit-clear-face . org-habit-ready-face)
-                               (org-habit-alert-future-face . org-habit-overdue-face)
-                               (org-habit-clear-future-face . org-habit-ready-future-face)))
+(use-package org-habit
+  :custom
+  (org-habit-show-done-always-green t)
+  (org-habit-graph-column 29)
+  (org-habit-following-days 3)
+  ;; TODO: report use-package not being able to reference previously set variables
+  (org-habit-preceding-days (- 103 3 29)) ;; (- 103 org-habit-following-days org-habit-graph-column))
+  ;; org-habit has too many colors.  Use fewer
+  (face-remapping-alist '((org-habit-clear-face . org-habit-ready-face)
+                          (org-habit-alert-future-face . org-habit-overdue-face)
+                          (org-habit-clear-future-face . org-habit-ready-future-face))))
 
 (setopt
  org-agenda-clock-consistency-checks '(:max-gap "0:00")
@@ -481,7 +509,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     state))
 (org-clock-persistence-insinuate)
 
-(with-eval-after-load "org-clock"
+(use-package org-clock
+  :config
   ;; This sorting doesn't work if there are multiple un-compacted levels.  But
   ;; as far as I can tell there is no built-in way to sort in that scenario
   (plist-put org-clocktable-defaults :sort '(2 . ?T))
@@ -530,7 +559,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt org-plot/gnuplot-script-preamble "set grid")
 
 (defun replace-region-with-org-timestamp (beg end)
-  "Replace region with an org timestamp."
+  "Replace region BEG to END with an org timestamp."
   (interactive "r")
   (kill-region beg end)
   (let* ((time-string (downcase (car kill-ring)))
@@ -545,6 +574,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; TODO: I love using buffer-env to get dependencies but I wish I could enable
 ;; it for specific directories
 ;; TODO: check out `hack-dir-local-get-variables-functions'
+(autoload 'buffer-env-update "buffer-env")
 (defun buffer-env-setup ()
   "."
   (interactive)
@@ -560,8 +590,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Ignore translation files
 (setopt project-vc-ignores (list "*.po"))
 
-(delight 'emacs-lisp-mode nil 'elisp-mode)
-(delight 'eldoc-mode nil 'eldoc)
+(use-package elisp-mode :delight emacs-lisp-mode)
+(use-package eldoc :delight)
 
 (add-hook 'ielm-mode-hook 'eldoc-mode)
 
@@ -572,39 +602,43 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; M-,     xref-pop-marker-stack
 ;; M-?     xref-find-references
 ;; C-M-.   xref-find-apropos
-(add-hook
- 'c-mode-common-hook
- (lambda ()
-   (cwarn-mode 1)
-   (ggtags-mode 1)
-   (setq-local imenu-create-index-function #'ggtags-build-imenu-index)))
-(setopt ggtags-enable-navigation-keys nil)
+(use-package ggtags
+  :delight
+  :hook c-mode-common
+  :functions ggtags-build-imenu-index
+  :custom
+  (ggtags-enable-navigation-keys nil)
+  :config
+  (add-hook
+   'c-mode-common-hook
+   (lambda ()
+     (setq-local imenu-create-index-function #'ggtags-build-imenu-index))))
 
-(delight 'cwarn-mode nil 'cwarn)
-(delight 'ggtags-mode nil 'ggtags)
+(use-package cwarn
+  :delight
+  :hook c-mode-common)
 
-(add-hook 'prog-mode-hook #'flymake-mode)
-(with-eval-after-load "flymake"
-  (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
-  (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
-
-  (setopt flymake-mode-line-format
-          '("" flymake-mode-line-exception
-            flymake-mode-line-counters)))
-
-(setopt flymake-show-diagnostics-at-end-of-line t)
-
-(defun my-flymake-cc-command ()
-  "Use the makefile at project root."
-  (unless (executable-find "make") (error "Make not found"))
-  `("make"
-    "-s" "-C" ,(project-root (project-current t))
-    "check-syntax"
-    ,(format "CHK_SOURCES=-x %s -c -"
-             (cond ((derived-mode-p 'c++-mode) "c++")
-                   (t "c")))))
-
-(setopt flymake-cc-command 'my-flymake-cc-command)
+(use-package flymake
+  :hook prog-mode
+  :bind (:map flymake-mode-map
+              ("M-n" . flymake-goto-next-error)
+              ("M-p" . flymake-goto-prev-error))
+  :custom
+  (flymake-mode-line-format
+   '("" flymake-mode-line-exception
+     flymake-mode-line-counters))
+  (flymake-show-diagnostics-at-end-of-line t)
+  (flymake-cc-command 'my-flymake-cc-command)
+  :config
+  (defun my-flymake-cc-command ()
+    "Use the makefile at project root."
+    (unless (executable-find "make") (error "Make not found"))
+    `("make"
+      "-s" "-C" ,(project-root (project-current t))
+      "check-syntax"
+      ,(format "CHK_SOURCES=-x %s -c -"
+               (cond ((derived-mode-p 'c++-mode) "c++")
+                     (t "c"))))))
 
 (which-function-mode)
 (electric-layout-mode)
@@ -628,8 +662,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Save all buffers on compile automatically
 (setopt compilation-ask-about-save nil)
 
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-(add-hook 'conf-mode-hook #'display-line-numbers-mode)
+(use-package display-line-numbers
+  :hook (prog-mode conf-mode))
 
 (defun debbugs-gnu-guix ()
   "List Guix issues."
@@ -676,8 +710,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                " ")))
 (add-hook 'emacs-lisp-mode-hook #'set-emacs-lisp-compile-command)
 
-(delight 'yas-minor-mode nil 'yasnippet)
-(yas-global-mode 1)
+(use-package yasnippet
+  :delight yas-minor-mode
+  :functions yas-global-mode
+  :config
+  (yas-global-mode 1))
 
 (defun set-texinfo-compile-command ()
   "Set texinfo compile command to run proselint."
@@ -691,7 +728,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; VC/Diffs Section Begins
 
-(global-diff-hl-mode)
+(use-package diff-hl
+  :functions global-diff-hl-mode
+  :config
+  (global-diff-hl-mode))
 
 (setopt vc-handled-backends '(Git))
 (setopt auto-revert-check-vc-info t)
@@ -701,21 +741,26 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt vc-log-finish-functions nil)  ; no buffer resizing!
 (setopt vc-diff-finish-functions nil) ; no buffer resizing!
 
-(setopt ediff-window-setup-function #'ediff-setup-windows-plain
-        ediff-diff-options "-w"
-        ediff-window-setup-function #'ediff-setup-windows-plain
-        ediff-split-window-function #'split-window-horizontally)
+(use-package ediff
+  :custom
+  (ediff-window-setup-function #'ediff-setup-windows-plain)
+  (ediff-diff-options "-w")
+  (ediff-window-setup-function #'ediff-setup-windows-plain)
+  (ediff-split-window-function #'split-window-horizontally))
 ;;; VC/Diffs Section Ends
 
 
 ;;; Parens Section Begins
-(setopt show-paren-delay 0
-        show-paren-highlight-openparen t
-        show-paren-when-point-inside-paren t
-        show-paren-when-point-in-periphery t
-        show-paren-context-when-offscreen t)
+(use-package paren
+  :custom
+  (show-paren-delay 0)
+  (show-paren-highlight-openparen t)
+  (show-paren-when-point-inside-paren t)
+  (show-paren-when-point-in-periphery t)
+  (show-paren-context-when-offscreen t))
 
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+(use-package rainbow-delimiters
+  :hook prog-mode)
 ;;; Parens Section Ends
 
 
@@ -730,8 +775,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         '(eshell-mode gnus-mode org-agenda-mode
           minibuffer-inactive-mode minibuffer-mode))
 
-(ws-butler-global-mode)
-(delight 'ws-butler-mode nil 'ws-butler)
+(use-package ws-butler
+  :delight
+  :functions ws-butler-global-mode
+  :config (ws-butler-global-mode))
 
 (setopt diff-whitespace-style '(face trailing tabs missing-newline-at-eof tab-mark))
 (add-hook 'diff-mode-hook #'whitespace-mode)
@@ -773,9 +820,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt ido-use-filename-at-point 'guess)
 (ido-mode 1)
 
-(delight 'which-key-mode nil 'which-key)
-(setopt which-key-idle-secondary-delay 0.05)
-(which-key-mode)
+(use-package which-key
+  :delight
+  :custom (which-key-idle-secondary-delay 0.05)
+  :config (which-key-mode))
 ;;; Auto-complete/Hints Section Ends
 
 
@@ -818,10 +866,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
               :command (list "yt-dlp" host-or-url)
               :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))))
 
-;; Elpher
-;; make keybindings like eww
-(with-eval-after-load "elpher"
-  (keymap-set elpher-mode-map "p" #'elpher-back))
+(use-package elpher
+  ;; make keybindings like eww
+  :bind (:map elpher-mode-map
+              ("p" . elpher-back)))
 ;;; EWW Section Ends
 
 
@@ -831,26 +879,29 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt epg-pinentry-mode 'loopback)
 (setopt epg-gpg-home-directory (getenv "GNUPGHOME"))
 
-(setopt pinentry-popup-prompt-window nil)
-(when (not IS-INSIDE-EMACS)
-  (setenv "INSIDE_EMACS" emacs-version)
-  (pinentry-start))
+(use-package pinentry
+  :if (not IS-INSIDE-EMACS)
+  :custom (pinentry-popup-prompt-window nil)
+  :functions pinentry-start
+  :config (pinentry-start))
+
 ;;; auth Section Ends
 
-(setopt erc-nick "morgan")
-(setopt erc-user-full-name "Morgan")
-(setopt erc-server "irc.libera.chat")
-(setopt erc-port 6667)
-(setopt erc-anonymous-login t)
-(setopt erc-prompt-for-nickserv-password nil)
-(setopt erc-log-channels-directory (create-directory "erc-logs" user-emacs-directory))
-(setopt erc-save-buffer-on-part t)
-(setopt erc-header-line-format nil)
-(setopt erc-autojoin-timing 'ident)
-(setopt erc-kill-buffer-on-part t)
-
-
-(with-eval-after-load "erc"
+(use-package erc
+  :custom
+  (erc-nick "morgan")
+  (erc-user-full-name "Morgan")
+  (erc-server "irc.libera.chat")
+  (erc-port 6667)
+  (erc-anonymous-login t)
+  (erc-prompt-for-nickserv-password nil)
+  (erc-log-channels-directory (create-directory "erc-logs" user-emacs-directory))
+  (erc-save-buffer-on-part t)
+  (erc-header-line-format nil)
+  (erc-autojoin-timing 'ident)
+  (erc-kill-buffer-on-part t)
+  :functions erc-services-mode erc-update-modules
+  :config
   (add-to-list 'erc-modules 'keep-place)
   (add-to-list 'erc-modules 'log)
   (add-to-list 'erc-modules 'notifications)
@@ -858,15 +909,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (erc-services-mode 1)
   (erc-update-modules))
 
-(add-hook 'prog-mode-hook #'flyspell-prog-mode)
-(add-hook 'text-mode-hook #'flyspell-mode)
-(setopt flyspell-mode-line-string "")
-(setopt flyspell-use-meta-tab nil)
-(setopt flyspell-check-changes t)
-(setopt flyspell-delay-use-timer t)
-(add-to-list 'ispell-skip-region-alist (list "ispell-skip-region-start"
-                                             "ispell-skip-region-end"))
-(keymap-global-set "M-$" #'ispell-word)
+(use-package flyspell
+  :bind ("M-$" . ispell-word)
+  :hook ((prog-mode . flyspell-prog-mode)
+         (text-mode . flyspell-mode))
+  :custom
+  (flyspell-mode-line-string "")
+  (flyspell-use-meta-tab nil)
+  (flyspell-check-changes t)
+  (flyspell-delay-use-timer t)
+  :config
+  (add-to-list 'ispell-skip-region-alist (list "ispell-skip-region-start"
+                                               "ispell-skip-region-end")))
 
 
 ;; Backups and auto-saves and deleting
@@ -888,22 +942,29 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt custom-file (expand-file-name "custom-garbage" trash-directory))
 
-
-;; Save command history when commands are entered
-(add-hook 'eshell-pre-command-hook #'eshell-save-some-history)
-
-(setopt eshell-banner-message "")
-(setopt eshell-history-size nil) ;; Pull history size from environment variables
-;; XXX: doesn't error when set to nil and HISTFILE isn't set
-(setopt eshell-history-file-name nil) ;; Pull history file from environment variables
-(setopt eshell-hist-ignoredups 'erase)
-(setopt eshell-cp-overwrite-files nil)
-(setopt eshell-mv-overwrite-files nil)
-
-(with-eval-after-load "eshell"
+(use-package eshell
+  :bind
+  (("s-<return>" . eshell)
+   ("s-RET"      . eshell))
+  :hook
+  ;; Save command history when commands are entered
+  (eshell-pre-command . eshell-save-some-history)
+  :custom
+  (eshell-banner-message "")
+  (eshell-history-size nil) ;; Pull history size from environment variables
+  ;; XXX: doesn't error when set to nil and HISTFILE isn't set
+  (eshell-history-file-name nil) ;; Pull history file from environment variables
+  (eshell-hist-ignoredups 'erase)
+  (eshell-cp-overwrite-files nil)
+  (eshell-mv-overwrite-files nil)
+  :config
   (add-to-list 'eshell-modules-list 'eshell-tramp))
 
-(with-eval-after-load "em-term"
+(use-package eshell-syntax-highlighting
+  :hook eshell-mode)
+
+(use-package em-term
+  :config
   (add-to-list 'eshell-visual-commands "pulsemixer")
   (add-to-list 'eshell-visual-commands "alsamixer")
   (add-to-list 'eshell-visual-commands "weechat")
@@ -911,28 +972,24 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt comint-pager "cat")
 
-(keymap-global-set "s-<return>" #'eshell)
-(keymap-global-set "s-RET" #'eshell)
-
-(add-hook 'eshell-mode-hook #'eshell-syntax-highlighting-mode)
-
-(add-hook 'dired-mode-hook #'dired-hide-details-mode)
-(setopt dired-hide-details-hide-symlink-targets nil)
-
-(with-eval-after-load "dired"
-  (keymap-set dired-mode-map "C-c e a" #'emms-add-dired)
-  (keymap-set dired-mode-map "C-c e p" #'emms-play-dired))
-
-(setopt dired-dwim-target t)
-(setopt dired-recursive-copies 'always)
-(setopt dired-recursive-deletes 'always)
-(setopt dired-listing-switches
-        "-l --all --group-directories-first --si --sort=version")
-(setopt dired-filename-display-length 'window)
-
-(setopt dired-create-destination-dirs 'ask)
-(setopt wdired-allow-to-change-permissions t)
-(add-hook 'dired-mode-hook #'turn-on-gnus-dired-mode)
+(use-package dired
+  :bind
+  (:map dired-mode-map
+        ("C-c e a" . emms-add-dired)
+        ("C-c e p" . emms-play-dired))
+  :hook
+  ((dired-mode . turn-on-gnus-dired-mode)
+   (dired-mode . dired-hide-details-mode))
+  :custom
+  (dired-dwim-target t)
+  (dired-recursive-copies 'always)
+  (dired-recursive-deletes 'always)
+  (dired-listing-switches
+   "-l --all --group-directories-first --si --sort=version")
+  (dired-filename-display-length 'window)
+  (dired-hide-details-hide-symlink-targets nil)
+  (dired-create-destination-dirs 'ask)
+  (wdired-allow-to-change-permissions t))
 
 ;; TODO: why don't this work!
 ;; (setopt image-dired-thumbnail-storage 'standard)
@@ -946,26 +1003,28 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                 vc-ignore-dir-regexp
                 tramp-file-name-regexp))
 
-(with-eval-after-load "tramp"
+(use-package tramp
+  :defines tramp-remote-path
+  :config
   ;; guix system bin
   (add-to-list 'tramp-remote-path "/run/current-system/profile/bin")
   (add-to-list 'tramp-remote-path "/run/setuid-programs"))
 
-
-(load "tramp") ;; else sudo won't work
-
 (setopt time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
 (add-hook 'before-save-hook 'time-stamp)
 
-(add-to-list 'auto-mode-alist '("\\.ledger\\'" . hledger-mode))
-(setopt hledger-jfile (expand-file-name "money/money.ledger" org-directory))
-(setopt hledger-currency-string "$")
-(setopt hledger-comments-column 4)
+(use-package hledger-mode
+  :mode "\\.ledger\\'"
+  :custom
+  (hledger-jfile (expand-file-name "money/money.ledger" org-directory))
+  (hledger-currency-string "$")
+  (hledger-comments-column 4))
 
-
-(setopt auto-insert-query nil)
-(setopt auto-insert t)
-(with-eval-after-load "autoinsert"
+(use-package autoinsert
+  :custom
+  (auto-insert-query nil)
+  (auto-insert t)
+  :config
   (mapc
    (lambda (x) (push x auto-insert-alist))
    '((("\\.sh\\'" . "Shell Script")
@@ -982,8 +1041,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       "#!/usr/bin/env sh\n"
       "# -*- mode: scheme; -*-\n"
       "exec guile -s \"$0\" \"$@\"\n"
-      "!#"))))
-(auto-insert-mode 1)
+      "!#")))
+  (auto-insert-mode 1))
 
 (setopt copyright-names-regexp "Morgan Smith")
 (setenv "ORGANIZATION" "Morgan Smith")
@@ -1009,15 +1068,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt register-use-preview nil)
 
-(with-eval-after-load "doc-view"
-  (keymap-set doc-view-mode-map "r" #'image-rotate)
-  (keymap-set doc-view-mode-map "<remap> <fit-window-to-buffer>" #'doc-view-fit-window-to-page)
-
+(use-package doc-view
+  :bind
+  (:map doc-view-mode-map
+        ("r" . image-rotate)
+        ("<remap> <fit-window-to-buffer>" . doc-view-fit-window-to-page))
+  :custom
+  (doc-view-imenu-flatten t)
+  :config
   ;; Applying dark theme to SVGs often hides stuff and looks wrong so just don't
   (set-face-foreground 'doc-view-svg-face "black")
   (set-face-background 'doc-view-svg-face "white"))
 
-(setopt doc-view-imenu-flatten t)
 
 
 (setopt image-use-external-converter t)
@@ -1086,8 +1148,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                     (mode . help-mode)
                     (mode . Info-mode))))))
 
-(with-eval-after-load "ibuffer"
-  (add-hook 'ibuffer-mode-hook (lambda () (ibuffer-switch-to-saved-filter-groups "default"))))
+(use-package ibuffer
+  :functions ibuffer-switch-to-saved-filter-groups
+  :config
+  (add-hook 'ibuffer-mode-hook
+            (lambda ()
+              (ibuffer-switch-to-saved-filter-groups "default"))))
 
 
 (keymap-global-unset "C-z")
@@ -1103,15 +1169,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (repeat-mode 1)
 
 ;;; EMMS
-(require 'emms)
-(require 'emms-setup)
-(emms-all)
-(keymap-global-set "C-c p" #'emms-playlist-mode-go)
-(keymap-global-set "s-p" #'emms-pause)
-(keymap-global-set "s-<right>" #'emms-next)
-(keymap-global-set "s-<left>" #'emms-previous)
-(keymap-global-set "s-<up>" #'emms-volume-raise)
-(keymap-global-set "s-<down>" #'emms-volume-lower)
+(use-package emms
+  :bind
+  (("C-c p"     . emms-playlist-mode-go)
+   ("s-p"       . emms-pause)
+   ("s-<right>" . emms-next)
+   ("s-<left>"  . emms-previous)
+   ("s-<up>"    . emms-volume-raise)
+   ("s-<down>"  . emms-volume-lower)))
+
+(use-package emms-setup
+  :config
+  (emms-all))
 
 (setopt emms-playing-time-display-mode nil)
 (setopt emms-player-list '(;; emms-player-mpd
@@ -1143,7 +1212,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (emms-shuffle)
   (emms-start))
 
-(delight 'abbrev-mode nil 'abbrev)
+(use-package abbrev
+  :delight)
 
 ;; Wayland pgtk stuff
 (defun fix-input () "." (pgtk-use-im-context nil))
@@ -1186,28 +1256,32 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-persist-gc)
   (garbage-collect))
 
-;;; viper Section Begins
-(setopt viper-expert-level 5) ;; viper-max-expert-level == 5
-(setopt viper-inhibit-startup-message t)
+(use-package viper
+  :if nil
+  :custom
+  (viper-expert-level 5) ;; viper-max-expert-level == 5
+  (viper-inhibit-startup-message t)
+  (viper-want-ctl-h-help t)
+  (viper-ex-style-editing nil)
+  (viper-no-multiple-ESC nil)
+  (viper-syntax-preference 'emacs)
+  (viper-vi-style-in-minibuffer nil)
+  :init
+  (copy-face 'default 'viper-minibuffer-vi)
+  (copy-face 'default 'viper-minibuffer-insert)
+  (copy-face 'default 'viper-minibuffer-emacs))
 
-(setopt viper-want-ctl-h-help t)
-(setopt viper-ex-style-editing nil)
-(setopt viper-no-multiple-ESC nil)
-(setopt viper-syntax-preference 'emacs)
-(setopt viper-vi-style-in-minibuffer nil)
-
-(copy-face 'default 'viper-minibuffer-vi)
-(copy-face 'default 'viper-minibuffer-insert)
-(copy-face 'default 'viper-minibuffer-emacs)
-;;; viper Section Ends
-
-(with-eval-after-load "osm"
-  (setopt osm-copyright nil)
-  (keymap-set osm-mode-map "<remap> <next-line>" #'osm-down)
-  (keymap-set osm-mode-map "<remap> <previous-line>" #'osm-up)
-  (keymap-set osm-mode-map "<remap> <forward-char>" #'osm-right)
-  (keymap-set osm-mode-map "<remap> <backward-char>" #'osm-left)
-  (keymap-set osm-mode-map "=" #'osm-zoom-in)
+(use-package osm
+  :custom
+  (osm-copyright nil)
+  :bind
+  (:map osm-mode-map
+        (("<remap> <next-line>"     . osm-down)
+         ("<remap> <previous-line>" . osm-up)
+         ("<remap> <forward-char>"  . osm-right)
+         ("<remap> <backward-char>" . osm-left)
+         ("=" . osm-zoom-in)))
+  :config
   (add-to-list 'osm-server-list
                '(arcgisonline :name "arcgisonline" :description "satellite map" :url
                               "https://services.arcgisonline.com/ArcGis/rest/services/World_Imagery/MapServer/tile/%z/%y/%x.jpeg"
