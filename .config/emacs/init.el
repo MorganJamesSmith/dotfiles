@@ -35,10 +35,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       (make-directory directory t))
     directory))
 
-;; Don't be so in my face with issues
-(setopt warning-minimum-level :emergency)
-(setopt process-error-pause-time 0)
-
 ;;; Make buffers appear where I want them to
 (setopt display-buffer-alist
         (list (list shell-command-buffer-name-async #'display-buffer-no-window)))
@@ -308,6 +304,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
   ;; I keep accidentally archiving stuff
   (keymap-unset org-mode-map "C-c C-x C-s")
+
+  ;; My custom patch
+  (when (fboundp 'org-tags-sort-hierarchy)
+    (setopt org-tags-sort-function #'org-tags-sort-hierarchy))
   :bind
   (;; Useful for more then just org
    ("C-c ." . org-timestamp)
@@ -316,6 +316,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
    (:map org-mode-map
          ("M-p" . org-metaup)
          ("M-n" . org-metadown))))
+
+(setopt outline-minor-mode-cycle t)
 
 (use-package org-indent
   :defer t
@@ -991,9 +993,17 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (dired-create-destination-dirs 'ask)
   (wdired-allow-to-change-permissions t))
 
-;; TODO: why don't this work!
-;; (setopt image-dired-thumbnail-storage 'standard)
-(setopt image-dired-rotate-original-ask-before-overwrite nil)
+(use-package image-dired
+  :functions dired-do-rename image-dired-rename-file
+  :defines ido-use-filename-at-point
+  :config
+  (defun image-dired-rename-file ()
+    (interactive nil image-dired-thumbnail-mode image-dired-image-mode)
+    (image-dired--do-mark-command nil nil
+      (let ((dired-dwim-target nil)
+            (ido-use-filename-at-point nil))
+        (dired-do-rename))))
+  (keymap-set image-dired-thumbnail-mode-map "R" #'image-dired-rename-file))
 
 (setopt tramp-default-method "ssh")
 (setopt remote-file-name-inhibit-cache nil)
@@ -1289,6 +1299,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                               :min-zoom 0 :max-zoom 23  :subdomains ("nope"))))
 
 ;; https://github.com/minad/osm/discussions/39
+(autoload 'org-element-map "org-element")
+(autoload 'org-element-parse-buffer "org-element")
+(autoload 'osm--bookmark-record "osm")
+(autoload 'osm--bookmark-name "osm")
 (defun osm-override-bookmarks ()
   "Override bookmarks with links in current org buffer."
   (when (eq (with-current-buffer (window-buffer) major-mode) 'org-mode)
