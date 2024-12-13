@@ -1,5 +1,6 @@
 (use-modules
  (gnu)
+ (gnu packages android)
  (gnu packages audio)
  (gnu packages certs)
  (gnu packages cryptsetup)
@@ -23,7 +24,8 @@
  (gnu services sound)
  (gnu services sysctl)
  (gnu services xorg)
- (gnu system locale))
+ (gnu system locale)
+ (gnu system privilege))
 
 (define username "USERNAME")
 (define host-name "HOSTNAME")
@@ -55,6 +57,12 @@
      (name "en_DK.utf8") (source "en_DK"))
     (locale-definition
      (name "en_US.utf8") (source "en_US"))))
+
+  (privileged-programs
+   (cons* (privileged-program
+           (program (file-append kbd "/bin/chvt"))
+           (setuid? #t))
+          %default-privileged-programs))
 
   (kernel-arguments
    (list
@@ -196,6 +204,7 @@
     (udev-rules-service 'security-key libu2f-host)
     (udev-rules-service 'nitro-devices libnitrokey)
 
+    (udev-rules-service 'android android-udev-rules)
 
     (udev-rules-service 'brightnessctl brightnessctl)
     (udev-rules-service 'steam-devices steam-devices-udev-rules)
@@ -231,9 +240,14 @@
     (service polkit-service-type)
     (service elogind-service-type
              (elogind-configuration
-              (handle-power-key 'hibernate)
+              ;; This does not actually kill home services after log out :(
+              (kill-user-processes? #t)
+              (handle-power-key 'suspend-then-hibernate)
+              (handle-lid-switch 'suspend-then-hibernate)
               (idle-action-seconds (* 5 60))
-              (idle-action 'suspend)))
+              (idle-action 'suspend-then-hibernate)
+              (hibernate-delay-seconds (* 2 60 60))))
+
     (service dbus-root-service-type)
 
     (service openntpd-service-type
