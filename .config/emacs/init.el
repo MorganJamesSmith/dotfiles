@@ -211,6 +211,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (menu-bar-mode -1))
 ;;; Pretty Visuals Section Ends
 
+(when (eq system-type 'android)
+  (keymap-global-set
+   "<volume-up>"
+   (lambda ()
+     (interactive)
+     (frame-toggle-on-screen-keyboard
+      nil
+      (>= 50 (frame-height)))))
+
+  (keymap-global-set "<volume-down>" #'scroll-up))
 
 ;;; Modeline/Tab Bar Section Begins
 (setopt display-time-default-load-average nil)
