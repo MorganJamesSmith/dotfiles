@@ -695,12 +695,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt gdb-many-windows t)
 
-(require 'debbugs-gnu)
-(add-hook 'log-view-mode-hook #'bug-reference-mode)
-(setopt bug-reference-url-format "https://debbugs.gnu.org/%s")
-;; Show feature requests.
-(setq debbugs-gnu-default-severities
-      '("serious" "important" "normal" "minor" "wishlist"))
+(use-package debbugs-gnu
+  :hook (log-view-mode . bug-reference-mode)
+  :custom
+  (bug-reference-url-format "https://debbugs.gnu.org/%s")
+  ;; Show feature requests.
+  (debbugs-gnu-default-severities
+   '("serious" "important" "normal" "minor" "wishlist")))
 
 (setopt scheme-program-name "guile")
 (setopt scheme-mit-dialect nil)
