@@ -223,7 +223,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (keymap-global-set "<volume-down>" #'scroll-up))
 
 ;;; Modeline/Tab Bar Section Begins
-(setopt display-time-default-load-average nil)
 (setopt display-time-24hr-format t)
 (setopt display-time-day-and-date t)
 (display-time-mode)
@@ -329,6 +328,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt outline-minor-mode-cycle t)
 
+(defun org-heading-set-created-property ()
+  "Set the CREATED property of a heading."
+  (org-set-property
+   "CREATED"
+   (org-element-interpret-data
+    (org-timestamp-from-time (current-time) t t))))
+
+(add-hook 'org-insert-heading-hook #'org-heading-set-created-property)
+
 (use-package org-indent
   :defer t
   :functions org-indent-mode
@@ -369,11 +377,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (("C-c a" . (lambda () (interactive) (org-agenda nil "o")))
    ("C-c l" . (lambda () (interactive) (org-agenda nil "l"))))
   :custom
-  ;; Optimization
-  (org-agenda-inhibit-startup t)
-  (org-agenda-skip-comment-trees nil)
-  (org-agenda-skip-archived-trees nil)
-
   (org-agenda-sticky t)
   (org-agenda-prefix-format " ")
   (org-agenda-format-date "%F %A")
