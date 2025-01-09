@@ -13,6 +13,8 @@
 (autoload 'xdg-user-dir "xdg")
 (autoload 'xdg-cache-home "xdg")
 
+(defconst EXTERNAL-PACKAGES? (not (eq system-type 'android)))
+
 (setopt use-package-always-demand t)
 
 (setopt source-directory "~/src/emacs/emacs")
@@ -347,30 +349,31 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (autoload 'org-link-preview-refresh "org-compat")
 (add-hook 'org-babel-after-execute-hook #'org-link-preview-refresh)
 
-(setopt
- calendar-holidays
- '((holiday-fixed 1 1 "New Year's Day (National Holiday)")
-   (holiday-fixed 2 2 "Groundhog Day")
-   (holiday-fixed 2 14 "Valentine's Day")
-   (holiday-float 2 1 3 "Family Day (Ontario Holiday)")
-   (holiday-fixed 3 17 "Saint Patrick's Day")
-   (holiday-fixed 4 1 "April Fool's Day")
-   (holiday-fixed 4 6 "Tartan Day")
-   (holiday-easter-etc -2 "Good Friday (National Holiday)")
-   (holiday-easter-etc 0 "Easter Sunday")
-   (holiday-easter-etc 1 "Easter Monday (Federal Holiday)")
-   (holiday-fixed 4 22 "Earth Day")
-   (holiday-float 5 1 -1 "Victoria Day (Federal and Ontario Holiday)" 25)
-   (holiday-float 5 0 2 "Mother's Day")
-   (holiday-float 6 0 3 "Father's Day")
-   (holiday-fixed 7 1 "Canada Day (National Holiday)")
-   (holiday-float 8 1 1 "Civic Holiday (Federal Holiday)")
-   (holiday-float 9 1 1 "Labour Day (National Holiday)")
-   (holiday-fixed 9 30 "National Day for Truth and Reconciliation (Federal Holiday)")
-   (holiday-float 10 1 2 "Thanksgiving (Federal and Ontario Holiday)")
-   (holiday-fixed 11 11 "Remembrance Day (Federal Holiday)")
-   (holiday-fixed 12 25 "Christmas Day (National Holiday)")
-   (holiday-fixed 12 26 "Boxing Day (Federal and Ontario Holiday)")))
+(use-package holidays
+  :custom
+  (calendar-holidays
+   '((holiday-fixed 1 1 "New Year's Day (National Holiday)")
+     (holiday-fixed 2 2 "Groundhog Day")
+     (holiday-fixed 2 14 "Valentine's Day")
+     (holiday-float 2 1 3 "Family Day (Ontario Holiday)")
+     (holiday-fixed 3 17 "Saint Patrick's Day")
+     (holiday-fixed 4 1 "April Fool's Day")
+     (holiday-fixed 4 6 "Tartan Day")
+     (holiday-easter-etc -2 "Good Friday (National Holiday)")
+     (holiday-easter-etc 0 "Easter Sunday")
+     (holiday-easter-etc 1 "Easter Monday (Federal Holiday)")
+     (holiday-fixed 4 22 "Earth Day")
+     (holiday-float 5 1 -1 "Victoria Day (Federal and Ontario Holiday)" 25)
+     (holiday-float 5 0 2 "Mother's Day")
+     (holiday-float 6 0 3 "Father's Day")
+     (holiday-fixed 7 1 "Canada Day (National Holiday)")
+     (holiday-float 8 1 1 "Civic Holiday (Federal Holiday)")
+     (holiday-float 9 1 1 "Labour Day (National Holiday)")
+     (holiday-fixed 9 30 "National Day for Truth and Reconciliation (Federal Holiday)")
+     (holiday-float 10 1 2 "Thanksgiving (Federal and Ontario Holiday)")
+     (holiday-fixed 11 11 "Remembrance Day (Federal Holiday)")
+     (holiday-fixed 12 25 "Christmas Day (National Holiday)")
+     (holiday-fixed 12 26 "Boxing Day (Federal and Ontario Holiday)"))))
 
 (use-package org-agenda
   :bind
@@ -583,7 +586,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (time-to-seconds
           (time-since (file-attribute-modification-time
                        (file-attributes org-icalendar-combined-agenda-file)))))
-    (org-icalendar-combine-agenda-files t)
+    (let ((org-export-with-broken-links t))
+      (org-icalendar-combine-agenda-files t))
     (message "Updating org icalendar file")))
 
 (defun update-org-icalendar-timer-loop ()
@@ -647,6 +651,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; M-?     xref-find-references
 ;; C-M-.   xref-find-apropos
 (use-package ggtags
+  :if EXTERNAL-PACKAGES?
   :delight
   :hook c-mode-common
   :functions ggtags-build-imenu-index
@@ -728,6 +733,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt gdb-many-windows t)
 
 (use-package debbugs-gnu
+  :if EXTERNAL-PACKAGES?
   :hook (log-view-mode . bug-reference-mode)
   :custom
   (bug-reference-url-format "https://debbugs.gnu.org/%s")
@@ -739,7 +745,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt scheme-mit-dialect nil)
 (setopt geiser-mode-auto-p nil)
 (defalias 'pcomplete/guix #'ignore) ;; Freezes up eshell
-(require 'arei)
+(use-package arei
+  :if EXTERNAL-PACKAGES?)
 
 (defun set-emacs-lisp-compile-command ()
   "Set elisp compile command to run checkdoc and `native-compile'."
@@ -756,6 +763,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-hook 'emacs-lisp-mode-hook #'set-emacs-lisp-compile-command)
 
 (use-package yasnippet
+  :if EXTERNAL-PACKAGES?
   :delight yas-minor-mode
   :functions yas-global-mode
   :config
@@ -774,6 +782,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; VC/Diffs Section Begins
 
 (use-package diff-hl
+  :if EXTERNAL-PACKAGES?
   :functions global-diff-hl-mode
   :config
   (global-diff-hl-mode))
@@ -805,6 +814,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (show-paren-context-when-offscreen t))
 
 (use-package rainbow-delimiters
+  :if EXTERNAL-PACKAGES?
   :hook prog-mode)
 ;;; Parens Section Ends
 
@@ -821,6 +831,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           minibuffer-inactive-mode minibuffer-mode))
 
 (use-package ws-butler
+  :if EXTERNAL-PACKAGES?
   :delight
   :functions ws-butler-global-mode
   :config (ws-butler-global-mode))
@@ -912,6 +923,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
               :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))))
 
 (use-package elpher
+  :if EXTERNAL-PACKAGES?
   ;; make keybindings like eww
   :bind (:map elpher-mode-map
               ("p" . elpher-back)))
@@ -925,7 +937,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt epg-gpg-home-directory (getenv "GNUPGHOME"))
 
 (use-package pinentry
-  :if (not IS-INSIDE-EMACS)
+  :if (and EXTERNAL-PACKAGES? (not IS-INSIDE-EMACS))
   :custom (pinentry-popup-prompt-window nil)
   :functions pinentry-start
   :config (pinentry-start))
@@ -955,6 +967,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (erc-update-modules))
 
 (use-package flyspell
+  :if (executable-find "aspell")
   :bind ("M-$" . ispell-word)
   :hook ((prog-mode . flyspell-prog-mode)
          (text-mode . flyspell-mode))
@@ -1006,6 +1019,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-to-list 'eshell-modules-list 'eshell-tramp))
 
 (use-package eshell-syntax-highlighting
+  :if EXTERNAL-PACKAGES?
   :hook eshell-mode)
 
 (use-package em-term
@@ -1069,11 +1083,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; doesn't let me jump to errors :/
 ;; (add-hook 'ledger-report-mode-hook 'compilation-minor-mode)
 (use-package ledger-mode
+  :if EXTERNAL-PACKAGES?
   :mode "\\.ledger\\'"
   :custom
   (ledger-default-date-format ledger-iso-date-format))
 
 (use-package ledger-flymake
+  :if EXTERNAL-PACKAGES?
   :hook (ledger-mode . ledger-flymake-enable)
   :custom (ledger-binary-path "ledger"))
 
@@ -1227,6 +1243,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; EMMS
 (use-package emms
+  :if EXTERNAL-PACKAGES?
   :bind
   (("C-c p"     . emms-playlist-mode-go)
    ("s-p"       . emms-pause)
@@ -1236,29 +1253,31 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
    ("s-<down>"  . emms-volume-lower)))
 
 (use-package emms-setup
+  :after emms
   :config
-  (emms-all))
+  (emms-all)
 
-(setopt emms-playing-time-display-mode nil)
-(setopt emms-player-list '(;; emms-player-mpd
-                           emms-player-mpv))
-(setopt emms-player-mpd-music-directory (xdg-user-dir "MUSIC"))
-(setopt emms-info-functions nil)
-;; (setopt emms-repeat-playlist t)
+  (setopt emms-playing-time-display-mode nil)
+  (setopt emms-player-list '(;; emms-player-mpd
+                             emms-player-mpv))
+  (setopt emms-player-mpd-music-directory (xdg-user-dir "MUSIC"))
+  (setopt emms-info-functions nil)
+  ;; (setopt emms-repeat-playlist t)
 
-;; TODO: add normal mixer support to emms-volume-amixer-change.  Currently it
-;; only supports simple mixers
-(setopt emms-volume-change-function #'emms-volume-pulse-change)
+  ;; TODO: add normal mixer support to emms-volume-amixer-change.  Currently it
+  ;; only supports simple mixers
+  (setopt emms-volume-change-function #'emms-volume-pulse-change)
 
-(setopt emms-volume-change-amount 5)
-(setopt emms-mode-line-format " %s")
+  (setopt emms-volume-change-amount 5)
+  (setopt emms-mode-line-format " %s")
 
-;; TODO: auto get decoders from server
-;; (emms-player-mpd-send "decoders" nil (lambda (_ string) (print string)))
-(setopt emms-player-mpd-supported-regexp
-        (emms-player-simple-regexp
-         "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"
-         "opus" "m4a" "webm"))
+  ;; TODO: auto get decoders from server
+  ;; (emms-player-mpd-send "decoders" nil (lambda (_ string) (print string)))
+  (setopt emms-player-mpd-supported-regexp
+          (emms-player-simple-regexp
+           "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"
+           "opus" "m4a" "webm")))
+
 
 (defun music-setup ()
   "Setup my music."
@@ -1272,9 +1291,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package abbrev
   :delight)
 
-;; Wayland pgtk stuff
-(defun fix-input () "." (pgtk-use-im-context nil))
-(add-hook 'emacs-startup-hook 'fix-input)
+(when (featurep 'pgtk)
+  ;; Wayland pgtk stuff
+  (setopt pgtk-wait-for-event-timeout nil)
+  (defun fix-input () "." (pgtk-use-im-context nil))
+  (add-hook 'emacs-startup-hook 'fix-input))
 
 (defun occur-non-ascii ()
   "Find any non-ascii characters in the current buffer."
@@ -1329,6 +1350,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (copy-face 'default 'viper-minibuffer-emacs))
 
 (use-package osm
+  :if EXTERNAL-PACKAGES?
   :custom
   (osm-copyright nil)
   :bind
