@@ -1066,12 +1066,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
 (add-hook 'before-save-hook 'time-stamp)
 
-(use-package hledger-mode
+;; doesn't let me jump to errors :/
+;; (add-hook 'ledger-report-mode-hook 'compilation-minor-mode)
+(use-package ledger-mode
   :mode "\\.ledger\\'"
   :custom
-  (hledger-jfile (expand-file-name "money/money.ledger" org-directory))
-  (hledger-currency-string "$")
-  (hledger-comments-column 4))
+  (ledger-default-date-format ledger-iso-date-format))
+
+(use-package ledger-flymake
+  :hook (ledger-mode . ledger-flymake-enable)
+  :custom (ledger-binary-path "ledger"))
 
 (use-package autoinsert
   :custom

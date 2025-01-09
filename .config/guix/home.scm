@@ -238,6 +238,13 @@ color-scheme='prefer-dark'\n"))
       (".config/swaylock/config"
        ,(plain-file "swaylock-config" "color=000000FF\nscaling=solid_color\nindicator-idle-visible\n"))
 
+      ;; Ledger
+      (".config/ledger/ledgerrc"
+       ,(mixed-text-file "ledgerrc"
+                         "--exchange $
+--date-format %Y-%m-%d
+--pedantic\n"))
+
       ;; Move between chapters using '(' and ')'
       (".config/mpv/input.conf"
        ,(plain-file "mpv-input-config"

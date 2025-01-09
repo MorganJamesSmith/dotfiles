@@ -55,7 +55,7 @@
     "brightnessctl"
     "dino" ; XMPP
     "gnupg"
-    "hledger"
+    "ledger"
     "jami" ; SIP
     "man-pages"
     "mpv" ; video player
