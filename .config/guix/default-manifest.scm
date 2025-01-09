@@ -56,16 +56,15 @@
     "dino" ; XMPP
     "gnupg"
     "ledger"
-    "jami" ; SIP
     "man-pages"
     "mpv" ; video player
     "openscad" ; 3D modeling program
     "openssh"
     "password-store"
     "pwgen" ; Password Generator
-    ;; "quaternion" ; Matrix
     "rmlint"
-    "recutils"
+    "rsync"
     "unzip"
     "xpdf" ; pdftotext
-    "zip")))
+    "zip"
+    "zstd")))))
