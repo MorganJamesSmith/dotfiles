@@ -561,9 +561,38 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt org-link-abbrev-alist
         `(("guix" . "elisp:(guix-packages-by-name \"%s\")")
           ("possessions" . "file:~/documents/wiki/possessions.org::*")
+          ("contact" . "file:~/documents/contacts.org::*")
           ("money" . ,(concat "file:" (getenv "LEDGER_FILE") "::[[possessions:%s]]"))))
 
 (setopt org-imenu-depth 5)
+
+;;;; Syncing calendar with my phone
+(setopt org-icalendar-combined-agenda-file (expand-file-name "org.ics" org-directory))
+(setopt icalendar-export-sexp-enumerate-all t)
+
+;; 2 hours
+(defvar update-org-icalendar-timer-loop-seconds (* 2 60 60))
+
+(defun maybe-update-org-icalendar ()
+  "Update org icalendar file if it hasn't been updated in recently."
+  (when (<
+         update-org-icalendar-timer-loop-seconds
+         (time-to-seconds
+          (time-since (file-attribute-modification-time
+                       (file-attributes org-icalendar-combined-agenda-file)))))
+    (org-icalendar-combine-agenda-files t)
+    (message "Updating org icalendar file")))
+
+(defun update-org-icalendar-timer-loop ()
+  "Keep the org icalendar file up to date."
+  (run-with-idle-timer 5 nil #'maybe-update-org-icalendar)
+  (run-with-timer update-org-icalendar-timer-loop-seconds
+                  update-org-icalendar-timer-loop-seconds
+                  #'update-org-icalendar-timer-loop))
+
+(update-org-icalendar-timer-loop)
+;;;; Syncing calendar with my phone
+
 
 ;; Half my 1920x1080 screen
 (setopt org-plot/gnuplot-term-extra "size 960,1080")
