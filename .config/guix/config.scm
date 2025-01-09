@@ -147,6 +147,9 @@
 
     (service earlyoom-service-type)
 
+    (service zram-device-service-type
+             (zram-device-configuration (priority 100)))
+
     (service vnstat-service-type)
 
     (service package-database-service-type)
