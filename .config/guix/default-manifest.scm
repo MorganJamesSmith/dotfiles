@@ -29,6 +29,12 @@
     "tree"
     "htop"))
 
+(define compression-tools
+  '("atool"
+    "unzip"
+    "zip"
+    "zstd"))
+
 (define transformations
   (options->transformation
    '()))
@@ -49,9 +55,9 @@
   programming
   email
   terminal-tools
+  compression-tools
   '("aspell" ; spellchecker
     "aspell-dict-en"
-    "atool" ; compression stuff
     "brightnessctl"
     "dino" ; XMPP
     "gnupg"
@@ -64,7 +70,5 @@
     "pwgen" ; Password Generator
     "rmlint"
     "rsync"
-    "unzip"
     "xpdf" ; pdftotext
-    "zip"
-    "zstd")))))
+    )))))
