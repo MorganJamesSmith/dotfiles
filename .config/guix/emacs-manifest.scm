@@ -79,6 +79,7 @@
     (lambda (x) (string-append "emacs-" x))
     '(
       "arei"
+      "bluetooth"
       "buffer-env"
       "crdt"
       "csv-mode"
