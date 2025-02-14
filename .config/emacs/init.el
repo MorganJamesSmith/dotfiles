@@ -116,7 +116,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (gnus-home-directory (create-directory "gnus-files" user-emacs-directory))
   (gnus-directory (create-directory "News" gnus-home-directory))
   (gnus-save-newsrc-file nil)
-  (gnus-read-newsrc-file nil))
+  (gnus-read-newsrc-file nil)
+  :config
+  (add-hook 'emacs-startup-hook 'gnus-read-init-file))
 (setopt mail-source-directory (create-directory "Mail" gnus-home-directory))
 
 (add-hook 'message-mode-hook 'footnote-mode)
