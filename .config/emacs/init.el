@@ -648,6 +648,19 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (correction (or (and (string-suffix-p "pm" time-string) (* 60 60 12))
                          0)))
    (org-insert-timestamp (time-add (date-to-time time-string) correction) t t)))
+
+(defun search-org-directory (regexp)
+  "Search through my org files in my `org-directory' for REGEXP."
+  (interactive "sRegex: ")
+  (let ((files (directory-files-recursively
+                (expand-file-name org-directory)
+                "\\.org\\'"
+                nil
+                (lambda (directory)
+                  (not
+                   (member (file-name-nondirectory directory)
+                           '(".stversions")))))))
+    (xref-show-xrefs (xref-matches-in-files regexp files) nil)))
 ;;; Org Section Ends
 
 
