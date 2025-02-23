@@ -782,6 +782,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package arei
   :if EXTERNAL-PACKAGES?)
 
+(defun run-guile-server ()
+  "Run a guile server for arei."
+  (interactive)
+  (make-process
+   :name "guile-server" :buffer (generate-new-buffer "*guile-server*")
+   :command (list
+             "guix" "shell" "guile-next" "guile-ares-rs" "--"
+             "guile" "-c" "((@ (ares server) run-nrepl-server))")))
+
 (defun set-emacs-lisp-compile-command ()
   "Set elisp compile command to run checkdoc and `native-compile'."
   (setq-local compile-command
@@ -1218,10 +1227,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                             (name . "^\\.newsrc-dribble")
                             (mode . debbugs-gnu-mode)))
            ("repl things" (or
+                      (name . "*guile-server*")
                       (mode . arei-connection-mode)
                       (mode . geiser-repl-mode)
                       (mode . geiser-messages-mode)
-                      (mode . geiser-debug-mode)))
+                      (mode . geiser-debug-mode)
+                      (mode . inferior-emacs-lisp-mode)))
            ("lisp" (or
                     (mode . emacs-lisp-mode)
                     (mode . scheme-mode)
