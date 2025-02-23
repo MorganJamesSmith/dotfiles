@@ -832,6 +832,26 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                (list "proselint" buffer-file-name)
                " ")))
 (add-hook 'texinfo-mode-hook #'set-texinfo-compile-command)
+
+(use-package compile
+  :config
+  (defvar elogind-process nil)
+  (defun elogind-inhibit-compilation (_process)
+    "Run elogind-inhibit for the duration of the compilation."
+    (unless elogind-process
+      (setq elogind-process
+            (make-process
+             :name "elogind-inhibit for compilation"
+             :command '("elogind-inhibit" "--who=emacs-compilation" "sleep" "infinity")))))
+
+  (defun elogind-inhibit-kill (_buffer _status)
+    "Kill elogind-inhibit when the compilation is finished."
+    (when elogind-process
+      (kill-process elogind-process))
+    (setq elogind-process nil))
+
+  (add-hook 'compilation-start-hook #'elogind-inhibit-compilation)
+  (add-to-list 'compilation-finish-functions #'elogind-inhibit-kill))
 ;;; Programming Section Ends
 
 
