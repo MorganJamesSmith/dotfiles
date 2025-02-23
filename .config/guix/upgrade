@@ -1,6 +1,10 @@
 #!/bin/sh
 
+# exit on error
 set -e
+
+# automatically killed when script finishes
+elogind-inhibit --who="$0" sleep infinity &
 
 mkdir -p /home/pancake/.config/guix/extra-profiles
 mkdir -p /home/pancake/.config/guix/extra-profiles/default
