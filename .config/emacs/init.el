@@ -419,7 +419,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-agenda-skip-scheduled-if-deadline-is-shown t)
   (org-agenda-skip-scheduled-repeats-after-deadline t)
   (org-agenda-skip-deadline-if-done t)
-  (org-agenda-sorting-strategy '(time-up priority-down tag-up category-keep))
+  (org-agenda-sorting-strategy '(time-up priority-down tag-up todo-state-up category-keep))
   (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO") nil ""))
 
   (org-agenda-files
@@ -1061,6 +1061,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (eshell-hist-ignoredups 'erase)
   (eshell-cp-overwrite-files nil)
   (eshell-mv-overwrite-files nil)
+  (eshell-destroy-buffer-when-process-dies t)
   :config
   (add-to-list 'eshell-modules-list 'eshell-tramp))
 
@@ -1084,7 +1085,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         ("C-c e p" . emms-play-dired))
   :hook
   ((dired-mode . turn-on-gnus-dired-mode)
-   (dired-mode . dired-hide-details-mode))
+   (dired-mode . dired-hide-details-mode)
+   (dired-mode . hl-line-mode))
   :custom
   (dired-dwim-target t)
   (dired-recursive-copies 'always)
@@ -1339,7 +1341,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package abbrev
   :delight)
 
-(when (featurep 'pgtk)
+(when (and (display-graphic-p) (featurep 'pgtk))
   ;; Wayland pgtk stuff
   (setopt pgtk-wait-for-event-timeout nil)
   (defun fix-input () "." (pgtk-use-im-context nil))
@@ -1355,6 +1357,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (interactive)
   (buffer-env-go-away)
   (save-some-buffers)
+  (when (fboundp 'eglot-shutdown-all)
+   (eglot-shutdown-all))
   (mapc #'kill-buffer (match-buffers "^ \\*diff-syntax"))
   (mapc #'kill-buffer (match-buffers "^\\*disk-usage"))
   (when dired-buffers
