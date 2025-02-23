@@ -594,10 +594,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;;; Syncing calendar with my phone
 (setopt org-icalendar-combined-agenda-file (expand-file-name "org.ics" org-directory))
+
+;; TODO: fix root cause: icalendar--convert-float-to-ical
+;; diary-float entries get scheduled today without this
 (setopt icalendar-export-sexp-enumerate-all t)
 
+(setopt org-icalendar-exclude-tags '("goals" "annual_goal" "monthly_goal" "weekly_goal" "daily_goal"))
+(setopt org-icalendar-use-scheduled '(event-if-not-todo))
 ;; 2 hours
 (defvar update-org-icalendar-timer-loop-seconds (* 2 60 60))
+(defvar update-org-icalendar-timer)
 
 (defun maybe-update-org-icalendar ()
   "Update org icalendar file if it hasn't been updated in recently."
@@ -606,15 +612,23 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (time-to-seconds
           (time-since (file-attribute-modification-time
                        (file-attributes org-icalendar-combined-agenda-file)))))
-    (let ((org-export-with-broken-links t))
-      (org-icalendar-combine-agenda-files t))
+    (let ((org-export-with-broken-links t)
+          (org-agenda-files
+           (list
+            (expand-file-name "contacts.org" org-directory)
+            ;; (expand-file-name "agenda/daily.org" org-directory)
+            (expand-file-name "agenda/events.org" org-directory)
+            ;; (expand-file-name "agenda/timetracking.org" org-directory)
+            (expand-file-name "agenda/todo.org" org-directory))))
+      (org-icalendar-combine-agenda-files))
     (message "Updating org icalendar file")))
 
 (defun update-org-icalendar-timer-loop ()
   "Keep the org icalendar file up to date."
   (run-with-idle-timer 5 nil #'maybe-update-org-icalendar)
+  (cancel-function-timers #'update-org-icalendar-timer-loop)
   (run-with-timer update-org-icalendar-timer-loop-seconds
-                  update-org-icalendar-timer-loop-seconds
+                  nil
                   #'update-org-icalendar-timer-loop))
 
 (update-org-icalendar-timer-loop)
