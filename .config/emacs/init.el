@@ -37,6 +37,21 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       (make-directory directory t))
     directory))
 
+(defvar last-unlock-gpg 0)
+(defun unlock-gpg (&rest _ignore)
+  "Using Emacs pinentry can cause a stalemate so call this before using GPG."
+  (interactive)
+  ;; cache for 5 minutes since GPG caches for 10 minutes
+  (unless (time-less-p (time-since last-unlock-gpg) (seconds-to-time 300))
+    (setq last-unlock-gpg (current-time))
+    (let ((process
+           (make-process
+            :name "unlock gpg"
+            :command '("gpg" "--dry-run" "--sign" "/dev/null"))))
+      (while (process-live-p process)
+        (thread-yield)
+        (sit-for 0.01)))))
+
 ;;; Make buffers appear where I want them to
 (setopt display-buffer-alist
         (list (list shell-command-buffer-name-async #'display-buffer-no-window)))
@@ -105,8 +120,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (sendmail-program "msmtp")
   (send-mail-function #'sendmail-send-it))
 
-(setopt message-sendmail-envelope-from 'header
-        message-interactive nil) ;; prevents lockup from emacs-pinentry
+(use-package message
+  :custom
+  (message-sendmail-envelope-from 'header)
+  :config
+  (add-hook 'message-send-hook 'unlock-gpg))
 
 ;; Move gnus folders to the `user-emacs-directory'
 (use-package gnus
@@ -796,6 +814,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt vc-git-print-log-follow t)
 (setopt vc-log-finish-functions nil)  ; no buffer resizing!
 (setopt vc-diff-finish-functions nil) ; no buffer resizing!
+
+(with-eval-after-load "vc-git"
+  (advice-add 'vc-git-checkin :before #'unlock-gpg))
 
 (use-package ediff
   :custom
