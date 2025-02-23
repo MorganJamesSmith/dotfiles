@@ -47,7 +47,7 @@
             ;; qtwayland-5
             ))
  (services
-  (list
+  (cons*
    (service home-shepherd-service-type)
    (service home-dbus-service-type)
    (service home-bash-service-type)
@@ -269,4 +269,6 @@ color-scheme='prefer-dark'\n"))
 --concurrent-fragments 10
 --write-sub
 --sub-lang en
---sponsorblock-mark all\n")))))))
+--sponsorblock-mark all\n"))))
+
+   %base-home-services)))
