@@ -37,11 +37,16 @@
 (with-eval-after-load "gnus-sum"
   ;; Make it consistent with dired
   (keymap-set gnus-summary-mode-map "m" #'gnus-summary-mark-as-processable)
-  (keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward))
+  (keymap-set gnus-summary-mode-map "u" #'gnus-summary-clear-mark-forward)
 
-;; Make it consistent with eww
+  (keymap-set gnus-summary-mode-map "t" #'gnus-summary-toggle-threads))
+
 (with-eval-after-load "gnus-art"
-  (keymap-set gnus-url-button-map "w" #'gnus-article-copy-string))
+  ;; Make it consistent with eww
+  (keymap-set gnus-url-button-map "w" #'gnus-article-copy-string)
+
+  (keymap-set gnus-article-mode-map "n" #'next-line)
+  (keymap-set gnus-article-mode-map "p" #'previous-line))
 
 (setopt message-generate-hashcash t)
 
@@ -71,6 +76,7 @@
 (defun get-mail ()
   "Get mail."
   (interactive)
+  (unlock-gpg)
   (let ((processes (list
                     (start-process "mbsync" "*mbsync*" "mbsync" "-a")
                     (start-process "rss2email" "*rss2email*" "r2e" "run"))))
