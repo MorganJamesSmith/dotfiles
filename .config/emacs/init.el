@@ -721,6 +721,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (which-function-mode)
 (electric-layout-mode)
+;; TODO: make it respect eshell prompt field
 (electric-pair-mode)
 ;; (add-to-list 'electric-pair-pairs '(?\' . ?\'))
 (global-prettify-symbols-mode)
@@ -954,6 +955,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Send user agent as many sites require it
 (setopt url-privacy-level '(email os emacs lastloc cookies))
 
+;; TODO: look at `browse-url-transform-alist' in emacs master
 (setopt eww-use-browse-url "\\`\\(?:gemini\\|gopher\\|mailto\\|magnet\\):\\|\\(youtube.com\\|youtu.be\\)\\|\\.\\(?:mp[34]\\|torrent\\)\\'")
 (setopt browse-url-handlers
         '(("\\`\\(gemini\\|gopher\\)://" .
@@ -1388,6 +1390,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      "*Multiple Choice Help*"
      "*Native-compile-Log*"
      "*gcc-flymake*"
+     ;; TODO: why does `log-edit-kill-buffer' hide this buffer instead of
+     ;; killing it?
+     "*log-edit-files*"
      "*vc*"))
   (setq values '()) ;; TODO: is this a good idea?
   (native-compile-prune-cache)

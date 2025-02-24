@@ -156,6 +156,9 @@
 (setopt gnus-article-date-headers '(user-defined))
 (setopt gnus-article-time-format time-stamp-format)
 (setopt gnus-user-date-format-alist `((t . ,time-stamp-format)))
+
+;; TODO: Emacs master might do unread count correctly since 5c129791c5b
+;; It would be cool to add that here
 (setopt gnus-group-line-format "%5y:%B%(%c%)\n")
 (setopt gnus-summary-display-arrow t)
 
