@@ -809,7 +809,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (yas-global-mode 1))
 
 (use-package compile
+  :custom
+  (compilation-max-output-line-length nil)
   :config
+  (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
   (defvar elogind-process nil)
   (defun elogind-inhibit-compilation (_process)
     "Run elogind-inhibit for the duration of the compilation."
