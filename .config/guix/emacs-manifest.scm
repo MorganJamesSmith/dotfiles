@@ -23,18 +23,24 @@
 ;; applied so I add them back in
 (define patch-transformations
   (options->transformation
-   `(
+   '()
+   ;; Guix can't build current master branch
+   #;`(
+     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-disable-jit-compilation.patch")
      (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-exec-path.patch")
      (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-fix-scheme-indent-function.patch")
      (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-native-comp-driver-options.patch")
+     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-native-comp-fix-filenames.patch")
+     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-native-comp-pin-packages.patch")
      (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-pgtk-super-key-fix.patch"))))
 
 
 (define other-transformations
   (options->transformation
    `(
-     (with-commit  . ,(string-append "emacs-next-pgtk=" emacs-git-commit))
-     (with-git-url . "emacs-next-pgtk=/home/pancake/src/emacs/emacs")
+     ;; ;; Guix can't build current master branch
+     ;; (with-commit  . ,(string-append "emacs-next-pgtk=" emacs-git-commit))
+     ;; (with-git-url . "emacs-next-pgtk=/home/pancake/src/emacs/emacs")
 
      (with-commit  . ,(string-append "emacs-org=" org-git-commit))
      (with-git-url . "emacs-org=/home/pancake/src/emacs/org-mode")
@@ -47,9 +53,7 @@
      (with-input   . "emacs-no-x=emacs-next-pgtk")
      (with-input   . "emacs-no-x-toolkit=emacs-next-pgtk")
 
-     (without-tests . "emacs-org")
-     (without-tests . "emacs-yasnippet")
-     (without-tests . "emacs-buttercup"))))
+     (without-tests . "emacs-yasnippet"))))
 
 (define (transformations package)
   (patch-transformations (other-transformations package)))
@@ -104,9 +108,7 @@
       "rainbow-delimiters"
       "scad-mode"
       "transmission"
-      "tup-mode"
       "vterm"
-      "vundo"
       "ws-butler"
       "yasnippet"))))
 
