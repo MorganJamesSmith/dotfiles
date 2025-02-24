@@ -808,14 +808,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (yas-global-mode 1))
 
-(defun set-texinfo-compile-command ()
-  "Set texinfo compile command to run proselint."
-  (setq-local compile-command
-              (string-join
-               (list "proselint" buffer-file-name)
-               " ")))
-(add-hook 'texinfo-mode-hook #'set-texinfo-compile-command)
-
 (use-package compile
   :config
   (defvar elogind-process nil)

@@ -89,7 +89,6 @@
       "elpher"
       "emms"
       "eshell-syntax-highlighting"
-      "flymake-proselint"
       "geiser"
       "geiser-guile"
       "ggtags"
