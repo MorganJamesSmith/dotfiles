@@ -3,9 +3,6 @@
 # exit on error
 set -e
 
-# automatically killed when script finishes
-elogind-inhibit --who="$0" sleep infinity &
-
 # Update local Emacs source
 cd /home/pancake/src/emacs/emacs
 git stash
@@ -45,3 +42,7 @@ guix home build --max-jobs=4 --keep-going /home/pancake/.config/guix/home.scm
 
 # Display news
 guix pull --news
+
+# Local Variables:
+# compile-command: "./update"
+# End:
