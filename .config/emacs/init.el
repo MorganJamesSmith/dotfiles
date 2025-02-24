@@ -665,23 +665,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; Programming Section Begins
-
-;; TODO: I love using buffer-env to get dependencies but I wish I could enable
-;; it for specific directories
-;; TODO: check out `hack-dir-local-get-variables-functions'
-(autoload 'buffer-env-update "buffer-env")
-(defun buffer-env-setup ()
-  "."
-  (interactive)
-  (add-hook 'hack-local-variables-hook #'buffer-env-update)
-  (add-hook 'comint-mode-hook #'hack-dir-local-variables-non-file-buffer))
-
-(defun buffer-env-go-away ()
-  "."
-  (interactive)
-  (remove-hook 'hack-local-variables-hook #'buffer-env-update)
-  (remove-hook 'comint-mode-hook #'hack-dir-local-variables-non-file-buffer))
-
 ;; Ignore translation files
 (setopt project-vc-ignores (list "*.po"))
 
@@ -1388,7 +1371,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (defun cleanup ()
   "Cleanup stuff."
   (interactive)
-  (buffer-env-go-away)
   (save-some-buffers)
   (when (fboundp 'eglot-shutdown-all)
    (eglot-shutdown-all))

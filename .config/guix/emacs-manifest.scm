@@ -80,7 +80,6 @@
     '(
       "arei"
       "bluetooth"
-      "buffer-env"
       "crdt"
       "csv-mode"
       "debbugs"
