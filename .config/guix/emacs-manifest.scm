@@ -4,17 +4,17 @@
  ((guix transformations) #:select (options->transformation))
  ((guix build utils) #:select (with-directory-excursion)))
 
-(define (git-commit path)
+(define* (git-commit path #:optional (commit "HEAD"))
   (let* ((pipe (with-directory-excursion path
-                 (open-pipe* OPEN_READ "git" "rev-parse" "HEAD")))
+                 (open-pipe* OPEN_READ "git" "rev-parse" commit)))
          (version (read-line pipe)))
     (close-pipe pipe)
     version))
 
-(define emacs-git-commit (git-commit "/home/pancake/src/emacs/emacs"))
-(define org-git-commit (git-commit "/home/pancake/src/emacs/org-mode"))
-(define emacs-arei-git-commit (git-commit "/home/pancake/src/emacs/emacs-arei"))
-
+(define* (use-local-source-transformations name path #:optional (commit "HEAD"))
+  (let ((commit (git-commit path commit)))
+    `((with-commit  . ,(string-append name "=" commit))
+      (with-git-url . ,(string-append name "=" path)))))
 
 ;; We do these separately as they don't combine with our source transformations
 ;; unless they are done as a separate step.
@@ -39,14 +39,11 @@
   (options->transformation
    `(
      ;; ;; Guix can't build current master branch
-     ;; (with-commit  . ,(string-append "emacs-next-pgtk=" emacs-git-commit))
-     ;; (with-git-url . "emacs-next-pgtk=/home/pancake/src/emacs/emacs")
+     ;; ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs")
 
-     (with-commit  . ,(string-append "emacs-org=" org-git-commit))
-     (with-git-url . "emacs-org=/home/pancake/src/emacs/org-mode")
+     ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode")
 
-     (with-commit  . ,(string-append "emacs-arei=" emacs-arei-git-commit))
-     (with-git-url . "emacs-arei=/home/pancake/src/emacs/emacs-arei")
+     ,@(use-local-source-transformations "emacs-arei" "/home/pancake/src/emacs/emacs-arei")
 
      (with-input   . "emacs=emacs-next-pgtk")
      (with-input   . "emacs-minimal=emacs-next-pgtk")
