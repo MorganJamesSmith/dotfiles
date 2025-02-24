@@ -26,8 +26,7 @@
 
 (define terminal-tools
   '("file" ; filetype checker
-    "tree"
-    "htop"))
+    "tree"))
 
 (define compression-tools
   '("atool"
@@ -71,4 +70,4 @@
     "rmlint"
     "rsync"
     "xpdf" ; pdftotext
-    )))))
+    )))
