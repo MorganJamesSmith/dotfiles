@@ -48,8 +48,6 @@
   (keymap-set gnus-article-mode-map "n" #'next-line)
   (keymap-set gnus-article-mode-map "p" #'previous-line))
 
-(setopt message-generate-hashcash t)
-
 (setopt gnus-auto-select-next nil)
 (setopt gnus-summary-goto-unread 'never)
 (setopt gnus-summary-stop-at-end-of-message t)

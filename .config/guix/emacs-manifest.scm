@@ -68,7 +68,6 @@
   (append!
    '("emacs-next-pgtk"
      "gnuplot"
-     "hashcash"    ; send emails with proof of work thingy
      "shellcheck"  ; flymake shell files
      "graphicsmagick" ; image-dired thumbnail generation
      "libjpeg"        ; image-dired rotate images
