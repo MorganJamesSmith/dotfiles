@@ -255,6 +255,8 @@ color-scheme='prefer-dark'\n"))
                        "h cycle-values audio-channels auto-safe mono")
                      "\n"
                      'suffix)))
+      (".config/mpv/mpv.conf"
+       ,(plain-file "mpv-config" "vo=dmabuf-wayland\nhwdec=auto-safe\n"))
 
       ;; Only download 1080p or lower.  Place in ~/downloads/videos with a
       ;; specific filename.  Grab English subtitles if we can.  Add
