@@ -106,12 +106,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (keymap-global-set "C-x C-b" #'ibuffer)
 ;; Buffer-menu-group-by
 
-(keymap-global-set "C-c c" #'compile)
-(setopt compilation-scroll-output 'first-error)
-
-(setopt grep-highlight-matches 'always)
-(setopt grep-use-headings t)
-
 (setopt read-mail-command 'gnus)
 (setopt mail-user-agent 'gnus-user-agent)
 
@@ -739,8 +733,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (with-eval-after-load "cc-vars"
   (setf (alist-get 'other c-default-style) "stroustrup"))
 
-;; Save all buffers on compile automatically
-(setopt compilation-ask-about-save nil)
 
 (use-package display-line-numbers
   :hook (prog-mode conf-mode))
@@ -788,20 +780,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
              "guix" "shell" "guile-next" "guile-ares-rs" "--"
              "guile" "-c" "((@ (ares server) run-nrepl-server))")))
 
-(defun set-emacs-lisp-compile-command ()
-  "Set elisp compile command to run checkdoc and `native-compile'."
-  (setq-local compile-command
-              (string-join
-               (list "emacs -Q --batch"
-                     (shell-quote-argument "--eval=(setq byte-compile-warnings 'all)")
-                     (concat "--eval="
-                             (shell-quote-argument
-                              (concat "(checkdoc-file \"" buffer-file-name "\")")))
-                     "-f batch-native-compile"
-                     buffer-file-name)
-               " ")))
-(add-hook 'emacs-lisp-mode-hook #'set-emacs-lisp-compile-command)
-
 (use-package yasnippet
   :if EXTERNAL-PACKAGES?
   :delight yas-minor-mode
@@ -809,11 +787,46 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (yas-global-mode 1))
 
+(use-package grep
+  :custom
+  (grep-highlight-matches 'always)
+  (grep-use-headings t)
+  :config
+  (keymap-set grep-mode-map "C-c C-n" #'compilation-next-file)
+  (keymap-set grep-mode-map "C-c C-p" #'compilation-previous-file))
+
+(use-package xref
+  :config
+  ;; TODO: try to upstream these functions
+  (defun xref-next-group-no-show ()
+    "Move to the first item of the next xref group but don't display its source."
+    (interactive)
+    (xref--search-property 'xref-group)
+    (xref--search-property 'xref-item))
+
+  (defun xref-prev-group-no-show ()
+    "Move to the first item of the previous xref group but don't display its source."
+    (interactive)
+    ;; Search for the xref group of the current item, provided that the
+    ;; point is not already in an xref group.
+    (unless (plist-member (text-properties-at (point)) 'xref-group)
+      (xref--search-property 'xref-group t))
+    ;; Search for the previous xref group.
+    (xref--search-property 'xref-group t)
+    (xref--search-property 'xref-item))
+
+  ;; TODO: tell upstream to rename this to an external name
+  (keymap-set xref--xref-buffer-mode-map "C-c C-n" #'xref-next-group-no-show)
+  (keymap-set xref--xref-buffer-mode-map "C-c C-p" #'xref-prev-group-no-show))
+
 (use-package compile
   :custom
   (compilation-max-output-line-length nil)
+  (compilation-ask-about-save nil)
+  :hook (compilation-filter . ansi-color-compilation-filter)
+  :bind (:map compilation-mode-map
+              ("c" . compile))
   :config
-  (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
   (defvar elogind-process nil)
   (defun elogind-inhibit-compilation (_process)
     "Run elogind-inhibit for the duration of the compilation."
@@ -831,6 +844,20 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
   (add-hook 'compilation-start-hook #'elogind-inhibit-compilation)
   (add-to-list 'compilation-finish-functions #'elogind-inhibit-kill))
+
+(defun set-emacs-lisp-compile-command ()
+  "Set elisp compile command to run checkdoc and `native-compile'."
+  (setq-local compile-command
+              (string-join
+               (list "emacs -Q --batch"
+                     (shell-quote-argument "--eval=(setq byte-compile-warnings 'all)")
+                     (concat "--eval="
+                             (shell-quote-argument
+                              (concat "(checkdoc-file \"" buffer-file-name "\")")))
+                     "-f batch-native-compile"
+                     buffer-file-name)
+               " ")))
+(add-hook 'emacs-lisp-mode-hook #'set-emacs-lisp-compile-command)
 ;;; Programming Section Ends
 
 
