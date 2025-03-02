@@ -62,6 +62,14 @@ input 1133:50184:Logitech_USB_Trackball
     scroll_method on_button_down
 }
 
+# Logitech trackman using USB adapter
+input 2689:517:CHESEN_PS2_to_USB_Converter_Mouse
+{
+    scroll_button BTN_MIDDLE
+    scroll_method on_button_down
+    pointer_accel 1
+}
+
 ### Key bindings
 #
 # Basics:
