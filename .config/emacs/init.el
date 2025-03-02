@@ -878,7 +878,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt vc-diff-finish-functions nil) ; no buffer resizing!
 
 (with-eval-after-load "vc-git"
-  (advice-add 'vc-git-checkin :before #'unlock-gpg))
+  (add-hook 'log-edit-done-hook #'unlock-gpg))
 
 (use-package ediff
   :custom
@@ -910,15 +910,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (electric-indent-mode 1)
 (setopt require-final-newline t)
 
-
-(setopt ws-butler-global-exempt-modes
-        '(eshell-mode gnus-mode org-agenda-mode
-          minibuffer-inactive-mode minibuffer-mode))
-
 (use-package ws-butler
   :if EXTERNAL-PACKAGES?
   :delight
   :functions ws-butler-global-mode
+  :custom
+  (ws-butler-global-exempt-modes
+   ;; Copied from global-completion-preview-mode predicate
+   '(archive-mode calc-mode compilation-mode diff-mode dired-mode
+     image-mode minibuffer-mode minibuffer-inactive-mode org-agenda-mode
+     special-mode wdired-mode))
   :config (ws-butler-global-mode))
 
 (setopt diff-whitespace-style '(face trailing tabs missing-newline-at-eof tab-mark))
@@ -936,10 +937,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (add-to-list 'completion-ignored-extensions ".go")
 
 (global-completion-preview-mode)
+(setopt completion-preview-exact-match-only t)
+
+;; otherwise keeps adding a space while doing path completion in eshell which is quite annoying
+(setopt pcomplete-termination-string "")
 
 (setopt completions-detailed t)
 
-(setopt completion-styles '(basic partial-completion emacs22 substring))
+(use-package minibuffer
+  :config
+  (add-to-list 'completion-styles 'substring))
 
 (setopt completions-format 'one-column)
 (setopt completions-header-format nil)
@@ -1098,6 +1105,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (eshell-history-size nil) ;; Pull history size from environment variables
   ;; XXX: doesn't error when set to nil and HISTFILE isn't set
   (eshell-history-file-name nil) ;; Pull history file from environment variables
+  (eshell-history-append t)
   (eshell-hist-ignoredups 'erase)
   (eshell-cp-overwrite-files nil)
   (eshell-mv-overwrite-files nil)
@@ -1234,14 +1242,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (:map doc-view-mode-map
         ("r" . image-rotate)
         ("<remap> <fit-window-to-buffer>" . doc-view-fit-window-to-page))
-  :custom
-  (doc-view-imenu-flatten t)
   :config
-  ;; Applying dark theme to SVGs often hides stuff and looks wrong so just don't
-  (set-face-foreground 'doc-view-svg-face "black")
-  (set-face-background 'doc-view-svg-face "white"))
-
-
+  (defun doc-view-invert-face ()
+    "Applying dark theme to SVGs often hides stuff and looks wrong."
+    (interactive nil doc-view-mode)
+    (let* ((default-foreground (face-attribute 'default :foreground))
+           (default-background (face-attribute 'default :background))
+           (invert? (eq default-foreground (face-attribute 'doc-view-svg-face :foreground)))
+           (new-foreground (if invert? default-background default-foreground))
+           (new-background (if invert? default-foreground default-background)))
+      (set-face-foreground 'doc-view-svg-face new-foreground)
+      (set-face-background 'doc-view-svg-face new-background))
+    (revert-buffer-quick)))
 
 (setopt image-use-external-converter t)
 
