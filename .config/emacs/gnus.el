@@ -71,15 +71,43 @@
 ;; part of the same thread
 (setopt gnus-summary-gather-exclude-subject "^ *$\\|^...$\\|^(none)$")
 
+(defun mbsync-process-sentinel (_process change)
+  "Run after I get mail from running mbsync.
+Use CHANGE to determine if an error has occured."
+  (if (not (string= change "finished\n"))
+      (message "mbsync: an error has occured: '%s'" change)
+    (with-current-buffer "*mbsync*"
+      (goto-char (point-min))
+      (search-forward "Processed")
+      (message (string-trim
+                (buffer-substring-no-properties
+                 (match-beginning 0) (point-max))))
+      (kill-buffer (current-buffer)))))
+
+(defun mbsync ()
+  "Run mbsync."
+  (interactive)
+  (unlock-gpg)
+  (when-let* ((buffer (get-buffer "*mbsync*")))
+    (kill-buffer buffer))
+  (make-process
+   :name "mbsync"
+   :buffer "*mbsync*"
+   :sentinel #'mbsync-process-sentinel
+   :command '("mbsync" "-a")))
+
+(defun rss2email ()
+  "Run rss2email."
+  (interactive)
+  (when-let* ((buffer (get-buffer "*rss2email*")))
+    (kill-buffer buffer))
+  (start-process "rss2email" "*rss2email*" "r2e" "run"))
+
 (defun get-mail ()
   "Get mail."
   (interactive)
-  (unlock-gpg)
-  (let ((processes (list
-                    (start-process "mbsync" "*mbsync*" "mbsync" "-a")
-                    (start-process "rss2email" "*rss2email*" "r2e" "run"))))
-    (dolist (process processes)
-      (set-process-sentinel process #'gnus-group-get-new-news))))
+  (rss2email)
+  (mbsync))
 
 (define-key gnus-group-mode-map (kbd "f") #'get-mail)
 
