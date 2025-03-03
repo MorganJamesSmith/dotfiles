@@ -58,6 +58,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt async-shell-command-buffer 'new-buffer)
 
 ;;; Optimization Section Begins
+(setopt normal-erase-is-backspace nil)
 
 ;; Display the bare minimum at startup
 (setopt inhibit-startup-screen t)
@@ -412,6 +413,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-agenda-skip-timestamp-if-deadline-is-shown t)
   (org-agenda-skip-scheduled-if-deadline-is-shown t)
   (org-agenda-skip-scheduled-repeats-after-deadline t)
+  (org-agenda-skip-timestamp-if-done t)
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-sorting-strategy '(time-up priority-down tag-up todo-state-up category-keep))
   (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO") nil ""))
@@ -713,11 +715,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                (cond ((derived-mode-p 'c++-mode) "c++")
                      (t "c"))))))
 
+(use-package electric
+  :hook
+  (((prog-mode conf-mode) . electric-layout-local-mode)
+   ;; TODO: make it respect eshell prompt field
+   ;; (add-to-list 'electric-pair-pairs '(?\' . ?\'))
+   ((prog-mode conf-mode) . electric-pair-local-mode)
+   ((prog-mode conf-mode) . electric-indent-local-mode)))
+
 (which-function-mode)
-(electric-layout-mode)
-;; TODO: make it respect eshell prompt field
-(electric-pair-mode)
-;; (add-to-list 'electric-pair-pairs '(?\' . ?\'))
 (global-prettify-symbols-mode)
 (setq-default c-auto-newline t)
 (setq-default c-hungry-delete-key t)
@@ -783,9 +789,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package yasnippet
   :if EXTERNAL-PACKAGES?
   :delight yas-minor-mode
-  :functions yas-global-mode
-  :config
-  (yas-global-mode 1))
+  :hook ((prog-mode conf-mode text-mode) . yas-minor-mode))
 
 (use-package grep
   :custom
@@ -907,20 +911,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; Whitespace Section Begins
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
-(electric-indent-mode 1)
 (setopt require-final-newline t)
 
 (use-package ws-butler
   :if EXTERNAL-PACKAGES?
   :delight
-  :functions ws-butler-global-mode
-  :custom
-  (ws-butler-global-exempt-modes
-   ;; Copied from global-completion-preview-mode predicate
-   '(archive-mode calc-mode compilation-mode diff-mode dired-mode
-     image-mode minibuffer-mode minibuffer-inactive-mode org-agenda-mode
-     special-mode wdired-mode))
-  :config (ws-butler-global-mode))
+  :hook (prog-mode conf-mode text-mode))
 
 (setopt diff-whitespace-style '(face trailing tabs missing-newline-at-eof tab-mark))
 (add-hook 'diff-mode-hook #'whitespace-mode)
@@ -1038,6 +1034,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;;; auth Section Ends
 
 (use-package erc
+  :if nil
   :custom
   (erc-nick "morgan")
   (erc-user-full-name "Morgan")
@@ -1429,6 +1426,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      "*Multiple Choice Help*"
      "*Native-compile-Log*"
      "*gcc-flymake*"
+     "*Org Clock*"
+     "*Bugs*" ;; debbugs
      ;; TODO: why does `log-edit-kill-buffer' hide this buffer instead of
      ;; killing it?
      "*log-edit-files*"
