@@ -185,6 +185,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         ("<remap> <scroll-up>" . Info-scroll-up)))
 
 (setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
+
+(add-to-list 'save-some-buffers-action-alist
+             (list "d"
+                   (lambda (buffer) (diff-buffer-with-file (buffer-file-name buffer)))
+                   "show diff between the buffer and its file"))
 ;;; Sensible Defaults Section Ends
 
 
@@ -1240,6 +1245,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         ("r" . image-rotate)
         ("<remap> <fit-window-to-buffer>" . doc-view-fit-window-to-page))
   :config
+  (defun doc-view-toggle-use-svg ()
+    "Sometimes SVG doesn't work."
+    (interactive nil doc-view-mode)
+    (setq doc-view-mupdf-use-svg (not doc-view-mupdf-use-svg)))
+
   (defun doc-view-invert-face ()
     "Applying dark theme to SVGs often hides stuff and looks wrong."
     (interactive nil doc-view-mode)
