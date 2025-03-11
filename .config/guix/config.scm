@@ -238,10 +238,10 @@
     (service avahi-service-type)
     ;; (udisks-service)
     (service upower-service-type)
-    ;; (accountsservice-service)
+    ;; (service accountsservice-service-type)
     ;; (service cups-pk-helper-service-type)
     ;; (service colord-service-type)
-    ;; (geoclue-service)
+    ;; (service geoclue-service-type)
     (service polkit-service-type)
     (service elogind-service-type
              (elogind-configuration
@@ -264,8 +264,9 @@
 
     (service x11-socket-directory-service-type)
 
-    (service pulseaudio-service-type)
-    (service alsa-service-type)
+    ;; I guess these aren't needed because I have pipewire in my home config
+    ;; (service pulseaudio-service-type)
+    ;; (service alsa-service-type)
 
     (modify-services
         %base-services
