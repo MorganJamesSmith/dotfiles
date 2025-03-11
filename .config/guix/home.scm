@@ -256,7 +256,7 @@ color-scheme='prefer-dark'\n"))
                      "\n"
                      'suffix)))
       (".config/mpv/mpv.conf"
-       ,(plain-file "mpv-config" "vo=dmabuf-wayland\nhwdec=auto-safe\n"))
+       ,(plain-file "mpv-config" "hwdec=auto-safe\n"))
 
       ;; Only download 1080p or lower.  Place in ~/downloads/videos with a
       ;; specific filename.  Grab English subtitles if we can.  Add
