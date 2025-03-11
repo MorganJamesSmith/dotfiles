@@ -105,7 +105,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; TODO: make this not jump my cursor around on refresh when window not active
 ;; (add-hook 'ibuffer-hook 'ibuffer-auto-mode) ;; auto-revert ibuffer
 (keymap-global-set "C-x C-b" #'ibuffer)
-;; Buffer-menu-group-by
 
 (setopt read-mail-command 'gnus)
 (setopt mail-user-agent 'gnus-user-agent)
@@ -661,7 +660,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                   (not
                    (member (file-name-nondirectory directory)
                            '(".stversions")))))))
-    (xref-show-xrefs (xref-matches-in-files regexp files) nil)))
+    (xref-show-xrefs (lambda () (xref-matches-in-files regexp files)) nil)))
 ;;; Org Section Ends
 
 
@@ -1370,7 +1369,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (setopt emms-player-list '(;; emms-player-mpd
                              emms-player-mpv))
   (setopt emms-player-mpd-music-directory (xdg-user-dir "MUSIC"))
+
+  (defun emms-info-file-name-base (track)
+    "The TRACK file base name."
+    (when (eq 'file (emms-track-type track))
+      (emms-track-set track 'info-title
+                      (file-name-base (emms-track-name track)))))
   (setopt emms-info-functions nil)
+  (push #'emms-info-file-name-base emms-info-functions)
+
   ;; (setopt emms-repeat-playlist t)
 
   ;; TODO: add normal mixer support to emms-volume-amixer-change.  Currently it

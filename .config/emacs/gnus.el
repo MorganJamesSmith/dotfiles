@@ -71,6 +71,8 @@
 ;; part of the same thread
 (setopt gnus-summary-gather-exclude-subject "^ *$\\|^...$\\|^(none)$")
 
+(setopt gnus-simplify-subject-functions (list #'gnus-simplify-subject-re #'gnus-simplify-all-whitespace))
+
 (defun mbsync-process-sentinel (_process change)
   "Run after I get mail from running mbsync.
 Use CHANGE to determine if an error has occured."
