@@ -27,6 +27,7 @@
 
 (define terminal-tools
   '("file" ; filetype checker
+    "ripgrep"
     "tree"))
 
 (define compression-tools

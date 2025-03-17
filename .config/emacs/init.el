@@ -823,6 +823,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (keymap-set grep-mode-map "C-c C-p" #'compilation-previous-file))
 
 (use-package xref
+  :custom
+  (xref-search-program 'ripgrep)
   :config
   ;; TODO: try to upstream these functions
   (defun xref-next-group-no-show ()
