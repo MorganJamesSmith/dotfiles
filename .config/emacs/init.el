@@ -401,7 +401,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :custom
   (org-agenda-sticky t)
   (org-agenda-prefix-format " ")
-  (org-agenda-format-date "%F %A")
+  (org-agenda-format-date "%F %a     (W%V)")
   (org-agenda-show-outline-path nil)
   (org-agenda-block-separator "")
   (org-agenda-scheduled-leaders '("" ""))
@@ -569,9 +569,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           ("w" "Weight"
            table-line (file+headline "wiki/morgan.org" "weight")
            "| %? | %U |" :jump-to-captured t :prepend t)
+          ("h" "headache"
+           table-line (file+headline "wiki/morgan.org" "headache")
+           "| %^{Intensity
+1: Slight pain
+2: Pain
+3: Trouble thinking
+4: Light sensitive
+5: Light and sound sensitive
+||1|2|3|4|5} | %U |" :prepend t :immediate-finish t)
           ("m" "Mood"
            table-line (file+headline "wiki/morgan.org" "mood")
-           "| %? | %U |" :jump-to-captured t :prepend t)
+           "| %? | %U |" :prepend t)
           ("e" "Energy"
            table-line (file+headline "wiki/morgan.org" "energy")
            "| %^{Energy level
@@ -620,7 +629,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
             (expand-file-name "agenda/events.org" org-directory)
             ;; (expand-file-name "agenda/timetracking.org" org-directory)
             (expand-file-name "agenda/todo.org" org-directory))))
-      (org-icalendar-combine-agenda-files))
+      (cl-letf (((symbol-function #'warning-suppress-p) #'always))
+        (org-icalendar-combine-agenda-files)))
+    (kill-buffer "*icalendar-errors*")
     (message "Updating org icalendar file")))
 
 (defun update-org-icalendar-timer-loop ()
@@ -665,8 +676,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; Programming Section Begins
-;; Ignore translation files
-(setopt project-vc-ignores (list "*.po"))
+(use-package project
+  :custom
+  ;; Ignore translation files
+  (project-vc-ignores (list "*.po"))
+  :config
+  (defun project-try-tmp (dir)
+    "Return a project if DIR in in /tmp."
+    (when (and (file-in-directory-p dir "/tmp/") (not (file-equal-p dir "/tmp/")))
+      (cons 'transient (concat "/tmp/" (nth 2 (file-name-split dir))))))
+  (add-to-list 'project-find-functions #'project-try-tmp t))
 
 (use-package elisp-mode :delight emacs-lisp-mode)
 (use-package eldoc :delight)
@@ -894,6 +913,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (ediff-diff-options "-w")
   (ediff-window-setup-function #'ediff-setup-windows-plain)
   (ediff-split-window-function #'split-window-horizontally))
+
+(use-package diff-mode
+  :bind
+  (:map diff-mode-map
+        ("C-c C-n" . diff-file-next)
+        ("C-c C-p" . diff-file-prev)))
 ;;; VC/Diffs Section Ends
 
 
@@ -1421,6 +1446,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (defun cleanup ()
   "Cleanup stuff."
   (interactive)
+  (setq debug-on-error nil)
+  (setq debug-on-quit nil)
+  (cancel-debug-on-entry)
+  (cancel-debug-on-variable-change)
+
   (save-some-buffers)
   (when (fboundp 'eglot-shutdown-all)
    (eglot-shutdown-all))
@@ -1449,7 +1479,17 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      ;; killing it?
      "*log-edit-files*"
      "*vc*"))
-  (setq values '()) ;; TODO: is this a good idea?
+  ;; Kill all eshell
+  (mapc
+   (lambda (buffer)
+     (when (buffer-local-value 'eshell-mode buffer)
+       (kill-buffer buffer)))
+   (buffer-list))
+  ;; De-duplicate HISTFILE
+  (with-current-buffer (find-file-noselect (getenv "HISTFILE"))
+    (delete-duplicate-lines (point-min) (point-max))
+    (save-buffer)
+    (kill-current-buffer))
   (native-compile-prune-cache)
   (url-cookie-delete-cookies)
   (url-gc-dead-buffers)
