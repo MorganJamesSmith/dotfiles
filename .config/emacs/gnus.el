@@ -25,6 +25,10 @@
 
 (setopt gnus-interactive-exit nil)
 
+(with-eval-after-load "gnus-art"
+  ;; git send-email --in-reply-to=message-id
+  (setopt gnus-visible-headers (concat gnus-visible-headers "\\|^Message-ID:")))
+
 ;; Always do wide replys
 (with-eval-after-load "gnus-sum"
   (keymap-set gnus-summary-mode-map "r" #'gnus-summary-very-wide-reply)
@@ -71,7 +75,9 @@
 ;; part of the same thread
 (setopt gnus-summary-gather-exclude-subject "^ *$\\|^...$\\|^(none)$")
 
-(setopt gnus-simplify-subject-functions (list #'gnus-simplify-subject-re #'gnus-simplify-all-whitespace))
+(with-eval-after-load "gnus-sum"
+  (setopt gnus-simplify-subject-functions (list #'gnus-simplify-subject-re
+                                                #'gnus-simplify-all-whitespace)))
 
 (defun mbsync-process-sentinel (_process change)
   "Run after I get mail from running mbsync.
