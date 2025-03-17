@@ -692,6 +692,18 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (add-hook 'ielm-mode-hook 'eldoc-mode)
 
+(defmacro profile (&rest body)
+  "Profile BODY."
+  `(progn
+     (let ((start-time (current-time)))
+       (profiler-start 'cpu)
+       (unwind-protect
+           (progn
+             ,@body)
+         (profiler-stop))
+       (profiler-report)
+       (time-to-seconds (time-since start-time)))))
+
 (add-hook 'prog-mode-hook #'elide-head-mode)
 
 ;; Handy keybinds are
