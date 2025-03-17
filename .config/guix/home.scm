@@ -169,6 +169,8 @@ fi
                      ("WGETRC" . "$XDG_CONFIG_HOME/wget/wgetrc")
                      ("_JAVA_OPTIONS" . "-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java")
 
+                     ("GTK_THEME" . "Adwaita:dark")
+
                      ("EDITOR" . "emacsclient")
                      ("HISTFILESIZE" . "100000")
                      ("HISTSIZE" . "100000")
@@ -204,9 +206,10 @@ gtk-application-prefer-dark-theme=1\n"))
        ,(plain-file "settings.ini" "[Settings]
 gtk-application-prefer-dark-theme=1\n"))
 
+      ;; Doesn't work due to dconf-service in system config.scm
       (".config/dconf/user.txt"
        ,(plain-file "dark-theme" "[org/gnome/desktop/interface]
-color-scheme='prefer-dark'\n"))
+color-scheme='prefer-dark'\ngtk-theme='Adwaita:dark'\n"))
 
       (".config/glib-2.0/settings/keyfile"
        ,(plain-file "keyfile" "[org/gnome/desktop/interface]

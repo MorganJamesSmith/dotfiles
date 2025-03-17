@@ -137,13 +137,21 @@
   (services
    (cons*
 
-    ;; Allow users to control their dconf config with a "user.txt" file
-    (simple-service
-     'dconf-config
-     etc-service-type
-     (list `("dconf/profile/user"
-             ,(plain-file "dconf-conf"
-                          "user-db:user\nservice-db:keyfile/user\n"))))
+    (service dconf-service-type
+             (list
+              (dconf-profile
+               (name "user")
+               ;; The "service-db" line should allow users to control their
+               ;; dconf config with a "user.txt" file but I was getting errors
+               ;; (content (list "user-db:user"
+               ;;                "system-db:user"
+               ;;                "service-db:user"))
+               (keyfile (dconf-keyfile
+                         (name "00-dark-theme")
+                         (content (list
+                                   "[org/gnome/desktop/interface]"
+                                   "color-scheme='prefer-dark'"
+                                   "gtk-theme='Adwaita:dark'")))))))
 
     (service earlyoom-service-type)
 
