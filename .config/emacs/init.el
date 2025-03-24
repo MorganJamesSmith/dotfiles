@@ -695,10 +695,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-to-list 'project-find-functions (project-root-dir "/tmp") t)
   (add-to-list 'project-find-functions (project-root-dir "/gnu/store") t))
 
-(use-package elisp-mode :delight emacs-lisp-mode)
-(use-package eldoc :delight)
 
-(add-hook 'ielm-mode-hook 'eldoc-mode)
+
+(use-package elisp-mode :delight emacs-lisp-mode)
+(use-package eldoc
+  :delight
+  :hook ielm-mode)
 
 (defmacro time-execution (&rest body)
   "Time how long it takes to run BODY."
@@ -731,8 +733,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :hook c-mode-common
   :functions ggtags-build-imenu-index
   :custom
+  (ggtags-use-sqlite3 t)
   (ggtags-enable-navigation-keys nil)
   :config
+  (setenv "GTAGSLABEL" "ctags")
   (add-hook
    'c-mode-common-hook
    (lambda ()
@@ -769,7 +773,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (((prog-mode conf-mode) . electric-layout-local-mode)
    ;; TODO: make it respect eshell prompt field
    ;; (add-to-list 'electric-pair-pairs '(?\' . ?\'))
-   ((prog-mode conf-mode) . electric-pair-local-mode)
+   ((prog-mode conf-mode comint-mode) . electric-pair-local-mode)
    ((prog-mode conf-mode) . electric-indent-local-mode)))
 
 (which-function-mode)
