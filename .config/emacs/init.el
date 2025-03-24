@@ -681,11 +681,19 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   ;; Ignore translation files
   (project-vc-ignores (list "*.po"))
   :config
-  (defun project-try-tmp (dir)
-    "Return a project if DIR in in /tmp."
-    (when (and (file-in-directory-p dir "/tmp/") (not (file-equal-p dir "/tmp/")))
-      (cons 'transient (concat "/tmp/" (nth 2 (file-name-split dir))))))
-  (add-to-list 'project-find-functions #'project-try-tmp t))
+  (defun project-root-dir (root)
+    "Return a function to set directories under ROOT to be a project."
+    (setq root (file-name-as-directory root))
+    (lambda (dir)
+      (when (and (file-in-directory-p dir root)
+                 (not (file-equal-p dir root)))
+        (cons 'transient
+              (file-name-as-directory
+               (file-name-concat root
+                                (car (file-name-split (file-relative-name dir root)))))))))
+
+  (add-to-list 'project-find-functions (project-root-dir "/tmp") t)
+  (add-to-list 'project-find-functions (project-root-dir "/gnu/store") t))
 
 (use-package elisp-mode :delight emacs-lisp-mode)
 (use-package eldoc :delight)
