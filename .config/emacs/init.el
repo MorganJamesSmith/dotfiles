@@ -1166,12 +1166,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   ;; XXX: doesn't error when set to nil and HISTFILE isn't set
   (eshell-history-file-name nil) ;; Pull history file from environment variables
   (eshell-history-append t)
-  (eshell-hist-ignoredups 'erase)
+  (eshell-hist-ignoredups t)
   (eshell-cp-overwrite-files nil)
   (eshell-mv-overwrite-files nil)
-  (eshell-destroy-buffer-when-process-dies t)
-  :config
-  (add-to-list 'eshell-modules-list 'eshell-tramp))
+  (eshell-destroy-buffer-when-process-dies t))
 
 (use-package eshell-syntax-highlighting
   :if EXTERNAL-PACKAGES?
