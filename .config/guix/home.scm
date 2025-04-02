@@ -3,6 +3,7 @@
  (gnu home services dict)
  (gnu home services fontutils)
  (gnu home services gnupg)
+ (gnu home services guix)
  (gnu home services mail)
  (gnu home services pm)
  (gnu home services shells)
@@ -22,6 +23,7 @@
  (gnu packages xdisorg)
  (gnu services)
  (gnu system shadow)
+ (guix channels)
  (guix gexp))
 
 (home-environment
@@ -49,6 +51,19 @@
  (services
   (cons*
    (include "/home/pancake/documents/configs/private/home-services.scm")
+
+   (simple-service 'nonguix-channel-service
+                   home-channels-service-type
+                   (list
+                    (channel
+                     (name 'nonguix)
+                     (url "https://gitlab.com/nonguix/nonguix")
+                     ;; Enable signature verification:
+                     (introduction
+                      (make-channel-introduction
+                       "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
+                       (openpgp-fingerprint
+                        "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))))
 
    (service home-shepherd-service-type)
    (service home-dbus-service-type)
