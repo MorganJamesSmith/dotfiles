@@ -397,7 +397,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package org-agenda
   :bind
   (("C-c a" . (lambda () (interactive) (org-agenda nil "o")))
-   ("C-c l" . (lambda () (interactive) (org-agenda nil "l"))))
+   ("C-c l" . (lambda () (interactive) (org-agenda nil "l")))
+   ("C-c t" . (lambda () (interactive) (org-agenda nil "p"))))
   :custom
   (org-agenda-sticky t)
   (org-agenda-prefix-format " ")
@@ -443,6 +444,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (org-agenda-show-all-dates nil)
          (org-agenda-show-log 'clockcheck)
          (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory)))))))
+     ("p" "All TODO Items"
+      ((tags-todo
+        "-TODO=\"HABIT\"-goals"
+        ((org-agenda-prefix-format "%-4.4T: %l")
+         (org-agenda-todo-keyword-format "%-1s")
+         (org-agenda-sorting-strategy '(category-keep))))))
      ("o" "My Agenda"
       (
        (tags-todo
