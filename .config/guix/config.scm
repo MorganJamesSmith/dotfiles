@@ -105,7 +105,7 @@
           (target "guix-root")
           (type luks-device-mapping))))
 
-  (swap-devices (list (swap-space (target "/swapfile")
+  (swap-devices (list (swap-space (target "/swap/swapfile")
                                   (dependencies mapped-devices))))
 
   (file-systems (append
