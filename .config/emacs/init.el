@@ -799,7 +799,34 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :hook ((gnus-mode gnus-summary-mode gnus-article-mode log-view-mode debbugs-browse-mode)
          (prog-mode . bug-reference-prog-mode))
   :custom
-  (bug-reference-url-format "https://debbugs.gnu.org/%s"))
+  (bug-reference-url-format "https://debbugs.gnu.org/%s")
+  ;; Take from [[info:guix#Viewing Bugs within Emacs]]
+  (bug-reference-bug-regexp
+   (rx (group (or (seq word-boundary
+                       (or (seq (char "Bb") "ug"
+                                (zero-or-one " ")
+                                (zero-or-one "#"))
+                           (seq (char "Pp") "atch"
+                                (zero-or-one " ")
+                                "#")
+                           (seq (char "Ff") "ixes"
+                                (zero-or-one ":")
+                                (zero-or-one " ") "#")
+                           (seq "RFE"
+                                (zero-or-one " ") "#")
+                           (seq "PR "
+                                (one-or-more (char "a-z+-")) "/"))
+                       (group (one-or-more (char "0-9"))
+                              (zero-or-one
+                               (seq "#" (one-or-more
+                                         (char "0-9"))))))
+                  (seq (? "<") "https://bugs.gnu.org/"
+                       (group-n 2 (one-or-more (char "0-9")))
+                       (? ">"))
+                  (seq (? "<") "https://issues.guix.gnu.org/"
+                       (? "issue/")
+                       (group-n 2 (one-or-more (char "0-9")))
+                       (? ">")))))))
 
 (use-package debbugs-gnu
   :if EXTERNAL-PACKAGES?
