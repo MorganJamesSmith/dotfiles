@@ -18,7 +18,6 @@
  (gnu packages gnupg)
  (gnu packages librewolf)
  (gnu packages linux)
- (gnu packages qt)
  (gnu packages wm)
  (gnu packages xdisorg)
  (gnu services)
@@ -37,17 +36,11 @@
             xdg-desktop-portal
             xdg-desktop-portal-wlr
             xdg-desktop-portal-gtk
+            xdg-utils
             mako
             font-openmoji ; emoji
             font-wqy-zenhei ; Asian
-            qtbase
-            qtwayland
-            xdg-utils
-            librewolf
-            ;; TODO: Can't add these to profile.  See https://issues.guix.gnu.org/65508
-            ;; qtbase-5
-            ;; qtwayland-5
-            ))
+            librewolf))
  (services
   (cons*
    (include "/home/pancake/documents/configs/private/home-services.scm")
