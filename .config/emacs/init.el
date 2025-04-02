@@ -674,7 +674,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-to-list 'project-find-functions (project-root-dir "/tmp") t)
   (add-to-list 'project-find-functions (project-root-dir "/gnu/store") t))
 
-
+(use-package proof ;; Proof General
+  :custom
+  (proof-electric-terminator-enable t))
 
 (use-package elisp-mode :delight emacs-lisp-mode)
 (use-package eldoc

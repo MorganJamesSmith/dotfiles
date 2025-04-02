@@ -74,7 +74,10 @@
      "mupdf"       ; allows Emacs to preview EPUB
      "ghostscript" ; allows Emacs to preview PostScript
      "djvulibre"   ; allows Emacs to preview djvu files
-     "libreoffice") ; allows Emacs to preview docx files
+     "libreoffice" ; allows Emacs to preview docx files
+
+     "proof-general" ; elisp package not pre-fixed with "emacs-"
+     "coq")
    (map
     (lambda (x) (string-append "emacs-" x))
     '(
