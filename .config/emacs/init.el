@@ -837,8 +837,23 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt scheme-program-name "guile")
 (setopt scheme-mit-dialect nil)
-(setopt geiser-mode-auto-p nil)
-(defalias 'pcomplete/guix #'ignore) ;; Freezes up eshell
+
+(use-package geiser
+  :if EXTERNAL-PACKAGES?
+  :custom
+  (geiser-repl-history-filename
+   (expand-file-name "geiser_history" user-emacs-directory))
+  (geiser-mode-smart-tab-p t)
+  (geiser-debug-jump-to-debug nil)
+  (geiser-debug-show-debug nil)
+  (geiser-guile-warning-level 'high))
+
+(use-package guix-devel
+  :if EXTERNAL-PACKAGES?
+  :hook scheme-mode
+  :config
+  (defalias 'pcomplete/guix #'ignore)) ;; Freezes up eshell
+
 (use-package arei
   :if EXTERNAL-PACKAGES?)
 
