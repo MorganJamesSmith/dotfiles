@@ -10,6 +10,8 @@
 
 ;;; Code:
 
+(require 'emacs-secrets "/home/pancake/documents/configs/private/emacs-secrets.el")
+
 (autoload 'xdg-user-dir "xdg")
 (autoload 'xdg-cache-home "xdg")
 
@@ -263,36 +265,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Org Section Begins
 (setopt org-fast-tag-selection-single-key t)
-(setopt org-tag-alist '((:startgrouptag)
-                        ("computer")
-                        (:grouptags)
-                        ("research")
-                        (:endgrouptag)
-                        (:startgrouptag)
-                        ("event" . ?e)
-                        (:grouptags)
-                        ("programming_social")
-                        ("shopping")
-                        ("festival")
-                        (:endgrouptag)
-                        (:startgroup)
-                        ("goals" . ?g)
-                        (:grouptags)
-                        ("annual_goal")
-                        ("monthly_goal")
-                        ("weekly_goal")
-                        ("daily_goal" . ?d)
-                        (:endgroup)
-                        (:startgrouptag)
-                        ("health")
-                        (:grouptags)
-                        ;; ("sleep")
-                        ("exercise")
-                        ("food")
-                        ("mental_health")
-                        (:endgrouptag)
-                        ("tinkering" . ?t)
-                        ("ignore")))
 
 (use-package ox-html
   :custom

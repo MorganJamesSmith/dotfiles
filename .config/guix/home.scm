@@ -48,6 +48,8 @@
             ))
  (services
   (cons*
+   (include "/home/pancake/documents/configs/private/home-services.scm")
+
    (service home-shepherd-service-type)
    (service home-dbus-service-type)
    (service home-bash-service-type)
@@ -56,23 +58,6 @@
    (service home-syncthing-service-type)
 
    (service home-pipewire-service-type)
-
-   (service home-msmtp-service-type
-            (home-msmtp-configuration
-             (defaults
-               (msmtp-configuration
-                (port 587)))
-             (accounts
-              (list
-               (msmtp-account
-                (name "default")
-                (configuration
-                 (msmtp-configuration
-                  (auth? #f)
-                  (tls? #f)
-                  (from "local")
-                  (extra-content "protocol lmtp
-socket /var/run/dovecot/lmtp"))))))))
 
    (service home-gpg-agent-service-type
             (home-gpg-agent-configuration
