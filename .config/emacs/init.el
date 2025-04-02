@@ -814,11 +814,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt gdb-many-windows t)
 
+(use-package bug-reference
+  :hook ((gnus-mode gnus-summary-mode gnus-article-mode log-view-mode debbugs-browse-mode)
+         (prog-mode . bug-reference-prog-mode))
+  :custom
+  (bug-reference-url-format "https://debbugs.gnu.org/%s"))
+
 (use-package debbugs-gnu
   :if EXTERNAL-PACKAGES?
-  :hook (log-view-mode . bug-reference-mode)
   :custom
-  (bug-reference-url-format "https://debbugs.gnu.org/%s")
   ;; Show feature requests.
   (debbugs-gnu-default-severities
    '("serious" "important" "normal" "minor" "wishlist")))
@@ -991,9 +995,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; Auto-complete/Hints Section Begins
-
-;; Ignore compiled guile files
-(add-to-list 'completion-ignored-extensions ".go")
 
 (global-completion-preview-mode)
 (setopt completion-preview-exact-match-only t)
