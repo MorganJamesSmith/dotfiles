@@ -12,6 +12,7 @@
  (gnu home services syncthing)
  (gnu home services xdg)
  (gnu home services)
+ (gnu packages chromium)
  (gnu packages fonts)
  (gnu packages freedesktop)
  (gnu packages glib)
@@ -40,7 +41,8 @@
             mako
             font-openmoji ; emoji
             font-wqy-zenhei ; Asian
-            librewolf))
+            librewolf
+            ungoogled-chromium/wayland))
  (services
   (cons*
    (include "/home/pancake/documents/configs/private/home-services.scm")
