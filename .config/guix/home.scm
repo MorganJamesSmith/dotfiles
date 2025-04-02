@@ -188,14 +188,27 @@ fi
                              (@ (name "style"))
                              (string "Black"))))))
 
-   ;; Maybe use this instead: home-xdg-configuration-files-service-type
+   (service home-xdg-configuration-files-service-type
+            `(("gdb/gdbinit" ,(plain-file
+                               (plain-file-name %default-gdbinit)
+                               (string-append (plain-file-content %default-gdbinit)
+                                              (string-join
+                                               (list
+                                                ""
+                                                "set confirm no"
+                                                ;; XXX: Do I need to `mkdir -p ~/.cache/gdb`?
+                                                "set history filename ~/.cache/gdb/history"
+                                                "set history save on"
+                                                "set history size unlimited"
+                                                "")
+                                               "\n"))))
+             ("nano/nanorc" ,%default-nanorc)))
+
    (simple-service
     'dotfiles
     home-files-service-type
     `((".guile" ,%default-dotguile)
       (".Xdefaults" ,%default-xdefaults)
-      (".config/gdb/gdbinit" ,%default-gdbinit)
-      (".config/nano/nanorc" ,%default-nanorc)
 
       ;; Dark theme
       (".config/gtk-3.0/settings.ini"
