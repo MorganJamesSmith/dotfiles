@@ -56,7 +56,8 @@
 (setopt gnus-summary-goto-unread 'never)
 (setopt gnus-summary-stop-at-end-of-message t)
 
-(setopt gnus-treat-unsplit-urls t)
+;; Messes up the display of diffs
+;; (setopt gnus-treat-unsplit-urls t)
 
 (setopt gnus-treat-display-smileys nil)
 
@@ -86,7 +87,7 @@ Use CHANGE to determine if an error has occured."
       (message "mbsync: an error has occured: '%s'" change)
     (with-current-buffer "*mbsync*"
       (goto-char (point-min))
-      (search-forward "Processed")
+      (search-forward "Channels")
       (message (string-trim
                 (buffer-substring-no-properties
                  (match-beginning 0) (point-max))))
