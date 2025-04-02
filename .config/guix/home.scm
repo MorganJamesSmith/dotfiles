@@ -188,51 +188,46 @@ fi
                              (@ (name "style"))
                              (string "Black"))))))
 
-   (service home-xdg-configuration-files-service-type
-            `(("gdb/gdbinit" ,(plain-file
-                               (plain-file-name %default-gdbinit)
-                               (string-append (plain-file-content %default-gdbinit)
-                                              (string-join
-                                               (list
-                                                ""
-                                                "set confirm no"
-                                                ;; XXX: Do I need to `mkdir -p ~/.cache/gdb`?
-                                                "set history filename ~/.cache/gdb/history"
-                                                "set history save on"
-                                                "set history size unlimited"
-                                                "")
-                                               "\n"))))
-             ("nano/nanorc" ,%default-nanorc)))
-
-   (simple-service
-    'dotfiles
-    home-files-service-type
-    `((".guile" ,%default-dotguile)
-      (".Xdefaults" ,%default-xdefaults)
+   (service
+    home-xdg-configuration-files-service-type
+    `(("gdb/gdbinit" ,(plain-file
+                       (plain-file-name %default-gdbinit)
+                       (string-append (plain-file-content %default-gdbinit)
+                                      (string-join
+                                       (list
+                                        ""
+                                        "set confirm no"
+                                        ;; XXX: Do I need to `mkdir -p ~/.cache/gdb`?
+                                        "set history filename ~/.cache/gdb/history"
+                                        "set history save on"
+                                        "set history size unlimited"
+                                        "")
+                                       "\n"))))
+      ("nano/nanorc" ,%default-nanorc)
 
       ;; Dark theme
-      (".config/gtk-3.0/settings.ini"
+      ("gtk-3.0/settings.ini"
        ,(plain-file "settings.ini" "[Settings]
 gtk-application-prefer-dark-theme=1\n"))
 
-      (".config/gtk-4.0/settings.ini"
+      ("gtk-4.0/settings.ini"
        ,(plain-file "settings.ini" "[Settings]
 gtk-application-prefer-dark-theme=1\n"))
 
       ;; Doesn't work due to dconf-service in system config.scm
-      (".config/dconf/user.txt"
+      ("dconf/user.txt"
        ,(plain-file "dark-theme" "[org/gnome/desktop/interface]
 color-scheme='prefer-dark'\ngtk-theme='Adwaita:dark'\n"))
 
-      (".config/glib-2.0/settings/keyfile"
+      ("glib-2.0/settings/keyfile"
        ,(plain-file "keyfile" "[org/gnome/desktop/interface]
 color-scheme='prefer-dark'\n"))
 
       ;; Prevent wget from creating history file in home directory
-      (".config/wget/wgetrc"
+      ("wget/wgetrc"
        ,(plain-file "wgetrc" "hsts-file=~/.cache/wget-hsts\n"))
 
-      (".config/duc/ducrc"
+      ("duc/ducrc"
        ,(plain-file "ducrc"
                     (string-join
                      '("[index]"
@@ -243,7 +238,7 @@ color-scheme='prefer-dark'\n"))
                      'suffix)))
 
       ;; Play audio sound on notification
-      (".config/mako/config"
+      ("mako/config"
        ,(mixed-text-file "mako-config"
                          "on-notify=exec "
                          alsa-utils "/bin/aplay"
@@ -251,18 +246,18 @@ color-scheme='prefer-dark'\n"))
                          "ignore-timeout=1"))
 
       ;; Plain black lockscreen
-      (".config/swaylock/config"
+      ("swaylock/config"
        ,(plain-file "swaylock-config" "color=000000FF\nscaling=solid_color\nindicator-idle-visible\n"))
 
       ;; Ledger
-      (".config/ledger/ledgerrc"
+      ("ledger/ledgerrc"
        ,(mixed-text-file "ledgerrc"
                          "--exchange $
 --date-format %Y-%m-%d
 --pedantic\n"))
 
       ;; Move between chapters using '(' and ')'
-      (".config/mpv/input.conf"
+      ("mpv/input.conf"
        ,(plain-file "mpv-input-config"
                     (string-join
                      '(") add chapter 1"
@@ -271,13 +266,13 @@ color-scheme='prefer-dark'\n"))
                        "h cycle-values audio-channels auto-safe mono")
                      "\n"
                      'suffix)))
-      (".config/mpv/mpv.conf"
+      ("mpv/mpv.conf"
        ,(plain-file "mpv-config" "hwdec=auto-safe\n"))
 
       ;; Only download 1080p or lower.  Place in ~/downloads/videos with a
       ;; specific filename.  Grab English subtitles if we can.  Add
       ;; sponderblock metadata
-      (".config/yt-dlp/config"
+      ("yt-dlp/config"
        ,(plain-file "yt-dlp-config"
                     "\
 -f bestvideo[height<=?1080]+bestaudio/best
@@ -288,5 +283,12 @@ color-scheme='prefer-dark'\n"))
 --write-sub
 --sub-lang en
 --sponsorblock-mark all\n"))))
+
+   (simple-service
+    'dotfiles
+    home-files-service-type
+    `((".guile" ,%default-dotguile)
+      (".Xdefaults" ,%default-xdefaults)))
+
 
    %base-home-services)))
