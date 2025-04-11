@@ -602,12 +602,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                        (file-attributes org-icalendar-combined-agenda-file)))))
     (let ((org-export-with-broken-links t)
           (org-agenda-files
-           (list
-            (expand-file-name "contacts.org" org-directory)
-            ;; (expand-file-name "agenda/daily.org" org-directory)
-            (expand-file-name "agenda/events.org" org-directory)
-            ;; (expand-file-name "agenda/timetracking.org" org-directory)
-            (expand-file-name "agenda/todo.org" org-directory))))
+           (remove (expand-file-name "agenda/timetracking.org" org-directory)
+                   org-agenda-files)))
       (cl-letf (((symbol-function #'warning-suppress-p) #'always))
         (org-icalendar-combine-agenda-files)))
     (kill-buffer "*icalendar-errors*")
@@ -1072,7 +1068,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Send user agent as many sites require it
 (setopt url-privacy-level '(email os emacs lastloc cookies))
 
-;; TODO: look at `browse-url-transform-alist' in emacs master
 (setopt eww-use-browse-url "\\`\\(?:gemini\\|gopher\\|mailto\\|magnet\\):\\|\\(youtube.com\\|youtu.be\\)\\|\\.\\(?:mp[34]\\|torrent\\)\\'")
 (setopt browse-url-handlers
         '(("\\`\\(gemini\\|gopher\\)://" .
@@ -1253,7 +1248,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   ;; guix system bin
   (add-to-list 'tramp-remote-path "/run/current-system/profile/bin")
-  (add-to-list 'tramp-remote-path "/run/setuid-programs"))
+  (add-to-list 'tramp-remote-path "/run/privileged/bin"))
 
 (setopt time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
 (add-hook 'before-save-hook 'time-stamp)
@@ -1535,12 +1530,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      ;; killing it?
      "*log-edit-files*"
      "*vc*"))
-  ;; Kill all eshell
-  (mapc
-   (lambda (buffer)
-     (when (buffer-local-value 'eshell-mode buffer)
-       (kill-buffer buffer)))
-   (buffer-list))
   ;; De-duplicate HISTFILE
   (with-current-buffer (find-file-noselect (getenv "HISTFILE"))
     (delete-duplicate-lines (point-min) (point-max))
