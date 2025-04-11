@@ -40,8 +40,8 @@ output * scale 1
 ### Idle configuration
 # Use idlehint to alert elogind which will do the suspend and lock
 exec swayidle -w idlehint 300
-# Tell elogind how to lock
-exec xss-lock -- swaylock
+# Tell elogind how to lock (mute audio first)
+exec xss-lock -- sh -c 'pactl set-sink-mute @DEFAULT_SINK@ 1; swaylock'
 
 ### Input configuration
 input type:keyboard {
@@ -95,7 +95,7 @@ input 2689:517:CHESEN_PS2_to_USB_Converter_Mouse
     # mouse button for dragging.
     floating_modifier $mod normal
 
-    bindsym $mod+x exec swaylock
+    bindsym $mod+x exec loginctl lock-session
 
     # Reload the configuration file
     bindsym $mod+Shift+c reload
