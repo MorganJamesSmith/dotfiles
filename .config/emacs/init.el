@@ -1494,7 +1494,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (interactive)
   (occur "[^[:ascii:]]"))
 
-(defun cleanup ()
+(defun cleanup (&rest _ignore)
   "Cleanup stuff."
   (interactive)
   (setq debug-on-error nil)
@@ -1502,7 +1502,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (cancel-debug-on-entry)
   (cancel-debug-on-variable-change)
 
-  (save-some-buffers)
+  (save-some-buffers (not (called-interactively-p 'any)))
   (when (fboundp 'eglot-shutdown-all)
    (eglot-shutdown-all))
   (mapc #'kill-buffer (match-buffers "^ \\*diff-syntax"))
@@ -1540,6 +1540,31 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (url-gc-dead-buffers)
   (org-persist-gc)
   (garbage-collect))
+
+(defun register-cleanup-dbus ()
+  "Run cleanup function on lock, sleep, and shutdown."
+ (when (featurep 'dbusbind)
+  (require 'dbus)
+  (dbus-register-signal :system
+                        "org.freedesktop.login1"
+                        ;; TODO: Hard coded c1 session
+                        "/org/freedesktop/login1/session/c1"
+                        "org.freedesktop.login1.Session"
+                        "Lock"
+                        #'cleanup)
+  (dbus-register-signal :system
+                        "org.freedesktop.login1"
+                        "/org/freedesktop/login1"
+                        "org.freedesktop.login1.Manager"
+                        "PrepareForSleep"
+                        #'cleanup)
+  (dbus-register-signal :session
+                        "org.freedesktop.login1"
+                        "/org/freedesktop/login1"
+                        "org.freedesktop.login1.Manager"
+                        "PrepareForShutdown"
+                        #'cleanup)))
+(add-hook 'emacs-startup-hook 'register-cleanup-dbus)
 
 (use-package viper
   :if nil

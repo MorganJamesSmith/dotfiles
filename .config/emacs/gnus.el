@@ -23,6 +23,11 @@
 
 (setopt gnus-dbus-close-on-sleep t)
 
+(with-eval-after-load "gnus-start"
+  ;; Just close down gnus after it's shutdown via dbus
+  (add-function :after (symbol-function #'gnus-close-all-servers)
+                #'exit-gnus-on-exit))
+
 (setopt gnus-interactive-exit nil)
 
 (with-eval-after-load "gnus-art"
