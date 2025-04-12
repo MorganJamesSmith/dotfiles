@@ -186,11 +186,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         ("<remap> <scroll-up>" . Info-scroll-up)))
 
 (setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
-
-(add-to-list 'save-some-buffers-action-alist
-             (list "d"
-                   (lambda (buffer) (diff-buffer-with-file (buffer-file-name buffer)))
-                   "show diff between the buffer and its file"))
 ;;; Sensible Defaults Section Ends
 
 
@@ -321,20 +316,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt outline-minor-mode-cycle t)
 
-(defun org-heading-set-created-property ()
-  "Set the CREATED property of a heading."
-  (org-set-property
-   "CREATED"
-   (org-element-interpret-data
-    (org-timestamp-from-time (current-time) t t))))
-
-(add-hook 'org-insert-heading-hook #'org-heading-set-created-property)
-
 (use-package org-indent
+  ;; If this every gets accidentally loaded, immediately disable it
   :defer t
   :functions org-indent-mode
   :config (org-indent-mode -1))
-
 
 ;; For when I use org-babel to create images
 (autoload 'org-link-preview-refresh "org-compat")
@@ -604,8 +590,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           (org-agenda-files
            (remove (expand-file-name "agenda/timetracking.org" org-directory)
                    org-agenda-files)))
-      (cl-letf (((symbol-function #'warning-suppress-p) #'always))
-        (org-icalendar-combine-agenda-files)))
+      (org-icalendar-combine-agenda-files))
     (kill-buffer "*icalendar-errors*")
     (message "Updating org icalendar file")))
 
@@ -652,6 +637,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Programming Section Begins
 (use-package project
+  ;; dumb autoload to avoid warnings
+  :autoload project-root-dir
   :custom
   ;; Ignore translation files
   (project-vc-ignores (list "*.po"))
@@ -773,22 +760,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package display-line-numbers
   :hook (prog-mode conf-mode))
 
-(defun debbugs-gnu-guix ()
-  "List Guix issues."
-  (interactive)
-  (debbugs-gnu '("serious" "important" "normal")
-               '("guix" "guix-patches")
-               nil
-               t))
-
-(defun debbugs-gnu-guile ()
-  "List guile issues."
-  (interactive)
-  (debbugs-gnu '("serious" "important" "normal")
-               '("guile")
-               nil
-               t))
-
 (setopt gdb-many-windows t)
 
 (use-package bug-reference
@@ -826,10 +797,29 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package debbugs-gnu
   :if EXTERNAL-PACKAGES?
+  :commands debbugs-gnu
   :custom
+  ;; seems to cause performance issues maybe?
+  (debbugs-show-progress nil)
   ;; Show feature requests.
   (debbugs-gnu-default-severities
    '("serious" "important" "normal" "minor" "wishlist")))
+
+(defun debbugs-gnu-guix ()
+  "List Guix issues."
+  (interactive)
+  (debbugs-gnu '("serious" "important" "normal")
+               '("guix" "guix-patches")
+               nil
+               t))
+
+(defun debbugs-gnu-guile ()
+  "List guile issues."
+  (interactive)
+  (debbugs-gnu '("serious" "important" "normal")
+               '("guile")
+               nil
+               t))
 
 (setopt scheme-program-name "guile")
 (setopt scheme-mit-dialect nil)
@@ -867,41 +857,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :delight yas-minor-mode
   :hook ((prog-mode conf-mode text-mode) . yas-minor-mode))
 
-(use-package grep
-  :custom
-  (grep-highlight-matches 'always)
-  (grep-use-headings t)
-  :config
-  (keymap-set grep-mode-map "C-c C-n" #'compilation-next-file)
-  (keymap-set grep-mode-map "C-c C-p" #'compilation-previous-file))
-
-(use-package xref
-  :custom
-  (xref-search-program 'ripgrep)
-  :config
-  ;; TODO: try to upstream these functions
-  (defun xref-next-group-no-show ()
-    "Move to the first item of the next xref group but don't display its source."
-    (interactive)
-    (xref--search-property 'xref-group)
-    (xref--search-property 'xref-item))
-
-  (defun xref-prev-group-no-show ()
-    "Move to the first item of the previous xref group but don't display its source."
-    (interactive)
-    ;; Search for the xref group of the current item, provided that the
-    ;; point is not already in an xref group.
-    (unless (plist-member (text-properties-at (point)) 'xref-group)
-      (xref--search-property 'xref-group t))
-    ;; Search for the previous xref group.
-    (xref--search-property 'xref-group t)
-    (xref--search-property 'xref-item))
-
-  ;; TODO: tell upstream to rename this to an external name
-  (keymap-set xref--xref-buffer-mode-map "C-c C-n" #'xref-next-group-no-show)
-  (keymap-set xref--xref-buffer-mode-map "C-c C-p" #'xref-prev-group-no-show))
-
 (use-package compile
+  :commands compilation-next-file compilation-previous-file
+  ;; dumb autoload to avoid warnings
+  :autoload elogind-inhibit-compilation elogind-inhibit-kill
   :custom
   (compilation-max-output-line-length nil)
   (compilation-ask-about-save nil)
@@ -940,6 +899,44 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                      buffer-file-name)
                " ")))
 (add-hook 'emacs-lisp-mode-hook #'set-emacs-lisp-compile-command)
+
+(use-package grep
+  :custom
+  (grep-highlight-matches 'always)
+  (grep-use-headings t)
+  :config
+  (keymap-set grep-mode-map "C-c C-n" #'compilation-next-file)
+  (keymap-set grep-mode-map "C-c C-p" #'compilation-previous-file))
+
+(use-package xref
+  :autoload xref--search-property
+  ;; dumb autoload to avoid warnings
+  xref-next-group-no-show xref-prev-group-no-show
+  :custom
+  (xref-search-program 'ripgrep)
+  :config
+  ;; TODO: try to upstream these functions
+  (defun xref-next-group-no-show ()
+    "Move to the first item of the next xref group but don't display its source."
+    (interactive)
+    (xref--search-property 'xref-group)
+    (xref--search-property 'xref-item))
+
+  (defun xref-prev-group-no-show ()
+    "Move to the first item of the previous xref group but don't display its source."
+    (interactive)
+    ;; Search for the xref group of the current item, provided that the
+    ;; point is not already in an xref group.
+    (unless (plist-member (text-properties-at (point)) 'xref-group)
+      (xref--search-property 'xref-group t))
+    ;; Search for the previous xref group.
+    (xref--search-property 'xref-group t)
+    (xref--search-property 'xref-item))
+
+  ;; TODO: tell upstream to rename this to an external name
+  (keymap-set xref--xref-buffer-mode-map "C-c C-n" #'xref-next-group-no-show)
+  (keymap-set xref--xref-buffer-mode-map "C-c C-p" #'xref-prev-group-no-show))
+
 ;;; Programming Section Ends
 
 
@@ -1204,6 +1201,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt comint-pager "cat")
 
 (use-package dired
+  :commands dired-goto-file
   :bind
   (:map dired-mode-map
         ("C-c e a" . emms-add-dired)
@@ -1223,6 +1221,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (dired-create-destination-dirs 'ask)
   (wdired-allow-to-change-permissions t))
 
+(autoload 'image-dired-original-file-name "image-dired-util")
+(autoload 'image-dired-associated-dired-buffer "image-dired-util")
 (use-package image-dired
   :functions dired-do-rename image-dired-rename-file
   :defines ido-use-filename-at-point
@@ -1426,8 +1426,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (repeat-mode 1)
 
 ;;; EMMS
+(autoload 'emms-volume-pulse-change "emms-volume-pulse")
+(autoload 'emms-player-simple-regexp "emms-player-simple")
+(autoload 'emms-add-playlist "emms-source-playlist")
+(defvar emms-info-functions)
 (use-package emms
   :if EXTERNAL-PACKAGES?
+  :commands emms-stop emms-playlist-current-clear emms-shuffle emms-start
+  :autoload emms-track-type emms-track-set emms-track-name
   :bind
   (("C-c p"     . emms-playlist-mode-go)
    ("s-p"       . emms-pause)
@@ -1438,6 +1444,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package emms-setup
   :after emms
+  :autoload emms-all
+  ;; dumb autoload to avoid warnings
+  emms-info-file-name-base
   :config
   (emms-all)
 
@@ -1470,7 +1479,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
            "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"
            "opus" "m4a" "webm")))
 
-
 (defun music-setup ()
   "Setup my music."
   (interactive)
@@ -1494,6 +1502,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (interactive)
   (occur "[^[:ascii:]]"))
 
+(autoload 'url-cookie-delete-cookies "url-cookie")
+(autoload 'url-gc-dead-buffers "url")
+(autoload 'org-persist-gc "org-persist")
 (defun cleanup (&rest _ignore)
   "Cleanup stuff."
   (interactive)
@@ -1541,10 +1552,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-persist-gc)
   (garbage-collect))
 
+(autoload 'dbus-register-signal "dbus")
 (defun register-cleanup-dbus ()
   "Run cleanup function on lock, sleep, and shutdown."
  (when (featurep 'dbusbind)
-  (require 'dbus)
   (dbus-register-signal :system
                         "org.freedesktop.login1"
                         ;; TODO: Hard coded c1 session
