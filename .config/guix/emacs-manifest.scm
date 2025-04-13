@@ -106,7 +106,6 @@
       "pinentry"
       "rainbow-delimiters"
       "scad-mode"
-      "stgit"
       "transmission"
       "vterm"
       "ws-butler"

@@ -16,8 +16,7 @@
 (define programming
   '("global"
     "git"
-    "git:send-email"
-    "stgit"))
+    "git:send-email"))
 
 (define email
   '("msmtp" ; sending emails
