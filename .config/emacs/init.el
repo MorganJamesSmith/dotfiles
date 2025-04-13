@@ -971,8 +971,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (:map diff-mode-map
         ("C-c C-n" . diff-file-next)
         ("C-c C-p" . diff-file-prev)))
-
-(use-package stgit)
 ;;; VC/Diffs Section Ends
 
 
