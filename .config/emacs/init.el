@@ -10,10 +10,8 @@
 
 ;;; Code:
 
+(require 'xdg)
 (require 'emacs-secrets "/home/pancake/documents/configs/private/emacs-secrets.el")
-
-(autoload 'xdg-user-dir "xdg")
-(autoload 'xdg-cache-home "xdg")
 
 (defconst EXTERNAL-PACKAGES? (not (eq system-type 'android)))
 
@@ -54,9 +52,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         (thread-yield)
         (sit-for 0.01)))))
 
-;;; Make buffers appear where I want them to
-(setopt display-buffer-alist
-        (list (list shell-command-buffer-name-async #'display-buffer-no-window)))
 (setopt async-shell-command-buffer 'new-buffer)
 
 ;;; Optimization Section Begins
@@ -72,9 +67,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; Not entirely sure what this does.  Does it affect the system clipboard?
 (setopt select-active-regions nil)
-
-;; Not sure what this does either
-(setopt overriding-text-conversion-style nil)
 
 ;; Only matters on multi-user systems
 (setopt create-lockfiles nil)
@@ -135,7 +127,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-hook 'emacs-startup-hook 'gnus-read-init-file))
 (setopt mail-source-directory (create-directory "Mail" gnus-home-directory))
 
-(add-hook 'message-mode-hook 'footnote-mode)
 (setopt mm-uu-hide-markers nil)
 (setopt mml-attach-file-at-the-end t)
 
@@ -171,7 +162,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt translate-upper-case-key-bindings nil)
 
-(setopt minibuffer-eldef-shorten-default t)
+(setopt minibuffer-default-prompt-format " [%s]")
 (minibuffer-electric-default-mode)
 (setopt extended-command-suggest-shorter nil)
 (setopt kill-do-not-save-duplicates t)
@@ -1376,10 +1367,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                         (mode . eww-history-mode)
                         (mode . eww-bookmark-mode)))
            ("agenda" (or
-                      (and
-                       (filename . "/agenda/")
-                       (mode . org-mode))
-                      (filename . "contacts.org")
+                      ,@(mapcar (lambda (file) `(filename . ,file)) org-agenda-files)
                       (mode . diary-mode)
                       (mode . org-agenda-mode)))
            ("dired" (mode . dired-mode))
