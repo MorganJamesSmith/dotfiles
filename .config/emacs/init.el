@@ -504,6 +504,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (org-clock-persistence-insinuate)
 
 (use-package org-clock
+  :custom
+  (org-clock-resolve-expert t)
   :config
   ;; This sorting doesn't work if there are multiple un-compacted levels.  But
   ;; as far as I can tell there is no built-in way to sort in that scenario
@@ -514,7 +516,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (plist-put org-clocktable-defaults :narrow '12!)
   (plist-put org-clocktable-defaults :formula '%)
   (plist-put org-clocktable-defaults :match "-ignore")
-  (plist-put org-clocktable-defaults :maxlevel 1))
+  (plist-put org-clocktable-defaults :maxlevel 1)
+  ;; Remove annoying file headers
+  (plist-put org-clocktable-defaults :hidefiles t)
+  (plist-put org-clocktable-defaults :fileskip0 t))
 
 ;; org-capture-before-finalize-hook
 (keymap-global-set "C-c c" #'org-capture)
@@ -580,7 +585,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     (let ((org-export-with-broken-links t)
           (org-agenda-files
            (remove (expand-file-name "agenda/timetracking.org" org-directory)
-                   org-agenda-files)))
+                   org-agenda-files))
+          ;; TODO: Look into these warnings
+          (warning-inhibit-types '((holidays))))
       (org-icalendar-combine-agenda-files))
     (kill-buffer "*icalendar-errors*")
     (message "Updating org icalendar file")))
@@ -1491,6 +1498,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (autoload 'url-cookie-delete-cookies "url-cookie")
 (autoload 'url-gc-dead-buffers "url")
 (autoload 'org-persist-gc "org-persist")
+(autoload 'diff--cache-clean "diff-mode")
 (defun cleanup (&rest _ignore)
   "Cleanup stuff."
   (interactive)
@@ -1501,8 +1509,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
   (save-some-buffers (not (called-interactively-p 'any)))
   (when (fboundp 'eglot-shutdown-all)
-   (eglot-shutdown-all))
-  (mapc #'kill-buffer (match-buffers "^ \\*diff-syntax"))
+    (eglot-shutdown-all))
   (mapc #'kill-buffer (match-buffers "^\\*disk-usage"))
   (when dired-buffers
     (mapc #'kill-buffer (mapcar #'cdr dired-buffers)))
@@ -1532,6 +1539,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     (delete-duplicate-lines (point-min) (point-max))
     (save-buffer)
     (kill-current-buffer))
+  ;; TODO: tell upstream to expose function
+  (diff--cache-clean)
   (native-compile-prune-cache)
   (url-cookie-delete-cookies)
   (url-gc-dead-buffers)
