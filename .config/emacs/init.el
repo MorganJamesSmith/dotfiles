@@ -855,6 +855,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :delight yas-minor-mode
   :hook ((prog-mode conf-mode text-mode) . yas-minor-mode))
 
+(defvar-local elogind-inhibit-process nil)
 (use-package compile
   :commands compilation-next-file compilation-previous-file
   ;; dumb autoload to avoid warnings
@@ -866,21 +867,25 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :bind (:map compilation-mode-map
               ("c" . compile))
   :config
-  (defvar elogind-process nil)
   (defun elogind-inhibit-compilation (_process)
     "Run elogind-inhibit for the duration of the compilation."
-    (unless elogind-process
-      (setq elogind-process
-            (make-process
-             :name "elogind-inhibit for compilation"
-             :command '("elogind-inhibit" "--who=emacs-compilation" "sleep" "infinity")))))
+    (when elogind-inhibit-process
+      (elogind-inhibit-kill nil nil))
+    (setq elogind-inhibit-process
+          (make-process
+           :name "elogind-inhibit for compilation"
+           :command '("elogind-inhibit" "--who=emacs-compilation" "sleep" "infinity"))))
 
-  (defun elogind-inhibit-kill (_buffer _status)
+  (defun elogind-inhibit-kill (&optional buffer _status)
     "Kill elogind-inhibit when the compilation is finished."
-    (when elogind-process
-      (kill-process elogind-process))
-    (setq elogind-process nil))
+    (with-current-buffer (or buffer (current-buffer))
+      (when elogind-inhibit-process
+        (kill-process elogind-inhibit-process))
+      (setq elogind-inhibit-process nil)))
 
+  (add-hook 'compilation-mode-hook
+            (lambda ()
+              (add-hook 'kill-buffer-hook #'elogind-inhibit-kill nil t)))
   (add-hook 'compilation-start-hook #'elogind-inhibit-compilation)
   (add-to-list 'compilation-finish-functions #'elogind-inhibit-kill))
 
