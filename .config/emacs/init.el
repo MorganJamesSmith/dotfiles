@@ -10,6 +10,9 @@
 
 ;;; Code:
 
+;; TODO: re-enable once packages update
+(setopt warning-suppress-log-types '((files missing-lexbind-cookie)))
+
 (require 'xdg)
 (require 'emacs-secrets "/home/pancake/documents/configs/private/emacs-secrets.el")
 
