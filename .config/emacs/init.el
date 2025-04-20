@@ -1139,6 +1139,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (erc-services-mode 1)
   (erc-update-modules))
 
+(use-package ispell
+  :config
+  (add-to-list 'ispell-skip-region-alist (list "ispell-skip-region-start"
+                                               "ispell-skip-region-end")))
+
 (use-package flyspell
   :if (executable-find "aspell")
   :bind ("M-$" . ispell-word)
@@ -1148,10 +1153,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (flyspell-mode-line-string "")
   (flyspell-use-meta-tab nil)
   (flyspell-check-changes t)
-  (flyspell-delay-use-timer t)
-  :config
-  (add-to-list 'ispell-skip-region-alist (list "ispell-skip-region-start"
-                                               "ispell-skip-region-end")))
+  (flyspell-delay-use-timer t))
 
 
 ;; Backups and auto-saves and deleting
