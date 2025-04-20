@@ -1509,6 +1509,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (autoload 'url-gc-dead-buffers "url")
 (autoload 'org-persist-gc "org-persist")
 (autoload 'diff--cache-clean "diff-mode")
+(autoload 'profiler-reset "profiler")
 (defun cleanup (&rest _ignore)
   "Cleanup stuff."
   (interactive)
@@ -1521,6 +1522,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (when (fboundp 'eglot-shutdown-all)
     (eglot-shutdown-all))
   (mapc #'kill-buffer (match-buffers "^\\*disk-usage"))
+  (mapc #'kill-buffer (match-buffers "^ \\*org-src-fontification:"))
   (when dired-buffers
     (mapc #'kill-buffer (mapcar #'cdr dired-buffers)))
   (mapc
@@ -1551,6 +1553,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     (kill-current-buffer))
   ;; TODO: tell upstream to expose function
   (diff--cache-clean)
+  (profiler-reset)
   (native-compile-prune-cache)
   (url-cookie-delete-cookies)
   (url-gc-dead-buffers)
