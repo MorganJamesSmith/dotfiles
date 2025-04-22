@@ -202,5 +202,26 @@ Use CHANGE to determine if an error has occured."
 (setopt gnus-group-line-format "%5y:%B%(%c%)\n")
 (setopt gnus-summary-display-arrow t)
 
+(defvar gnus-mode-line-string "")
+(defun gnus-update-unread-total-modeline ()
+  "Put total unread emails in modeline."
+  (or
+   (and gnus-newsrc-alist ; gnus running?
+        (let ((unread (gnus-group-unread "nnvirtual:inbox")))
+          (when (and unread (numberp unread) (> unread 0))
+            (setq gnus-mode-line-string
+                  (concat "[Unread email: " (number-to-string unread) "] "))
+            (or (memq 'gnus-mode-line-string global-mode-string)
+                (setq global-mode-string
+                      (append global-mode-string '(gnus-mode-line-string)))))))
+   (setq global-mode-string
+         (delq 'gnus-mode-line-string global-mode-string))))
+
+(add-hook 'gnus-group-update-hook #'gnus-update-unread-total-modeline)
+(add-hook 'gnus-summary-update-hook #'gnus-update-unread-total-modeline)
+(add-hook 'gnus-group-update-group-hook #'gnus-update-unread-total-modeline)
+(add-hook 'gnus-after-getting-new-news-hook #'gnus-update-unread-total-modeline)
+(add-hook 'gnus-after-exiting-gnus-hook #'gnus-update-unread-total-modeline)
+
 (provide 'my-gnus.el)
 ;;; gnus.el ends here
