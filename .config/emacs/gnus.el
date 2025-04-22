@@ -85,9 +85,15 @@
   (setopt gnus-simplify-subject-functions (list #'gnus-simplify-subject-re
                                                 #'gnus-simplify-all-whitespace)))
 
+(defun gnus-maybe-group-get-new-news (&optional _process _change)
+  "Run `gnus-group-get-new-news' if gnus is running."
+  (when gnus-newsrc-alist
+      (gnus-group-get-new-news)))
+
 (defun mbsync-process-sentinel (_process change)
   "Run after I get mail from running mbsync.
 Use CHANGE to determine if an error has occured."
+  (gnus-maybe-group-get-new-news)
   (if (not (string= change "finished\n"))
       (message "mbsync: an error has occured: '%s'" change)
     (with-current-buffer "*mbsync*"
@@ -115,7 +121,9 @@ Use CHANGE to determine if an error has occured."
   (interactive)
   (when-let* ((buffer (get-buffer "*rss2email*")))
     (kill-buffer buffer))
-  (start-process "rss2email" "*rss2email*" "r2e" "run"))
+  (set-process-sentinel
+   (start-process "rss2email" "*rss2email*" "r2e" "run")
+   #'gnus-maybe-group-get-new-news))
 
 (defun get-mail ()
   "Get mail."
