@@ -55,6 +55,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         (thread-yield)
         (sit-for 0.01)))))
 
+(defun network-connectivityp ()
+  "Do we currently have networking?"
+  (eq 0 (call-process "nm-online" nil nil nil "--exit" "--timeout=0")))
+
+(defun assert-network-connectivity ()
+  "Throw error when there is no networking."
+  (unless (network-connectivityp)
+    (user-error "Not currently connected to the network")))
+
 (setopt async-shell-command-buffer 'new-buffer)
 
 ;;; Optimization Section Begins

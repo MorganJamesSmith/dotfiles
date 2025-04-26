@@ -107,6 +107,7 @@ Use CHANGE to determine if an error has occured."
 (defun mbsync ()
   "Run mbsync."
   (interactive)
+  (assert-network-connectivity)
   (unlock-gpg)
   (when-let* ((buffer (get-buffer "*mbsync*")))
     (kill-buffer buffer))
@@ -119,6 +120,7 @@ Use CHANGE to determine if an error has occured."
 (defun rss2email ()
   "Run rss2email."
   (interactive)
+  (assert-network-connectivity)
   (when-let* ((buffer (get-buffer "*rss2email*")))
     (kill-buffer buffer))
   (set-process-sentinel
@@ -128,6 +130,7 @@ Use CHANGE to determine if an error has occured."
 (defun get-mail ()
   "Get mail."
   (interactive)
+  (assert-network-connectivity)
   (rss2email)
   (mbsync))
 
