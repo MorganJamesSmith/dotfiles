@@ -143,14 +143,9 @@ fi
                      ("LEDGER_FILE" . "$HOME/documents/money/money.ledger")
 
                      ;; Wayland variables
-                     ("MOZ_ENABLE_WAYLAND" . "1")
                      ("CLUTTER_BACKEND" . "wayland")
-                     ("GDK_BACKEND" . "wayland")
-                     ("SDL_VIDEODRIVER" . "wayland")
+                     ("SDL_VIDEODRIVER" . "wayland,x11")
                      ("GTK_USE_PORTAL" . "1")
-
-                     ("QT_QPA_PLATFORM" . "wayland")
-                     ("QT_WAYLAND_DISABLE_WINDOWDECORATION" . "1")
 
 
                      ("ASPELL_CONF" . "per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl")
