@@ -589,11 +589,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (defun maybe-update-org-icalendar ()
   "Update org icalendar file if it hasn't been updated in recently."
-  (when (<
-         update-org-icalendar-timer-loop-seconds
-         (time-to-seconds
-          (time-since (file-attribute-modification-time
-                       (file-attributes org-icalendar-combined-agenda-file)))))
+  (when (and
+         ;; I export to sync to other devices so I only need to do this when connected to the network
+         (network-connectivityp)
+         (<
+          update-org-icalendar-timer-loop-seconds
+          (time-to-seconds
+           (time-since (file-attribute-modification-time
+                        (file-attributes org-icalendar-combined-agenda-file))))))
     (let ((org-export-with-broken-links t)
           (org-agenda-files
            (remove (expand-file-name "agenda/timetracking.org" org-directory)
@@ -1557,6 +1560,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      "*vc*"))
   ;; De-duplicate HISTFILE
   (with-current-buffer (find-file-noselect (getenv "HISTFILE"))
+    (delete-trailing-whitespace (point-min) (point-max))
     (delete-duplicate-lines (point-min) (point-max))
     (save-buffer)
     (kill-current-buffer))
