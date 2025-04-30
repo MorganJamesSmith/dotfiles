@@ -261,8 +261,10 @@ color-scheme='prefer-dark'\n"))
                        "h cycle-values audio-channels auto-safe mono")
                      "\n"
                      'suffix)))
+      ;; ytdl-format copied from yt-dlp config
       ("mpv/mpv.conf"
-       ,(plain-file "mpv-config" "hwdec=auto-safe\n"))
+       ,(plain-file "mpv-config" "hwdec=auto-safe
+ytdl-format=bestvideo[height<=?1080]+bestaudio/best\n"))
 
       ;; Only download 1080p or lower.  Place in ~/downloads/videos with a
       ;; specific filename.  Grab English subtitles if we can.  Add
