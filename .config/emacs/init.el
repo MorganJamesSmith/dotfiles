@@ -326,7 +326,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config (org-indent-mode -1))
 
 ;; For when I use org-babel to create images
-(autoload 'org-link-preview-refresh "org-compat")
+(autoload 'org-link-preview-refresh "ol")
 (add-hook 'org-babel-after-execute-hook #'org-link-preview-refresh)
 
 (use-package holidays
