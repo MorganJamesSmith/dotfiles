@@ -79,8 +79,8 @@ input 2689:517:CHESEN_PS2_to_USB_Converter_Mouse
     bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
     bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
 
-    bindsym --locked XF86MonBrightnessUp exec brightnessctl set +5%
-    bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+    bindsym --locked XF86MonBrightnessUp exec brightnessctl -n set +5%
+    bindsym --locked XF86MonBrightnessDown exec brightnessctl -n set 5%-
 
     # Kill focused window
     bindsym $mod+Shift+q kill
