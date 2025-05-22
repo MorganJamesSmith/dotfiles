@@ -8,6 +8,7 @@
  (gnu packages gnome)
  (gnu packages linux)
  (gnu packages security-token)
+ (gnu packages video)
  (gnu packages wm)
  (gnu services admin)
  (gnu services audio)
@@ -139,6 +140,7 @@
     hicolor-icon-theme
     cryptsetup
     bluez-alsa ;; bluetooth audio
+    intel-vaapi-driver
     intel-media-driver/nonfree ;; Hardware acceleration
     %base-packages))
 
