@@ -299,6 +299,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
      (sequence "WAITINGFOR" "DONE")
      (sequence "HABIT" "DONE")
      (sequence "PROJECT" "DONE")))
+  ;; todo priorities
+  ;; 1-9 do ASAP
+  ;; 10-19 do soon
+  ;; 20-29 default
+  ;; 30-39 would improve my life but no deadline
+  ;; 40-49 someday maybe
+  (org-priority-highest 1)
+  (org-priority-default 20)
+  (org-priority-lowest  50)
   :config
   (push 'org-habit org-modules)
 
