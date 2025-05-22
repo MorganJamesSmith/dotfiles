@@ -571,7 +571,22 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 3: Average
 4: Excited
 5: Bursting with energy!
-||1|2|3|4|5} | %U |" :prepend t :immediate-finish t)))
+||1|2|3|4|5} | %U |" :prepend t :immediate-finish t)
+          ("d" "Daily Rating"
+           table-line (file+headline "wiki/morgan.org" "how was my day")
+           "| %^{How was my day?
++5: Amazing!
++4:
++3: Good
++2:
++1:
+ 0: Fine
+-1:
+-2:
+-3: Bad
+-4:
+-5: Awful
+||+5|+4|+3|+2|+1|0|-1|-2|-3|-4|-5} | %u |" :prepend t :immediate-finish t)))
 
 (setopt org-link-elisp-confirm-function nil)
 (setopt org-link-descriptive nil)
