@@ -6,6 +6,7 @@
  (gnu packages cryptsetup)
  (gnu packages games)
  (gnu packages gnome)
+ (gnu packages libusb)
  (gnu packages linux)
  (gnu packages security-token)
  (gnu packages video)
@@ -290,7 +291,26 @@ blacklist.")
              (transmission-daemon-configuration
               (download-dir "/torrents")))
 
+    ;;; The stuff from %desktop-services
+
+    ;; Add udev rules for MTP devices so that non-root users can access
+    ;; them.
+    (simple-service 'mtp udev-service-type (list libmtp))
+    ;; Add udev rules for scanners.
+    (service sane-service-type)
+    ;; Add polkit rules, so that non-root users in the wheel group can
+    ;; perform administrative tasks (similar to "sudo").
     polkit-wheel-service
+    ;; gdm-file-system-service
+
+    ;; Provides a nicer experience for VTE-using terminal emulators such
+    ;; as GNOME Console, Xfce Terminal, etc.
+    ;; TODO: uncomment after a guix pull
+    ;; (service vte-integration-service-type)
+
+    ;; The global fontconfig cache directory can sometimes contain
+    ;; stale entries, possibly referencing fonts that have been GC'd,
+    ;; so mount it read-only.
     fontconfig-file-system-service
 
     ;; https://big.oisd.nl/dnsmasq2
@@ -301,8 +321,10 @@ blacklist.")
     (service network-manager-service-type
              (network-manager-configuration
               (dns "dnsmasq")))
-    ;; (service dhcp-client-service-type)
     (service wpa-supplicant-service-type)    ;needed by NetworkManager
+    ;; (simple-service 'network-manager-applet
+    ;;                 profile-service-type
+    ;;                 (list network-manager-applet))
     ;; (service modem-manager-service-type)
     (service usb-modeswitch-service-type)
 
@@ -327,6 +349,7 @@ blacklist.")
 
     (service dbus-root-service-type)
 
+    ;; (service ntp-service-type)
     (service openntpd-service-type
              (openntpd-configuration
               (sensor (list "*"))
