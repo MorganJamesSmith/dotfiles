@@ -3,6 +3,16 @@
 # exit on error
 set -e
 
+CURRENT_TIME=$(date +"%s")
+file_younger_then(){
+    if [ $(( CURRENT_TIME - $2 )) -lt "$(stat -c %Y "$1")" ];
+    then
+        true
+    else
+        false
+    fi
+}
+
 # Update local Emacs source
 (cd /home/pancake/src/emacs/emacs &&
      git stash &&
@@ -24,8 +34,12 @@ GUIX_COMMIT=$( cd $GUIX_SOURCE && git rev-parse origin/HEAD )
 guix pull --max-jobs=4 --url=$GUIX_SOURCE --commit="$GUIX_COMMIT"
 
 (cd /home/pancake/.config/guix &&
-     mv -f dnsmasq2 dnsmasq2.bak &&
-     wget https://big.oisd.nl/dnsmasq2)
+     if file_younger_then dnsmasq2 $((60*60*24)); then
+         echo "Re-using existing dnsmasq2"
+     else
+         mv -f dnsmasq2 dnsmasq2.bak &&
+             wget https://big.oisd.nl/dnsmasq2
+     fi)
 
 # don't stop on error
 set +e
