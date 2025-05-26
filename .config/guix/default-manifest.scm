@@ -82,7 +82,12 @@ package can be used with isync to fetch mail from servers that support it.")
 
 (define transformations
   (options->transformation
-   '()))
+   '(
+     ;; Takes forever to build when tuned as it wants to build rust stuff
+     ;; (tune . "cannonlake")
+     ;; Current release version fails to parse my ledger file
+     (with-branch . "ledger=master")
+     )))
 
 (define* (specifications->manifest-with-transformations specifications #:optional (packages '()))
   (packages->manifest
