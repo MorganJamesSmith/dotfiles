@@ -1,6 +1,7 @@
 (use-modules
  ((ice-9 popen) #:select (open-pipe* close-pipe))
  ((ice-9 rdelim) #:select (read-line))
+ (guix cpu)
  ((guix transformations) #:select (options->transformation))
  ((guix build utils) #:select (with-directory-excursion)))
 
@@ -38,6 +39,7 @@
 (define other-transformations
   (options->transformation
    `(
+     (tune . ,(cpu->gcc-architecture (current-cpu)))
      ;; ;; Guix can't build current master branch
      ;; ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs")
 

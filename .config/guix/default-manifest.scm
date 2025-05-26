@@ -1,4 +1,5 @@
 (use-modules
+ (guix cpu)
  ((guix transformations) #:select (options->transformation)))
 
 ;; Waiting for this to be accepted upstream: bug#58074
@@ -82,9 +83,9 @@ package can be used with isync to fetch mail from servers that support it.")
 
 (define transformations
   (options->transformation
-   '(
+   `(
      ;; Takes forever to build when tuned as it wants to build rust stuff
-     ;; (tune . "cannonlake")
+     ;; (tune . ,(cpu->gcc-architecture (current-cpu)))
      ;; Current release version fails to parse my ledger file
      (with-branch . "ledger=master")
      )))
