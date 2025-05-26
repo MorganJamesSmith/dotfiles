@@ -35,50 +35,54 @@
 
 
 ;; Waiting for this to be accepted upstream: bug#77411
-(use-modules ((guix licenses) #:prefix license:)
-             (guix packages)
-             (guix git-download)
-             (guix build-system linux-module))
 (define-public xone
-  (let ((commit "aeb27e6d98f7b22b3672701af6171612254a4d0c")
-        (revision "0"))
-    (package
-      (name "xone")
-      (version (git-version "0.3" revision commit))
-      (source (origin
-                (method git-fetch)
-                (uri (git-reference
-                      (url "https://github.com/dlundqvist/xone")
-                      (commit commit)))
-                (file-name (git-file-name name version))
-                (sha256
-                 (base32
-                  "111zwsy1z4g1qlp98s617ng2n5qinp9whynlvcaynvyl7giv4p0h"))))
-      (build-system linux-module-build-system)
-      (arguments
-       (list #:tests? #f                  ; no `check' target
-             #:phases
-             #~(modify-phases %standard-phases
-                 (add-after 'install 'post-install
-                   (lambda _
-                     ;; Copied from install.sh.
-                     ;; This isn't useful though because xpad is builtin to
-                     ;; the kernel so it has to be blacklisted using a kernel
-                     ;; argument.
-                     (let ((modprobe-dir (string-append #$output "/etc/modprobe.d")))
-                       (mkdir-p modprobe-dir)
-                       (copy-file "install/modprobe.conf"
-                                  (string-append modprobe-dir
-                                                 "/xone-blacklist.conf"))))))))
+  (eval
+   '(begin
+      (use-modules ((guix licenses) #:prefix license:)
+                   (guix packages)
+                   (guix git-download)
+                   (guix build-system linux-module)
+                   (guix gexp))
+      (let ((commit "aeb27e6d98f7b22b3672701af6171612254a4d0c")
+            (revision "0"))
+        (package
+          (name "xone")
+          (version (git-version "0.3" revision commit))
+          (source (origin
+                    (method git-fetch)
+                    (uri (git-reference
+                          (url "https://github.com/dlundqvist/xone")
+                          (commit commit)))
+                    (file-name (git-file-name name version))
+                    (sha256
+                     (base32
+                      "111zwsy1z4g1qlp98s617ng2n5qinp9whynlvcaynvyl7giv4p0h"))))
+          (build-system linux-module-build-system)
+          (arguments
+           (list #:tests? #f                  ; no `check' target
+                 #:phases
+                 #~(modify-phases %standard-phases
+                     (add-after 'install 'post-install
+                       (lambda _
+                         ;; Copied from install.sh.
+                         ;; This isn't useful though because xpad is builtin to
+                         ;; the kernel so it has to be blacklisted using a kernel
+                         ;; argument.
+                         (let ((modprobe-dir (string-append #$output "/etc/modprobe.d")))
+                           (mkdir-p modprobe-dir)
+                           (copy-file "install/modprobe.conf"
+                                      (string-append modprobe-dir
+                                                     "/xone-blacklist.conf"))))))))
 
-      (home-page "https://github.com/dlundqvist/xone")
-      (synopsis "Linux kernel driver for Xbox One and Xbox Series X|S accessories")
-      (description "A replacement for xpad.
+          (home-page "https://github.com/dlundqvist/xone")
+          (synopsis "Linux kernel driver for Xbox One and Xbox Series X|S accessories")
+          (description "A replacement for xpad.
 
 To use the xone driver add it to the @code{kernel-loadable-modules} in your
 system configuration.  Then add @code{xpad} and @code{mt76x2u} to the modprobe
 blacklist.")
-      (license license:gpl2))))
+          (license license:gpl2))))
+   (make-fresh-user-module)))
 
 ;; Defines the variables: username, host-name, swap-offset, linux-uuid, boot-uuid
 (include "/home/pancake/documents/configs/private/machine-specific.scm")
