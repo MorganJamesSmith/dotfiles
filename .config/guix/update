@@ -4,27 +4,28 @@
 set -e
 
 # Update local Emacs source
-cd /home/pancake/src/emacs/emacs
-git stash
-git rebase --no-gpg-sign
+(cd /home/pancake/src/emacs/emacs &&
+     git stash &&
+     git rebase --no-gpg-sign)
 
 # Update local org-mode source
-cd /home/pancake/src/emacs/org-mode
-git stash
-git rebase --no-gpg-sign
+(cd /home/pancake/src/emacs/org-mode &&
+     git stash &&
+     git rebase --no-gpg-sign)
 
 # Update local arei source
-cd /home/pancake/src/emacs/emacs-arei
-git stash
-git rebase --no-gpg-sign
+(cd /home/pancake/src/emacs/emacs-arei &&
+     git stash &&
+     git rebase --no-gpg-sign)
 
 GUIX_SOURCE=/home/pancake/src/guix
 GUIX_COMMIT=$( cd $GUIX_SOURCE && git rev-parse origin/HEAD )
 # TODO: it would be nice if I could just specify "--commit=origin/HEAD"
 guix pull --max-jobs=4 --url=$GUIX_SOURCE --commit="$GUIX_COMMIT"
 
-mv -f /home/pancake/.config/guix/dnsmasq2 /home/pancake/.config/guix/dnsmasq2.bak
-wget -P /home/pancake/.config/guix https://big.oisd.nl/dnsmasq2
+(cd /home/pancake/.config/guix &&
+     mv -f dnsmasq2 dnsmasq2.bak &&
+     wget https://big.oisd.nl/dnsmasq2)
 
 # don't stop on error
 set +e
