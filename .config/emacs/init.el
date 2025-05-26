@@ -426,22 +426,30 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         "+annual_goal"
         ((org-agenda-overriding-header "Annual Goals:")
          (org-use-tag-inheritance nil)
-         (org-agenda-todo-ignore-timestamp 'future)))
+         (org-agenda-todo-ignore-timestamp 'future)
+         (org-agenda-prefix-format "%(org-agenda-todo-blocked-count) ")
+         (org-agenda-dim-blocked-tasks 'invisible)))
        (tags-todo
         "+monthly_goal"
         ((org-agenda-overriding-header "Monthly Goals:")
          (org-use-tag-inheritance nil)
-         (org-agenda-todo-ignore-timestamp 'future)))
+         (org-agenda-todo-ignore-timestamp 'future)
+         (org-agenda-prefix-format "%(org-agenda-todo-blocked-count) ")
+         (org-agenda-dim-blocked-tasks 'invisible)))
        (tags-todo
         "+weekly_goal"
         ((org-agenda-overriding-header "Weekly Goals:")
          (org-use-tag-inheritance nil)
-         (org-agenda-todo-ignore-timestamp 'future)))
+         (org-agenda-todo-ignore-timestamp 'future)
+         (org-agenda-prefix-format "%(org-agenda-todo-blocked-count) ")
+         (org-agenda-dim-blocked-tasks 'invisible)))
        (tags-todo
         "+daily_goal"
         ((org-agenda-overriding-header "Daily Goals:")
+         (org-use-tag-inheritance nil)
          (org-agenda-todo-ignore-timestamp 'future)
-         (org-agenda-dim-blocked-tasks nil)))
+         (org-agenda-prefix-format "%(org-agenda-todo-blocked-count) ")
+         (org-agenda-dim-blocked-tasks 'invisible)))
        (agenda ;; habits
         ""
         (;; I do the header funny to avoid an extra newline
@@ -449,7 +457,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (org-agenda-format-date "")
          (org-agenda-prefix-format "%-4.4T: ")
          (org-agenda-span 'day)
-         (org-habit-clock-completes-habit t)
+         (org-habit-clock-completes-habit t) ;; my patch
          ;; (org-habit-show-done-always-green t) ;; TODO: doesn't take effect here
          ;; (org-habit-graph-column 23) ;; TODO: doesn't take effect here
          (org-agenda-entry-types '(:scheduled))
@@ -462,7 +470,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (org-agenda-span 60)
          (org-deadline-warning-days 0)
          (org-agenda-skip-function
-          '(org-agenda-skip-entry-if 'todo '("HABIT")))))
+          '(or (org-agenda-skip-entry-if 'todo '("HABIT"))
+               (org-agenda-skip-entry-if 'regexp "_goal:")))))
        (tags-todo ;; todo
         "TODO=\"TODO\"-goals"
         ((org-agenda-overriding-header "Todo:")
@@ -476,7 +485,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         ((org-agenda-overriding-header "Waiting for:")))
        (todo
         "PROJECT"
-        ((org-agenda-overriding-header "Projects:")))
+        ((org-agenda-overriding-header "Projects:")
+         (org-agenda-sorting-strategy '(category-keep))))
        ;; Don't need a list of stuck projects because any stuck projects will
        ;; show up as unblocked in the project section
        ;; TODO: not true
@@ -490,6 +500,34 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (org-agenda-show-all-dates nil)
          (org-agenda-show-log 'clockcheck)
          (org-agenda-files (list (expand-file-name "agenda/timetracking.org" org-directory))))))))))
+
+(autoload 'org-entry-blocked-p "org")
+(autoload 'org-timestamp-to-time "org")
+(autoload 'outline-next-heading "outline")
+(autoload 'org-element-property "org-element-ast")
+(autoload 'org-element--property "org-element-ast")
+(defun org-agenda-todo-blocked-count ()
+  "Return the number of blocked TODO entries."
+  (let* ((level (org-element-property :level (org-element-at-point)))
+         (amount 1)
+         (current-day (time-to-days (current-time)))
+         (next-todo?
+          (lambda ()
+            (and (eq level (org-element-property :level (org-element-at-point)))
+                 (org-entry-blocked-p))))
+         (deadline-future?
+          (lambda ()
+            (> current-day
+               (time-to-days (org-timestamp-to-time
+                              (org-element-property :deadline (org-element-at-point))))))))
+    (when (and (> level 1) (funcall deadline-future?))
+      (while (and (outline-next-heading) (funcall next-todo?) (funcall deadline-future?))
+        (incf amount))
+      (when (funcall next-todo?)
+        (incf amount)))
+    (if (eq amount 1)
+        "   "
+      (format "%2dx" amount))))
 
 (use-package org-habit
   :custom
