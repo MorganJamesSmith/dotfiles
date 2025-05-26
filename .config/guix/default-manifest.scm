@@ -39,14 +39,16 @@
   (options->transformation
    '()))
 
-(define (specifications->manifest-with-transformations packages)
+(define* (specifications->manifest-with-transformations specifications #:optional (packages '()))
   (packages->manifest
    (map
-    (compose
-     (lambda (package output)
-       (list (transformations package) output))
-     specification->package+output)
-    packages)))
+    (lambda* (package #:optional (output "out"))
+      (list (transformations package) output))
+    (append!
+     (map
+      specification->package+output
+      specifications)
+     packages))))
 
 (specifications->manifest-with-transformations
  (append!
