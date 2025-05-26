@@ -13,6 +13,10 @@ file_younger_then(){
     fi
 }
 
+git_commit_time(){
+    git log "$1" -n 1 --format=%ct
+}
+
 # Update local Emacs source
 (cd /home/pancake/src/emacs/emacs &&
      git stash &&
@@ -30,8 +34,15 @@ file_younger_then(){
 
 GUIX_SOURCE=/home/pancake/src/guix
 GUIX_COMMIT=$( cd $GUIX_SOURCE && git rev-parse origin/HEAD )
-# TODO: it would be nice if I could just specify "--commit=origin/HEAD"
-guix pull --max-jobs=4 --url=$GUIX_SOURCE --commit="$GUIX_COMMIT"
+CURRENT_GUIX_COMMIT=$(guix describe -f recutils | grep --max-count=1 '^commit: ' | cut -c 9-)
+if (cd $GUIX_SOURCE &&
+        [ $(("$(git_commit_time "$CURRENT_GUIX_COMMIT")" + (60*60*24))) -lt "$(git_commit_time "$GUIX_COMMIT")" ] );
+then
+    # TODO: it would be nice if I could just specify "--commit=origin/HEAD"
+    guix pull --max-jobs=4 --url=$GUIX_SOURCE --commit="$GUIX_COMMIT"
+else
+    echo "Skipping guix pull"
+fi
 
 (cd /home/pancake/.config/guix &&
      if file_younger_then dnsmasq2 $((60*60*24)); then
