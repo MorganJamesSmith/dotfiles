@@ -88,8 +88,7 @@ package can be used with isync to fetch mail from servers that support it.")
 (define transformations
   (options->transformation
    `(
-     ;; Takes forever to build when tuned as it wants to build rust stuff
-     ;; (tune . ,(cpu->gcc-architecture (current-cpu)))
+     (tune . ,(cpu->gcc-architecture (current-cpu)))
      ;; Current release version fails to parse my ledger file
      (with-branch . "ledger=master")
      )))
