@@ -32,5 +32,8 @@
                          (getenv "PATH")))
   (push "/data/data/com.termux/files/usr/bin" exec-path))
 
+(when (fboundp 'load-path-filter-cache-directory-files)
+  (setq load-path-filter-function #'load-path-filter-cache-directory-files))
+
 (provide 'early-init)
 ;;; early-init.el ends here
