@@ -319,8 +319,7 @@ blacklist.")
 
     ;; Provides a nicer experience for VTE-using terminal emulators such
     ;; as GNOME Console, Xfce Terminal, etc.
-    ;; TODO: uncomment after a guix pull
-    ;; (service vte-integration-service-type)
+    (service vte-integration-service-type)
 
     ;; The global fontconfig cache directory can sometimes contain
     ;; stale entries, possibly referencing fonts that have been GC'd,
