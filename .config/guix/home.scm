@@ -24,25 +24,36 @@
  (gnu services)
  (gnu system shadow)
  (guix channels)
- (guix gexp))
+ (guix cpu)
+ (guix gexp)
+ (guix transformations))
+
+(define transformations
+  (options->transformation
+   `(
+     (tune . ,(cpu->gcc-architecture (current-cpu)))
+     )))
 
 (home-environment
- (packages (list
-            sway
-            swaylock
-            swayidle
-            xss-lock
-            dbus ;; so sway can use "dbus-update-activation-environment"
-            bemenu ;; so dbus can use this
-            xdg-desktop-portal
-            xdg-desktop-portal-wlr
-            xdg-desktop-portal-gtk
-            xdg-utils
-            mako
-            font-openmoji ; emoji
-            font-wqy-zenhei ; Asian
-            librewolf
-            ungoogled-chromium/wayland))
+  (packages
+   (map
+    transformations
+    (list
+     sway
+     swaylock
+     swayidle
+     xss-lock
+     dbus ;; so sway can use "dbus-update-activation-environment"
+     bemenu ;; so dbus can use this
+     xdg-desktop-portal
+     xdg-desktop-portal-wlr
+     xdg-desktop-portal-gtk
+     xdg-utils
+     mako
+     font-openmoji ; emoji
+     font-wqy-zenhei ; Asian
+     librewolf
+     ungoogled-chromium/wayland)))
  (services
   (cons*
    (include "/home/pancake/documents/configs/private/home-services.scm")
