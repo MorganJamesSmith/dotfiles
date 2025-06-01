@@ -27,7 +27,9 @@
  (gnu services sysctl)
  (gnu services xorg)
  (gnu system locale)
- (gnu system privilege))
+ (gnu system privilege)
+ (guix cpu)
+ (guix transformations))
 
 (use-modules (nongnu packages linux)
              (nongnu packages video)
@@ -86,6 +88,12 @@ blacklist.")
 
 ;; Defines the variables: username, host-name, swap-offset, linux-uuid, boot-uuid
 (include "/home/pancake/documents/configs/private/machine-specific.scm")
+
+(define transformations
+  (options->transformation
+   `(
+     (tune . ,(cpu->gcc-architecture (current-cpu)))
+     )))
 
 (define user
   (user-account
@@ -188,14 +196,16 @@ blacklist.")
 
   ;; This is where we specify system-wide packages.
   (packages
-   (cons*
-    adwaita-icon-theme
-    hicolor-icon-theme
-    cryptsetup
-    bluez-alsa ;; bluetooth audio
-    intel-vaapi-driver
-    intel-media-driver/nonfree ;; Hardware acceleration
-    %base-packages))
+   (map
+    transformations
+    (cons*
+     adwaita-icon-theme
+     hicolor-icon-theme
+     cryptsetup
+     bluez-alsa ;; bluetooth audio
+     intel-vaapi-driver
+     intel-media-driver/nonfree ;; Hardware acceleration
+     %base-packages)))
   (kernel-loadable-modules (list xone))
   (services
    (cons*
