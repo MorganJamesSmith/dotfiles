@@ -794,7 +794,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (flymake-mode-line-format
    '("" flymake-mode-line-exception
      flymake-mode-line-counters))
-  (flymake-show-diagnostics-at-end-of-line t)
+  (flymake-show-diagnostics-at-end-of-line 'fancy)
   (flymake-cc-command 'my-flymake-cc-command)
   :config
   (defun my-flymake-cc-command ()
@@ -1035,6 +1035,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt vc-git-print-log-follow t)
 (setopt vc-log-finish-functions nil)  ; no buffer resizing!
 (setopt vc-diff-finish-functions nil) ; no buffer resizing!
+(setopt vc-dir-hide-up-to-date-on-revert t)
 
 (with-eval-after-load "vc-git"
   (add-hook 'log-edit-done-hook #'unlock-gpg))
