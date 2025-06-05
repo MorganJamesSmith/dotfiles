@@ -810,10 +810,16 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package electric
   :hook
   (((prog-mode conf-mode) . electric-layout-local-mode)
-   ;; TODO: make it respect eshell prompt field
-   ;; (add-to-list 'electric-pair-pairs '(?\' . ?\'))
-   ((prog-mode conf-mode comint-mode) . electric-pair-local-mode)
    ((prog-mode conf-mode) . electric-indent-local-mode)))
+
+(use-package smartparens
+   ;; TODO: eshell support?
+  :commands smartparens-global-mode
+  :delight
+  :custom
+  (sp-base-key-bindings 'sp)
+  :config
+  (smartparens-global-mode))
 
 (which-function-mode)
 (global-prettify-symbols-mode)

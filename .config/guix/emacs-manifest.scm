@@ -108,6 +108,7 @@
       "pinentry"
       "rainbow-delimiters"
       "scad-mode"
+      "smartparens"
       "transmission"
       "vterm"
       "ws-butler"
