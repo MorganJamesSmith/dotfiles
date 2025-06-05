@@ -233,10 +233,14 @@ blacklist.")
 
     (service vnstat-service-type)
 
-    (service package-database-service-type)
-    (service file-database-service-type
-             (file-database-configuration
-              (schedule "0 * * * *")))
+    ;; While these would be nice features to have, it is annoying for my fans
+    ;; to kick on and the computer to slow every hour :/.  Only updating this
+    ;; stuff once every week like is suggested would leave the data pretty
+    ;; stale in my opinion.
+    ;; (service package-database-service-type)
+    ;; (service file-database-service-type
+    ;;          (file-database-configuration
+    ;;           (schedule "0 * * * *")))
 
     (service tlp-service-type
              (tlp-configuration
@@ -383,6 +387,8 @@ blacklist.")
        config =>
        (guix-configuration
         (inherit config)
+        ;; Waiting for bug#78047
+        ;; (privileged? #f)
         (substitute-urls
          (append (list "https://substitutes.nonguix.org")
                  %default-substitute-urls))
