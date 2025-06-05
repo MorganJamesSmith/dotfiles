@@ -2,6 +2,7 @@
 	ui = always
 [commit]
 	gpgSign = true
+	verbose = true
 [tag]
 	gpgSign = true
 [stash]
@@ -25,6 +26,8 @@
 	staash = stash --all
 [transfer]
 	fsckObjects = true
+[receive]
+	fsckObjects = true
 [log]
 	date = format-local:%c
 [format]
@@ -32,9 +35,35 @@
 	forceinbodyfrom = true
 [rerere]
 	enabled = true
+	autoUpdate = true
 [branch]
 	sort = -committerdate
 [fetch]
 	writeCommitGraph = true
+	prune = true
+	pruneTags = true
+	parallel = 0
+[pack]
+	threads = 0
+	windowMemory = 5g
+	packSizeLimit = 2g
+[merge]
+	conflictStyle = zdiff3
+[diff]
+	algorithm = histogram
+[rebase]
+	autoStash = true
+	missingCommitsCheck = error
+	autoSquash = true
+	updateRefs = true
+[core]
+	quotePath = false
+	untrackedCache = true
+[checkout]
+	workers = 0
+[submodule]
+	fetchJobs = 0
+[diff "elisp"]
+	xfuncname = ^\\([^[:space:]]*def[^[:space:]]+[[:space:]]+([^()[:space:]]+)
 [diff "org"]
-  xfuncname = "^(\\*+ +.*|#\\+TITLE: .*)$"
+	xfuncname = "^(\\*+ +.*|#\\+TITLE: .*)$"
