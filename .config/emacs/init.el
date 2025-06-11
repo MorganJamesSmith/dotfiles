@@ -733,7 +733,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-to-list 'project-find-functions (project-root-dir "/gnu/store") t))
 
 (use-package proof ;; Proof General
+  ;; TODO: `completion-at-point' does not work :/
   :custom
+  (proof-splash-enable nil)
   (proof-electric-terminator-enable t))
 
 (use-package elisp-mode :delight emacs-lisp-mode)
@@ -1097,8 +1099,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Auto-complete/Hints Section Begins
 
-(global-completion-preview-mode)
-(setopt completion-preview-exact-match-only t)
+(use-package completion-preview
+  :delight
+  :custom
+  (completion-preview-exact-match-only t)
+  :config
+  (global-completion-preview-mode))
 
 ;; otherwise keeps adding a space while doing path completion in eshell which is quite annoying
 (setopt pcomplete-termination-string "")
