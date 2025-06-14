@@ -734,9 +734,20 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package proof ;; Proof General
   ;; TODO: `completion-at-point' does not work :/
+  ;; TODO: `pg-show-all-proofs' causes debug to pop up :/
   :custom
+  ;; View tooltips with mouse hover or
+  ;; \\[display-local-help] using \\`C-h .'
+  (proof-full-annotation t)
+  (proof-output-tooltips t)
+
+  (coq-compile-before-require t)
   (proof-splash-enable nil)
-  (proof-electric-terminator-enable t))
+  (proof-electric-terminator-enable t)
+  :config
+  ;; Annoying hack to fix their annoying hack :/
+  (with-eval-after-load "coq"
+    (setopt proof-output-tooltips t)))
 
 (use-package elisp-mode :delight emacs-lisp-mode)
 (use-package eldoc
