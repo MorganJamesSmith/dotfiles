@@ -1,5 +1,9 @@
+(define-module (default-manifest))
+
 (use-modules
+ (gnu packages)
  (guix cpu)
+ (guix profiles)
  ((guix transformations) #:select (options->transformation)))
 
 ;; Waiting for this to be accepted upstream: bug#58074
@@ -93,39 +97,44 @@ package can be used with isync to fetch mail from servers that support it.")
      (with-branch . "ledger=master")
      )))
 
-(define* (specifications->manifest-with-transformations specifications #:optional (packages '()))
-  (packages->manifest
-   (map
-    (lambda* (package #:optional (output "out"))
-      (list (transformations package) output))
-    (append!
-     (map
-      specification->package+output
-      specifications)
-     packages))))
+(define* (specifications->packages-with-transformations specifications #:optional (packages '()))
+  (map
+   (lambda* (package #:optional (output "out"))
+     (list (transformations package) output))
+   (append!
+    (map
+     specification->package+output
+     specifications)
+    packages)))
 
-(specifications->manifest-with-transformations
- (append!
-  audio
-  downloaders
-  programming
-  email
-  terminal-tools
-  compression-tools
-  '("aspell" ; spellchecker
-    "aspell-dict-en"
-    "brightnessctl"
-    "dino" ; XMPP
-    "gnupg"
-    "ledger"
-    "man-pages"
-    "mpv" ; video player
-    "openscad" ; 3D modeling program
-    "openssh"
-    "password-store"
-    "pwgen" ; Password Generator
-    "rmlint"
-    "rsync"
-    "xpdf" ; pdftotext
-    ))
- (list cyrus-sasl-xoauth2))
+(define-public default-manifest-packages
+  (specifications->packages-with-transformations
+   (append!
+    audio
+    downloaders
+    programming
+    email
+    terminal-tools
+    compression-tools
+    '("aspell" ; spellchecker
+      "aspell-dict-en"
+      "brightnessctl"
+      "dino" ; XMPP
+      "gnupg"
+      "ledger"
+      "man-pages"
+      "mpv" ; video player
+      "openscad" ; 3D modeling program
+      "openssh"
+      "password-store"
+      "pwgen" ; Password Generator
+      "rmlint"
+      "rsync"
+      "xpdf" ; pdftotext
+      ))
+   (list cyrus-sasl-xoauth2)))
+
+(define-public default-manifest
+  (packages->manifest default-manifest-packages))
+
+default-manifest
