@@ -21,33 +21,17 @@
     `((with-commit  . ,(string-append name "=" commit))
       (with-git-url . ,(string-append name "=" path)))))
 
-;; We do these separately as they don't combine with our source transformations
-;; unless they are done as a separate step.
-;;
-;; Our source transformations also clear the patches that would normally be
-;; applied so I add them back in
-(define patch-transformations
-  (options->transformation
-   '()
-   ;; Guix can't build current master branch
-   #;`(
-     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-disable-jit-compilation.patch")
-     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-exec-path.patch")
-     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-fix-scheme-indent-function.patch")
-     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-native-comp-driver-options.patch")
-     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-native-comp-fix-filenames.patch")
-     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-native-comp-pin-packages.patch")
-     (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-pgtk-super-key-fix.patch"))))
-
-
-(define other-transformations
+(define transformations
   (options->transformation
    `(
      (tune . ,(cpu->gcc-architecture (current-cpu)))
-     ;; ;; Guix can't build current master branch
-     ;; ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs")
+     ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs")
+     (without-tests . "emacs-next-pgtk")
 
-     ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode")
+     ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode" "installed")
+     (without-tests . "emacs-org")
+
+     ,@(use-local-source-transformations "proof-general" "/home/pancake/src/emacs/proof-general")
 
      ,@(use-local-source-transformations "emacs-arei" "/home/pancake/src/emacs/emacs-arei")
 
@@ -56,10 +40,8 @@
      (with-input   . "emacs-no-x=emacs-next-pgtk")
      (with-input   . "emacs-no-x-toolkit=emacs-next-pgtk")
 
+     (without-tests . "emacs-ledger-mode")
      (without-tests . "emacs-yasnippet"))))
-
-(define (transformations package)
-  (patch-transformations (other-transformations package)))
 
 (define (specifications->packages-with-transformations packages)
   (map
