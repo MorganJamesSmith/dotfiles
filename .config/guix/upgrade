@@ -3,13 +3,6 @@
 # exit on error
 set -e
 
-mkdir -p /home/pancake/.config/guix/extra-profiles
-mkdir -p /home/pancake/.config/guix/extra-profiles/default
-mkdir -p /home/pancake/.config/guix/extra-profiles/emacs
-
-guix package -p /home/pancake/.config/guix/extra-profiles/default/default -m /home/pancake/.config/guix/default-manifest.scm
-guix package -p /home/pancake/.config/guix/extra-profiles/emacs/emacs -m /home/pancake/.config/guix/emacs-manifest.scm
-
 guix home reconfigure /home/pancake/.config/guix/home.scm
 
 guix package --max-jobs=4 -u

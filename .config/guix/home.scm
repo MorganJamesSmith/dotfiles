@@ -22,28 +22,33 @@
  (guix gexp))
 
 (add-to-load-path ".")
+(use-modules (default-manifest))
+(use-modules (emacs-manifest))
 (use-modules (transformations))
 
 (define-public my-home-environment
   (home-environment
     (packages
-     (specifications->packages-with-transformations
-      (list
-       "sway"
-       "swaylock"
-       "swayidle"
-       "xss-lock"
-       "dbus" ;; so sway can use "dbus-update-activation-environment"
-       "bemenu" ;; so dbus can use this
-       "xdg-desktop-portal"
-       "xdg-desktop-portal-wlr"
-       "xdg-desktop-portal-gtk"
-       "xdg-utils"
-       "mako"
-       "font-openmoji" ; emoji
-       "font-wqy-zenhei" ; Asian
-       "librewolf"
-       "ungoogled-chromium-wayland")))
+     (append
+      (specifications->packages-with-transformations
+       (list
+        "sway"
+        "swaylock"
+        "swayidle"
+        "xss-lock"
+        "dbus" ;; so sway can use "dbus-update-activation-environment"
+        "bemenu" ;; so dbus can use this
+        "xdg-desktop-portal"
+        "xdg-desktop-portal-wlr"
+        "xdg-desktop-portal-gtk"
+        "xdg-utils"
+        "mako"
+        "font-openmoji" ; emoji
+        "font-wqy-zenhei" ; Asian
+        "librewolf"
+        "ungoogled-chromium-wayland"))
+      default-manifest-packages
+      emacs-manifest-packages))
     (services
      (delq
       #f
@@ -82,34 +87,6 @@
                  (pinentry-program
                   (file-append pinentry-emacs "/bin/pinentry-emacs"))
                  (ssh-support? #t)))
-
-       (simple-service 'stuff
-                       home-shell-profile-service-type
-                       (list (plain-file "profile" "
-DEFAULT_PROFILE=$HOME/.config/guix/extra-profiles/default/default
-EMACS_PROFILE=$HOME/.config/guix/extra-profiles/emacs/emacs
-
-eval \"$(guix package --search-paths=suffix --profile=$DEFAULT_PROFILE)\"
-eval \"$(guix package --search-paths=suffix --profile=$EMACS_PROFILE)\"
-
-export MANPATH=$DEFAULT_PROFILE/share/man${MANPATH:+:}$MANPATH
-export MANPATH=$EMACS_PROFILE/share/man${MANPATH:+:}$MANPATH
-
-export INFOPATH=$DEFAULT_PROFILE/share/info${INFOPATH:+:}$INFOPATH
-export INFOPATH=$EMACS_PROFILE/share/info${INFOPATH:+:}$INFOPATH
-
-export XDG_DATA_DIRS=$DEFAULT_PROFILE/share${XDG_DATA_DIRS:+:}$XDG_DATA_DIRS
-export XDG_DATA_DIRS=$EMACS_PROFILE/share${XDG_DATA_DIRS:+:}$XDG_DATA_DIRS
-
-export XDG_CONFIG_DIRS=$DEFAULT_PROFILE/etc/xdg${XDG_CONFIG_DIRS:+:}$XDG_CONFIG_DIRS
-export XDG_CONFIG_DIRS=$EMACS_PROFILE/etc/xdg${XDG_CONFIG_DIRS:+:}$XDG_CONFIG_DIRS
-
-# Start graphical interface
-if [ \"$(tty)\" = \"/dev/tty7\" ]; then
-    chvt 7
-    sway
-fi
-")))
 
        (service home-xdg-user-directories-service-type
                 (home-xdg-user-directories-configuration
