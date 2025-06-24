@@ -6,6 +6,7 @@
  (gnu packages cryptsetup)
  (gnu packages games)
  (gnu packages gnome)
+ (gnu services guix)
  (gnu packages libusb)
  (gnu packages linux)
  (gnu packages security-token)
@@ -34,6 +35,10 @@
 (use-modules (nongnu packages linux)
              (nongnu packages video)
              (nongnu system linux-initrd))
+
+;; Loads "home.scm" which defines my-home-environment
+(add-to-load-path ".")
+(use-modules (home))
 
 ;; Defines the variables: username, host-name, swap-offset, linux-uuid, boot-uuid
 (load "machine-specific.scm")
@@ -156,6 +161,9 @@
      %base-packages)))
   (services
    (cons*
+
+    (service guix-home-service-type
+             `((,username ,my-home-environment)))
 
     (service dconf-service-type
              (list
