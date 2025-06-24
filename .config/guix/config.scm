@@ -36,7 +36,7 @@
              (nongnu system linux-initrd))
 
 ;; Defines the variables: username, host-name, swap-offset, linux-uuid, boot-uuid
-(include "/home/pancake/documents/configs/private/machine-specific.scm")
+(load "machine-specific.scm")
 
 (define transformations
   (options->transformation
