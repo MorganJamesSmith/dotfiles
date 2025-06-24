@@ -8,56 +8,42 @@
  (gnu home services gnupg)
  (gnu home services guix)
  (gnu home services mail)
- (gnu home services pm)
  (gnu home services shells)
  (gnu home services shepherd)
  (gnu home services sound)
  (gnu home services syncthing)
  (gnu home services xdg)
  (gnu home services)
- (gnu packages chromium)
- (gnu packages fonts)
- (gnu packages freedesktop)
- (gnu packages glib)
  (gnu packages gnupg)
- (gnu packages librewolf)
  (gnu packages linux)
- (gnu packages wm)
- (gnu packages xdisorg)
  (gnu services)
  (gnu system shadow)
  (guix channels)
- (guix cpu)
- (guix gexp)
- (guix transformations))
+ (guix gexp))
 
-(define transformations
-  (options->transformation
-   `(
-     (tune . ,(cpu->gcc-architecture (current-cpu)))
-     )))
+(add-to-load-path ".")
+(use-modules (transformations))
 
 (define-public my-home-environment
   (home-environment
     (packages
-     (map
-      transformations
+     (specifications->packages-with-transformations
       (list
-       sway
-       swaylock
-       swayidle
-       xss-lock
-       dbus ;; so sway can use "dbus-update-activation-environment"
-       bemenu ;; so dbus can use this
-       xdg-desktop-portal
-       xdg-desktop-portal-wlr
-       xdg-desktop-portal-gtk
-       xdg-utils
-       mako
-       font-openmoji ; emoji
-       font-wqy-zenhei ; Asian
-       librewolf
-       ungoogled-chromium/wayland)))
+       "sway"
+       "swaylock"
+       "swayidle"
+       "xss-lock"
+       "dbus" ;; so sway can use "dbus-update-activation-environment"
+       "bemenu" ;; so dbus can use this
+       "xdg-desktop-portal"
+       "xdg-desktop-portal-wlr"
+       "xdg-desktop-portal-gtk"
+       "xdg-utils"
+       "mako"
+       "font-openmoji" ; emoji
+       "font-wqy-zenhei" ; Asian
+       "librewolf"
+       "ungoogled-chromium-wayland")))
     (services
      (delq
       #f

@@ -1,10 +1,10 @@
 (define-module (default-manifest))
 
 (use-modules
- (gnu packages)
- (guix cpu)
- (guix profiles)
- ((guix transformations) #:select (options->transformation)))
+ (guix profiles))
+
+(add-to-load-path ".")
+(use-modules (transformations))
 
 ;; Waiting for this to be accepted upstream: bug#58074
 (define-public cyrus-sasl-xoauth2
@@ -88,24 +88,6 @@ package can be used with isync to fetch mail from servers that support it.")
     "unzip"
     "zip"
     "zstd"))
-
-(define transformations
-  (options->transformation
-   `(
-     (tune . ,(cpu->gcc-architecture (current-cpu)))
-     ;; Current release version fails to parse my ledger file
-     (with-branch . "ledger=master")
-     )))
-
-(define* (specifications->packages-with-transformations specifications #:optional (packages '()))
-  (map
-   (lambda* (package #:optional (output "out"))
-     (list (transformations package) output))
-   (append!
-    (map
-     specification->package+output
-     specifications)
-    packages)))
 
 (define-public default-manifest-packages
   (specifications->packages-with-transformations

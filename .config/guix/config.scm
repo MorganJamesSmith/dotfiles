@@ -36,18 +36,12 @@
              (nongnu packages video)
              (nongnu system linux-initrd))
 
-;; Loads "home.scm" which defines my-home-environment
 (add-to-load-path ".")
 (use-modules (home))
+(use-modules (transformations))
 
 ;; Defines the variables: username, host-name, swap-offset, linux-uuid, boot-uuid
 (load "machine-specific.scm")
-
-(define transformations
-  (options->transformation
-   `(
-     (tune . ,(cpu->gcc-architecture (current-cpu)))
-     )))
 
 (define user
   (user-account
@@ -149,16 +143,16 @@
 
   ;; This is where we specify system-wide packages.
   (packages
-   (map
-    transformations
-    (cons*
-     adwaita-icon-theme
-     hicolor-icon-theme
-     cryptsetup
-     bluez-alsa ;; bluetooth audio
-     intel-vaapi-driver
-     intel-media-driver/nonfree ;; Hardware acceleration
-     %base-packages)))
+   (specifications->packages-with-transformations
+    (list
+     "adwaita-icon-theme"
+     "hicolor-icon-theme"
+     "cryptsetup"
+     "bluez-alsa" ;; bluetooth audio
+     "intel-vaapi-driver"
+     "intel-media-driver-nonfree" ;; Hardware acceleration
+     )
+    %base-packages))
   (services
    (cons*
 

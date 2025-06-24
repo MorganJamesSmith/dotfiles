@@ -10,6 +10,7 @@
 !.config/guix/gc
 !.config/guix/home.scm
 !.config/guix/install.sh
+!.config/guix/transformations.scm
 !.config/guix/update
 !.config/guix/upgrade
 !.config/sway/config

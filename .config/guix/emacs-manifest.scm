@@ -1,55 +1,10 @@
 (define-module (emacs-manifest))
 
 (use-modules
- (gnu packages)
- (guix profiles)
- ((ice-9 popen) #:select (open-pipe* close-pipe))
- ((ice-9 rdelim) #:select (read-line))
- (guix cpu)
- ((guix transformations) #:select (options->transformation))
- ((guix build utils) #:select (with-directory-excursion)))
+ (guix profiles))
 
-(define* (git-commit path #:optional (commit "HEAD"))
-  (let* ((pipe (with-directory-excursion path
-                 (open-pipe* OPEN_READ "git" "rev-parse" commit)))
-         (version (read-line pipe)))
-    (close-pipe pipe)
-    version))
-
-(define* (use-local-source-transformations name path #:optional (commit "HEAD"))
-  (let ((commit (git-commit path commit)))
-    `((with-commit  . ,(string-append name "=" commit))
-      (with-git-url . ,(string-append name "=" path)))))
-
-(define transformations
-  (options->transformation
-   `(
-     (tune . ,(cpu->gcc-architecture (current-cpu)))
-     ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs")
-     (without-tests . "emacs-next-pgtk")
-
-     ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode" "installed")
-     (without-tests . "emacs-org")
-
-     ,@(use-local-source-transformations "proof-general" "/home/pancake/src/emacs/proof-general")
-
-     ,@(use-local-source-transformations "emacs-arei" "/home/pancake/src/emacs/emacs-arei")
-
-     (with-input   . "emacs=emacs-next-pgtk")
-     (with-input   . "emacs-minimal=emacs-next-pgtk")
-     (with-input   . "emacs-no-x=emacs-next-pgtk")
-     (with-input   . "emacs-no-x-toolkit=emacs-next-pgtk")
-
-     (without-tests . "emacs-ledger-mode")
-     (without-tests . "emacs-yasnippet"))))
-
-(define (specifications->packages-with-transformations packages)
-  (map
-   (compose
-    (lambda (package output)
-      (list (transformations package) output))
-    specification->package+output)
-   packages))
+(add-to-load-path ".")
+(use-modules (transformations))
 
 (define-public emacs-manifest-packages
   (specifications->packages-with-transformations
