@@ -1,11 +1,14 @@
 #!/bin/sh
-# Time-stamp: <2024-08-09 Fri 10:54>
+# Time-stamp: <2025-06-24 Tue 14:39>
 # Copyright (C) 2024 by Morgan Smith
 
 # This script installs guix system when run from a guix system installation medium
 
 # Stop on error
 set -e
+
+# Discover substitutes on local network
+herd discover guix-daemon on
 
 # Change these variables
 disk=/dev/sda
@@ -36,9 +39,11 @@ mkfs.btrfs -L guix-root /dev/mapper/guix-root
 mount -o compress=lzo,lazytime LABEL=guix-root /mnt
 
 # swap file
-btrfs subvolume create /mnt/swap
-btrfs filesystem mkswapfile /mnt/swap/swapfile --uuid clear -s 10g
-swapon /mnt/swap/swapfile
+swap_location="/mnt/swap"
+swap_file="$swap_location/swapfile"
+btrfs subvolume create $swap_location
+btrfs filesystem mkswapfile $swap_file --uuid clear -s 10g
+swapon $swap_file
 
 # boot partition
 mkfs.fat -F32 $p1
@@ -46,7 +51,7 @@ mkdir /mnt/boot
 mount $p1 /mnt/boot
 
 # obtain needed info
-swap_offset=$(btrfs inspect-internal map-swapfile -r /swap/swapfile)
+swap_offset=$(btrfs inspect-internal map-swapfile -r $swap_file)
 p1_uuid=$(lsblk -no UUID $p1)
 p2_uuid=$(cryptsetup luksUUID $p2)
 
@@ -54,13 +59,18 @@ p2_uuid=$(cryptsetup luksUUID $p2)
 cd /mnt
 wget https://big.oisd.nl/dnsmasq2
 wget https://git.sr.ht/~morgansmith/dotfiles/blob/master/.config/guix/config.scm
+wget https://git.sr.ht/~morgansmith/dotfiles/blob/master/.config/guix/home.scm
+wget https://git.sr.ht/~morgansmith/dotfiles/blob/master/.config/guix/default-manifest.scm
+wget https://git.sr.ht/~morgansmith/dotfiles/blob/master/.config/guix/emacs-manifest.scm
+wget https://git.sr.ht/~morgansmith/dotfiles/blob/master/.config/guix/transformations.scm
 
-# insert info into files
-sed -i "s/USERNAME/$user_name/" config.scm
-sed -i "s/HOSTNAME/$host_name/" config.scm
-sed -i "s/SWAP_OFFSET/$swap_offset/" config.scm
-sed -i "s/BOOT_UUID/$p1_uuid/" config.scm
-sed -i "s/LINUX_UUID/$p2_uuid/" config.scm
+cat > machine-specific.scm <<EOF
+(define username "$user_name")
+(define host-name "$host_name")
+(define swap-offset "$swap_offset")
+(define linux-uuid "$p2_uuid")
+(define boot-uuid "$p1_uuid")
+EOF
 
 herd start cow-store /mnt
 guix system init config.scm /mnt
