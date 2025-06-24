@@ -331,8 +331,7 @@
        config =>
        (guix-configuration
         (inherit config)
-        ;; Waiting for bug#78047
-        ;; (privileged? #f)
+        (privileged? #f)
         (substitute-urls
          (append (list "https://substitutes.nonguix.org")
                  %default-substitute-urls))
