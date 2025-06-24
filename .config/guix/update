@@ -32,6 +32,11 @@ git_commit_time(){
      git stash &&
      git rebase --no-gpg-sign)
 
+# Update local proof-general source
+(cd /home/pancake/src/emacs/proof-general &&
+     git stash &&
+     git rebase --no-gpg-sign)
+
 GUIX_SOURCE=/home/pancake/src/guix
 GUIX_COMMIT=$( cd $GUIX_SOURCE && git rev-parse origin/HEAD )
 CURRENT_GUIX_COMMIT=$(guix describe -f recutils | grep --max-count=1 '^commit: ' | cut -c 9-)
@@ -52,22 +57,7 @@ fi
              wget https://big.oisd.nl/dnsmasq2
      fi)
 
-# don't stop on error
-set +e
-
-# dev environment
-rm /home/pancake/.config/guix/dev
-guix shell --pure -D guix -D emacs-next-pgtk --root=/home/pancake/.config/guix/dev -- echo "done"
-
-# build manifest
-guix build --max-jobs=4 --keep-going -m /home/pancake/.config/guix/default-manifest.scm
-guix build --max-jobs=4 --keep-going -m /home/pancake/.config/guix/emacs-manifest.scm
-
-# build system
 guix system build --max-jobs=4 --keep-going /home/pancake/.config/guix/config.scm
-
-# build home
-guix home build --max-jobs=4 --keep-going /home/pancake/.config/guix/home.scm
 
 # Display news
 guix pull --news
