@@ -17,25 +17,16 @@ git_commit_time(){
     git log "$1" -n 1 --format=%ct
 }
 
-# Update local Emacs source
-(cd /home/pancake/src/emacs/emacs &&
-     git stash &&
-     git rebase --no-gpg-sign)
+rebase_local_repository(){
+    (cd "$1" &&
+         git stash &&
+         git rebase --no-gpg-sign)
+}
 
-# Update local org-mode source
-(cd /home/pancake/src/emacs/org-mode &&
-     git stash &&
-     git rebase --no-gpg-sign)
-
-# Update local arei source
-(cd /home/pancake/src/emacs/emacs-arei &&
-     git stash &&
-     git rebase --no-gpg-sign)
-
-# Update local proof-general source
-(cd /home/pancake/src/emacs/proof-general &&
-     git stash &&
-     git rebase --no-gpg-sign)
+rebase_local_repository /home/pancake/src/emacs/emacs
+rebase_local_repository /home/pancake/src/emacs/org-mode
+rebase_local_repository /home/pancake/src/emacs/emacs-arei
+rebase_local_repository /home/pancake/src/emacs/proof-general
 
 GUIX_SOURCE=/home/pancake/src/guix
 GUIX_COMMIT=$( cd $GUIX_SOURCE && git rev-parse origin/HEAD )
