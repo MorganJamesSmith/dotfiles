@@ -26,7 +26,7 @@
      (tune . ,(cpu->gcc-architecture (current-cpu)))
 
      ;; Current release version fails to parse my ledger file
-     (with-branch . "ledger=master")
+     ,@(use-local-source-transformations "ledger" "/home/pancake/src/ledger")
 
      ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs")
      (without-tests . "emacs-next-pgtk")

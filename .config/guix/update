@@ -23,6 +23,7 @@ rebase_local_repository(){
          git rebase --no-gpg-sign)
 }
 
+rebase_local_repository /home/pancake/src/ledger
 rebase_local_repository /home/pancake/src/emacs/emacs
 rebase_local_repository /home/pancake/src/emacs/org-mode
 rebase_local_repository /home/pancake/src/emacs/emacs-arei
