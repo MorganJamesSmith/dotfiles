@@ -21,7 +21,8 @@
  (guix channels)
  (guix gexp))
 
-(add-to-load-path ".")
+(when (current-filename)
+  (add-to-load-path (dirname (current-filename))))
 (use-modules (default-manifest))
 (use-modules (emacs-manifest))
 (use-modules (transformations))

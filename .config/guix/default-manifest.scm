@@ -3,7 +3,8 @@
 (use-modules
  (guix profiles))
 
-(add-to-load-path ".")
+(when (current-filename)
+  (add-to-load-path (dirname (current-filename))))
 (use-modules (transformations))
 
 ;; Waiting for this to be accepted upstream: bug#58074
