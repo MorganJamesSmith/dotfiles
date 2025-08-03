@@ -1299,6 +1299,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (eshell-mv-overwrite-files nil)
   (eshell-destroy-buffer-when-process-dies t))
 
+(use-package esh-var
+  :config
+  (add-to-list 'eshell-variable-aliases-list '("TERM" comint-terminfo-terminal t)))
+
 (use-package eshell-syntax-highlighting
   :if EXTERNAL-PACKAGES?
   :hook eshell-mode)
@@ -1311,6 +1315,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-to-list 'eshell-visual-commands "pw-top"))
 
 (setopt comint-pager "cat")
+(setopt comint-terminfo-terminal "dumb-emacs-ansi")
 
 (use-package dired
   :commands dired-goto-file
