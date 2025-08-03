@@ -90,19 +90,20 @@
   (when gnus-newsrc-alist
       (gnus-group-get-new-news)))
 
-(defun mbsync-process-sentinel (_process change)
-  "Run after I get mail from running mbsync.
-Use CHANGE to determine if an error has occured."
-  (gnus-maybe-group-get-new-news)
-  (if (not (string= change "finished\n"))
-      (message "mbsync: an error has occured: '%s'" change)
-    (with-current-buffer "*mbsync*"
-      (goto-char (point-min))
-      (search-forward "Channels")
-      (message (string-trim
-                (buffer-substring-no-properties
-                 (match-beginning 0) (point-max))))
-      (kill-buffer (current-buffer)))))
+(defun mbsync-process-sentinel (process _change)
+  "Run after I get mail from running mbsync (PROCESS)."
+  (unless (process-live-p process)
+    (gnus-maybe-group-get-new-news)
+    (let ((exit-status (process-exit-status process)))
+      (if (not (eq 0 exit-status))
+          (message "mbsync: an error has occured: '%s'" exit-status)
+        (with-current-buffer "*mbsync*"
+          (goto-char (point-min))
+          (search-forward "Channels")
+          (message (string-trim
+                    (buffer-substring-no-properties
+                     (match-beginning 0) (point-max))))
+          (kill-buffer (current-buffer)))))))
 
 (defun mbsync ()
   "Run mbsync."

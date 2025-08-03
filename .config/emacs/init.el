@@ -44,16 +44,19 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (defun unlock-gpg (&rest _ignore)
   "Using Emacs pinentry can cause a stalemate so call this before using GPG."
   (interactive)
-  ;; cache for 5 minutes since GPG caches for 10 minutes
-  (unless (time-less-p (time-since last-unlock-gpg) (seconds-to-time 300))
-    (setq last-unlock-gpg (current-time))
+  (unless (and
+           (not (get-process "unlock-gpg"))
+           ;; cache for 5 minutes since GPG caches for 10 minutes
+           (time-less-p (time-since last-unlock-gpg) (seconds-to-time 300)))
     (let ((process
            (make-process
-            :name "unlock gpg"
+            :name "unlock-gpg"
             :command '("gpg" "--dry-run" "--sign" "/dev/null"))))
       (while (process-live-p process)
         (thread-yield)
-        (sit-for 0.01)))))
+        (sit-for 0.01))
+      (when (eq 0 (process-exit-status process))
+        (setq last-unlock-gpg (current-time))))))
 
 (defun network-connectivityp ()
   "Do we currently have networking?"
