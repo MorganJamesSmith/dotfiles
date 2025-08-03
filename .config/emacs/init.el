@@ -1002,6 +1002,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                " ")))
 (add-hook 'emacs-lisp-mode-hook #'set-emacs-lisp-compile-command)
 
+(defun set-sh-mode-compile-command ()
+  "Set shell compile command to run file."
+  (setq-local compile-command buffer-file-name))
+(add-hook 'sh-mode-hook #'set-sh-mode-compile-command)
+
 (use-package grep
   :custom
   (grep-highlight-matches 'always)
