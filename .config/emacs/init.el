@@ -14,7 +14,7 @@
 (setopt warning-suppress-log-types '((files missing-lexbind-cookie)))
 
 (require 'xdg)
-(require 'emacs-secrets "/home/pancake/documents/configs/private/emacs-secrets.el")
+(require 'emacs-secrets (expand-file-name "configs/private/emacs-secrets.el" (xdg-user-dir "DOCUMENTS")))
 
 (defconst EXTERNAL-PACKAGES? (not (eq system-type 'android)))
 
