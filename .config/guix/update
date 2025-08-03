@@ -29,8 +29,11 @@ rebase_local_repository /home/pancake/src/emacs/org-mode
 rebase_local_repository /home/pancake/src/emacs/emacs-arei
 rebase_local_repository /home/pancake/src/emacs/proof-general
 
+# used in home.scm as a channel
+rebase_local_repository /home/pancake/src/nonguix
+
 GUIX_SOURCE=/home/pancake/src/guix
-GUIX_COMMIT=$( cd $GUIX_SOURCE && git rev-parse origin/HEAD )
+GUIX_COMMIT=$(cd $GUIX_SOURCE && git rev-parse origin/HEAD)
 CURRENT_GUIX_COMMIT=$(guix describe -f recutils | grep --max-count=1 '^commit: ' | cut -c 9-)
 if (cd $GUIX_SOURCE &&
         [ $(("$(git_commit_time "$CURRENT_GUIX_COMMIT")" + (60*60*24))) -lt "$(git_commit_time "$GUIX_COMMIT")" ] );

@@ -66,7 +66,7 @@
                        (list
                         (channel
                          (name 'nonguix)
-                         (url "https://gitlab.com/nonguix/nonguix")
+                         (url "/home/pancake/src/nonguix")
                          ;; Enable signature verification:
                          (introduction
                           (make-channel-introduction
