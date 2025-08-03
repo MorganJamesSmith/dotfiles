@@ -1,5 +1,3 @@
-[color]
-	ui = always
 [commit]
 	gpgSign = true
 	verbose = true
