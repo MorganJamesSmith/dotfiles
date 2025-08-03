@@ -3,8 +3,6 @@
 sudo guix system delete-generations 1w
 guix home delete-generations 1w
 guix package --delete-generations=1w
-guix package -p /home/pancake/.config/guix/extra-profiles/default/default --delete-generations=1w
-guix package -p /home/pancake/.config/guix/extra-profiles/emacs/emacs --delete-generations=1w
 guix pull --delete-generations=1w
 guix gc
 guix gc --clear-failures
