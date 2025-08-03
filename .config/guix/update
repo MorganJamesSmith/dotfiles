@@ -19,8 +19,7 @@ git_commit_time(){
 
 rebase_local_repository(){
     (cd "$1" &&
-         git stash &&
-         git rebase --no-gpg-sign)
+         git rebase --no-gpg-sign --autostash)
 }
 
 rebase_local_repository /home/pancake/src/ledger
