@@ -75,7 +75,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 ;; Display the bare minimum at startup
 (setopt inhibit-startup-screen t)
 (setopt inhibit-startup-echo-area-message user-login-name)
-(setopt inhibit-default-init t)
+(setopt inhibit-default-init t) ; Don't load default.el
 (setopt initial-major-mode 'fundamental-mode)
 (setopt initial-scratch-message nil)
 (fset #'display-startup-echo-area-message #'ignore)
@@ -197,10 +197,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;;; Terrible Defaults Section Starts
 (setopt use-short-answers t)
-
-(setopt enable-local-variables :all)
-
-(setopt org-link-elisp-confirm-function nil)
 
 (setopt disabled-command-function nil)
 
@@ -838,7 +834,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (smartparens-global-mode))
 
 (which-function-mode)
-(global-prettify-symbols-mode)
 (setq-default c-auto-newline t)
 (setq-default c-hungry-delete-key t)
 
@@ -936,6 +931,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :hook scheme-mode
   :config
   (defalias 'pcomplete/guix #'ignore)) ;; Freezes up eshell
+
+(add-to-list
+ 'safe-local-variable-directories
+ "~/src/guix")
+
+(add-to-list
+ 'safe-local-eval-forms
+ '(add-to-list 'completion-ignored-extensions ".go"))
+
 
 (use-package arei
   :if EXTERNAL-PACKAGES?)
