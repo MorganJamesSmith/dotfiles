@@ -95,6 +95,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt global-auto-revert-non-file-buffers t)
 (setopt revert-without-query '("."))
 (setopt auto-revert-avoid-polling t)
+(setopt auto-revert-check-vc-info t)
 (setopt dired-auto-revert-buffer t)
 
 (setopt shell-kill-buffer-on-exit t)
@@ -1071,22 +1072,30 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
     (list command file-or-list flags)))
 (setopt vc-filter-command-function #'my-vc-filter-command)
 
+(use-package vc
+  :custom
+  (vc-log-short-style '(directory file))
+  (vc-log-finish-functions nil)  ; no buffer resizing!
+  (vc-diff-finish-functions nil) ; no buffer resizing!
+  (vc-allow-async-diff t)
+  (vc-allow-rewriting-published-history 'ask))
 
-(setopt vc-handled-backends '(Git))
-(setopt auto-revert-check-vc-info t)
-(setopt vc-log-short-style '(directory file))
-(setopt vc-git-annotate-switches '("-w" "-C" "-C" "-C"))
-(setopt vc-git-print-log-follow t)
-(setopt vc-log-finish-functions nil)  ; no buffer resizing!
-(setopt vc-diff-finish-functions nil) ; no buffer resizing!
-(setopt vc-dir-hide-up-to-date-on-revert t)
-(setopt vc-allow-async-diff t)
-(setopt vc-allow-rewriting-published-history 'ask)
-(setopt vc-dir-save-some-buffers-on-revert t)
-(setopt vc-auto-revert-mode t)
+(use-package vc-hooks
+  :custom
+  (vc-handled-backends '(Git))
+  (vc-auto-revert-mode t))
 
-(with-eval-after-load "vc-git"
+(use-package vc-git
+  :custom
+  (vc-git-annotate-switches '("-w" "-C" "-C" "-C"))
+  (vc-git-print-log-follow t)
+  :config
   (add-hook 'log-edit-done-hook #'unlock-gpg))
+
+(use-package vc-dir
+  :custom
+  (vc-dir-hide-up-to-date-on-revert t)
+  (vc-dir-save-some-buffers-on-revert t))
 
 (use-package ediff
   :custom
