@@ -1059,6 +1059,19 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (global-diff-hl-mode))
 
+(defvar vc-git-program)
+(defun my-vc-filter-command (command file-or-list flags)
+  "Never run git fetch.  I'll do that myself.
+This allows me to fetch manually ahead of time and then use
+`vc-log-incoming' without waiting for the network.
+Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
+  (if (and (string-equal vc-git-program command)
+           (string-equal (nth 1 flags) "fetch"))
+      (list "true" file-or-list flags)
+    (list command file-or-list flags)))
+(setopt vc-filter-command-function #'my-vc-filter-command)
+
+
 (setopt vc-handled-backends '(Git))
 (setopt auto-revert-check-vc-info t)
 (setopt vc-log-short-style '(directory file))
@@ -1067,6 +1080,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt vc-log-finish-functions nil)  ; no buffer resizing!
 (setopt vc-diff-finish-functions nil) ; no buffer resizing!
 (setopt vc-dir-hide-up-to-date-on-revert t)
+(setopt vc-allow-async-diff t)
+(setopt vc-allow-rewriting-published-history 'ask)
+(setopt vc-dir-save-some-buffers-on-revert t)
+(setopt vc-auto-revert-mode t)
 
 (with-eval-after-load "vc-git"
   (add-hook 'log-edit-done-hook #'unlock-gpg))
