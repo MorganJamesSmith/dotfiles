@@ -28,7 +28,15 @@
   (add-function :after (symbol-function #'gnus-close-all-servers)
                 #'exit-gnus-on-exit))
 
+;; I want to silence the prompt in `gnus-offer-save-summaries' and in
+;; `gnus-group-exit'.  So I need to set `gnus-interactive-exit' to nil and also
+;; to 'quiet.  I don't like that I have to do this
 (setopt gnus-interactive-exit nil)
+(with-eval-after-load "gnus-sum"
+  (add-function :around (symbol-function #'gnus-offer-save-summaries)
+                (lambda (fun)
+                  (let ((gnus-interactive-exit 'quiet))
+                    (funcall fun)))))
 
 (with-eval-after-load "gnus-art"
   ;; git send-email --in-reply-to=message-id
