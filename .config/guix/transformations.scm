@@ -46,11 +46,27 @@
      (without-tests . "emacs-ledger-mode")
      (without-tests . "emacs-yasnippet"))))
 
+;; We do these separately as they don't combine with our source transformations
+;; unless they are done as a separate step.
+;;
+;; Our source transformations also clear the patches that would normally be
+;; applied so I add them back in
+(define patch-transformations
+  (options->transformation
+   '(
+   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-disable-jit-compilation.patch")
+   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-exec-path.patch")
+   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-fix-scheme-indent-function.patch")
+   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-native-comp-driver-options.patch")
+   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-native-comp-fix-filenames.patch")
+   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-native-comp-pin-packages.patch")
+   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-pgtk-super-key-fix.patch"))))
+
 (define-public specifications->packages-with-transformations
   (lambda* (specifications #:optional (packages '()))
     (map
      (lambda* (package #:optional (output "out"))
-       (list (transformations package) output))
+       (list (patch-transformations (transformations package)) output))
      (append!
       (map
        specification->package+output
