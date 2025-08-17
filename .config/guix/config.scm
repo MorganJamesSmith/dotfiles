@@ -205,12 +205,7 @@
     ;;          (file-database-configuration
     ;;           (schedule "0 * * * *")))
 
-    (service tlp-service-type
-             (tlp-configuration
-              (cpu-scaling-governor-on-ac (list "performance"))
-              (cpu-energy-perf-policy-on-ac "performance")
-              (cpu-scaling-governor-on-bat (list "powersave"))
-              (cpu-energy-perf-policy-on-bat "power")))
+    (service tlp-service-type)
     (service thermald-service-type)
 
     (service
