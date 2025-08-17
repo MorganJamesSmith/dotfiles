@@ -293,6 +293,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-read-date-popup-calendar nil)
   (org-special-ctrl-a/e t)
   (org-fold-catch-invisible-edits 'show-and-error)
+  (org-tags-sort-function #'org-tags-sort-hierarchy)
   (org-enforce-todo-dependencies t)
   (org-todo-keywords
    '((sequence "TODO" "|" "DONE" "FAILED")
@@ -314,9 +315,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   ;; I keep accidentally archiving stuff
   (keymap-unset org-mode-map "C-c C-x C-s")
 
-  ;; My custom patch
-  (when (fboundp 'org-tags-sort-hierarchy)
-    (setopt org-tags-sort-function #'org-tags-sort-hierarchy))
   :bind
   (;; Useful for more then just org
    ("C-c ." . org-timestamp)
