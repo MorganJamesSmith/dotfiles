@@ -160,6 +160,19 @@
     (service guix-home-service-type
              `((,username ,my-home-environment)))
 
+    (service shared-cache-service-type
+             (shared-cache-configuration
+              (mode 'share)
+              (users (list (user-cache (user username))))))
+    (simple-service 'guix-locate-db
+                    vfs-mapping-service-type
+                    (list (vfs-mapping
+                           (source      "/var/cache/guix/locate")
+                           (destination (string-append "/home/" username "/.cache/guix/locate"))
+                           (user        username)
+                           (policy      'translate)
+                           (name        "guix-locate-db"))))
+
     (service dconf-service-type
              (list
               (dconf-profile
