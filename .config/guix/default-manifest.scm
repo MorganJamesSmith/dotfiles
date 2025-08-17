@@ -68,7 +68,9 @@ package can be used with isync to fetch mail from servers that support it.")
 (define programming
   '("global"
     "git"
-    "git:send-email"))
+    "git:send-email"
+    "make"
+    "tup"))
 
 (define email
   '("msmtp" ; sending emails

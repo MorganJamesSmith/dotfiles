@@ -52,6 +52,7 @@
        "scad-mode"
        "smartparens"
        "transmission"
+       "tup-mode"
        "vterm"
        "ws-butler"
        "yasnippet")))))
