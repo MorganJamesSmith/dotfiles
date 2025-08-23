@@ -12,7 +12,6 @@
 !.config/guix/install.sh
 !.config/guix/transformations.scm
 !.config/guix/update
-!.config/guix/upgrade
 !.config/sway/config
 !.gitignore
 !LICENSE
