@@ -519,10 +519,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                (time-to-days (org-timestamp-to-time
                               (org-element-property :deadline (org-element-at-point))))))))
     (when (and (> level 1) (funcall deadline-future?))
-      (while (and (outline-next-heading) (funcall next-todo?) (funcall deadline-future?))
-        (incf amount))
-      (when (funcall next-todo?)
-        (incf amount)))
+      (save-excursion
+        (while (and (outline-next-heading) (funcall next-todo?) (funcall deadline-future?))
+          (incf amount))
+        (when (funcall next-todo?)
+          (incf amount))))
     (if (eq amount 1)
         "   "
       (format "%2dx" amount))))
