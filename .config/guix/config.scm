@@ -105,7 +105,8 @@
   ;; Partition mounted on /boot.
   (bootloader (bootloader-configuration
                (bootloader grub-efi-removable-bootloader)
-               (targets (list "/boot"))))
+               (targets (list "/boot"))
+               (extra-initrd "/key-file.cpio")))
 
   ;; Specify a mapped device for the encrypted root partition.
   ;; The UUID is that returned by 'cryptsetup luksUUID'.
@@ -113,7 +114,8 @@
    (list (mapped-device
           (source (uuid linux-uuid))
           (target "guix-root")
-          (type luks-device-mapping))))
+          (type luks-device-mapping)
+          (arguments '(#:key-file "/key-file.bin")))))
 
   (swap-devices (list (swap-space (target "/swap/swapfile")
                                   (dependencies mapped-devices))))
@@ -156,6 +158,15 @@
     %base-packages))
   (services
    (cons*
+
+    (service mingetty-service-type
+             (mingetty-configuration
+               (tty "tty7")
+               (auto-login username)
+               ;; bug#68384: Work around to fix "Error in service module"
+               (shepherd-requirement '(dbus-system
+                                       user-processes host-name
+                                       udev virtual-terminal))))
 
     (service guix-home-service-type
              `((,username ,my-home-environment)))

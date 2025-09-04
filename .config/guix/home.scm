@@ -76,7 +76,15 @@
 
        (service home-shepherd-service-type)
        (service home-dbus-service-type)
-       (service home-bash-service-type)
+       (service home-bash-service-type
+                (home-bash-configuration
+                  (bash-profile
+                   (list (plain-file "bash-profile" "
+# Start graphical interface
+if [ \"$(tty)\" = \"/dev/tty7\" ]; then
+    chvt 7
+    sway
+fi")))))
 
        (service home-dicod-service-type) ;; Dictionary server
        (service home-syncthing-service-type)

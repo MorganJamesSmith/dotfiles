@@ -1,5 +1,5 @@
 #!/bin/sh
-# Time-stamp: <2025-06-24 Tue 14:39>
+# Time-stamp: <2025-09-04 Thu 13:30>
 # Copyright (C) 2024 by Morgan Smith
 
 # This script installs guix system when run from a guix system installation medium
@@ -37,6 +37,14 @@ cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards -
 # Put BTRFS on main partition and mount
 mkfs.btrfs -L guix-root /dev/mapper/guix-root
 mount -o compress=lzo,lazytime LABEL=guix-root /mnt
+
+# Add a keyfile to avoid needing the type the password twice on boot
+# TODO: test this.  Not a clue if it works
+dd bs=512 count=4 if=/dev/random iflag=fullblock of=/mnt/key-file.bin
+cryptsetup luksAddKey $p2 /mnt/key-file.bin
+echo /mnt/key-file.bin | cpio -oH newc >/mnt/key-file.cpio
+chmod 0000 /mnt/key-file.bin
+chmod 0000 /mnt/key-file.cpio
 
 # swap file
 swap_location="/mnt/swap"
