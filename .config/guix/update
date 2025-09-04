@@ -5,7 +5,7 @@ set -e
 
 CURRENT_TIME=$(date +"%s")
 file_younger_then(){
-    if [ $(( CURRENT_TIME - $2 )) -lt "$(stat -c %Y "$1")" ];
+    if [ $(( CURRENT_TIME - $2 )) -lt "$(stat -c %Z "$1")" ];
     then
         true
     else
@@ -32,6 +32,7 @@ rebase_local_repository /home/pancake/src/emacs/proof-general
 rebase_local_repository /home/pancake/src/nonguix
 
 GUIX_SOURCE=/home/pancake/src/guix
+rebase_local_repository $GUIX_SOURCE
 GUIX_COMMIT=$(cd $GUIX_SOURCE && git rev-parse origin/HEAD)
 CURRENT_GUIX_COMMIT=$(guix describe -f recutils | grep --max-count=1 '^commit: ' | cut -c 9-)
 if (cd $GUIX_SOURCE &&
@@ -44,10 +45,12 @@ else
 fi
 
 (cd /home/pancake/.config/guix &&
-     if file_younger_then dnsmasq2 $((60*60*24)); then
+     if [ -f "dnsmasq2" ] && file_younger_then dnsmasq2 $((60*60*24)); then
          echo "Re-using existing dnsmasq2"
      else
-         mv -f dnsmasq2 dnsmasq2.bak &&
+         if [ -f "dnsmasq2" ]; then
+             mv -f dnsmasq2 dnsmasq2.bak
+         fi
              wget https://big.oisd.nl/dnsmasq2
      fi)
 
