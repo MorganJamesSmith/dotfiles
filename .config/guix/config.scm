@@ -105,6 +105,7 @@
   ;; Partition mounted on /boot.
   (bootloader (bootloader-configuration
                (bootloader grub-efi-removable-bootloader)
+               (timeout 1)
                (targets (list "/boot"))
                (extra-initrd "/key-file.cpio")))
 
@@ -115,7 +116,8 @@
           (source (uuid linux-uuid))
           (target "guix-root")
           (type luks-device-mapping)
-          (arguments '(#:key-file "/key-file.bin")))))
+          (arguments '(#:key-file "/key-file.bin"
+                       #:allow-discards? #t)))))
 
   (swap-devices (list (swap-space (target "/swap/swapfile")
                                   (dependencies mapped-devices))))
