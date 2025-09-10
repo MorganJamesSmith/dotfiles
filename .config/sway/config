@@ -82,6 +82,12 @@ input 2689:517:CHESEN_PS2_to_USB_Converter_Mouse
     bindsym --locked XF86MonBrightnessUp exec brightnessctl -n set +5%
     bindsym --locked XF86MonBrightnessDown exec brightnessctl -n set 5%-
 
+    # Clear notifications
+    bindsym $mod+c exec makoctl dismiss -a
+
+    # Tell Emacs to stop what it's doing
+    bindsym Print exec killall -s USR2 -r '\Wemacs\W'
+
     # Kill focused window
     bindsym $mod+Shift+q kill
 
