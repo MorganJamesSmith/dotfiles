@@ -1204,13 +1204,19 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 ;; Send user agent as many sites require it
 (setopt url-privacy-level '(email os emacs lastloc cookies))
 
-(setopt eww-use-browse-url "\\`\\(?:gemini\\|gopher\\|mailto\\|magnet\\):\\|\\(youtube.com\\|youtu.be\\)\\|\\.\\(?:mp[34]\\|torrent\\)\\'")
+(setopt eww-use-browse-url
+        (rx
+         (or (and string-start (or "gemini" "gopher" "mailto" "magnet") ":")
+             "youtube.com"
+             "youtu.be"
+             (and (or ".mp3" ".mp4" ".torrent") string-end))))
+
 (setopt browse-url-handlers
-        '(("\\`\\(gemini\\|gopher\\)://" .
+        `((,(rx string-start (or "gemini" "gopher") "://") .
            (lambda (host-or-url &rest _) (elpher-go host-or-url)))
-          ("\\`magnet:\\|\\.torrent\\'" .
+          (,(rx (or (and string-start "magnet") (and ".torrent" string-end))) .
            (lambda (host-or-url &rest _) (transmission-add host-or-url)))
-          ("\\`https?://.*\\.\\(webm\\|m[kp][34v]\\)\\'" .
+          (,(rx string-start "http" (? "s") "://" (* anychar) "." (or "webm" "mkv" "mp3" "mp4") string-end) .
            (lambda (host-or-url &rest _)
              (message "Downloading file")
              (make-process
@@ -1221,7 +1227,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
                         "--progress=dot:mega"
                         host-or-url)
               :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))
-          ("\\(youtube.com\\|youtu.be\\)" .
+          (,(rx (or "youtube.com" "youtu.be")) .
            (lambda (host-or-url &rest _)
              (message "Downloading file")
              (make-process
