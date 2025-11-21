@@ -91,11 +91,15 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; Sensible Defaults Section Begins
-(global-auto-revert-mode t)
-(setopt global-auto-revert-non-file-buffers t)
+(use-package autorevert
+  :delight auto-revert-mode
+  :custom
+  (global-auto-revert-non-file-buffers t)
+  (auto-revert-avoid-polling t)
+  (auto-revert-check-vc-info t)
+  :config
+  (global-auto-revert-mode t))
 (setopt revert-without-query '("."))
-(setopt auto-revert-avoid-polling t)
-(setopt auto-revert-check-vc-info t)
 (setopt dired-auto-revert-buffer t)
 
 (setopt shell-kill-buffer-on-exit t)
