@@ -323,6 +323,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (;; Useful for more then just org
    ("C-c ." . org-timestamp)
    ("C-c !" . org-timestamp-inactive)
+   ("C-c l" . org-store-link)
 
    (:map org-mode-map
          ("M-p" . org-metaup)
@@ -369,7 +370,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (use-package org-agenda
   :bind
   (("C-c a" . (lambda () (interactive) (org-agenda nil "o")))
-   ("C-c l" . (lambda () (interactive) (org-agenda nil "l")))
    ("C-c t" . (lambda () (interactive) (org-agenda nil "p"))))
   :custom
   (org-agenda-sticky t)
