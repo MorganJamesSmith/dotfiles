@@ -197,6 +197,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
         ("<remap> <scroll-up>" . Info-scroll-up)))
 
 (setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
+
+(defun kill-all-processes ()
+  "Kill all processes."
+  (mapc #'delete-process (process-list)))
+
+(add-hook 'kill-emacs-hook #'kill-all-processes)
 ;;; Sensible Defaults Section Ends
 
 
