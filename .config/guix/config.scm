@@ -329,9 +329,14 @@
               (kill-user-processes? #t)
               (handle-power-key 'suspend-then-hibernate)
               (handle-lid-switch 'suspend-then-hibernate)
+              (handle-lid-switch-docked 'suspend)
+              (handle-lid-switch-external-power 'suspend)
               (idle-action-seconds (* 5 60))
               (idle-action 'suspend-then-hibernate)
               (hibernate-delay-seconds (* 2 60 60))))
+
+    ;; bug#78040 - suspend-then-hibernate issue
+    (service kernel-module-loader-service-type '("dmi-sysfs"))
 
     (service dbus-root-service-type)
 
