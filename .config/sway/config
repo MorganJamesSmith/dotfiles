@@ -34,6 +34,7 @@ set $menu bemenu-run -p "" -i | xargs swaymsg exec --
 # Black background
 output * bg #000000 solid_color
 output * adaptive_sync on
+output * allow_tearing yes
 output * scale 1
 
 
