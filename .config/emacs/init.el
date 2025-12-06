@@ -1717,30 +1717,12 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   (org-persist-gc)
   (garbage-collect))
 
-(autoload 'dbus-register-signal "dbus")
-(defun register-cleanup-dbus ()
-  "Run cleanup function on lock, sleep, and shutdown."
- (when (featurep 'dbusbind)
-  (dbus-register-signal :system
-                        "org.freedesktop.login1"
-                        ;; TODO: Hard coded c1 session
-                        "/org/freedesktop/login1/session/c1"
-                        "org.freedesktop.login1.Session"
-                        "Lock"
-                        #'cleanup)
-  (dbus-register-signal :system
-                        "org.freedesktop.login1"
-                        "/org/freedesktop/login1"
-                        "org.freedesktop.login1.Manager"
-                        "PrepareForSleep"
-                        #'cleanup)
-  (dbus-register-signal :session
-                        "org.freedesktop.login1"
-                        "/org/freedesktop/login1"
-                        "org.freedesktop.login1.Manager"
-                        "PrepareForShutdown"
-                        #'cleanup)))
-(add-hook 'emacs-startup-hook 'register-cleanup-dbus)
+(defvar cleanup-process
+  (make-process
+   :name "emacs-run-cleanup"
+   :buffer " *emacs-run-cleanup*"
+   :command (list "xss-lock" "--" emacsclient-program-name "--eval" "(cleanup)")
+   :noquery t))
 
 (use-package viper
   :if nil
