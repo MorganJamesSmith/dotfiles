@@ -46,6 +46,7 @@
        "literate-calc-mode"
        "nov-el"
        "org"
+       "org-transclusion"
        "osm"
        "pinentry"
        "rainbow-delimiters"
