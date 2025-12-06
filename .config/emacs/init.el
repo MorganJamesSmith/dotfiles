@@ -301,7 +301,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (org-enforce-todo-dependencies t)
   (org-todo-keywords
    '((sequence "TODO" "|" "DONE" "FAILED")
-     (sequence "WAITINGFOR" "DONE")
+     (sequence "WAIT" "DONE")
      (sequence "HABIT" "DONE")
      (sequence "PROJECT" "DONE")))
   ;; todo priorities
@@ -483,7 +483,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
          (org-agenda-todo-ignore-scheduled 'all)
          (org-agenda-todo-ignore-timestamp 'all)))
        (todo ;; waiting for
-        "WAITINGFOR"
+        "WAIT"
         ((org-agenda-overriding-header "Waiting for:")))
        (todo
         "PROJECT"
