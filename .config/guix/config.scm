@@ -117,7 +117,10 @@
           (target "guix-root")
           (type luks-device-mapping)
           (arguments '(#:key-file "/key-file.bin"
-                       #:allow-discards? #t)))))
+                       #:allow-discards? #t
+                       #:extra-options
+                       ("--perf-no_read_workqueue"
+                        "--perf-no_write_workqueue"))))))
 
   (swap-devices (list (swap-space (target "/swap/swapfile")
                                   (dependencies mapped-devices))))
