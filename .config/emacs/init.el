@@ -968,11 +968,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :delight yas-minor-mode
   :hook ((prog-mode conf-mode text-mode) . yas-minor-mode))
 
-(defvar-local elogind-inhibit-process nil)
 (use-package compile
   :commands compilation-next-file compilation-previous-file
   ;; dumb autoload to avoid warnings
-  :autoload elogind-inhibit-compilation elogind-inhibit-kill
+  :autoload compilation-inhibit-sleep-shutdown compilation-release-inibitor
+  :defines compilation-inhibitor-lock
   :custom
   (compilation-max-output-line-length nil)
   (compilation-ask-about-save nil)
@@ -980,46 +980,23 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :bind (:map compilation-mode-map
               ("c" . compile))
   :config
-  (defun elogind-inhibit-compilation (_process)
-    "Run elogind-inhibit for the duration of the compilation."
-    (when elogind-inhibit-process
-      (elogind-inhibit-kill nil nil))
-    (setq elogind-inhibit-process
-          (make-process
-           :name "elogind-inhibit for compilation"
-           :command '("elogind-inhibit" "--who=emacs-compilation" "sleep" "infinity"))))
+  (defun compilation-inhibit-sleep-shutdown (_process)
+    (setq-local compilation-inhibitor-lock
+                (dbus-make-inhibitor-lock
+                 "sleep:shutdown"
+                 "compilation in progress"
+                 "block")))
 
-  (defun elogind-inhibit-kill (&optional buffer _status)
-    "Kill elogind-inhibit when the compilation is finished."
-    (with-current-buffer (or buffer (current-buffer))
-      (when elogind-inhibit-process
-        (kill-process elogind-inhibit-process))
-      (setq elogind-inhibit-process nil)))
+  (defun compilation-release-inibitor (&rest _ignore)
+    (when (and (bound-and-true-p compilation-inhibitor-lock)
+               (null compilation-in-progress))
+      (dbus-close-inhibitor-lock compilation-inhibitor-lock)))
 
   (add-hook 'compilation-mode-hook
             (lambda ()
-              (add-hook 'kill-buffer-hook #'elogind-inhibit-kill nil t)))
-  (add-hook 'compilation-start-hook #'elogind-inhibit-compilation)
-  (add-to-list 'compilation-finish-functions #'elogind-inhibit-kill))
-
-(defun set-emacs-lisp-compile-command ()
-  "Set elisp compile command to run checkdoc and `native-compile'."
-  (setq-local compile-command
-              (string-join
-               (list "emacs -Q --batch"
-                     (shell-quote-argument "--eval=(setq byte-compile-warnings 'all)")
-                     (concat "--eval="
-                             (shell-quote-argument
-                              (concat "(checkdoc-file \"" buffer-file-name "\")")))
-                     "-f batch-native-compile"
-                     buffer-file-name)
-               " ")))
-(add-hook 'emacs-lisp-mode-hook #'set-emacs-lisp-compile-command)
-
-(defun set-sh-mode-compile-command ()
-  "Set shell compile command to run file."
-  (setq-local compile-command buffer-file-name))
-(add-hook 'sh-mode-hook #'set-sh-mode-compile-command)
+              (add-hook 'kill-buffer-hook #'compilation-release-inibitor nil t)))
+  (add-to-list 'compilation-finish-functions #'compilation-release-inibitor)
+  (add-hook 'compilation-start-hook #'compilation-inhibit-sleep-shutdown))
 
 (use-package grep
   :custom
@@ -1717,12 +1694,40 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   (org-persist-gc)
   (garbage-collect))
 
-(defvar cleanup-process
-  (make-process
-   :name "emacs-run-cleanup"
-   :buffer " *emacs-run-cleanup*"
-   :command (list "xss-lock" "--" emacsclient-program-name "--eval" "(cleanup)")
-   :noquery t))
+(add-hook 'kill-emacs-hook #'cleanup)
+
+(defvar my-cleanup-inhibitor-lock
+  (dbus-make-inhibitor-lock "sleep:shutdown" "Cleanup"))
+
+(defun my-dbus-PrepareForSleep-handler (start)
+  (if start ;; The system goes down for sleep
+      (progn
+        (cleanup)
+        ;; Release inhibitor lock.
+        (when (natnump my-cleanup-inhibitor-lock)
+          (dbus-close-inhibitor-lock my-cleanup-inhibitor-lock)
+          (setq my-cleanup-inhibitor-lock nil)))
+    ;; Reacquire inhibitor lock.
+    (setq my-cleanup-inhibitor-lock
+          (dbus-make-inhibitor-lock "sleep:shutdown" "Cleanup"))))
+
+(defun register-cleanup-dbus ()
+  "Run cleanup function on lock, sleep, and shutdown."
+  (when (featurep 'dbusbind)
+    (dbus-register-signal :system
+                          "org.freedesktop.login1"
+                          ;; TODO: Hard coded c1 session
+                          "/org/freedesktop/login1/session/c1"
+                          "org.freedesktop.login1.Session"
+                          "Lock"
+                          #'cleanup)
+    (dbus-register-signal :system
+                          "org.freedesktop.login1"
+                          "/org/freedesktop/login1"
+                          "org.freedesktop.login1.Manager"
+                          "PrepareForSleep"
+                          #'my-dbus-PrepareForSleep-handler)))
+(add-hook 'emacs-startup-hook 'register-cleanup-dbus)
 
 (use-package viper
   :if nil
