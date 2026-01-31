@@ -36,8 +36,6 @@
 
      ,@(use-local-source-transformations "proof-general" "/home/pancake/src/emacs/proof-general" "master")
 
-     ,@(use-local-source-transformations "emacs-arei" "/home/pancake/src/emacs/emacs-arei")
-
      ,@(use-local-source-transformations "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion")
      (without-tests . "emacs-org-transclusion")
 
