@@ -34,7 +34,7 @@
      ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode" "installed")
      (without-tests . "emacs-org")
 
-     ,@(use-local-source-transformations "proof-general" "/home/pancake/src/emacs/proof-general" "master")
+     ,@(use-local-source-transformations "proof-general" "/home/pancake/src/emacs/proof-general")
 
      ,@(use-local-source-transformations "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion")
      (without-tests . "emacs-org-transclusion")
@@ -44,8 +44,12 @@
      (with-input   . "emacs-no-x=emacs-next-pgtk")
      (with-input   . "emacs-no-x-toolkit=emacs-next-pgtk")
 
+     ;; doesn't build.  TODO: investigate
+     (with-input   . "emacs-ert-runner=emacs-next-pgtk")
+
      (without-tests . "emacs-ledger-mode")
-     (without-tests . "emacs-yasnippet"))))
+     (without-tests . "emacs-dash")
+     )))
 
 ;; We do these separately as they don't combine with our source transformations
 ;; unless they are done as a separate step.
