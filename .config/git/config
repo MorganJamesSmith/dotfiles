@@ -5,8 +5,6 @@
 	gpgSign = true
 [stash]
 	showPatch = true
-[pull]
-	ff = only
 [push]
 	autoSetupRemote = true
 	gpgSign = if-asked
@@ -51,9 +49,10 @@
 	algorithm = histogram
 [rebase]
 	autoStash = true
-	missingCommitsCheck = error
+	missingCommitsCheck = warn
 	autoSquash = true
 	updateRefs = true
+	rebaseMerges = true
 [core]
 	quotePath = false
 	untrackedCache = true
