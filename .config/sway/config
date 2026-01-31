@@ -41,6 +41,8 @@ output * scale 1
 ### Idle configuration
 # Use idlehint to alert elogind which will do the suspend and lock
 exec swayidle -w idlehint 300
+# Enables inhibit_idle when playing audio
+exec sway-audio-idle-inhibit
 # Tell elogind how to lock (mute audio first)
 exec xss-lock -- sh -c 'pactl set-sink-mute @DEFAULT_SINK@ 1; swaylock'
 

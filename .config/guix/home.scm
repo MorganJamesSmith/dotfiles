@@ -36,6 +36,7 @@
         "sway"
         "swaylock"
         "swayidle"
+        "sway-audio-idle-inhibit"
         "xss-lock"
         "dbus" ;; so sway can use "dbus-update-activation-environment"
         "bemenu" ;; so dbus can use this
