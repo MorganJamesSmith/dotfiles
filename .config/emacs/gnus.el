@@ -21,13 +21,6 @@
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
-(setopt gnus-dbus-close-on-sleep t)
-
-(with-eval-after-load "gnus-start"
-  ;; Just close down gnus after it's shutdown via dbus
-  (add-function :after (symbol-function #'gnus-close-all-servers)
-                #'exit-gnus-on-exit))
-
 ;; I want to silence the prompt in `gnus-offer-save-summaries' and in
 ;; `gnus-group-exit'.  So I need to set `gnus-interactive-exit' to nil and also
 ;; to 'quiet.  I don't like that I have to do this
