@@ -24,6 +24,7 @@ rebase_local_repository(){
 
 rebase_local_repository /home/pancake/src/emacs/emacs
 rebase_local_repository /home/pancake/src/emacs/org-mode
+rebase_local_repository /home/pancake/src/emacs/org-transclusion
 rebase_local_repository /home/pancake/src/emacs/proof-general
 
 # used in home.scm as a channel
