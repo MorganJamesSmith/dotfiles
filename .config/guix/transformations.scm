@@ -25,6 +25,9 @@
    `(
      (tune . ,(cpu->gcc-architecture (current-cpu)))
 
+     ;; YouTube keeps changing things so I need to use the latest version
+     (with-latest . "yt-dlp")
+
      ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs")
      (without-tests . "emacs-next-pgtk")
 
