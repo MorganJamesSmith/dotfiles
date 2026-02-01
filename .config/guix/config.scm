@@ -86,9 +86,8 @@
     "quiet"
     "mitigations=off" ; more performance
     "nowatchdog" ; more performance
-    "acpi_osi=\"!Windows 2020\"" ; framework laptop suspend issue
     "resume=/dev/mapper/guix-root"
-    ;; btrfs inspect-internal map-swapfile -r /swapfile
+    ;; btrfs inspect-internal map-swapfile -r /swap/swapfile
     (string-append "resume_offset=" swap-offset)
     (string-append
      "modprobe.blacklist="
