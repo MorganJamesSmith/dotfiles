@@ -8,7 +8,10 @@
 ;;; Code:
 
 (require 'gnus)
+(require 'gnus-art)
+(require 'gnus-msg)
 (require 'gnus-util)
+(require 'time-stamp)
 
 ;; Exit gnus on Emacs exit
 (defun exit-gnus-on-exit ()
