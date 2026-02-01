@@ -1716,11 +1716,11 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   (when (featurep 'dbusbind)
     (dbus-register-signal :system
                           "org.freedesktop.login1"
-                          ;; TODO: Hard coded c1 session
-                          "/org/freedesktop/login1/session/c1"
+                          nil
                           "org.freedesktop.login1.Session"
                           "Lock"
-                          #'cleanup)
+                          #'cleanup
+                          :path-namespace "/org/freedesktop/login1/session")
     (dbus-register-signal :system
                           "org.freedesktop.login1"
                           "/org/freedesktop/login1"
