@@ -272,6 +272,13 @@
 
     (udev-rules-service 'brightnessctl brightnessctl)
     (udev-rules-service 'steam-devices steam-devices-udev-rules)
+    (udev-rules-service 'joycond joycond)
+
+    ;; configure gaming mice
+    (simple-service 'ratbagd dbus-root-service-type (list libratbag))
+
+    ;; Gamepad remapping
+    (udev-rules-service 'antimicrox antimicrox)
 
     (service transmission-daemon-service-type
              (transmission-daemon-configuration
