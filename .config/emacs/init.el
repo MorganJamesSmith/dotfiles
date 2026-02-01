@@ -27,6 +27,10 @@
 (defconst IS-INSIDE-EMACS (getenv "INSIDE_EMACS"))
 (setenv "INSIDE_EMACS" emacs-version)
 
+(require 'server)
+(unless (or (server-running-p) IS-INSIDE-EMACS)
+  (server-start))
+
 (setopt user-full-name "Morgan Smith")
 (setopt user-mail-address "Morgan.J.Smith@outlook.com")
 
