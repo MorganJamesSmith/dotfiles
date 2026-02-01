@@ -16,11 +16,9 @@
 ;; Exit gnus on Emacs exit
 (defun exit-gnus-on-exit ()
   "Exits gnus non-interactively."
-  (if (and (fboundp 'gnus-group-exit)
-           (gnus-alive-p))
-      (with-current-buffer (get-buffer "*Group*")
-        (let (gnus-interactive-exit)
-          (gnus-group-exit)))))
+  (condition-case nil
+      (gnus-group-exit)
+    (error nil)))
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
