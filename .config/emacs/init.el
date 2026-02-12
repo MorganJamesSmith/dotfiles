@@ -263,6 +263,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (display-time-mode)
 
 (setopt battery-mode-line-format "[%b%p%%, %r] ")
+(setopt battery-upower-device "DisplayDevice")
 (display-battery-mode)
 (size-indication-mode)
 (column-number-mode)
@@ -672,6 +673,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           (time-to-seconds
            (time-since (file-attribute-modification-time
                         (file-attributes org-icalendar-combined-agenda-file))))))
+    (message "Updating org icalendar file")
     (let ((org-export-with-broken-links t)
           (org-agenda-files
            (remove (expand-file-name "agenda/timetracking.org" org-directory)
@@ -680,7 +682,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
           (warning-inhibit-types '((holidays))))
       (org-icalendar-combine-agenda-files))
     (kill-buffer "*icalendar-errors*")
-    (message "Updating org icalendar file")))
+    (message "Updated org icalendar file")))
 
 (defun update-org-icalendar-timer-loop ()
   "Keep the org icalendar file up to date."
@@ -745,8 +747,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (add-to-list 'project-find-functions (project-root-dir "/tmp") t)
   (add-to-list 'project-find-functions (project-root-dir "/gnu/store") t))
 
+;; useful keybinds
+;; C-<RET> - completion
+;; C-c C-<RET> - execute upto point
+;; C-c C-a C-b - describe thing
 (use-package proof ;; Proof General
+  :if EXTERNAL-PACKAGES?
   ;; TODO: `completion-at-point' does not work :/
+  ;; have to use C-<RET> for completion
   ;; TODO: `pg-show-all-proofs' causes debug to pop up :/
   :custom
   ;; View tooltips with mouse hover or
@@ -762,7 +770,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (with-eval-after-load "coq"
     (setopt proof-output-tooltips t)))
 
-(use-package elisp-mode :delight emacs-lisp-mode)
+(use-package elisp-mode :delight emacs-lisp-mode
+  :custom (elisp-fontify-semantically t))
+
 (use-package eldoc
   :delight
   :hook ielm-mode)
@@ -964,7 +974,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (make-process
    :name "guile-server" :buffer (generate-new-buffer "*guile-server*")
    :command (list
-             "guix" "shell" "guile-next" "guile-ares-rs" "--"
+             "guix" "shell" "guile" "guile-ares-rs" "--"
              "guile" "-c" "((@ (ares server) run-nrepl-server))")))
 
 (use-package yasnippet
@@ -1105,7 +1115,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 ;;; Parens Section Begins
 (use-package paren
   :custom
-  (show-paren-delay 0)
+  (show-paren-delay 0.01)
   (show-paren-highlight-openparen t)
   (show-paren-when-point-inside-paren t)
   (show-paren-when-point-in-periphery t)
@@ -1391,6 +1401,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   :config
   ;; guix system bin
   (add-to-list 'tramp-remote-path "/run/current-system/profile/bin")
+  (add-to-list 'tramp-remote-path "/run/current-system/profile/sbin")
   (add-to-list 'tramp-remote-path "/run/privileged/bin"))
 
 (setopt time-stamp-format "%Y-%02m-%02d %3a %02H:%02M")
@@ -1449,6 +1460,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   (cons ?d (xdg-user-dir "DOWNLOAD"))
   (cons ?i (expand-file-name "inbox.org" org-directory))
   (cons ?j (expand-file-name "wiki/journal.org" org-directory))
+  (cons ?w (expand-file-name "wiki/orgmode.org" org-directory))
   (cons ?m (expand-file-name "money/money.ledger" org-directory))
   (cons ?o (expand-file-name "wiki/contributions.org" org-directory))
   (cons ?p (expand-file-name "wiki/possessions.org" org-directory))
@@ -1564,6 +1576,12 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   (setq eshell-prompt-repeat-map nil))
 
 (repeat-mode 1)
+
+(defvar-keymap isearch-repeat-map
+  :doc "Keymap to repeat isearch searches.  Used in `repeat-mode'."
+  :repeat t
+  "s" #'isearch-repeat-forward
+  "r" #'isearch-repeat-backward)
 
 ;;; EMMS
 (autoload 'emms-volume-pulse-change "emms-volume-pulse")
@@ -1690,6 +1708,9 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
     (save-buffer)
     (kill-current-buffer))
   ;; TODO: tell upstream to expose function
+  ;; TODO: this is causing many timers
+  (when (timerp diff--cache-clean-timer)
+    (cancel-timer diff--cache-clean-timer))
   (diff--cache-clean)
   (profiler-reset)
   (native-compile-prune-cache)
