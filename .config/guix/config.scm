@@ -379,33 +379,14 @@
     (name-service-switch %mdns-host-lookup-nss)))
 
 ;; nonguix configurations
-(use-modules (nongnu packages linux)
-             (nongnu packages video)
-             (nongnu system linux-initrd))
-
-(operating-system
-  (inherit my-operating-system)
-  (kernel linux)
-  (initrd microcode-initrd)
-  (firmware (list linux-firmware))
-  (packages
-   (append
-    (specifications->packages-with-transformations
-     (list "intel-media-driver-nonfree"))
-    (operating-system-packages my-operating-system)))
-  (services
-   (modify-services (operating-system-user-services my-operating-system)
-     (guix-service-type
-      config =>
-      (guix-configuration
-        (inherit config)
-        (substitute-urls
-         (append (list "https://substitutes.nonguix.org")
-                 (guix-configuration-substitute-urls config)))
-        (authorized-keys
-         (append (list (plain-file "non-guix.pub"
-                                   "(public-key
-              (ecc
-               (curve Ed25519)
-               (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))
-                 (guix-configuration-authorized-keys config))))))))
+(use-modules (nonguix transformations))
+((compose
+  (nonguix-transformation-linux)
+  (nonguix-transformation-guix #:channel? #f #:guix-source? #f))
+ (operating-system
+   (inherit my-operating-system)
+   (packages
+    (append
+     (specifications->packages-with-transformations
+      (list "intel-media-driver-nonfree"))
+     (operating-system-packages my-operating-system)))))
