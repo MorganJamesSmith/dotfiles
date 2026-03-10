@@ -15,26 +15,30 @@
     (close-pipe pipe)
     version))
 
-(define* (use-local-source-transformations name path #:optional (commit "HEAD"))
+(define* (use-local-source-transformations name path #:optional (commit "HEAD")
+                                           #:key without-tests?)
   (let ((commit (git-commit path commit)))
     `((with-commit  . ,(string-append name "=" commit))
-      (with-git-url . ,(string-append name "=" path)))))
+      (with-git-url . ,(string-append name "=" path))
+      ,@(if without-tests?
+            (list (cons 'without-tests name))
+            '()))))
 
 (define transformations
   (options->transformation
    `(
      (tune . ,(cpu->gcc-architecture (current-cpu)))
 
-     ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs")
-     (without-tests . "emacs-next-pgtk")
+     ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs"
+                                         #:without-tests? #t)
 
-     ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode" "installed")
-     (without-tests . "emacs-org")
+     ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode" "installed"
+                                         #:without-tests? #t)
 
      ,@(use-local-source-transformations "proof-general" "/home/pancake/src/emacs/proof-general")
 
-     ,@(use-local-source-transformations "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion")
-     (without-tests . "emacs-org-transclusion")
+     ,@(use-local-source-transformations "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion"
+                                         #:without-tests? #t)
 
      (with-input   . "emacs=emacs-next-pgtk")
      (with-input   . "emacs-minimal=emacs-next-pgtk")
