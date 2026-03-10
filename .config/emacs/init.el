@@ -982,11 +982,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :delight yas-minor-mode
   :hook ((prog-mode conf-mode text-mode) . yas-minor-mode))
 
+(autoload 'system-sleep-unblock-sleep "system-sleep")
 (use-package compile
   :commands compilation-next-file compilation-previous-file
   ;; dumb autoload to avoid warnings
-  :autoload compilation-inhibit-sleep-shutdown compilation-release-inibitor
-  :defines compilation-inhibitor-lock
+  :autoload compilation-sleep-block-sleep compilation-sleep-unblock-sleep
   :custom
   (compilation-max-output-line-length nil)
   (compilation-ask-about-save nil)
@@ -994,23 +994,28 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :bind (:map compilation-mode-map
               ("c" . compile))
   :config
-  (defun compilation-inhibit-sleep-shutdown (_process)
-    (setq-local compilation-inhibitor-lock
-                (dbus-make-inhibitor-lock
-                 "sleep:shutdown"
-                 "compilation in progress"
-                 "block")))
+  (defvar compilation-sleep-block-token nil)
+  (defun compilation-sleep-block-sleep (_process)
+    (message "run `compilation-sleep-block-sleep' in buffer %s" (buffer-name))
+    (unless compilation-sleep-block-token
+      (message "taking token")
+      (setq compilation-sleep-block-token
+            (system-sleep-block-sleep "Compilation in progress"))))
 
-  (defun compilation-release-inibitor (&rest _ignore)
-    (when (and (bound-and-true-p compilation-inhibitor-lock)
-               (null compilation-in-progress))
-      (dbus-close-inhibitor-lock compilation-inhibitor-lock)))
+  (defun compilation-sleep-unblock-sleep (&rest _ignore)
+    (message "run `compilation-sleep-unblock-sleep' in buffer %s" (buffer-name))
+    (when (and compilation-sleep-block-token
+               (or (null compilation-in-progress)
+                   (all (lambda (process) (not (process-live-p process))) compilation-in-progress)))
+      (message "releasing token")
+      (system-sleep-unblock-sleep compilation-sleep-block-token)
+      (setq compilation-sleep-block-token nil)))
 
   (add-hook 'compilation-mode-hook
             (lambda ()
-              (add-hook 'kill-buffer-hook #'compilation-release-inibitor nil t)))
-  (add-to-list 'compilation-finish-functions #'compilation-release-inibitor)
-  (add-hook 'compilation-start-hook #'compilation-inhibit-sleep-shutdown))
+              (add-hook 'kill-buffer-hook #'compilation-sleep-unblock-sleep nil t)))
+  (add-to-list 'compilation-finish-functions #'compilation-sleep-unblock-sleep)
+  (add-hook 'compilation-start-hook #'compilation-sleep-block-sleep))
 
 (use-package grep
   :custom
@@ -1721,23 +1726,12 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 (add-hook 'kill-emacs-hook #'cleanup)
 
-(defvar my-cleanup-inhibitor-lock
-  (dbus-make-inhibitor-lock "sleep:shutdown" "Cleanup"))
-
-(defun my-dbus-PrepareForSleep-handler (start)
-  (if start ;; The system goes down for sleep
-      (progn
-        (cleanup)
-        ;; Release inhibitor lock.
-        (when (natnump my-cleanup-inhibitor-lock)
-          (dbus-close-inhibitor-lock my-cleanup-inhibitor-lock)
-          (setq my-cleanup-inhibitor-lock nil)))
-    ;; Reacquire inhibitor lock.
-    (setq my-cleanup-inhibitor-lock
-          (dbus-make-inhibitor-lock "sleep:shutdown" "Cleanup"))))
-
-(defun register-cleanup-dbus ()
+(defun register-cleanup ()
   "Run cleanup function on lock, sleep, and shutdown."
+  (add-hook 'system-sleep-event-functions
+            (lambda (sleep-event)
+              (when (eq 'pre-sleep (sleep-event-state sleep-event))
+                (cleanup))))
   (when (featurep 'dbusbind)
     (dbus-register-signal :system
                           "org.freedesktop.login1"
@@ -1745,14 +1739,8 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
                           "org.freedesktop.login1.Session"
                           "Lock"
                           #'cleanup
-                          :path-namespace "/org/freedesktop/login1/session")
-    (dbus-register-signal :system
-                          "org.freedesktop.login1"
-                          "/org/freedesktop/login1"
-                          "org.freedesktop.login1.Manager"
-                          "PrepareForSleep"
-                          #'my-dbus-PrepareForSleep-handler)))
-(add-hook 'emacs-startup-hook 'register-cleanup-dbus)
+                          :path-namespace "/org/freedesktop/login1/session")))
+(add-hook 'emacs-startup-hook #'register-cleanup)
 
 (use-package viper
   :if nil
