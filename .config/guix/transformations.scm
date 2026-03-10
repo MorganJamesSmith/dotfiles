@@ -1,6 +1,8 @@
 (define-module (transformations))
 
 (use-modules
+ (srfi srfi-1)
+ (ice-9 string-fun)
  (gnu packages)
  (guix cpu)
  ((guix transformations) #:select (options->transformation))
@@ -17,12 +19,16 @@
 
 (define* (use-local-source-transformations name path #:optional (commit "HEAD")
                                            #:key without-tests?)
-  (let ((commit (git-commit path commit)))
-    `((with-commit  . ,(string-append name "=" commit))
-      (with-git-url . ,(string-append name "=" path))
-      ,@(if without-tests?
-            (list (cons 'without-tests name))
-            '()))))
+  (if (file-exists? path)
+      (let ((commit (git-commit path commit)))
+        `((with-commit  . ,(string-append name "=" commit))
+          (with-git-url . ,(string-append name "=" path))
+          ,@(if without-tests?
+                (list (cons 'without-tests name))
+                '())))
+      (begin
+        (display (string-append "Transformation aborted! No such path " path "\n"))
+        '())))
 
 (define transformations
   (options->transformation
@@ -59,13 +65,22 @@
 ;; applied so I add them back in
 (define patch-transformations
   (options->transformation
-   '(
-   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-disable-jit-compilation.patch")
-   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-exec-path.patch")
-   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-fix-scheme-indent-function.patch")
-   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-native-comp-driver-options.patch")
-   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-native-comp-fix-filenames.patch")
-   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-native-comp-pin-packages.patch"))))
+   (filter-map
+    (lambda (patch)
+      (set! patch (string-replace-substring patch "~" (getenv "HOME")))
+      (if (file-exists? patch)
+          (cons 'with-patch
+                (string-append "emacs-next-pgtk="
+                               (canonicalize-path patch)))
+          (begin
+            (display (string-append "Patch aborted! No such patch " patch "\n"))
+            #f)))
+    '("~/src/guix/gnu/packages/patches/emacs-next-disable-jit-compilation.patch"
+      "~/src/guix/gnu/packages/patches/emacs-next-exec-path.patch"
+      "~/src/guix/gnu/packages/patches/emacs-fix-scheme-indent-function.patch"
+      "~/src/guix/gnu/packages/patches/emacs-native-comp-driver-options.patch"
+      "~/src/guix/gnu/packages/patches/emacs-next-native-comp-fix-filenames.patch"
+      "~/src/guix/gnu/packages/patches/emacs-native-comp-pin-packages.patch"))))
 
 (define-public specifications->packages-with-transformations
   (lambda* (specifications #:optional (packages '()))
