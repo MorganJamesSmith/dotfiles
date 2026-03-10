@@ -32,10 +32,6 @@
  (guix cpu)
  (guix transformations))
 
-(use-modules (nongnu packages linux)
-             (nongnu packages video)
-             (nongnu system linux-initrd))
-
 (when (current-filename)
   (add-to-load-path (dirname (current-filename))))
 (use-modules (home))
@@ -60,10 +56,8 @@
 ;; Things not exported by (gnu system)
 (define %default-modprobe-blacklist (@@ (gnu system) %default-modprobe-blacklist))
 
+(define my-operating-system
 (operating-system
-  (kernel linux)
-  (initrd microcode-initrd)
-  (firmware (list linux-firmware))
   (host-name host-name)
   (timezone "America/New_York")
   (locale-definitions
@@ -156,9 +150,7 @@
      "hicolor-icon-theme"
      "cryptsetup"
      "bluez-alsa" ;; bluetooth audio
-     "intel-vaapi-driver"
-     "intel-media-driver-nonfree" ;; Hardware acceleration
-     )
+     "intel-vaapi-driver")
     %base-packages))
   (services
    (cons*
@@ -368,16 +360,6 @@
        (guix-configuration
         (inherit config)
         (privileged? #f)
-        (substitute-urls
-         (append (list "https://substitutes.nonguix.org")
-                 %default-substitute-urls))
-        (authorized-keys
-         (append (list (plain-file "non-guix.pub"
-            "(public-key
-              (ecc
-               (curve Ed25519)
-               (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))
-                 %default-authorized-guix-keys))
         (extra-options '(;; `guix gc --clear-failures` doesn't seem to work properly
                          ;; "--cache-failures"
                          "--gc-keep-derivations=yes"
@@ -394,4 +376,36 @@
                    %default-sysctl-settings)))))))
 
   ;; Allow resolution of '.local' host names with mDNS.
-  (name-service-switch %mdns-host-lookup-nss))
+  (name-service-switch %mdns-host-lookup-nss)))
+
+;; nonguix configurations
+(use-modules (nongnu packages linux)
+             (nongnu packages video)
+             (nongnu system linux-initrd))
+
+(operating-system
+  (inherit my-operating-system)
+  (kernel linux)
+  (initrd microcode-initrd)
+  (firmware (list linux-firmware))
+  (packages
+   (append
+    (specifications->packages-with-transformations
+     (list "intel-media-driver-nonfree"))
+    (operating-system-packages my-operating-system)))
+  (services
+   (modify-services (operating-system-user-services my-operating-system)
+     (guix-service-type
+      config =>
+      (guix-configuration
+        (inherit config)
+        (substitute-urls
+         (append (list "https://substitutes.nonguix.org")
+                 (guix-configuration-substitute-urls config)))
+        (authorized-keys
+         (append (list (plain-file "non-guix.pub"
+                                   "(public-key
+              (ecc
+               (curve Ed25519)
+               (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))
+                 (guix-configuration-authorized-keys config))))))))
