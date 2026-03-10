@@ -61,8 +61,7 @@
    (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-fix-scheme-indent-function.patch")
    (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-native-comp-driver-options.patch")
    (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-next-native-comp-fix-filenames.patch")
-   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-native-comp-pin-packages.patch")
-   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-pgtk-super-key-fix.patch"))))
+   (with-patch . "emacs-next-pgtk=/home/pancake/src/guix/gnu/packages/patches/emacs-native-comp-pin-packages.patch"))))
 
 (define-public specifications->packages-with-transformations
   (lambda* (specifications #:optional (packages '()))
