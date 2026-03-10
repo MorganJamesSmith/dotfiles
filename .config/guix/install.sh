@@ -1,5 +1,5 @@
 #!/bin/sh
-# Time-stamp: <2025-09-10 Wed 19:52>
+# Time-stamp: <2026-03-10 Tue 15:07>
 # Copyright (C) 2024 by Morgan Smith
 
 # This script installs guix system when run from a guix system installation medium
@@ -36,17 +36,17 @@ dd bs=512 count=4 if=/dev/random iflag=fullblock of=/key-file.bin
 # Encrypt main partition with keyfile
 cryptsetup luksFormat --type luks2 --pbkdf pbkdf2 $p2 /key-file.bin
 cryptsetup open $p2 guix-root --key-file /key-file.bin
-cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent refresh guix-root
+cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent refresh guix-root --key-file /key-file.bin
 
 # Add a password
-cryptsetup luksAddKey $p2
+cryptsetup luksAddKey $p2 --key-file /key-file.bin
 
 # Put BTRFS on main partition and mount
 mkfs.btrfs -L guix-root /dev/mapper/guix-root
 mount -o compress=lzo,lazytime LABEL=guix-root /mnt
 
 # Ensure keyfile is available to the initrd
-echo /key-file.bin | cpio -o -H newc -F /key-file.cpio
+echo /key-file.bin | guix shell cpio -- cpio -o -H newc -F /key-file.cpio
 mv /key-file.bin /mnt
 mv /key-file.cpio /mnt
 chmod 0000 /mnt/key-file.bin
