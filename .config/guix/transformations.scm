@@ -48,10 +48,10 @@
      ;; doesn't build.  TODO: investigate
      (with-input   . "emacs-ert-runner=emacs-next-pgtk")
 
-     (without-tests . "emacs-ledger-mode")
-     (without-tests . "emacs-dash")
-     )))
+     (without-tests . "emacs-flycheck")
+     (without-tests . "emacs-ledger-mode"))))
 
+;; TODO: when the patch file doesn't exist the error message is not helpful at all :/
 ;; We do these separately as they don't combine with our source transformations
 ;; unless they are done as a separate step.
 ;;
