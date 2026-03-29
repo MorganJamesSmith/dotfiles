@@ -358,13 +358,7 @@
 
       (service dbus-root-service-type)
 
-      ;; (service ntp-service-type)
-      (service openntpd-service-type
-               (openntpd-configuration
-                 (sensor (list "*"))
-                 (constraint-from (list "9.9.9.9" ;; quad9 v4 without DNS
-                                        "2620:fe::fe")) ;; quad9 v6 without DNS
-                 (constraints-from (list "www.google.com"))))
+      (service ntp-service-type)
 
       (service x11-socket-directory-service-type)
 
