@@ -10,6 +10,8 @@
  ((ice-9 popen) #:select (open-pipe* close-pipe))
  ((ice-9 rdelim) #:select (read-line)))
 
+(load "machine-specific.scm")
+
 (define* (git-commit path #:optional (commit "HEAD"))
   (let* ((pipe (with-directory-excursion path
                  (open-pipe* OPEN_READ "git" "rev-parse" commit)))
@@ -67,7 +69,7 @@
   (options->transformation
    (filter-map
     (lambda (patch)
-      (set! patch (string-replace-substring patch "~" (getenv "HOME")))
+      (set! patch (string-replace-substring patch "~" (string-append "/home/" username)))
       (if (file-exists? patch)
           (cons 'with-patch
                 (string-append "emacs-next-pgtk="
