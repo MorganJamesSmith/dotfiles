@@ -1228,6 +1228,10 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
              "youtu.be"
              (and (or ".mp3" ".mp4" ".torrent") string-end))))
 
+(declare-function org-link-frame-setup-function "ol")
+(declare-function gnus-activate-group "gnus-start")
+(declare-function gnus-select-group-with-message-id "gnus-int")
+(declare-function gnus-group-remove-parameter "gnus")
 (setopt browse-url-handlers
         `((,(rx string-start (or "gemini" "gopher") "://") .
            ,(lambda (host-or-url &rest _) (elpher-go host-or-url)))
@@ -1250,7 +1254,25 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
               (make-process
                :name "yt-dlp" :buffer (generate-new-buffer "*yt-dlp*")
                :command (list "yt-dlp" host-or-url)
-               :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))))
+               :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))
+          (,(rx "list.orgmode.org/") .
+           ,(lambda (host-or-url &rest _)
+              (let ((group "nntp+nntp:emacs.orgmode"))
+                (funcall (org-link-frame-setup-function 'gnus))
+                (gnus-activate-group group)
+                (gnus-select-group-with-message-id
+                 group
+                 (concat
+                  "<"
+                  (string-trim
+                   host-or-url
+                   (rx (* anychar) "list.orgmode.org/" (? "orgmode/"))
+                   "/")
+                  ">"))
+                ;; TODO: Tell upstream that when a group doesn't have the
+                ;; 'display property then the above function sets it and it
+                ;; gets put in '.newsrc.eld' which makes it hard to debug
+                (gnus-group-remove-parameter group 'display))))))
 ;;; EWW Section Ends
 
 

@@ -139,6 +139,26 @@
 
 (define-key gnus-group-mode-map (kbd "f") #'get-mail)
 
+(defun orglist-update ()
+  "Get mail from the org mode mailing list."
+  (interactive)
+  (assert-network-connectivity)
+  (let ((location "/home/pancake/.local/share/public-inbox/orgmode"))
+    (set-process-sentinel
+     (start-process "orglist-update" "*orglist*" "sh" "-c"
+                    (concat "set -e\n"
+                            "public-inbox-fetch --exit-code -C" location "\n"
+                            "public-inbox-index -C" location "\n"
+                            "lei up --all"))
+     #'gnus-maybe-group-get-new-news)))
+
+(defvar nntpd-process
+  (make-process
+   :name "public-inbox-nntpd"
+   :buffer " *public-inbox-nntpd*"
+   :command '("public-inbox-nntpd" "-l" "localhost:9012")
+   :noquery t))
+
 ;; Don't ask how many messages I want to see. I want them all
 (setopt gnus-large-newsgroup nil)
 
@@ -164,26 +184,38 @@
 (setopt gnus-permanently-visible-groups ".")
 
 (setopt gnus-parameters '(("." (display . all) (gcc-self . t))
+                          ("nntp"
+                           (gnus-show-threads nil)
+                           (gnus-large-newsgroup 1000)
+                           (gnus-fetch-old-headers 'some)
+                           (gnus-refer-thread-limit t))
                           ("local" (gnus-show-threads nil) (display . default))))
 
 ;; TODO: figure out how to specifiy my nnvirtual groups from here
 ;; G V (gnus-group-make-empty-virtual)
 ;; G E (gnus-group-edit-group)
-;; (nnvirtual "INBOX\\|Inbox\\|Junk\\|Spam")
-;; (nnvirtual "[^l].\\(INBOX\\|Inbox\\|Junk\\|Spam\\)")
+;; (nnvirtual "\\(INBOX\\|Inbox\\|Junk\\|Spam\\)\\'")
+;; (nnvirtual "[^le]:\\(INBOX\\|Inbox\\|Junk\\|Spam\\)")
 
 ;; Receiving email stuff
 (setopt gnus-select-method '(nnnil ""))
 (setopt
  gnus-secondary-select-methods
- (mapcar
-  (lambda (x)
-    `(nnimap ,x
-             (nnimap-user ,x)
-             (nnimap-address "localhost")
-             (nnimap-stream network)
-             (nnimap-server-port 143)))
-  '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local")))
+ (append
+  (list
+   '(nntp "nntp"
+          (nntp-address "localhost")
+          (nntp-port-number 9012)
+          (nntp-open-connection-function nntp-open-plain-stream)))
+  (mapcar
+   (lambda (x)
+     `(nnimap ,x
+              (nnimap-user ,x)
+              (nnimap-address "localhost")
+              (nnimap-stream network)
+              (nnimap-server-port 143)))
+   '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local"
+     "orgmode"))))
 
 (setopt gnus-posting-styles
         '(("hotbutterypancake" (address "hotbutterypancake@gmail.com"))
