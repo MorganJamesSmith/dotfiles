@@ -47,6 +47,7 @@
     (group "users")
     (supplementary-groups '("wheel"
                             "video"
+                            "realtime"
                             "audio"   ; amixer commands
                             "transmission"
                             "dialout" ; serial TTYs
@@ -55,6 +56,23 @@
 
 ;; Things not exported by (gnu system)
 (define %default-modprobe-blacklist (@@ (gnu system) %default-modprobe-blacklist))
+
+;; TODO: contribute upstream
+(define realtime-service-type
+  (service-type
+    (name 'realtime)
+    (extensions
+     (list
+      (service-extension account-service-type
+                         (const
+                          (list (user-group (name "realtime") (system? #t)))))
+      (service-extension pam-limits-service-type
+                         (const
+                          (list
+                           (pam-limits-entry "@realtime" 'both 'rtprio 99)
+                           (pam-limits-entry "@realtime" 'both 'memlock 'unlimited))))))
+    (default-value '())
+    (description "Enable realtime.")))
 
 (define my-operating-system
   (operating-system
@@ -154,6 +172,8 @@
       %base-packages))
     (services
      (cons*
+
+      (service realtime-service-type)
 
       (service mingetty-service-type
                (mingetty-configuration
