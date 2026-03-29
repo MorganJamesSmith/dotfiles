@@ -1197,6 +1197,17 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 
 ;;; EWW Section Begins
+(use-package elpher
+  :if EXTERNAL-PACKAGES?
+  :commands elpher-go
+  ;; make keybindings like eww
+  :bind (:map elpher-mode-map
+              ("p" . elpher-back)))
+
+(use-package transmission
+  :if EXTERNAL-PACKAGES?
+  :commands transmission-add)
+
 (setopt eww-auto-rename-buffer 'title)
 
 (setopt browse-url-browser-function 'eww-browse-url)
@@ -1219,33 +1230,27 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 (setopt browse-url-handlers
         `((,(rx string-start (or "gemini" "gopher") "://") .
-           (lambda (host-or-url &rest _) (elpher-go host-or-url)))
+           ,(lambda (host-or-url &rest _) (elpher-go host-or-url)))
           (,(rx (or (and string-start "magnet") (and ".torrent" string-end))) .
-           (lambda (host-or-url &rest _) (transmission-add host-or-url)))
+           ,(lambda (host-or-url &rest _) (transmission-add host-or-url)))
           (,(rx string-start "http" (? "s") "://" (* anychar) "." (or "webm" "mkv" "mp3" "mp4") string-end) .
-           (lambda (host-or-url &rest _)
-             (message "Downloading file")
-             (make-process
-              :name "wget" :buffer (generate-new-buffer "*wget*")
-              :command (list
-                        "wget"
-                        (concat "--directory-prefix=" (xdg-user-dir "DOWNLOAD"))
-                        "--progress=dot:mega"
-                        host-or-url)
-              :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))
+           ,(lambda (host-or-url &rest _)
+              (message "Downloading file")
+              (make-process
+               :name "wget" :buffer (generate-new-buffer "*wget*")
+               :command (list
+                         "wget"
+                         (concat "--directory-prefix=" (xdg-user-dir "DOWNLOAD"))
+                         "--progress=dot:mega"
+                         host-or-url)
+               :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))
           (,(rx (or "youtube.com" "youtu.be")) .
-           (lambda (host-or-url &rest _)
-             (message "Downloading file")
-             (make-process
-              :name "yt-dlp" :buffer (generate-new-buffer "*yt-dlp*")
-              :command (list "yt-dlp" host-or-url)
-              :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))))
-
-(use-package elpher
-  :if EXTERNAL-PACKAGES?
-  ;; make keybindings like eww
-  :bind (:map elpher-mode-map
-              ("p" . elpher-back)))
+           ,(lambda (host-or-url &rest _)
+              (message "Downloading file")
+              (make-process
+               :name "yt-dlp" :buffer (generate-new-buffer "*yt-dlp*")
+               :command (list "yt-dlp" host-or-url)
+               :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))))
 ;;; EWW Section Ends
 
 
