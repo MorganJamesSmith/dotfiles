@@ -296,78 +296,53 @@
                (transmission-daemon-configuration
                  (download-dir "/torrents")))
 
-    ;;; The stuff from %desktop-services
-
-      ;; Add udev rules for MTP devices so that non-root users can access
-      ;; them.
-      (simple-service 'mtp udev-service-type (list libmtp))
-      ;; Add udev rules for scanners.
-      (service sane-service-type)
-      ;; Add polkit rules, so that non-root users in the wheel group can
-      ;; perform administrative tasks (similar to "sudo").
-      polkit-wheel-service
-      ;; gdm-file-system-service
-
-      ;; Provides a nicer experience for VTE-using terminal emulators such
-      ;; as GNOME Console, Xfce Terminal, etc.
-      (service vte-integration-service-type)
-
-      ;; The global fontconfig cache directory can sometimes contain
-      ;; stale entries, possibly referencing fonts that have been GC'd,
-      ;; so mount it read-only.
-      fontconfig-file-system-service
-
       ;; https://big.oisd.nl/dnsmasq2
       ;; these ones didn't seem to work.  Maybe they aren't using the new dnsmasq syntax?
       ;; https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dnsmasq/pro.plus.txt
       ;; https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dnsmasq/ultimate.txt
       (extra-special-file "/etc/NetworkManager/dnsmasq.d/adblock.conf" (local-file "./dnsmasq2"))
-      (service network-manager-service-type
-               (network-manager-configuration
-                 (dns "dnsmasq")))
-      (service wpa-supplicant-service-type)    ;needed by NetworkManager
-      ;; (simple-service 'network-manager-applet
-      ;;                 profile-service-type
-      ;;                 (list network-manager-applet))
-      ;; (service modem-manager-service-type)
-      (service usb-modeswitch-service-type)
-
-      ;; The D-Bus clique.
-      (service avahi-service-type)
-      ;; (udisks-service)
-      (service upower-service-type)
-      ;; (service accountsservice-service-type)
-      ;; (service cups-pk-helper-service-type)
-      ;; (service colord-service-type)
-      ;; (service geoclue-service-type)
-      (service polkit-service-type)
-      (service elogind-service-type
-               (elogind-configuration
-                 ;; This does not actually kill home services after log out :(
-                 (kill-user-processes? #t)
-                 (handle-power-key 'suspend-then-hibernate)
-                 (handle-lid-switch 'suspend-then-hibernate)
-                 (handle-lid-switch-docked 'suspend)
-                 (handle-lid-switch-external-power 'suspend)
-                 (idle-action-seconds (* 5 60))
-                 (idle-action 'suspend-then-hibernate)
-                 (hibernate-delay-seconds (* 2 60 60))))
 
       ;; bug#78040 - suspend-then-hibernate issue
       (service kernel-module-loader-service-type '("dmi-sysfs"))
 
-      (service dbus-root-service-type)
+      (modify-services %desktop-services
+        ;; TODO: figure out how to delete these services
+        ;; (delete sddm-service-type)
+        ;; mount-setuid-helpers
+        ;; gdm-file-system-service
+        ;; network-manager-applet
+        (delete gdm-service-type)
+        (delete screen-locker-service-type)
+        (delete modem-manager-service-type)
+        (delete udisks-service-type)
+        (delete accountsservice-service-type)
+        (delete cups-pk-helper-service-type)
+        (delete colord-service-type)
+        (delete geoclue-service-type)
 
-      (service ntp-service-type)
+        ;; I guess these aren't needed because I have pipewire in my home config
+        (delete pulseaudio-service-type)
+        (delete alsa-service-type)
 
-      (service x11-socket-directory-service-type)
+        (network-manager-service-type
+         config =>
+         (network-manager-configuration
+           (inherit config)
+           (dns "dnsmasq")))
 
-      ;; I guess these aren't needed because I have pipewire in my home config
-      ;; (service pulseaudio-service-type)
-      ;; (service alsa-service-type)
-
-      (modify-services
-          %base-services
+        (elogind-service-type
+         config =>
+         (elogind-configuration
+           (inherit config)
+           ;; This does not actually kill home services after log out :(
+           (kill-user-processes? #t)
+           (handle-power-key 'suspend-then-hibernate)
+           (handle-lid-switch 'suspend-then-hibernate)
+           (handle-lid-switch-docked 'suspend)
+           (handle-lid-switch-external-power 'suspend)
+           (idle-action-seconds (* 5 60))
+           (idle-action 'suspend-then-hibernate)
+           (hibernate-delay-seconds (* 2 60 60))))
 
         (guix-service-type
          config =>
