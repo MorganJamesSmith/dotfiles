@@ -796,23 +796,35 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :delight
   :hook ielm-mode)
 
-(defmacro time-execution (&rest body)
-  "Time how long it takes to run BODY."
-  (let ((start-time (make-symbol "start-time")))
-    `(let ((,start-time (current-time)))
-       ,@body
-       (time-to-seconds (time-since ,start-time)))))
+(use-package benchmark
+  ;; Useful performance things
+  ;; - `benchmark-elapse'
+  ;; - `benchmark-run-compiled'
+  )
 
-(defmacro profile (&rest body)
-  "Profile BODY."
-  `(prog1
-     (unwind-protect
-         (progn
-           (profiler-start 'cpu)
-           (time-execution
-            ,@body))
-       (profiler-stop))
-     (profiler-report)))
+(defmacro compile-form (form)
+  "Compile FORM."
+  (funcall
+   (if (native-comp-available-p)
+       #'native-compile
+     #'byte-compile)
+   (pcase form
+     ((or `#',_ `(lambda . ,_)) form)
+     (_ `(lambda () ,form)))))
+
+(cl-defmacro profile (body &optional &key timeout)
+  "Profile BODY with TIMEOUT."
+  (let ((form (make-symbol "form")))
+    `(let ((,form (compile-form ,body)))
+       (prog1
+           (,@(if timeout `(with-timeout (,timeout))
+                '(progn))
+            (unwind-protect
+                (progn
+                  (profiler-start 'cpu)
+                  (funcall ,form))
+              (profiler-stop)))
+         (profiler-report)))))
 
 (add-hook 'prog-mode-hook #'elide-head-mode)
 
