@@ -91,6 +91,17 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt create-lockfiles nil)
 
 (global-so-long-mode)
+
+(setopt process-error-pause-time 0)
+
+;; Apparently this function is slow so just bypass it
+(add-function :override (symbol-function 'char-displayable-p) #'always)
+
+(setq gc-cons-percentage 0.2)
+(setq gc-cons-threshold (* 200 1000 1000))
+(add-hook
+ 'after-init-hook
+ (lambda () (setq gc-cons-threshold (* 20 1000 1000))))
 ;;; Optimization Section Ends
 
 
@@ -108,7 +119,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt shell-kill-buffer-on-exit t)
 
+(setopt frame-resize-pixelwise t)
 (setopt fit-window-to-buffer-horizontally t)
+(setopt split-window-preferred-direction 'horizontal)
 
 (setopt view-read-only t)
 
@@ -200,8 +213,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (:map Info-mode-map
         ("<remap> <scroll-up>" . Info-scroll-up)))
 
-(setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
-
 (defun kill-all-processes ()
   "Kill all processes."
   (mapc #'delete-process (process-list)))
@@ -231,6 +242,10 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (load-theme 'modus-vivendi t))
 
+;; Invisible fringes
+(set-face-attribute 'fringe nil :background (face-background 'default))
+(setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
+
 (setopt proced-enable-color-flag t)
 
 ;; I dislike gui stuff
@@ -238,6 +253,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt use-file-dialog nil)
 (setopt use-dialog-box nil)
 (blink-cursor-mode -1)
+(setopt widget-image-enable nil)
 ;; Ok I need these on android
 (when (not (eq system-type 'android))
   (tool-bar-mode -1)
@@ -264,6 +280,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt battery-mode-line-format "[%b%p%%, %r] ")
 (setopt battery-upower-device "DisplayDevice")
+(setopt battery-update-interval nil)
 (display-battery-mode)
 (size-indication-mode)
 (column-number-mode)
@@ -771,7 +788,9 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     (setopt proof-output-tooltips t)))
 
 (use-package elisp-mode :delight emacs-lisp-mode
-  :custom (elisp-fontify-semantically t))
+  ;; very laggy
+  ;; :custom (elisp-fontify-semantically t)
+  )
 
 (use-package eldoc
   :delight
