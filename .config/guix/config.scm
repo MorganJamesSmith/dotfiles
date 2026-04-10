@@ -117,8 +117,7 @@
     (bootloader (bootloader-configuration
                   (bootloader grub-efi-removable-bootloader)
                   (timeout 1)
-                  (targets (list "/boot"))
-                  (extra-initrd "/key-file.cpio")))
+                  (targets (list "/boot"))))
 
     ;; Specify a mapped device for the encrypted root partition.
     ;; The UUID is that returned by 'cryptsetup luksUUID'.
@@ -127,8 +126,7 @@
              (source (uuid linux-uuid))
              (target "guix-root")
              (type luks-device-mapping)
-             (arguments '(#:key-file "/key-file.bin"
-                          #:allow-discards? #t
+             (arguments '(#:allow-discards? #t
                           #:extra-options
                           ("--perf-no_read_workqueue"
                            "--perf-no_write_workqueue"))))))
