@@ -1117,6 +1117,32 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (keymap-set xref--xref-buffer-mode-map "C-c C-n" #'xref-next-group-no-show)
   (keymap-set xref--xref-buffer-mode-map "C-c C-p" #'xref-prev-group-no-show))
 
+
+;; TODO: upstream these to org
+(autoload 'org-fold-show-context "org-fold")
+(add-hook 'xref-after-jump-hook
+          (lambda ()
+            (when (derived-mode-p 'org-mode)
+              (org-fold-show-context 'org-goto))))
+;; TODO: why doesn't xref call next-error-hook?
+(add-hook 'next-error-hook
+          (lambda ()
+            (when (derived-mode-p 'org-mode)
+              (org-fold-show-context 'org-goto))))
+
+;; When following org-mode links, add the current location to the xref stack
+(autoload 'xref-push-marker-stack "xref")
+(defun xref-org-advice-marker (&optional pos buffer)
+  "Add marker at POS and BUFFER to xref history."
+  (let ((pos (or pos (point)))
+        (buffer (or buffer (current-buffer))))
+    (with-current-buffer buffer
+      (org-with-point-at pos
+        (xref-push-marker-stack)))))
+
+(with-eval-after-load "org"
+  (add-function :before (symbol-function 'org-mark-ring-push)
+                #'xref-org-advice-marker))
 ;;; Programming Section Ends
 
 
