@@ -74,6 +74,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt async-shell-command-buffer 'new-buffer)
 
 ;;; Optimization Section Begins
+
+(setopt bidi-paragraph-direction 'left-to-right)
+(setopt bidi-inhibit-bpa t)
+
+(setopt redisplay-skip-fontification-on-input t)
+
 (setopt normal-erase-is-backspace nil)
 
 ;; Display the bare minimum at startup
@@ -128,6 +134,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt savehist-additional-variables '(register-alist kill-ring))
 (savehist-mode 1)
 (recentf-mode)
+
+(add-hook 'savehist-save-hook
+          (lambda ()
+            (setq kill-ring
+                  (mapcar #'substring-no-properties
+                          (cl-remove-if-not #'stringp kill-ring)))))
 
 (setopt help-enable-variable-value-editing t)
 
@@ -826,6 +838,22 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
               (profiler-stop)))
          (profiler-report)))))
 
+(declare-function profiler-stop "profiler")
+(declare-function profiler-report "profiler")
+
+(defun profile-post-command-hook ()
+  "Function to by run in `post-command-hook'."
+  (unless (eq 'profile-next-command this-command)
+    (profiler-stop)
+    (remove-hook 'post-command-hook #'profile-post-command-hook)
+    (profiler-report)))
+
+(defun profile-next-command ()
+  "Profile next interactive action taken."
+  (interactive)
+  (add-hook 'post-command-hook #'profile-post-command-hook)
+  (profiler-start 'cpu))
+
 (add-hook 'prog-mode-hook #'elide-head-mode)
 
 ;; Handy keybinds are
@@ -1039,7 +1067,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
             (system-sleep-block-sleep "Compilation in progress"))))
 
   (defun compilation-sleep-unblock-sleep (&rest _ignore)
-    (message "run `compilation-sleep-unblock-sleep' in buffer %s" (buffer-name))
     (when (and compilation-sleep-block-token
                (or (null compilation-in-progress)
                    (all (lambda (process) (not (process-live-p process))) compilation-in-progress)))
@@ -1189,6 +1216,13 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 ;;; Auto-complete/Hints Section Begins
 
+(use-package ffap
+  :custom
+  ;; Don't ping things
+  (ffap-machine-p-known 'reject))
+
+(setopt tab-always-indent 'complete)
+
 (use-package completion-preview
   :delight
   :custom
@@ -1210,6 +1244,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 (setopt completion-show-help nil)
 (setopt completion-auto-help 'visible)
 (setopt completion-fail-discreetly t)
+(setopt completion-eager-update t)
 
 (setopt completion-ignore-case t)
 (setopt read-buffer-completion-ignore-case t)
@@ -1223,6 +1258,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 (setopt ido-default-file-method 'selected-window)
 (setopt ido-default-buffer-method 'selected-window)
 (setopt ido-use-filename-at-point 'guess)
+(setopt ido-use-url-at-point t)
 (ido-mode 1)
 
 (use-package which-key
@@ -1247,12 +1283,10 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 (setopt eww-auto-rename-buffer 'title)
 
 (setopt browse-url-browser-function 'eww-browse-url)
-(setopt shr-use-xwidgets-for-media t)
 (setopt shr-use-colors nil)
 (setopt shr-use-fonts nil)
 (setopt shr-indentation 0)
 (setopt shr-cookie-policy nil)
-(setopt shr-max-width nil)
 (setopt shr-width nil)
 ;; Send user agent as many sites require it
 (setopt url-privacy-level '(email os emacs lastloc cookies))
@@ -1401,7 +1435,9 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   (eshell-hist-ignoredups t)
   (eshell-cp-overwrite-files nil)
   (eshell-mv-overwrite-files nil)
-  (eshell-destroy-buffer-when-process-dies t))
+  (eshell-destroy-buffer-when-process-dies t)
+  :config
+  (add-to-list 'eshell-modules-list 'eshell-tramp))
 
 (use-package esh-var
   :config
