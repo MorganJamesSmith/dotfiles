@@ -888,7 +888,12 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (smartparens-global-mode))
 
-(which-function-mode)
+(use-package which-func
+  :hook
+  (xref-after-jump . which-func-update)
+  :config
+  (which-function-mode))
+
 (setq-default c-auto-newline t)
 (setq-default c-hungry-delete-key t)
 
