@@ -1,4 +1,5 @@
 (use-modules
+ (srfi srfi-1)
  (gnu)
  (gnu packages android)
  (gnu packages audio)
@@ -24,6 +25,7 @@
  (gnu services networking)
  (gnu services pm)
  (gnu services security-token)
+ (gnu services sddm)
  (gnu services sound)
  (gnu services sysctl)
  (gnu services xorg)
@@ -303,24 +305,29 @@
       ;; bug#78040 - suspend-then-hibernate issue
       (service kernel-module-loader-service-type '("dmi-sysfs"))
 
-      (modify-services %desktop-services
-        ;; TODO: figure out how to delete these services
-        ;; (delete sddm-service-type)
-        ;; mount-setuid-helpers
-        ;; gdm-file-system-service
-        ;; network-manager-applet
-        (delete gdm-service-type)
-        (delete screen-locker-service-type)
-        (delete modem-manager-service-type)
-        (delete udisks-service-type)
-        (delete accountsservice-service-type)
-        (delete cups-pk-helper-service-type)
-        (delete colord-service-type)
-        (delete geoclue-service-type)
-
-        ;; I guess these aren't needed because I have pipewire in my home config
-        (delete pulseaudio-service-type)
-        (delete alsa-service-type)
+      (modify-services
+          (remove (lambda (service)
+                    (let ((type (service-kind service)))
+                      (or (memq type
+                                (list gdm-service-type
+                                      sddm-service-type
+                                      cups-pk-helper-service-type
+                                      modem-manager-service-type
+                                      screen-locker-service-type
+                                      udisks-service-type
+                                      accountsservice-service-type
+                                      geoclue-service-type
+                                      colord-service-type
+                                      vte-integration-service-type
+                                      
+                                      ;; I guess these aren't needed because I have pipewire in my home config
+                                      pulseaudio-service-type
+                                      alsa-service-type))
+                          (memq (service-type-name type)
+                                '(network-manager-applet
+                                  mount-setuid-helpers
+                                  gdm-file-system)))))
+                  %desktop-services)
 
         (network-manager-service-type
          config =>
