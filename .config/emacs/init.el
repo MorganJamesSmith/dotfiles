@@ -1351,7 +1351,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
                :name "yt-dlp" :buffer (generate-new-buffer "*yt-dlp*")
                :command (list "yt-dlp" host-or-url)
                :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))
-          (,(rx "list.orgmode.org/") .
+          (,(rx (or "list.orgmode.org/" "orgmode.org/list/")) .
            ,(lambda (host-or-url &rest _)
               (let ((group "nntp+nntp:emacs.orgmode"))
                 (funcall (org-link-frame-setup-function 'gnus))
@@ -1362,7 +1362,8 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
                   "<"
                   (string-trim
                    host-or-url
-                   (rx (* anychar) "list.orgmode.org/" (? "orgmode/"))
+                   (rx (* anychar) (or (and "list.orgmode.org/" (? "orgmode/"))
+                                       "orgmode.org/list/"))
                    "/")
                   ">"))
                 ;; TODO: Tell upstream that when a group doesn't have the
