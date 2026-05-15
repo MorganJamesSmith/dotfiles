@@ -186,12 +186,20 @@
 ;; Always show all my groups
 (setopt gnus-permanently-visible-groups ".")
 
-(setopt gnus-parameters '(("." (display . all) (gcc-self . t))
+(setopt gnus-parameters `(("." (display . all) (gcc-self . t))
                           ("nntp"
                            (gnus-show-threads nil)
                            (gnus-large-newsgroup 1000)
                            (gnus-fetch-old-headers 'some)
-                           (gnus-refer-thread-limit t))
+                           (gnus-refer-thread-limit t)
+                           (gnus-article-save-directory
+                            "~/src/emacs/org-mode/")
+                           (gnus-rmail-save-name
+                            ,(lambda (&rest _)
+                               "Save to file \"email\"."
+                               (expand-file-name
+                                "email"
+                                gnus-article-save-directory))))
                           ("local" (gnus-show-threads nil) (display . default))))
 
 ;; TODO: figure out how to specifiy my nnvirtual groups from here
