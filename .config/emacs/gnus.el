@@ -7,7 +7,10 @@
 
 ;;; Code:
 
-(require 'gnus)
+(require 'gnus "gnus/gnus")
+
+(require 'init.el)
+
 (require 'gnus-art)
 (require 'gnus-msg)
 (require 'gnus-util)
