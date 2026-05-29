@@ -624,38 +624,40 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   (plist-put org-clocktable-defaults :fileskip0 t))
 
 ;; org-capture-before-finalize-hook
-(keymap-global-set "C-c c" #'org-capture)
-(setopt org-capture-bookmark nil)
-(setopt org-capture-templates
-        '(
-          ("i" "Inbox" entry (file "inbox.org") "* %?" :prepend t)
-          ("w" "Weight"
-           table-line (file+headline "wiki/morgan.org" "weight")
-           "| %? | %U |" :jump-to-captured t :prepend t)
-          ("h" "headache"
-           table-line (file+headline "wiki/morgan.org" "headache")
-           "| %^{Intensity
+(use-package org-capture
+  :bind ("C-c c" . org-capture)
+  :custom
+  (org-bookmark-names-plist nil)
+  (org-capture-templates
+   '(
+     ("i" "Inbox" entry (file "inbox.org") "* %?" :prepend t)
+     ("w" "Weight"
+      table-line (file+headline "wiki/morgan.org" "weight")
+      "| %? | %U |" :jump-to-captured t :prepend t)
+     ("h" "headache"
+      table-line (file+headline "wiki/morgan.org" "headache")
+      "| %^{Intensity
 1: Slight pain
 2: Pain
 3: Trouble thinking
 4: Light sensitive
 5: Light and sound sensitive
 ||1|2|3|4|5} | %U |" :prepend t :immediate-finish t)
-          ("m" "Mood"
-           table-line (file+headline "wiki/morgan.org" "mood")
-           "| %? | %U |" :prepend t)
-          ("e" "Energy"
-           table-line (file+headline "wiki/morgan.org" "energy")
-           "| %^{Energy level
+     ("m" "Mood"
+      table-line (file+headline "wiki/morgan.org" "mood")
+      "| %? | %U |" :prepend t)
+     ("e" "Energy"
+      table-line (file+headline "wiki/morgan.org" "energy")
+      "| %^{Energy level
 1: Eye's feel heavy
 2: Yawning now and then
 3: Average
 4: Excited
 5: Bursting with energy!
 ||1|2|3|4|5} | %U |" :prepend t :immediate-finish t)
-          ("d" "Daily Rating"
-           table-line (file+headline "wiki/morgan.org" "how was my day")
-           "| %^{How was my day?
+     ("d" "Daily Rating"
+      table-line (file+headline "wiki/morgan.org" "how was my day")
+      "| %^{How was my day?
 +5: Amazing!
 +4:
 +3: Good
@@ -667,7 +669,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 -3: Bad
 -4:
 -5: Awful
-||+5|+4|+3|+2|+1|0|-1|-2|-3|-4|-5} | %u |" :prepend t :immediate-finish t)))
+||+5|+4|+3|+2|+1|0|-1|-2|-3|-4|-5} | %u |" :prepend t :immediate-finish t))))
 
 (setopt org-link-elisp-confirm-function nil)
 (setopt org-link-descriptive nil)
