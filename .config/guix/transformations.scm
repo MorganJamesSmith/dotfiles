@@ -73,6 +73,42 @@
                )))))
      (make-fresh-user-module))))
 
+;; There are some bugs in "xdg-open" that have been fixed
+(define-public xdg-utils-next
+  (let* ((path "/home/pancake/src/xdg-utils")
+         (commit (git-commit path)))
+    (eval
+     `(begin
+        (use-modules
+         (gnu packages freedesktop)
+         (guix git)
+         (guix git-download)
+         (guix packages)
+         (guix utils))
+        (let ((path ,path)
+              (commit ,commit))
+          (package
+            (inherit xdg-utils)
+            ;; Version has to be same length as current one for grafting to work
+            (version "1.2.9")
+            ;; (version (git-version "1.2.1" "0" commit))
+            (source (git-checkout (url path) (commit commit)))
+            (arguments
+             (substitute-keyword-arguments arguments
+               ((#:substitutable? _ #f) #f))))))
+     (make-fresh-user-module))))
+   
+(define-public xdg-utils-grafted
+  (eval
+   `(begin
+      (use-modules
+       (gnu packages freedesktop)
+       (guix packages))
+      (package
+        (inherit xdg-utils)
+        (replacement ,xdg-utils-next)))
+   (make-fresh-user-module)))
+
 (define transformations
   (compose
    (options->transformation
@@ -93,7 +129,8 @@
       (without-tests . "emacs-flycheck")
       (without-tests . "emacs-ledger-mode")))
    (package-input-rewriting/spec
-    `(,@(map (lambda (pkg)
+    `(("xdg-utils" . ,(const xdg-utils-grafted))
+      ,@(map (lambda (pkg)
                (cons pkg (const emacs-custom)))
              (list
               "emacs-next-pgtk"
