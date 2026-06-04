@@ -5,6 +5,7 @@
  (ice-9 string-fun)
  (gnu packages)
  (guix cpu)
+ ((guix packages) #:select (package-input-rewriting/spec))
  ((guix transformations) #:select (options->transformation))
  ((guix build utils) #:select (with-directory-excursion))
  ((ice-9 popen) #:select (open-pipe* close-pipe))
@@ -32,63 +33,80 @@
         (display (string-append "Transformation aborted! No such path " path "\n"))
         '())))
 
+(define-public emacs-custom
+  (let* ((path "/home/pancake/src/emacs/emacs")
+         (commit (git-commit path)))
+    (eval
+     `(begin
+        (use-modules
+         (gnu packages emacs)
+         (guix gexp)
+         (guix git)
+         (guix git-download)
+         (guix packages)
+         (guix utils))
+        (let ((path ,path)
+              (commit ,commit)
+              (emacs emacs-next-pgtk))
+          (package
+            (inherit emacs)
+            (version (git-version "32.0.50" "0" commit))
+            (source
+             (origin
+               (inherit (package-source emacs))
+               (method (@@ (guix packages) computed-origin-method))
+               (file-name (git-file-name "emacs-custom" version))
+               (sha256 #f)
+               (uri
+                (delay
+                  (with-imported-modules '((guix build utils))
+                    #~(begin
+                        (use-modules (guix build utils))
+                        (copy-recursively #+(git-checkout (url path) (commit commit)) #$output)))))
+               ;; TODO: apply patches from upstream
+               (patches '())))
+            (arguments
+             (substitute-keyword-arguments arguments
+               ;; Not supported by 'glib-or-gtk-build-system'
+               ;; TODO: tell upstream
+               ;; ((#:substitutable? _ #f) #f)
+               )))))
+     (make-fresh-user-module))))
+
 (define transformations
-  (options->transformation
-   `(
-     (tune . ,(cpu->gcc-architecture (current-cpu)))
+  (compose
+   (options->transformation
+    `(
+      (tune . ,(cpu->gcc-architecture (current-cpu)))
 
-     ,@(use-local-source-transformations "emacs-next-pgtk" "/home/pancake/src/emacs/emacs"
-                                         #:without-tests? #t)
+      ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode" "installed"
+                                          #:without-tests? #t)
 
-     ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode" "installed"
-                                         #:without-tests? #t)
+      ,@(use-local-source-transformations "proof-general" "/home/pancake/src/emacs/proof-general")
 
-     ,@(use-local-source-transformations "proof-general" "/home/pancake/src/emacs/proof-general")
+      ,@(use-local-source-transformations "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion"
+                                          #:without-tests? #t)
 
-     ,@(use-local-source-transformations "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion"
-                                         #:without-tests? #t)
+      ;; doesn't build.  TODO: investigate
+      (with-input   . "emacs-ert-runner=emacs")
 
-     (with-input   . "emacs=emacs-next-pgtk")
-     (with-input   . "emacs-minimal=emacs-next-pgtk")
-     (with-input   . "emacs-no-x=emacs-next-pgtk")
-     (with-input   . "emacs-no-x-toolkit=emacs-next-pgtk")
-
-     ;; doesn't build.  TODO: investigate
-     (with-input   . "emacs-ert-runner=emacs-next-pgtk")
-
-     (without-tests . "emacs-flycheck")
-     (without-tests . "emacs-ledger-mode"))))
-
-;; TODO: when the patch file doesn't exist the error message is not helpful at all :/
-;; We do these separately as they don't combine with our source transformations
-;; unless they are done as a separate step.
-;;
-;; Our source transformations also clear the patches that would normally be
-;; applied so I add them back in
-(define patch-transformations
-  (options->transformation
-   (filter-map
-    (lambda (patch)
-      (set! patch (string-replace-substring patch "~" (string-append "/home/" username)))
-      (if (file-exists? patch)
-          (cons 'with-patch
-                (string-append "emacs-next-pgtk="
-                               (canonicalize-path patch)))
-          (begin
-            (display (string-append "Patch aborted! No such patch " patch "\n"))
-            #f)))
-    '("~/src/guix/gnu/packages/patches/emacs-next-disable-jit-compilation.patch"
-      "~/src/guix/gnu/packages/patches/emacs-next-exec-path.patch"
-      "~/src/guix/gnu/packages/patches/emacs-fix-scheme-indent-function.patch"
-      "~/src/guix/gnu/packages/patches/emacs-native-comp-driver-options.patch"
-      "~/src/guix/gnu/packages/patches/emacs-next-native-comp-fix-filenames.patch"
-      "~/src/guix/gnu/packages/patches/emacs-native-comp-pin-packages.patch"))))
+      (without-tests . "emacs-flycheck")
+      (without-tests . "emacs-ledger-mode")))
+   (package-input-rewriting/spec
+    `(,@(map (lambda (pkg)
+               (cons pkg (const emacs-custom)))
+             (list
+              "emacs-next-pgtk"
+              "emacs"
+              "emacs-minimal"
+              "emacs-no-x"
+              "emacs-no-x-toolkit"))))))
 
 (define-public specifications->packages-with-transformations
   (lambda* (specifications #:optional (packages '()))
     (map
      (lambda* (package #:optional (output "out"))
-       (list (patch-transformations (transformations package)) output))
+       (list (transformations package) output))
      (append!
       (map
        specification->package+output
