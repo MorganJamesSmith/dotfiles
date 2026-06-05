@@ -142,12 +142,32 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
                           (cl-remove-if-not #'stringp kill-ring)))))
 
 (setopt help-enable-variable-value-editing t)
+(setopt help-enable-symbol-autoload t)
 
 ;; Use ibuffer
 ;; TODO: make this respect global-auto-revert-non-file-buffers
 ;; TODO: make this not jump my cursor around on refresh when window not active
 ;; (add-hook 'ibuffer-hook 'ibuffer-auto-mode) ;; auto-revert ibuffer
-(keymap-global-set "C-x C-b" #'ibuffer)
+(use-package ibuffer
+  :bind ("C-x C-b" . ibuffer))
+
+(defun image-scale-adjust (inc)
+  "Adjust the image size by INC steps.
+This is supposed to mimic `text-scale-adjust' so I can remap that in
+`image-mode'."
+  (interactive "P")
+  (pcase-exhaustive (event-basic-type last-command-event)
+    ((or ?+ ?=) (image-increase-size inc))
+    (?- (image-decrease-size inc))))
+
+(use-package image-mode
+  ;; Useful keybinds:
+  ;; "s w" - `image-transform-fit-to-window'
+  :bind
+  (:map image-mode-map
+        ("<remap> <text-scale-adjust>" . image-scale-adjust))
+  :custom
+  (image-auto-resize 'fit-window))
 
 (setopt read-mail-command 'gnus)
 (setopt mail-user-agent 'gnus-user-agent)
@@ -284,6 +304,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
       (>= 50 (frame-height)))))
 
   (keymap-global-set "<volume-down>" #'scroll-up))
+
+(use-package view
+  :hook messages-buffer-mode
+  :bind
+  (:map view-mode-map
+        ("=" . text-scale-increase)
+        ("-" . text-scale-decrease)
+        ("0" . text-scale-adjust)))
 
 ;;; Modeline/Tab Bar Section Begins
 (setopt display-time-24hr-format t)
@@ -622,6 +650,13 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   ;; Remove annoying file headers
   (plist-put org-clocktable-defaults :hidefiles t)
   (plist-put org-clocktable-defaults :fileskip0 t))
+
+;; Prevent hang when clocking in
+(add-function :around (symbol-function 'org-clock-in)
+              (lambda (fun &rest args)
+                (cl-letf (((symbol-function #'org-clock-sum-current-item)
+                           (lambda (&rest _) 0)))
+                  (apply fun args))))
 
 ;; org-capture-before-finalize-hook
 (use-package org-capture
@@ -1062,9 +1097,7 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
   :config
   (defvar compilation-sleep-block-token nil)
   (defun compilation-sleep-block-sleep (_process)
-    (message "run `compilation-sleep-block-sleep' in buffer %s" (buffer-name))
     (unless compilation-sleep-block-token
-      (message "taking token")
       (setq compilation-sleep-block-token
             (system-sleep-block-sleep "Compilation in progress"))))
 
@@ -1072,7 +1105,6 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
     (when (and compilation-sleep-block-token
                (or (null compilation-in-progress)
                    (all (lambda (process) (not (process-live-p process))) compilation-in-progress)))
-      (message "releasing token")
       (system-sleep-unblock-sleep compilation-sleep-block-token)
       (setq compilation-sleep-block-token nil)))
 
@@ -1122,15 +1154,17 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 ;; TODO: upstream these to org
 (autoload 'org-fold-show-context "org-fold")
+(defun my-org-fold-maybe-show-context ()
+  "If we are in `org-mode' then show context."
+  (when (derived-mode-p 'org-mode)
+    (org-fold-show-context 'org-goto)))
 (add-hook 'xref-after-jump-hook
-          (lambda ()
-            (when (derived-mode-p 'org-mode)
-              (org-fold-show-context 'org-goto))))
+          #'my-org-fold-maybe-show-context)
 ;; TODO: why doesn't xref call next-error-hook?
 (add-hook 'next-error-hook
-          (lambda ()
-            (when (derived-mode-p 'org-mode)
-              (org-fold-show-context 'org-goto))))
+          #'my-org-fold-maybe-show-context)
+
+(add-hook 'ispell-update-post-hook #'my-org-fold-maybe-show-context)
 
 ;; When following org-mode links, add the current location to the xref stack
 (autoload 'xref-push-marker-stack "xref")
@@ -1152,9 +1186,11 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (use-package diff-hl
   :if EXTERNAL-PACKAGES?
-  :functions global-diff-hl-mode
+  :hook (dired-mode . diff-hl-dired-mode)
+  :functions global-diff-hl-mode diff-hl-flydiff-mode
   :config
-  (global-diff-hl-mode))
+  (global-diff-hl-mode 1)
+  (diff-hl-flydiff-mode 1))
 
 (defvar vc-git-program)
 (defun my-vc-filter-command (command file-or-list flags)
@@ -1172,7 +1208,10 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   :custom
   (vc-log-short-style '(directory file))
   (vc-log-finish-functions nil)  ; no buffer resizing!
-  (vc-diff-finish-functions nil) ; no buffer resizing!
+  ;; no buffer resizing!
+  ;; Also stop asking me about safe local variables in diff buffers
+  (vc-diff-finish-functions
+   (list (lambda () (setq-local enable-local-variables :safe))))
   (vc-allow-async-diff t)
   (vc-allow-rewriting-published-history 'ask))
 
@@ -1647,6 +1686,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
                             (mode . gnus-group-mode)
                             (mode . gnus-summary-mode)
                             (mode . gnus-article-mode)
+                            (mode . gnus-sticky-article-mode)
                             (name . "^\\.bbdb$")
                             (name . "^\\.newsrc-dribble")
                             (mode . debbugs-gnu-mode)))
@@ -1710,11 +1750,12 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 (repeat-mode 1)
 
-(defvar-keymap isearch-repeat-map
-  :doc "Keymap to repeat isearch searches.  Used in `repeat-mode'."
-  :repeat t
-  "s" #'isearch-repeat-forward
-  "r" #'isearch-repeat-backward)
+(use-package isearch
+  :bind
+  (:repeat-map
+   isearch-repeat-map
+   ("s" . isearch-repeat-forward)
+   ("r" . isearch-repeat-backward)))
 
 ;;; EMMS
 (autoload 'emms-volume-pulse-change "emms-volume-pulse")
@@ -1854,6 +1895,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 (add-hook 'kill-emacs-hook #'cleanup)
 
+(declare-function dbus-register-signal "dbus")
 (defun register-cleanup ()
   "Run cleanup function on lock, sleep, and shutdown."
   (add-hook 'system-sleep-event-functions
