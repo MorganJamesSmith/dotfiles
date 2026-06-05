@@ -367,9 +367,17 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
   (org-fold-catch-invisible-edits 'show-and-error)
   (org-tags-sort-function #'org-tags-sort-hierarchy)
   (org-enforce-todo-dependencies t)
+  ;; STRT : Task is in progress and must be completed.
+  ;; NEXT : Task is active and must be performed next.
+  ;; TODO : Task is something to do in general.
+  ;; WAIT : Task is waiting for something else.
+  ;; CANX : Task has been canceled or delegated.
+  ;; DONE : Task has been done.
   (org-todo-keywords
-   '((sequence "TODO" "|" "DONE" "FAILED")
-     (sequence "WAIT" "DONE")
+   '((sequence "TODO(t)" "WAIT(w)"
+               "STRT(s)" "NEXT(n)"
+               "|"
+               "DONE(d)" "CANX(c)")
      (sequence "HABIT" "DONE")
      (sequence "PROJECT" "DONE")))
   ;; todo priorities
