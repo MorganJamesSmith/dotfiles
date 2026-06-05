@@ -497,7 +497,8 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
         "-TODO=\"HABIT\"-goals"
         ((org-agenda-prefix-format "%-4.4T: %l")
          (org-agenda-todo-keyword-format "%-1s")
-         (org-agenda-sorting-strategy '(category-keep))))))
+         (org-agenda-todo-ignore-scheduled 'all)
+         (org-agenda-sorting-strategy '(timestamp-up priority-down tag-up category-keep))))))
      ("o" "My Agenda"
       (
        (tags-todo
@@ -784,17 +785,48 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
                          0)))
    (org-insert-timestamp (time-add (date-to-time time-string) correction) t t)))
 
+(defun my-org-files (&optional excluded-directories)
+  "Return a list of my org files.
+Ignore any files in directories in EXCLUDED-DIRECTORIES."
+  (directory-files-recursively
+   (expand-file-name org-directory)
+   "\\.org\\'"
+   nil
+   (lambda (directory)
+     (not
+      (member (file-name-nondirectory directory)
+              (append '(".stversions" "school") excluded-directories))))))
+
+(autoload 'org-lint "org-lint")
+(defvar org-lint-all-remaining nil)
+(defun org-lint-all ()
+  "Lint all my org files in my `org-directory'."
+  (interactive)
+  (unless org-lint-all-remaining
+    (setq org-lint-all-remaining (my-org-files)))
+  (let ((progress-reporter
+         (make-progress-reporter
+          "Linting Org files"
+          0 (length org-lint-all-remaining)))
+        (progress 0))
+    (named-let loop
+        ((file (car org-lint-all-remaining)))
+      (org-with-file-buffer file
+        (let ((inhibit-message t))
+          (funcall-interactively #'org-lint))
+        (with-current-buffer "*Org Lint*"
+          (when (string-empty-p (buffer-string))
+            (pop org-lint-all-remaining)
+            (if-let* ((next (car org-lint-all-remaining)))
+                (progn
+                  (progress-reporter-update progress-reporter (incf progress))
+                  (loop next))
+              (progress-reporter-done progress-reporter))))))))
+
 (defun search-org-directory (regexp)
   "Search through my org files in my `org-directory' for REGEXP."
   (interactive "sRegex: ")
-  (let ((files (directory-files-recursively
-                (expand-file-name org-directory)
-                "\\.org\\'"
-                nil
-                (lambda (directory)
-                  (not
-                   (member (file-name-nondirectory directory)
-                           '(".stversions")))))))
+  (let ((files (my-org-files)))
     (xref-show-xrefs (lambda () (xref-matches-in-files regexp files)) nil)))
 ;;; Org Section Ends
 
