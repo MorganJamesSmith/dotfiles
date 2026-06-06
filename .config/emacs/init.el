@@ -885,16 +885,18 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   :hook (emacs-lisp-mode
          .
          (lambda ()
-           (let ((file (shell-quote-argument buffer-file-name)))
-             (setq-local compile-command
-                         (string-join
-                          (list "emacs -Q --batch"
-                                (shell-quote-argument "--eval=(setq byte-compile-warnings 'all)")
-                                ;; (concat "--eval="
-                                ;;         (shell-quote-argument
-                                ;;          (concat "(checkdoc-file \"" file "\")")))
-                                "-f batch-native-compile" file)
-                          " ")))))
+           (when buffer-file-name
+             (let ((file (shell-quote-argument buffer-file-name)))
+               (setq-local
+                compile-command
+                (string-join
+                 (list "emacs -Q --batch"
+                       (shell-quote-argument "--eval=(setq byte-compile-warnings 'all)")
+                       ;; (concat "--eval="
+                       ;;         (shell-quote-argument
+                       ;;          (concat "(checkdoc-file \"" file "\")")))
+                       "-f batch-native-compile" file)
+                 " "))))))
   ;; very laggy
   ;; :custom (elisp-fontify-semantically t)
   )
@@ -1176,13 +1178,14 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   :hook (sh-mode
          .
          (lambda ()
-           (let ((file (shell-quote-argument buffer-file-name)))
-             ;; Use stdin to load file all at once so bash doesn't do garbage if the file is modified.
-             ;; Use exec to set "$0".
-             (setq-local compile-command
-                         (string-join (list "cat" file "|"
-                                            "exec" "-a" file "bash" "-euo pipefail" "-s" "-- ")
-                                      " "))))))
+           (when buffer-file-name
+             (let ((file (shell-quote-argument buffer-file-name)))
+               ;; Use stdin to load file all at once so bash doesn't do garbage if the file is modified.
+               ;; Use exec to set "$0".
+               (setq-local compile-command
+                           (string-join (list "cat" file "|"
+                                              "exec" "-a" file "bash" "-euo pipefail" "-s" "-- ")
+                                        " ")))))))
 
 (use-package grep
   :custom
