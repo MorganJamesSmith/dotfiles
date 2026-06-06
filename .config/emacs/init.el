@@ -811,12 +811,16 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
         (progress 0))
     (named-let loop
         ((file (car org-lint-all-remaining)))
-      (org-with-file-buffer file
-        (let ((inhibit-message t))
-          (funcall-interactively #'org-lint))
+      (let* ((existing-buffer (find-buffer-visiting file))
+             (buffer (or existing-buffer (find-file-noselect file))))
+        (with-current-buffer buffer
+          (let ((inhibit-message t))
+            (funcall-interactively #'org-lint)))
         (with-current-buffer "*Org Lint*"
           (when (string-empty-p (buffer-string))
             (pop org-lint-all-remaining)
+            (unless existing-buffer
+              (kill-buffer buffer))
             (if-let* ((next (car org-lint-all-remaining)))
                 (progn
                   (progress-reporter-update progress-reporter (incf progress))
