@@ -61,7 +61,3 @@ guix system build --max-jobs=4 --keep-going /home/pancake/.config/guix/config.sc
 
 # Display news
 guix pull --news
-
-# Local Variables:
-# compile-command: "./update"
-# End:
