@@ -66,7 +66,53 @@
                ;; TODO: apply patches from upstream
                (patches '())))
             (arguments
+             ;; Optimization suggestions from
+             ;; https://www.jamescherti.com/compiling-emacs/
              (substitute-keyword-arguments arguments
+               ((#:configure-flags flags #~'())
+                #~(append
+                   #$flags
+                   (list
+                    ;; Makes build non-reproducible but is helpful
+                    "--enable-build-details"
+
+                    "--enable-link-time-optimization"
+                    "--disable-gc-mark-trace"
+                    "--without-compress-install"
+                    "--without-x"
+                    "--without-xft"
+                    "--without-xim"
+                    "--without-libotf"
+                    "--without-gpm"
+                    "--disable-acl"
+                    "--disable-xattr"
+
+                    "CFLAGS=-O2 -pipe -fno-omit-frame-pointer -fno-plt"
+                    #$(string-append
+                       "LDFLAGS=-Wl,-O2 -Wl,-z,now"
+                       " -Wl,-z,relro -Wl,--sort-common"
+                       " -Wl,--as-needed"
+                       " -Wl,-z,pack-relative-relocs"
+                       " -O2"))))
+               ((#:phases phases)
+                #~(modify-phases #$phases
+                    (add-after 'patch-compilation-driver 'my-native-comp-settings
+                      (lambda _
+                        (substitute* "lisp/emacs-lisp/comp.el"
+                          (("\\(defcustom native-comp-driver-options '\\(" all)
+                           (string-append
+                            all
+                            (format
+                             #f "~@{~s~^ ~}"
+                             "-Wl,-z,pack-relative-relocs"
+                             "-Wl,-O2"
+                             "-Wl,--as-needed")))
+                          (("\\(defcustom native-comp-compiler-options nil")
+                           (format
+                            #f "(defcustom native-comp-compiler-options '(~@{~s~^ ~})"
+                            "-O2" "-g0"
+                            "-fno-omit-frame-pointer"
+                            "-fno-finite-math-only")))))))
                ;; Not supported by 'glib-or-gtk-build-system'
                ;; TODO: tell upstream
                ;; ((#:substitutable? _ #f) #f)
