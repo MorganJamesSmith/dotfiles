@@ -13,5 +13,6 @@
 !.config/guix/transformations.scm
 !.config/guix/update
 !.config/sway/config
+!.dir-locals.el
 !.gitignore
 !LICENSE

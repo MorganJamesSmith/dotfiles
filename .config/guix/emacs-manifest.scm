@@ -64,7 +64,3 @@
   (packages->manifest emacs-manifest-packages))
 
 emacs-manifest
-
-;; Local Variables:
-;; compile-command: "guix build --max-jobs=4 --keep-going -m /home/pancake/.config/guix/emacs-manifest.scm"
-;; End:
