@@ -18,6 +18,7 @@ git_commit_time(){
 }
 
 rebase_local_repository(){
+    echo "Rebasing $1"
     (cd "$1" &&
          git rebase --no-gpg-sign --autostash)
 }
@@ -26,6 +27,7 @@ rebase_local_repository /home/pancake/src/emacs/emacs
 rebase_local_repository /home/pancake/src/emacs/org-mode
 rebase_local_repository /home/pancake/src/emacs/org-transclusion
 rebase_local_repository /home/pancake/src/emacs/proof-general
+rebase_local_repository /home/pancake/src/xdg-utils
 
 # used in home.scm as a channel
 rebase_local_repository /home/pancake/src/nonguix
