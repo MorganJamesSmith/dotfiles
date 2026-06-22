@@ -25,12 +25,6 @@
     (map
      (lambda (x) (string-append "emacs-" x))
      '(
-       ;; TODO: packages I want but can't build at the moment:
-       ;; "geiser"
-       ;; "geiser-guile"
-       ;; "guix"
-       ;; "literate-calc-mode" ;; TODO: fails same way as ert-runner
-
        "arei"
        "bluetooth"
        "crdt"
@@ -42,10 +36,14 @@
        "elpher"
        "emms"
        "eshell-syntax-highlighting"
+       "geiser"
+       "geiser-guile"
        "ggtags"
        "gnuplot"
+       "guix"
        "flycheck-ledger"
        "ledger-mode"
+       "literate-calc-mode"
        "nov-el"
        "org"
        "org-transclusion"
