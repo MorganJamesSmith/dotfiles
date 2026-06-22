@@ -19,9 +19,7 @@
 ;; Exit gnus on Emacs exit
 (defun exit-gnus-on-exit ()
   "Exits gnus non-interactively."
-  (condition-case nil
-      (gnus-group-exit)
-    (error nil)))
+  (ignore-errors (gnus-group-exit)))
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
@@ -155,7 +153,7 @@
                             "lei up --all"))
      #'gnus-maybe-group-get-new-news)))
 
-(defvar nntpd-process
+(defvar public-inbox-nntpd-process
   (make-process
    :name "public-inbox-nntpd"
    :buffer " *public-inbox-nntpd*"
@@ -225,8 +223,7 @@
               (nnimap-address "localhost")
               (nnimap-stream network)
               (nnimap-server-port 143)))
-   '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local"
-     "orgmode"))))
+   '("cmail" "grommin" "hotbutterypancake" "morganjsmith" "work" "local"))))
 
 (setopt gnus-posting-styles
         '(("hotbutterypancake" (address "hotbutterypancake@gmail.com"))
@@ -264,7 +261,7 @@
   "Put total unread emails in modeline."
   (or
    (and gnus-newsrc-alist ; gnus running?
-        (let ((unread (gnus-group-unread "nnvirtual:inbox")))
+        (let ((unread (gnus-group-unread "nnvirtual:INBOX")))
           (when (and unread (numberp unread) (> unread 0))
             (setq gnus-mode-line-string
                   (concat "[Unread email: " (number-to-string unread) "] "))
