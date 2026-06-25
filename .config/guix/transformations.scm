@@ -20,18 +20,29 @@
     (close-pipe pipe)
     version))
 
-(define* (use-local-source-transformations name path #:optional (commit "HEAD")
+(define* (package-rewrite-use-local-source name path #:optional (commit "HEAD")
                                            #:key without-tests?)
   (if (file-exists? path)
       (let ((commit (git-commit path commit)))
-        `((with-commit  . ,(string-append name "=" commit))
-          (with-git-url . ,(string-append name "=" path))
-          ,@(if without-tests?
-                (list (cons 'without-tests name))
-                '())))
+        (let ((transformations
+               (options->transformation
+                `((with-commit  . ,(string-append name "=" commit))
+                  (with-git-url . ,(string-append name "=" path))
+                  ,@(if without-tests?
+                        (list (cons 'without-tests name))
+                        '())))))
+          (cons name
+                (const (transformations (specification->package name))))))
       (begin
         (display (string-append "Transformation aborted! No such path " path "\n"))
-        '())))
+        #f)))
+
+(define* (package-rewrite-without-tests name)
+  (let ((transformations
+         (options->transformation
+          `(,(cons 'without-tests name)))))
+    (cons name
+          (const (transformations (specification->package name))))))
 
 (define-public emacs-custom
   (let* ((path "/home/pancake/src/emacs/emacs")
@@ -143,7 +154,7 @@
              (substitute-keyword-arguments arguments
                ((#:substitutable? _ #f) #f))))))
      (make-fresh-user-module))))
-   
+
 (define-public xdg-utils-grafted
   (eval
    `(begin
@@ -158,22 +169,7 @@
 (define transformations
   (compose
    (options->transformation
-    `(
-      (tune . ,(cpu->gcc-architecture (current-cpu)))
-
-      ,@(use-local-source-transformations "emacs-org" "/home/pancake/src/emacs/org-mode" "installed"
-                                          #:without-tests? #t)
-
-      ,@(use-local-source-transformations "proof-general" "/home/pancake/src/emacs/proof-general")
-
-      ,@(use-local-source-transformations "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion"
-                                          #:without-tests? #t)
-
-      ;; doesn't build.  TODO: investigate
-      (with-input   . "emacs-ert-runner=emacs")
-
-      (without-tests . "emacs-flycheck")
-      (without-tests . "emacs-ledger-mode")))
+    `((tune . ,(cpu->gcc-architecture (current-cpu)))))
    (package-input-rewriting/spec
     `(("xdg-utils" . ,(const xdg-utils-grafted))
       ,@(map (lambda (pkg)
@@ -183,7 +179,29 @@
               "emacs"
               "emacs-minimal"
               "emacs-no-x"
-              "emacs-no-x-toolkit"))))))
+              "emacs-no-x-toolkit"
+
+              ;; Don't need compat if using latest emacs
+              "emacs-compat"
+
+              ;; This package is outdated and should be removed
+              "emacs-cl-print"))))
+   ;; This uses `specification->package' so we need to run this transformation first
+   (package-input-rewriting/spec
+    (delq
+     #f
+     `(
+       ,(package-rewrite-use-local-source "tup" "/home/pancake/src/tup")
+
+       ,(package-rewrite-use-local-source "emacs-org" "/home/pancake/src/emacs/org-mode" "installed"
+                                          #:without-tests? #t)
+
+       ,(package-rewrite-use-local-source "proof-general" "/home/pancake/src/emacs/proof-general")
+
+       ,(package-rewrite-use-local-source "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion"
+                                          #:without-tests? #t)
+       
+       ,(package-rewrite-without-tests "emacs-ledger-mode"))))))
 
 (define-public specifications->packages-with-transformations
   (lambda* (specifications #:optional (packages '()))
