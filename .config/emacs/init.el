@@ -1598,6 +1598,23 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 (setopt comint-pager "cat")
 (setopt comint-terminfo-terminal "dumb-emacs-ansi")
 
+;; FIXME (orgmode): fix upstream
+;; When `comint-terminfo-terminal' is customized, then the output gets mangled.
+;; example:
+;; #+begin_src sh :session build :async yes
+;; ls /etc/hosts
+;; #+end_src
+
+;; #+RESULTS:
+;; : ^[[?2004h ^[[?2004l
+;; : /etc/hosts
+;; : ^[[?2004h ^[[?2004l
+(with-eval-after-load "ob-shell"
+  (add-function :around (symbol-function 'org-babel-sh-initiate-session)
+                (lambda (fun &rest args)
+                  (let ((comint-terminfo-terminal "dumb"))
+                    (apply fun args)))))
+
 (use-package dired
   :commands dired-goto-file
   :bind
