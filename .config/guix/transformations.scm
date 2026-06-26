@@ -1,17 +1,17 @@
-(define-module (transformations))
-
-(use-modules
- (srfi srfi-1)
- (ice-9 string-fun)
- (gnu packages)
- (guix cpu)
- ((guix packages) #:select (package-input-rewriting/spec))
- ((guix transformations) #:select (options->transformation))
- ((guix build utils) #:select (with-directory-excursion))
- ((ice-9 popen) #:select (open-pipe* close-pipe))
- ((ice-9 rdelim) #:select (read-line)))
+(define-module (transformations)
+  #:use-module ((gnu packages) #:select (specification->package+output))
+  #:use-module ((guix build utils) #:select (with-directory-excursion))
+  #:use-module ((guix cpu) #:select (cpu->gcc-architecture current-cpu))
+  #:use-module (guix git)
+  #:use-module (guix packages)
+  #:use-module ((guix transformations) #:select (tuned-package))
+  #:use-module ((guix utils) #:select (substitute-keyword-arguments))
+  #:use-module ((ice-9 popen) #:select (open-pipe* close-pipe))
+  #:use-module ((ice-9 rdelim) #:select (read-line)))
 
 (load "machine-specific.scm")
+
+(define micro-architecture (cpu->gcc-architecture (current-cpu)))
 
 (define* (git-commit path #:optional (commit "HEAD"))
   (let* ((pipe (with-directory-excursion path
@@ -24,25 +24,28 @@
                                            #:key without-tests?)
   (if (file-exists? path)
       (let ((commit (git-commit path commit)))
-        (let ((transformations
-               (options->transformation
-                `((with-commit  . ,(string-append name "=" commit))
-                  (with-git-url . ,(string-append name "=" path))
-                  ,@(if without-tests?
-                        (list (cons 'without-tests name))
-                        '())))))
-          (cons name
-                (const (transformations (specification->package name))))))
+        (cons
+         name
+         (lambda (pkg)
+           (package
+             (inherit pkg)
+             (version (string-append (package-version pkg) "-" (string-take commit 7)))
+             (source (git-checkout (url path) (commit commit)))
+             (arguments
+              (substitute-keyword-arguments arguments
+                ((#:tests? _ #f) (not without-tests?))))))))
       (begin
         (display (string-append "Transformation aborted! No such path " path "\n"))
         #f)))
 
 (define* (package-rewrite-without-tests name)
-  (let ((transformations
-         (options->transformation
-          `(,(cons 'without-tests name)))))
-    (cons name
-          (const (transformations (specification->package name))))))
+  (cons name
+        (lambda (pkg)
+          (package
+            (inherit pkg)
+            (arguments
+             (substitute-keyword-arguments arguments
+               ((#:tests? _ #f) #f)))))))
 
 (define-public emacs-custom
   (let* ((path "/home/pancake/src/emacs/emacs")
@@ -166,42 +169,62 @@
         (replacement ,xdg-utils-next)))
    (make-fresh-user-module)))
 
+;; FIXME: upstream should really provide a function like this
+(define (package-input-rewriting/spec/recursive replacements
+                                                extra-func)
+  (define replacement-property
+    (gensym " package-replacement"))
+  
+  (define (rewrite p)
+    (if (assq-ref (package-properties p) replacement-property)
+        p
+        (let ((proc (compose extra-func
+                             (or (assoc-ref replacements (package-name p))
+                                 identity))))
+          (let ((new (proc p)))
+            ;; Mark NEW as already processed.
+            (package/inherit new
+              (properties `((,replacement-property . #t)
+                            ,@(package-properties new))))))))
+  (package-mapping rewrite #:deep? #t))
+
 (define transformations
-  (compose
-   (options->transformation
-    `((tune . ,(cpu->gcc-architecture (current-cpu)))))
-   (package-input-rewriting/spec
-    `(("xdg-utils" . ,(const xdg-utils-grafted))
-      ,@(map (lambda (pkg)
-               (cons pkg (const emacs-custom)))
-             (list
-              "emacs-next-pgtk"
-              "emacs"
-              "emacs-minimal"
-              "emacs-no-x"
-              "emacs-no-x-toolkit"
+  (package-input-rewriting/spec/recursive
+   `(("xdg-utils" . ,(const xdg-utils-grafted))
+     ,@(map (lambda (pkg)
+              (cons pkg (const emacs-custom)))
+            (list
+             "emacs-next-pgtk"
+             "emacs"
+             "emacs-minimal"
+             "emacs-no-x"
+             "emacs-no-x-toolkit"
 
-              ;; Don't need compat if using latest emacs
-              "emacs-compat"
+             ;; Don't need compat if using latest emacs
+             "emacs-compat"
 
-              ;; This package is outdated and should be removed
-              "emacs-cl-print"))))
-   ;; This uses `specification->package' so we need to run this transformation first
-   (package-input-rewriting/spec
-    (delq
-     #f
-     `(
-       ,(package-rewrite-use-local-source "tup" "/home/pancake/src/tup")
+             ;; This package is outdated and should be removed
+             "emacs-cl-print"))
 
-       ,(package-rewrite-use-local-source "emacs-org" "/home/pancake/src/emacs/org-mode" "installed"
-                                          #:without-tests? #t)
+     ,(package-rewrite-use-local-source "tup" "/home/pancake/src/tup")
 
-       ,(package-rewrite-use-local-source "proof-general" "/home/pancake/src/emacs/proof-general")
+     ,(package-rewrite-use-local-source "emacs-org" "/home/pancake/src/emacs/org-mode" "installed"
+                                        #:without-tests? #t)
 
-       ,(package-rewrite-use-local-source "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion"
-                                          #:without-tests? #t)
-       
-       ,(package-rewrite-without-tests "emacs-ledger-mode"))))))
+     ,(package-rewrite-use-local-source "proof-general" "/home/pancake/src/emacs/proof-general")
+
+     ,(package-rewrite-use-local-source "emacs-org-transclusion" "/home/pancake/src/emacs/org-transclusion"
+                                        #:without-tests? #t)
+
+     ,(package-rewrite-without-tests "emacs-ledger-mode"))
+   (lambda (p)
+     (if (assq 'tunable? (package-properties p))
+         (begin
+           (format (current-error-port) "tuning ~a for CPU ~a~%"
+                   (package-full-name p) micro-architecture)
+           (package/inherit p
+             (replacement (tuned-package p micro-architecture))))
+         p))))
 
 (define-public specifications->packages-with-transformations
   (lambda* (specifications #:optional (packages '()))
