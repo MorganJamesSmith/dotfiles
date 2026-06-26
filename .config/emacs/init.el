@@ -10,7 +10,7 @@
 
 ;;; Code:
 
-;; TODO: re-enable once packages update
+;; FIXME: re-enable once packages update
 (setopt warning-suppress-log-types '((files missing-lexbind-cookie)))
 
 (require 'xdg)
@@ -145,8 +145,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 (setopt help-enable-symbol-autoload t)
 
 ;; Use ibuffer
-;; TODO: make this respect global-auto-revert-non-file-buffers
-;; TODO: make this not jump my cursor around on refresh when window not active
+;; FIXME: make this respect global-auto-revert-non-file-buffers
+;; FIXME: make this not jump my cursor around on refresh when window not active
 ;; (add-hook 'ibuffer-hook 'ibuffer-auto-mode) ;; auto-revert ibuffer
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
@@ -537,8 +537,8 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
          (org-agenda-prefix-format "%-4.4T: ")
          (org-agenda-span 'day)
          (org-habit-clock-completes-habit t) ;; my patch
-         ;; (org-habit-show-done-always-green t) ;; TODO: doesn't take effect here
-         ;; (org-habit-graph-column 23) ;; TODO: doesn't take effect here
+         ;; (org-habit-show-done-always-green t) ;; FIXME: doesn't take effect here
+         ;; (org-habit-graph-column 23) ;; FIXME: doesn't take effect here
          (org-agenda-entry-types '(:scheduled))
          (org-agenda-skip-function
           '(org-agenda-skip-entry-if 'nottodo '("HABIT")))))
@@ -568,7 +568,7 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
          (org-agenda-sorting-strategy '(category-keep))))
        ;; Don't need a list of stuck projects because any stuck projects will
        ;; show up as unblocked in the project section
-       ;; TODO: not true
+       ;; FIXME: not true
        ;; (stuck "")
        (agenda
         ""
@@ -614,7 +614,7 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
   (org-habit-show-done-always-green t)
   (org-habit-graph-column 29)
   (org-habit-following-days 3)
-  ;; TODO: report use-package not being able to reference previously set variables
+  ;; FIXME: report use-package not being able to reference previously set variables
   (org-habit-preceding-days (- 103 3 29)) ;; (- 103 org-habit-following-days org-habit-graph-column))
   ;; org-habit has too many colors.  Use fewer
   (face-remapping-alist '((org-habit-clear-face . org-habit-ready-face)
@@ -728,7 +728,7 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
 ;;;; Syncing calendar with my phone
 (setopt org-icalendar-combined-agenda-file (expand-file-name "org.ics" org-directory))
 
-;; TODO: fix root cause: icalendar--convert-float-to-ical
+;; FIXME: fix root cause: icalendar--convert-float-to-ical
 ;; diary-float entries get scheduled today without this
 (setopt icalendar-export-sexp-enumerate-all t)
 
@@ -753,7 +753,7 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
           (org-agenda-files
            (remove (expand-file-name "agenda/timetracking.org" org-directory)
                    org-agenda-files))
-          ;; TODO: Look into these warnings
+          ;; FIXME: Look into these warnings
           (warning-inhibit-types '((holidays))))
       (org-icalendar-combine-agenda-files))
     (kill-buffer "*icalendar-errors*")
@@ -863,9 +863,9 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
 ;; C-c C-a C-b - describe thing
 (use-package proof ;; Proof General
   :if EXTERNAL-PACKAGES?
-  ;; TODO: `completion-at-point' does not work :/
+  ;; FIXME: `completion-at-point' does not work :/
   ;; have to use C-<RET> for completion
-  ;; TODO: `pg-show-all-proofs' causes debug to pop up :/
+  ;; FIXME: `pg-show-all-proofs' causes debug to pop up :/
   :custom
   ;; View tooltips with mouse hover or
   ;; \\[display-local-help] using \\`C-h .'
@@ -1005,7 +1005,7 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
    ((prog-mode conf-mode) . electric-indent-local-mode)))
 
 (use-package smartparens
-   ;; TODO: eshell support?
+   ;; FIXME: eshell support?
   :commands smartparens-global-mode
   :delight
   :custom
@@ -1202,7 +1202,7 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   :custom
   (xref-search-program 'ripgrep)
   :config
-  ;; TODO: try to upstream these functions
+  ;; FIXME: try to upstream these functions
   (defun xref-next-group-no-show ()
     "Move to the first item of the next xref group but don't display its source."
     (interactive)
@@ -1220,12 +1220,12 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
     (xref--search-property 'xref-group t)
     (xref--search-property 'xref-item))
 
-  ;; TODO: tell upstream to rename this to an external name
+  ;; FIXME: tell upstream to rename this to an external name
   (keymap-set xref--xref-buffer-mode-map "C-c C-n" #'xref-next-group-no-show)
   (keymap-set xref--xref-buffer-mode-map "C-c C-p" #'xref-prev-group-no-show))
 
 
-;; TODO: upstream these to org
+;; FIXME: upstream these to org
 (autoload 'org-fold-show-context "org-fold")
 (defun my-org-fold-maybe-show-context ()
   "If we are in `org-mode' then show context."
@@ -1233,7 +1233,7 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
     (org-fold-show-context 'org-goto)))
 (add-hook 'xref-after-jump-hook
           #'my-org-fold-maybe-show-context)
-;; TODO: why doesn't xref call next-error-hook?
+;; FIXME: why doesn't xref call next-error-hook?
 (add-hook 'next-error-hook
           #'my-org-fold-maybe-show-context)
 
@@ -1480,7 +1480,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
                                        "orgmode.org/list/"))
                    "/")
                   ">"))
-                ;; TODO: Tell upstream that when a group doesn't have the
+                ;; FIXME: Tell upstream that when a group doesn't have the
                 ;; 'display property then the above function sets it and it
                 ;; gets put in '.newsrc.eld' which makes it hard to debug
                 (gnus-group-remove-parameter group 'display))))))
@@ -1570,7 +1570,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   :custom
   (eshell-banner-message "")
   (eshell-history-size nil) ;; Pull history size from environment variables
-  ;; XXX: doesn't error when set to nil and HISTFILE isn't set
+  ;; FIXME: doesn't error when set to nil and HISTFILE isn't set
   (eshell-history-file-name nil) ;; Pull history file from environment variables
   (eshell-history-append t)
   (eshell-hist-ignoredups t)
@@ -1887,14 +1887,14 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
   ;; (setopt emms-repeat-playlist t)
 
-  ;; TODO: add normal mixer support to emms-volume-amixer-change.  Currently it
+  ;; FIXME: add normal mixer support to emms-volume-amixer-change.  Currently it
   ;; only supports simple mixers
   (setopt emms-volume-change-function #'emms-volume-pulse-change)
 
   (setopt emms-volume-change-amount 5)
   (setopt emms-mode-line-format " %s")
 
-  ;; TODO: auto get decoders from server
+  ;; FIXME: auto get decoders from server
   ;; (emms-player-mpd-send "decoders" nil (lambda (_ string) (print string)))
   (setopt emms-player-mpd-supported-regexp
           (emms-player-simple-regexp
@@ -1961,7 +1961,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
      "*gcc-flymake*"
      "*Org Clock*"
      "*Bugs*" ;; debbugs
-     ;; TODO: why does `log-edit-kill-buffer' hide this buffer instead of
+     ;; FIXME: why does `log-edit-kill-buffer' hide this buffer instead of
      ;; killing it?
      "*log-edit-files*"
      "*vc*"))
@@ -1971,8 +1971,8 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
     (delete-duplicate-lines (point-min) (point-max))
     (save-buffer)
     (kill-current-buffer))
-  ;; TODO: tell upstream to expose function
-  ;; TODO: this is causing many timers
+  ;; FIXME: tell upstream to expose function
+  ;; FIXME: this is causing many timers
   (when (timerp diff--cache-clean-timer)
     (cancel-timer diff--cache-clean-timer))
   (diff--cache-clean)

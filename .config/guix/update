@@ -43,7 +43,7 @@ CURRENT_GUIX_COMMIT=$(guix describe -f recutils | grep --max-count=1 '^commit: '
 if (cd $GUIX_SOURCE &&
         [ $(("$(git_commit_time "$CURRENT_GUIX_COMMIT")" + (60*60*24))) -lt "$(git_commit_time "$GUIX_COMMIT")" ] );
 then
-    # TODO: it would be nice if I could just specify "--commit=origin/HEAD"
+    # FIXME: it would be nice if I could just specify "--commit=origin/HEAD"
     guix pull --max-jobs=4 --url=$GUIX_SOURCE --commit="$GUIX_COMMIT"
 else
     echo "Skipping guix pull"

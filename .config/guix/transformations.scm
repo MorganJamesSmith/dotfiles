@@ -74,7 +74,7 @@
                     #~(begin
                         (use-modules (guix build utils))
                         (copy-recursively #+(git-checkout (url path) (commit commit)) #$output)))))
-               ;; TODO: apply patches from upstream
+               ;; FIXME: apply patches from upstream
                (patches '())))
             (arguments
              ;; Optimization suggestions from
@@ -125,7 +125,7 @@
                             "-fno-omit-frame-pointer"
                             "-fno-finite-math-only")))))))
                ;; Not supported by 'glib-or-gtk-build-system'
-               ;; TODO: tell upstream
+               ;; FIXME: tell upstream
                ;; ((#:substitutable? _ #f) #f)
                )))))
      (make-fresh-user-module))))

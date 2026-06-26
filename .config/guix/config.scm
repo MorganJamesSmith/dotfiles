@@ -59,7 +59,7 @@
 ;; Things not exported by (gnu system)
 (define %default-modprobe-blacklist (@@ (gnu system) %default-modprobe-blacklist))
 
-;; TODO: contribute upstream
+;; FIXME: contribute upstream
 (define realtime-service-type
   (service-type
     (name 'realtime)
@@ -83,7 +83,7 @@
     (locale-definitions
      (list
       ;; I set LC_TIME=en_DK.utf8 because it displays dates using ISO8601
-      ;; TODO: should this be in the default definitions?
+      ;; FIXME: should this be in the default definitions?
       (locale-definition
         (name "en_DK.utf8") (source "en_DK"))
       (locale-definition

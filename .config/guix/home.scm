@@ -182,7 +182,7 @@ fi")))))
                                            (list
                                             ""
                                             "set confirm no"
-                                            ;; XXX: Do I need to `mkdir -p ~/.cache/gdb`?
+                                            ;; FIXME: Do I need to `mkdir -p ~/.cache/gdb`?
                                             "set history filename ~/.cache/gdb/history"
                                             "set history save on"
                                             "set history size unlimited"

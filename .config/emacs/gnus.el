@@ -200,7 +200,7 @@
                                 gnus-article-save-directory))))
                           ("local" (gnus-show-threads nil) (display . default))))
 
-;; TODO: figure out how to specifiy my nnvirtual groups from here
+;; FIXME: figure out how to specifiy my nnvirtual groups from here
 ;; G V (gnus-group-make-empty-virtual)
 ;; G E (gnus-group-edit-group)
 ;; (nnvirtual "\\(INBOX\\|Inbox\\|Junk\\|Spam\\)\\'")
@@ -251,7 +251,7 @@
 (setopt gnus-article-time-format time-stamp-format)
 (setopt gnus-user-date-format-alist `((t . ,time-stamp-format)))
 
-;; TODO: Emacs master might do unread count correctly since 5c129791c5b
+;; FIXME: Emacs master might do unread count correctly since 5c129791c5b
 ;; It would be cool to add that here
 (setopt gnus-group-line-format "%5y:%B%(%c%)\n")
 (setopt gnus-summary-display-arrow t)
