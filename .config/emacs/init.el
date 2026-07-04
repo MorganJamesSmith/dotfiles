@@ -1104,6 +1104,12 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
                nil
                t))
 
+(use-package forgejo
+  :custom
+  (forgejo-hosts '(("https://codeberg.org")))
+  (forgejo-watch-rules '(("guix/guix")))
+  (forgejo-watch-filter-default "read:no"))
+
 (setopt scheme-program-name "guile")
 (setopt scheme-mit-dialect nil)
 
