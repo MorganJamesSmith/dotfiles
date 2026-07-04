@@ -1149,9 +1149,12 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   ;; dumb autoload to avoid warnings
   :autoload compilation-sleep-block-sleep compilation-sleep-unblock-sleep
   :custom
+  (ansi-osc-for-compilation-buffer t)
+  (compilation-environment (list "TERM=dumb-emacs-ansi"))
   (compilation-max-output-line-length nil)
   (compilation-ask-about-save nil)
-  :hook (compilation-filter . ansi-color-compilation-filter)
+  :hook ((compilation-filter . ansi-color-compilation-filter)
+         (compilation-filter . ansi-osc-compilation-filter))
   :bind (:map compilation-mode-map
               ("c" . compile))
   :config
@@ -1560,6 +1563,14 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 (setopt custom-file (expand-file-name "custom-garbage" trash-directory))
 
+(use-package comint
+  :autoload comint-osc-process-output ansi-osc-apply-on-region
+  :custom
+  (comint-pager "cat")
+  (comint-terminfo-terminal "dumb-emacs-ansi")
+  :config
+  (add-hook 'comint-output-filter-functions #'comint-osc-process-output))
+
 (use-package eshell
   :bind
   (("s-<return>" . eshell)
@@ -1580,6 +1591,14 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   :config
   (add-to-list 'eshell-modules-list 'eshell-tramp))
 
+(use-package esh-mode
+  :autoload eshell-handle-ansi-osc
+  :config
+  (defun eshell-handle-ansi-osc ()
+    (ansi-osc-apply-on-region eshell-last-output-start
+                              eshell-last-output-end))
+  (add-hook 'eshell-output-filter-functions #'eshell-handle-ansi-osc))
+
 (use-package esh-var
   :config
   (add-to-list 'eshell-variable-aliases-list '("TERM" comint-terminfo-terminal t)))
@@ -1595,8 +1614,6 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   (add-to-list 'eshell-visual-commands "weechat")
   (add-to-list 'eshell-visual-commands "pw-top"))
 
-(setopt comint-pager "cat")
-(setopt comint-terminfo-terminal "dumb-emacs-ansi")
 
 ;; FIXME (orgmode): fix upstream
 ;; When `comint-terminfo-terminal' is customized, then the output gets mangled.
