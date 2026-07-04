@@ -904,7 +904,10 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
 
 (use-package eldoc
   :delight
-  :hook ielm-mode)
+  :hook ielm-mode
+  :custom
+  (eldoc-idle-delay 0)
+  (eldoc-help-at-pt t))
 
 (use-package benchmark
   ;; Useful performance things
