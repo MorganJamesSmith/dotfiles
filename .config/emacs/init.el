@@ -840,8 +840,9 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   ;; dumb autoload to avoid warnings
   :autoload project-root-dir
   :custom
-  ;; Ignore translation files
-  (project-vc-ignores (list "*.po"))
+  (project-vc-ignores (list
+                       "*.po" ; translation files
+                       "ChangeLog.*"))
   :config
   (defun project-root-dir (root)
     "Return a function to set directories under ROOT to be a project."
