@@ -229,13 +229,21 @@
              "emacs"
              "emacs-minimal"
              "emacs-no-x"
-             "emacs-no-x-toolkit"
+             "emacs-no-x-toolkit"))
 
-             ;; Don't need compat if using latest emacs
+     ,@(map package-rewrite-eliminate-package
+            (list
+             ;; I don't need compat since I'm using the latest emacs
              "emacs-compat"
-
+             ;; Not as up to date as one included in emacs source
+             "emacs-tramp"
              ;; This package is outdated and should be removed
-             "emacs-cl-print"))
+             "emacs-cl-print"
+
+             "geoclue"))
+
+     ;; mad about missing geoclue
+     ,(package-rewrite-without-tests "xdg-desktop-portal")
 
      ,(package-rewrite-use-local-source "tup" "/home/pancake/src/tup")
 
