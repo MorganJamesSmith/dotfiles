@@ -47,6 +47,37 @@
              (substitute-keyword-arguments arguments
                ((#:tests? _ #f) #f)))))))
 
+(define dummy-package
+  (eval
+   `(begin
+      (use-modules
+       (guix packages)
+       (guix build-system trivial)
+       (guix licenses))
+      (package
+        (name "dummy")
+        (version "0")
+        (source #f)
+        (build-system trivial-build-system)
+        (arguments
+         `(#:modules ((guix build utils))
+           #:target #f
+           #:builder (begin
+                       (use-modules (guix build utils))
+                       (let* ((out (assoc-ref %outputs "out"))
+                              (dummy (string-append out "/dummy")))
+                         (mkdir-p out)
+                         (call-with-output-file dummy
+                           (const #t))))))
+        (home-page #f)
+        (synopsis #f)
+        (description #f)
+        (license (fsdg-compatible "dummy"))))
+   (make-fresh-user-module)))
+
+(define* (package-rewrite-eliminate-package name)
+  (cons name (const dummy-package)))
+
 (define-public emacs-custom
   (let* ((path "/home/pancake/src/emacs/emacs")
          (commit (git-commit path)))
