@@ -346,6 +346,8 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
 (use-package org
   :functions org-insert-timestamp
   :custom
+  (org-archive-location "::* archive")
+  (org-archive-reversed-order t)
   (org-directory "~/documents/")
   (org-default-notes-file (expand-file-name "notes.org" org-directory))
   (org-preview-latex-image-directory
