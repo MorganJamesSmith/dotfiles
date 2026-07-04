@@ -193,6 +193,7 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
   (gnus-save-newsrc-file nil)
   (gnus-read-newsrc-file nil)
   :config
+  (add-to-list 'trusted-content gnus-init-file)
   (add-hook 'emacs-startup-hook 'gnus-read-init-file))
 (setopt mail-source-directory (create-directory "Mail" gnus-home-directory))
 
@@ -1128,6 +1129,8 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   :hook scheme-mode
   :config
   (defalias 'pcomplete/guix #'ignore)) ;; Freezes up eshell
+
+(add-to-list 'trusted-content user-init-file)
 
 (add-to-list
  'safe-local-variable-directories
