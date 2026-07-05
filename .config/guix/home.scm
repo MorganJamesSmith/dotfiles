@@ -114,6 +114,7 @@ fi")))))
                  (default
                    '((application/x-bittorrent . transmission.desktop)
                      (x-scheme-handler/magnet  . transmission.desktop)
+                     (x-scheme-handler/mailto  . emacsclient-mail.desktop)
                      (application/pdf          . emacsclient.desktop)
                      (application/postscript   . emacsclient.desktop)
                      (application/x-csv        . emacsclient.desktop)
