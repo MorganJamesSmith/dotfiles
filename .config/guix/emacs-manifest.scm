@@ -45,7 +45,7 @@
        "forgejo" ;; guix issues
        "ledger-mode"
        "literate-calc-mode"
-       "nov-el"
+       "nov"
        "org"
        "org-transclusion"
        "osm"
