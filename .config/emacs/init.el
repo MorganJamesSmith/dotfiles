@@ -1010,13 +1010,16 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   (((prog-mode conf-mode) . electric-layout-local-mode)
    ((prog-mode conf-mode) . electric-indent-local-mode)))
 
-(use-package smartparens
-   ;; FIXME: eshell support?
+(use-package smartparens-config
+  :if EXTERNAL-PACKAGES?
   :commands smartparens-global-mode
-  :delight
+  :delight smartparens-mode
+  :hook (eshell-mode . smartparens-mode)
   :custom
   (sp-base-key-bindings 'sp)
   :config
+  ;; Performance issues when used with org-mode
+  (add-to-list 'sp-ignore-modes-list 'org-mode)
   (smartparens-global-mode))
 
 (use-package which-func
