@@ -1458,10 +1458,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
              "youtu.be"
              (and (or ".mp3" ".mp4" ".torrent") string-end))))
 
-(declare-function org-link-frame-setup-function "ol")
-(declare-function gnus-activate-group "gnus-start")
-(declare-function gnus-select-group-with-message-id "gnus-int")
-(declare-function gnus-group-remove-parameter "gnus")
+(declare-function org-gnus-follow-link "ol-gnus")
 (setopt browse-url-handlers
         `((,(rx string-start (or "gemini" "gopher") "://") .
            ,(lambda (host-or-url &rest _) (elpher-go host-or-url)))
@@ -1487,23 +1484,12 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
                :sentinel (lambda (_ ret_str) (message "Download: %s" ret_str)))))
           (,(rx (or "list.orgmode.org/" "orgmode.org/list/")) .
            ,(lambda (host-or-url &rest _)
-              (let ((group "nntp+nntp:emacs.orgmode"))
-                (funcall (org-link-frame-setup-function 'gnus))
-                (gnus-activate-group group)
-                (gnus-select-group-with-message-id
-                 group
-                 (concat
-                  "<"
-                  (string-trim
-                   host-or-url
-                   (rx (* anychar) (or (and "list.orgmode.org/" (? "orgmode/"))
-                                       "orgmode.org/list/"))
-                   "/")
-                  ">"))
-                ;; FIXME: Tell upstream that when a group doesn't have the
-                ;; 'display property then the above function sets it and it
-                ;; gets put in '.newsrc.eld' which makes it hard to debug
-                (gnus-group-remove-parameter group 'display))))))
+              (org-gnus-follow-link "nntp+nntp:emacs.orgmode"
+                                    (string-trim
+                                     host-or-url
+                                     (rx (* anychar) (or (and "list.orgmode.org/" (? "orgmode/"))
+                                                         "orgmode.org/list/"))
+                                     "/.*"))))))
 ;;; EWW Section Ends
 
 
