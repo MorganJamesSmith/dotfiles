@@ -10,8 +10,7 @@
 (define audio
   '("alsa-utils" ; alsamixer
     "pulseaudio"
-    "pulsemixer"
-    "mpd-mpc"))   ; Music Playing Daemon CLI
+    "pulsemixer"))
 
 (define downloaders
   '("curl"
@@ -60,6 +59,7 @@
       "dino" ; XMPP
       "gnupg"
       "ledger"
+      "hledger"
       "man-pages"
       "mpv" ; video player
       "openscad" ; 3D modeling program
