@@ -28,6 +28,7 @@ rebase_local_repository /home/pancake/src/emacs/org-mode
 rebase_local_repository /home/pancake/src/emacs/org-transclusion
 rebase_local_repository /home/pancake/src/emacs/proof-general
 rebase_local_repository /home/pancake/src/xdg-utils
+rebase_local_repository /home/pancake/src/tup
 
 # used in home.scm as a channel
 rebase_local_repository /home/pancake/src/nonguix
