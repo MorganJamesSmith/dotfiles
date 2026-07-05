@@ -184,8 +184,7 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
   (add-hook 'message-send-hook 'unlock-gpg))
 
 ;; Move gnus folders to the `user-emacs-directory'
-(use-package gnus
-  :defines gnus-home-directory
+(use-package gnus-start
   :custom
   (gnus-init-file (expand-file-name "gnus" user-emacs-directory))
   (gnus-home-directory (create-directory "gnus-files" user-emacs-directory))
