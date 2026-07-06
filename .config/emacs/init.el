@@ -884,7 +884,6 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
     (setopt proof-output-tooltips t)))
 
 (use-package elisp-mode
-  :delight emacs-lisp-mode
   :hook (emacs-lisp-mode
          .
          (lambda ()
@@ -1800,6 +1799,8 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
                             (name . "^\\.bbdb$")
                             (name . "^\\.newsrc-dribble")
                             (mode . debbugs-gnu-mode)))
+           ("compilations"
+            (mode . compilation-mode))
            ("repl things" (or
                       (name . "*guile-server*")
                       (mode . arei-connection-mode)
@@ -1949,6 +1950,8 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 (autoload 'org-persist-gc "org-persist")
 (autoload 'diff--cache-clean "diff-mode")
 (autoload 'profiler-reset "profiler")
+(autoload 'tramp-cleanup-all-connections "tramp-cmds")
+;; FIXME: run on idle timer (some of these things are a little invasive)
 (defun cleanup (&rest _ignore)
   "Cleanup stuff."
   (interactive)
@@ -1962,8 +1965,6 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
     (eglot-shutdown-all))
   (mapc #'kill-buffer (match-buffers "^\\*disk-usage"))
   (mapc #'kill-buffer (match-buffers "^ \\*org-src-fontification:"))
-  (when dired-buffers
-    (mapc #'kill-buffer (mapcar #'cdr dired-buffers)))
   (mapc
    (lambda (buffer)
      (ignore-errors
@@ -1973,8 +1974,6 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
      "*Completions*"
      "*Dictionary*"
      "*Flymake log*"
-     "*Help*"
-     "*info*"
      "*Messages*"
      "*Multiple Choice Help*"
      "*Native-compile-Log*"
@@ -2000,6 +1999,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   (native-compile-prune-cache)
   (url-cookie-delete-cookies)
   (url-gc-dead-buffers)
+  (tramp-cleanup-all-connections)
   (org-persist-gc)
   (garbage-collect))
 
