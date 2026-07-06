@@ -1206,6 +1206,16 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
                                               "exec" "-a" file "bash" "-euo pipefail" "-s" "-- ")
                                         " ")))))))
 
+;; FIXME: why is this needed?
+(declare-function compilation-sentinel "compile")
+(defun fix-compilation-in-progress ()
+  "Remove dangling compilation entries in `compilation-in-progress'."
+  (mapc
+   (lambda (p)
+     (compilation-sentinel p "Failed to do cleanup"))
+   (seq-filter (lambda (p) (not (process-live-p p)))
+               compilation-in-progress)))
+
 (use-package grep
   :custom
   (grep-highlight-matches 'always)
@@ -1965,6 +1975,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
     (eglot-shutdown-all))
   (mapc #'kill-buffer (match-buffers "^\\*disk-usage"))
   (mapc #'kill-buffer (match-buffers "^ \\*org-src-fontification:"))
+  (fix-compilation-in-progress)
   (mapc
    (lambda (buffer)
      (ignore-errors
