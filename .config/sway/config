@@ -1,3 +1,5 @@
+exec gpg-connect-agent "UPDATESTARTUPTTY" /bye
+exec dbus-update-activation-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 
 default_border none
 
@@ -210,5 +212,3 @@ bindsym $mod+r mode "resize"
 
 exec mako
 exec swaymsg "workspace 1; exec emacs -f server-start"
-exec gpg-connect-agent "UPDATESTARTUPTTY" /bye
-exec dbus-update-activation-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
