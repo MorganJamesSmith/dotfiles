@@ -14,7 +14,9 @@
 (setopt warning-suppress-log-types '((files missing-lexbind-cookie)))
 
 (require 'xdg)
-(require 'emacs-secrets (expand-file-name "configs/private/emacs-secrets.el" (xdg-user-dir "DOCUMENTS")))
+(let ((secrets-file (expand-file-name "configs/private/emacs-secrets.el" (xdg-user-dir "DOCUMENTS"))))
+  (add-to-list 'trusted-content secrets-file)
+  (require 'emacs-secrets secrets-file))
 
 (defconst EXTERNAL-PACKAGES? (not (eq system-type 'android)))
 
