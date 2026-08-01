@@ -1109,6 +1109,7 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
                t))
 
 (use-package forgejo
+  :if EXTERNAL-PACKAGES?
   :custom
   (forgejo-hosts '(("https://codeberg.org")))
   (forgejo-watch-rules '(("guix/guix")))
@@ -1810,7 +1811,15 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
                             (mode . gnus-sticky-article-mode)
                             (name . "^\\.bbdb$")
                             (name . "^\\.newsrc-dribble")
-                            (mode . debbugs-gnu-mode)))
+                            (mode . debbugs-gnu-mode)
+
+                            (mode . forgejo-issue-list-mode)
+                            (mode . forgejo-issue-view-mode)
+                            (mode . forgejo-notification-list-mode)
+                            (mode . forgejo-pull-list-mode)
+                            (mode . forgejo-pull-view-mode)
+                            (mode . forgejo-repo-search-mode)
+                            (mode . forgejo-watch-list-mode)))
            ("compilations"
             (mode . compilation-mode))
            ("repl things" (or
