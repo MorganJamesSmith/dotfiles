@@ -172,7 +172,12 @@
 
 ;; We don't need to cache since we use a local dovecot server
 (setopt gnus-agent nil)
-(setopt gnus-use-cache nil)
+
+;; Even though nntp is done locally, the cache gives a good performance boost
+;; for threading
+(setopt gnus-use-cache t)
+(setopt gnus-cacheable-groups "^nntp") ;; Only cache nntp
+(setopt gnus-cache-remove-articles '()) ;; Keep cached
 
 (setopt mml-secure-openpgp-encrypt-to-self t)
 (setopt mml-secure-smime-encrypt-to-self t)
@@ -188,7 +193,6 @@
                           ("nntp"
                            (gnus-show-threads nil)
                            (gnus-large-newsgroup 1000)
-                           (gnus-fetch-old-headers 'some)
                            (gnus-refer-thread-limit t)
                            (gnus-article-save-directory
                             "~/src/emacs/org-mode/")
