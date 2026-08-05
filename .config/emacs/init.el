@@ -1975,10 +1975,20 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 (autoload 'diff--cache-clean "diff-mode")
 (autoload 'profiler-reset "profiler")
 (autoload 'tramp-cleanup-all-connections "tramp-cmds")
-;; FIXME: run on idle timer (some of these things are a little invasive)
+
+(defun cleanup-idle (&rest _ignore)
+  "Run various cleanup functions.
+This function is intended to be run on an idle timer so nothing here
+should affect the user."
+  (fix-compilation-in-progress)
+  (garbage-collect))
+
+(run-with-idle-timer 15 t #'cleanup-idle)
+
 (defun cleanup (&rest _ignore)
   "Cleanup stuff."
   (interactive)
+  (cleanup-idle)
   (setq debug-on-error nil)
   (setq debug-on-quit nil)
   (cancel-debug-on-entry)
@@ -1989,7 +1999,6 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
     (eglot-shutdown-all))
   (mapc #'kill-buffer (match-buffers "^\\*disk-usage"))
   (mapc #'kill-buffer (match-buffers "^ \\*org-src-fontification:"))
-  (fix-compilation-in-progress)
   (mapc
    (lambda (buffer)
      (ignore-errors
