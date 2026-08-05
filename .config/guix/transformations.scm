@@ -1,6 +1,7 @@
 (define-module (transformations)
-  #:use-module ((gnu packages) #:select (specification->package+output))
+  #:use-module ((gnu packages) #:select (specification->package+output specification->package))
   #:use-module ((guix build utils) #:select (with-directory-excursion))
+  #:use-module ((guix build-system) #:select (build-system-name))
   #:use-module ((guix cpu) #:select (cpu->gcc-architecture current-cpu))
   #:use-module (guix git)
   #:use-module (guix packages)
@@ -231,16 +232,7 @@
              "emacs-no-x"
              "emacs-no-x-toolkit"))
 
-     ,@(map package-rewrite-eliminate-package
-            (list
-             ;; I don't need compat since I'm using the latest emacs
-             "emacs-compat"
-             ;; Not as up to date as one included in emacs source
-             "emacs-tramp"
-             ;; This package is outdated and should be removed
-             "emacs-cl-print"
-
-             "geoclue"))
+     ,(package-rewrite-eliminate-package "geoclue")
 
      ;; mad about missing geoclue
      ,(package-rewrite-without-tests "xdg-desktop-portal")
@@ -256,14 +248,80 @@
                                         #:without-tests? #t)
 
      ,(package-rewrite-without-tests "emacs-ledger-mode"))
-   (lambda (p)
-     (if (assq 'tunable? (package-properties p))
-         (begin
-           (format (current-error-port) "tuning ~a for CPU ~a~%"
-                   (package-full-name p) micro-architecture)
-           (package/inherit p
-             (replacement (tuned-package p micro-architecture))))
-         p))))
+   (compose
+    (lambda (p)
+      ;; For some Emacs packages, I want to use the guix package.  For some I
+      ;; want to use the version vendored with my Emacs
+
+      ;; If I want to use the guix package, then I have to add it as a
+      ;; dependency to every emacs package to ensure nothing is compiled suing
+      ;; the vendored version
+
+      ;; See  https://codeberg.org/guix/guix/issues/1055
+
+      (let ((use-vendored-package
+             (map (lambda (p)
+                    (string-append "emacs-" p))
+                  (list
+                   "compat"
+                   "csharp-mode"
+                   "eglot"
+                   "eldoc"
+                   "erc"
+                   "external-completion"
+                   "flymake"
+                   "jsonrpc"
+                   "modus-themes"
+                   "ntlm"
+                   "peg"
+                   "project"
+                   "so-long"
+                   "soap-client"
+                   "track-changes"
+                   "tramp"
+                   "transient"
+                   "use-package"
+                   "verilog-mode"
+                   "which-key"
+                   "window-tool-bar"
+                   "xref"
+
+                   ;; This package is outdated and should be removed from guix
+                   ;; entirely
+                   "cl-print")))
+            (use-guix-package '("emacs-org"))
+            (name (package-name p)))
+        (cond
+         ((member name use-vendored-package)
+          dummy-package)
+         ;; Add everything from `use-guix-package' to the inputs of every emacs package
+         ((and (or (eq? (build-system-name (package-build-system p)) 'emacs)
+                   ;; Easier to hard-code exceptions then to find them a
+                   ;; better way
+                   (member name '("emacs-guix" "proof-general"))))
+          (let ((additional-inputs (delete name use-guix-package)))
+            (if (> 1 (length additional-inputs))
+                p
+                (package/inherit p
+                  (propagated-inputs
+                   (modify-inputs propagated-inputs
+                     (prepend (apply specification->package additional-inputs))))))))
+         (else
+          (when (and (string-prefix? "emacs-" name)
+                     (not (member name '("emacs-next-pgtk" "emacs-emms-print-metadata"))))
+              ;; So I'll notice if anything slips through
+              (format (current-error-port) "WARNING: not performing Emacs unvendoring on ~a~%"
+                      (package-full-name p)))
+            p))))
+    (lambda (p)
+      ;; Tune package for CPU
+      (if (assq 'tunable? (package-properties p))
+          (begin
+            (format (current-error-port) "tuning ~a for CPU ~a~%"
+                    (package-full-name p) micro-architecture)
+            (package/inherit p
+              (replacement (tuned-package p micro-architecture))))
+          p)))))
 
 (define-public specifications->packages-with-transformations
   (lambda* (specifications #:optional (packages '()))
