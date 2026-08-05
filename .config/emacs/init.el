@@ -145,6 +145,8 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 (setopt help-enable-variable-value-editing t)
 (setopt help-enable-symbol-autoload t)
+(setopt help-window-select t)
+(setopt help-window-keep-selected t)
 
 ;; Use ibuffer
 ;; FIXME: make this respect global-auto-revert-non-file-buffers
@@ -1181,7 +1183,7 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   (defun compilation-sleep-block-sleep (_process)
     (unless compilation-sleep-block-token
       (setq compilation-sleep-block-token
-            (system-sleep-block-sleep "Compilation in progress"))))
+            (system-sleep-block-sleep "Compilation in progress" t))))
 
   (defun compilation-sleep-unblock-sleep (&rest _ignore)
     (when (and compilation-sleep-block-token
@@ -1215,6 +1217,7 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   "Remove dangling compilation entries in `compilation-in-progress'."
   (mapc
    (lambda (p)
+     (message "Failed to clean up compilation process.  Doing that now")
      (compilation-sentinel p "Failed to do cleanup"))
    (seq-filter (lambda (p) (not (process-live-p p)))
                compilation-in-progress)))
@@ -1357,6 +1360,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
   :custom
   (show-paren-delay 0.01)
   (show-paren-highlight-openparen t)
+  (show-paren-style 'mixed) ;; value 'expression might be useful sometimes
   (show-paren-when-point-inside-paren t)
   (show-paren-when-point-in-periphery t)
   (show-paren-context-when-offscreen t))
@@ -1409,6 +1413,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 (use-package minibuffer
   :config
+  (add-to-list 'completion-styles 'flex)
   (add-to-list 'completion-styles 'substring))
 
 (setopt completions-format 'one-column)
@@ -1575,8 +1580,6 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 (setopt vc-make-backup-files t)
 (setopt delete-old-versions -1)
 (setopt delete-by-moving-to-trash t)
-
-(setopt custom-file (expand-file-name "custom-garbage" trash-directory))
 
 (use-package comint
   :autoload comint-osc-process-output ansi-osc-apply-on-region
@@ -2030,6 +2033,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 (declare-function dbus-register-signal "dbus")
 (defun register-cleanup ()
   "Run cleanup function on lock, sleep, and shutdown."
+  (require 'system-sleep)
   (add-hook 'system-sleep-event-functions
             (lambda (sleep-event)
               (when (eq 'pre-sleep (sleep-event-state sleep-event))
