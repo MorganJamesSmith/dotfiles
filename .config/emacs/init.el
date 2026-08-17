@@ -2057,6 +2057,24 @@ should affect the user."
                           :path-namespace "/org/freedesktop/login1/session")))
 (add-hook 'emacs-startup-hook #'register-cleanup)
 
+(defvar block-sleep-token nil)
+(defvar block-sleep-modeline-string
+  ;; FIXME: doesn't show text properties for some reason
+  (propertize "(si)" 'help-echo "Sleep Inhibit"))
+(defun block-sleep ()
+  "Block system from going to sleep."
+  (interactive)
+  (unless block-sleep-token
+    (add-to-list 'global-mode-string 'block-sleep-modeline-string t #'eq)
+    (setq block-sleep-token (system-sleep-block-sleep "Emacs block sleep" t))))
+
+(defun unblock-sleep ()
+  "Unblock system from going to sleep."
+  (interactive)
+  (when (and block-sleep-token (system-sleep-unblock-sleep block-sleep-token))
+    (setq global-mode-string (delq 'block-sleep-modeline-string global-mode-string))
+    (setq block-sleep-token nil)))
+
 (use-package viper
   :if nil
   :custom
