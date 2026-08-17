@@ -32,6 +32,10 @@
                          (getenv "PATH")))
   (push "/data/data/com.termux/files/usr/bin" exec-path))
 
+;; This fixes duplicate entries from appearing in `list-packages'
+;; FIXME: fix this upstream with guix
+(setq load-path (delete-dups load-path))
+
 (when (fboundp 'load-path-filter-cache-directory-files)
   (setq load-path-filter-function #'load-path-filter-cache-directory-files))
 
