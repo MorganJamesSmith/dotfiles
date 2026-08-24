@@ -366,6 +366,8 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
   (org-log-done 'time)
   (org-edit-src-content-indentation 0)
   (org-use-speed-commands t) ; org-speed-commands
+  (org-hide-emphasis-markers t)
+  (org-pretty-entities t)
   (org-src-ask-before-returning-to-edit-buffer nil)
   (org-src-window-setup 'current-window)
   (org-read-date-popup-calendar nil)
@@ -418,6 +420,12 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
   :defer t
   :functions org-indent-mode
   :config (org-indent-mode -1))
+
+(use-package org-inside
+  :hook org-mode
+  :custom
+  (org-inside-appearance '(:unhide t))
+  (org-inside-unhide-delay nil))
 
 ;; For when I use org-babel to create images
 (autoload 'org-link-preview-refresh "ol")
@@ -722,7 +730,6 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
 ||+5|+4|+3|+2|+1|0|-1|-2|-3|-4|-5} | %u |" :prepend t :immediate-finish t))))
 
 (setopt org-link-elisp-confirm-function nil)
-(setopt org-link-descriptive nil)
 (setopt org-link-abbrev-alist
         `(("guix" . "elisp:(guix-packages-by-name \"%s\")")
           ("possessions" . "file:~/documents/wiki/possessions.org::*")
