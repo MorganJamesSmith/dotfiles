@@ -372,15 +372,19 @@
     ;; Allow resolution of '.local' host names with mDNS.
     (name-service-switch %mdns-host-lookup-nss)))
 
-;; nonguix configurations
-(use-modules (nonguix transformations))
-((compose
-  (nonguix-transformation-linux)
-  (nonguix-transformation-guix #:channel? #f #:guix-source? #f))
- (operating-system
-   (inherit my-operating-system)
-   (packages
-    (append
-     (specifications->packages-with-transformations
-      (list "intel-media-driver-nonfree"))
-     (operating-system-packages my-operating-system)))))
+(if (resolve-module '(nonguix) #:ensure #f)
+    (begin
+      (use-modules (nonguix transformations))
+      ((compose
+        (nonguix-transformation-linux)
+        (nonguix-transformation-guix #:channel? #f #:guix-source? #f))
+       (operating-system
+         (inherit my-operating-system)
+         (packages
+          (append
+           (specifications->packages-with-transformations
+            (list "intel-media-driver-nonfree"))
+           (operating-system-packages my-operating-system))))))
+    (begin
+      (display "Couldn't find nonguix.  Continuing without!\n")
+      my-operating-system))
