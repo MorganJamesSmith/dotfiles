@@ -386,5 +386,5 @@
             (list "intel-media-driver-nonfree"))
            (operating-system-packages my-operating-system))))))
     (begin
-      (display "Couldn't find nonguix.  Continuing without!\n")
+      (display "WARNING: Couldn't find nonguix.  Continuing without!\n")
       my-operating-system))

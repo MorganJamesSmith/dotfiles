@@ -36,7 +36,7 @@
               (substitute-keyword-arguments arguments
                 ((#:tests? _ #f) (not without-tests?))))))))
       (begin
-        (display (string-append "Transformation aborted! No such path " path "\n"))
+        (display (string-append "WARNING: Transformation aborted! No such path " path "\n"))
         #f)))
 
 (define* (package-rewrite-without-tests name)

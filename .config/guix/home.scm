@@ -59,7 +59,7 @@
          (lambda ()
            (load "/home/pancake/documents/configs/private/home-services.scm"))
          (lambda* (#:rest args)
-           (display "Not including private home-services.scm!\n")
+           (display "WARNING: Not including private home-services.scm!\n")
            #f))
 
        (simple-service 'nonguix-channel-service
