@@ -1223,17 +1223,13 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   :config
   (defvar compilation-sleep-block-token nil)
   (defun compilation-sleep-block-sleep (_process)
-    (unless compilation-sleep-block-token
-      (setq compilation-sleep-block-token
-            (system-sleep-block-sleep "Compilation in progress" t))))
+    (block-sleep 'compilation-sleep-block-token "Compilation in progress"))
 
   (defun compilation-sleep-unblock-sleep (&rest _ignore)
     (when (and compilation-sleep-block-token
                (or (null compilation-in-progress)
                    (all (lambda (process) (not (process-live-p process))) compilation-in-progress)))
-      (system-sleep-unblock-sleep compilation-sleep-block-token)
-      (setq compilation-sleep-block-token nil)))
-
+      (unblock-sleep 'compilation-sleep-block-token)))
   (add-hook 'compilation-mode-hook
             (lambda ()
               (add-hook 'kill-buffer-hook #'compilation-sleep-unblock-sleep nil t)))
@@ -1259,6 +1255,7 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
   "Remove dangling compilation entries in `compilation-in-progress'."
   (mapc
    (lambda (p)
+     (ding)
      (message "Failed to clean up compilation process.  Doing that now")
      (compilation-sentinel p "Failed to do cleanup"))
    (seq-filter (lambda (p) (not (process-live-p p)))
