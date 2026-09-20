@@ -337,6 +337,33 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
 (size-indication-mode)
 (column-number-mode)
 
+;; CPU Frequency and Temp
+(when (and (file-exists-p "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq")
+           (file-exists-p "/sys/class/thermal/thermal_zone0/temp"))
+  (defvar cpu-mode-line-string-format "[CPU: %.1f (%.1f), %dC] ")
+  (defvar cpu-mode-line-string "")
+  (defun cpu-freq-update ()
+    "Update CPU mode-line."
+    (let* ((freq-list
+            (mapcar
+             #'string-to-number
+             (split-string
+              (shell-command-to-string "cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq"))))
+           (cpu-freq-max (/ (apply #'max freq-list) 1000000.0))
+           (cpu-freq-avg (/ (/ (apply #'+ freq-list) (length freq-list)) 1000000.0))
+           (cpu-temp (/ (string-to-number (shell-command-to-string
+                                           "cat /sys/class/thermal/thermal_zone0/temp"))
+                        1000)))
+      (setq cpu-mode-line-string
+            (format cpu-mode-line-string-format
+                    cpu-freq-max
+                    cpu-freq-avg
+                    cpu-temp))
+      (force-mode-line-update)))
+  (add-to-list 'global-mode-string 'cpu-mode-line-string t)
+  (declare-function cpu-freq-update "init.el")
+  (run-with-timer 5 5 #'cpu-freq-update))
+
 (setopt mode-line-compact 'long)
 
 (setopt tab-bar-format '(tab-bar-format-global)
