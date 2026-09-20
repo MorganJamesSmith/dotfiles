@@ -39,6 +39,14 @@ output * adaptive_sync on
 output * allow_tearing yes
 output * scale 1
 
+# handle laptop lid closing
+set $laptop eDP-1
+bindswitch --reload --locked lid:on output $laptop disable
+bindswitch --reload --locked lid:off output $laptop enable
+
+# CRT
+## guix shell libxcvt -- cvt 832 624 60
+output "Synaptics Inc Non 0x01010101"  modeline 41.00  832 864 944 1056  624 627 631 649 -hsync +vsync
 
 ### Idle configuration
 # Use idlehint to alert elogind which will do the suspend and lock
