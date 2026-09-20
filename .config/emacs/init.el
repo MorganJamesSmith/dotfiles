@@ -114,6 +114,14 @@ If DEFAULT-DIR isn't provided, DIR is relative to ~"
 
 
 ;;; Sensible Defaults Section Begins
+
+;; Security stuff!!
+(setopt gnutls-verify-error t)
+(setopt gnutls-min-prime-bits 3072)
+
+;; Don't ping random domain!!
+(setopt ffap-machine-p-known 'reject)
+
 (use-package autorevert
   :delight auto-revert-mode
   :custom
@@ -1398,12 +1406,6 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 
 ;;; Auto-complete/Hints Section Begins
-
-(use-package ffap
-  :custom
-  ;; Don't ping things
-  (ffap-machine-p-known 'reject))
-
 (setopt tab-always-indent 'complete)
 
 (use-package completion-preview
