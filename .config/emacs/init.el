@@ -2093,20 +2093,23 @@ should affect the user."
 (defvar block-sleep-token nil)
 (defvar block-sleep-modeline-string
   ;; FIXME: doesn't show text properties for some reason
-  (propertize "(si)" 'help-echo "Sleep Inhibit"))
-(defun block-sleep ()
-  "Block system from going to sleep."
-  (interactive)
-  (unless block-sleep-token
-    (add-to-list 'global-mode-string 'block-sleep-modeline-string t #'eq)
-    (setq block-sleep-token (system-sleep-block-sleep "Emacs block sleep" t))))
+  (propertize "(si) " 'help-echo "Sleep Inhibit"))
+(defun block-sleep (sleep-token-var message &optional modeline-var)
+  "Block system from going to sleep.
+SLEEP-TOKEN-VAR MESSAGE MODELINE-VAR."
+  (interactive '(block-sleep-token "Emacs block sleep" block-sleep-modeline-string))
+  (unless (symbol-value sleep-token-var)
+    (when modeline-var
+      (add-to-list 'global-mode-string modeline-var t #'eq))
+    (set sleep-token-var (system-sleep-block-sleep message t))))
 
-(defun unblock-sleep ()
-  "Unblock system from going to sleep."
-  (interactive)
-  (when (and block-sleep-token (system-sleep-unblock-sleep block-sleep-token))
-    (setq global-mode-string (delq 'block-sleep-modeline-string global-mode-string))
-    (setq block-sleep-token nil)))
+(defun unblock-sleep (sleep-token-var &optional modeline-var)
+  "Unblock system from going to sleep.
+SLEEP-TOKEN-VAR MODELINE-VAR."
+  (interactive '(block-sleep-token block-sleep-modeline-string))
+  (when (and (symbol-value sleep-token-var) (system-sleep-unblock-sleep (symbol-value sleep-token-var)))
+    (setq global-mode-string (delq modeline-var global-mode-string))
+    (set sleep-token-var nil)))
 
 (use-package viper
   :if nil
