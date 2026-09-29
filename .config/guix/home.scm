@@ -47,8 +47,7 @@
         "mako"
         "font-openmoji" ; emoji
         "font-wqy-zenhei" ; Asian
-        "librewolf"
-        "ungoogled-chromium-wayland"))
+        ))
       default-manifest-packages
       emacs-manifest-packages))
     (services

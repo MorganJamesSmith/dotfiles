@@ -44,6 +44,10 @@
     "zip"
     "zstd"))
 
+(define web-browsers
+  '("librewolf"
+    "ungoogled-chromium-wayland"))
+
 (define-public default-manifest-packages
   (specifications->packages-with-transformations
    (append!
@@ -53,6 +57,7 @@
     email
     terminal-tools
     compression-tools
+    web-browsers
     '("aspell" ; spellchecker
       "aspell-dict-en"
       "brightnessctl"
