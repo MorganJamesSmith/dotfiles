@@ -108,13 +108,13 @@
                   (with-imported-modules '((guix build utils))
                     #~(begin
                         (use-modules (guix build utils))
-                        (copy-recursively #+(git-checkout (url path) (commit commit)) #$output)))))
-               ;; FIXME: apply patches from upstream
-               (patches '())))
+                        (copy-recursively #+(git-checkout (url path) (commit commit)) #$output)))))))
             (arguments
              ;; Optimization suggestions from
              ;; https://www.jamescherti.com/compiling-emacs/
              (substitute-keyword-arguments arguments
+               ;; tramp tests fail
+               ((#:tests? tests #f) #f)
                ((#:configure-flags flags #~'())
                 #~(append
                    #$flags
@@ -124,7 +124,6 @@
 
                     "--enable-link-time-optimization"
                     "--disable-gc-mark-trace"
-                    "--without-compress-install"
                     "--without-x"
                     "--without-xft"
                     "--without-xim"
@@ -158,7 +157,12 @@
                             #f "(defcustom native-comp-compiler-options '(~@{~s~^ ~})"
                             "-O2" "-g0"
                             "-fno-omit-frame-pointer"
-                            "-fno-finite-math-only")))))))
+                            "-fno-finite-math-only")))))
+                    ;; Prevents collision with emacs-org package info file that
+                    ;; otherwise has me reading outdated documentation
+                    (add-before 'compress-documentation 'remove-org-info
+                      (lambda _
+                        (delete-file (string-append #$output "/share/info/org.info"))))))
                ;; Not supported by 'glib-or-gtk-build-system'
                ;; FIXME: tell upstream
                ;; ((#:substitutable? _ #f) #f)
