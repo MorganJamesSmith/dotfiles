@@ -385,6 +385,11 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
 (use-package org
   :functions org-insert-timestamp
   :custom
+  ;; Make org pretty
+  (org-hide-emphasis-markers t)
+  (org-pretty-entities t)
+  (org-use-sub-superscripts '{}) ;; Require brackets for sub/super script
+
   (org-archive-location "::* archive")
   (org-archive-reversed-order t)
   (org-directory "~/documents/")
@@ -401,8 +406,6 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
   (org-log-done 'time)
   (org-edit-src-content-indentation 0)
   (org-use-speed-commands t) ; org-speed-commands
-  (org-hide-emphasis-markers t)
-  (org-pretty-entities t)
   (org-src-ask-before-returning-to-edit-buffer nil)
   (org-src-window-setup 'current-window)
   (org-read-date-popup-calendar nil)
