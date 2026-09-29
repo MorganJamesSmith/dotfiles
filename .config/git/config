@@ -19,6 +19,7 @@
 [alias]
 	pushall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git push --all --follow-tags
 	fetchall = !git remote | grep -E 'origin|upstream' | xargs -L1 -P 0 git fetch
+	cleanall = !git clean -xfd && git submodule foreach --recursive git clean -xfd
 	staash = stash --all
 [transfer]
 	fsckObjects = true
