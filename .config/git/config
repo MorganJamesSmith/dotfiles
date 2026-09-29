@@ -61,6 +61,8 @@
 	workers = 0
 [submodule]
 	fetchJobs = 0
+[diff "ledger"]
+	xfuncname = ^\\([^[:space:]].*)
 [diff "elisp"]
 	xfuncname = ^\\([^[:space:]]*def[^[:space:]]+[[:space:]]+([^()[:space:]]+)
 [diff "org"]
