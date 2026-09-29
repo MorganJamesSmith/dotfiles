@@ -254,7 +254,7 @@
       ;; want to use the version vendored with my Emacs
 
       ;; If I want to use the guix package, then I have to add it as a
-      ;; dependency to every emacs package to ensure nothing is compiled suing
+      ;; dependency to every emacs package to ensure nothing is compiled using
       ;; the vendored version
 
       ;; See  https://codeberg.org/guix/guix/issues/1055
@@ -263,15 +263,22 @@
              (map (lambda (p)
                     (string-append "emacs-" p))
                   (list
+                   "auth-source-pass"
+                   "cc-mode"
                    "compat"
                    "csharp-mode"
+                   "editorconfig"
                    "eglot"
                    "eldoc"
                    "erc"
                    "external-completion"
+                   "faceup"
                    "flymake"
                    "jsonrpc"
+                   "let-alist"
+                   "map"
                    "modus-themes"
+                   "nadvice"
                    "ntlm"
                    "peg"
                    "project"
