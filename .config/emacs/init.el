@@ -1204,12 +1204,9 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
              "guix" "shell" "guile" "guile-ares-rs" "--"
              "guile" "-c" "((@ (ares server) run-nrepl-server))")))
 
-(use-package yasnippet
-  :if EXTERNAL-PACKAGES?
-  :delight yas-minor-mode
-  :hook ((prog-mode conf-mode text-mode) . yas-minor-mode))
+;; I manually turn this on with `yas-minor-mode' when I need it.
+(use-package yasnippet :if EXTERNAL-PACKAGES?)
 
-(autoload 'system-sleep-unblock-sleep "system-sleep")
 (use-package compile
   :commands compilation-next-file compilation-previous-file
   ;; dumb autoload to avoid warnings
@@ -1356,6 +1353,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 (use-package vc
   :custom
+  (vc-quick-select-current-working-tree t)
   (vc-log-short-style '(directory file))
   (vc-log-finish-functions nil)  ; no buffer resizing!
   ;; no buffer resizing!
@@ -1379,7 +1377,7 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 (use-package vc-dir
   :custom
-  (vc-dir-hide-up-to-date-on-revert t)
+  (vc-dir-auto-hide-up-to-date t)
   (vc-dir-save-some-buffers-on-revert t))
 
 (use-package ediff
