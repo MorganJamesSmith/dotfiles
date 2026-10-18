@@ -195,17 +195,6 @@
                ((#:substitutable? _ #f) #f))))))
      (make-fresh-user-module))))
 
-(define-public xdg-utils-grafted
-  (eval
-   `(begin
-      (use-modules
-       (gnu packages freedesktop)
-       (guix packages))
-      (package
-        (inherit xdg-utils)
-        (replacement ,xdg-utils-next)))
-   (make-fresh-user-module)))
-
 ;; FIXME: upstream should really provide a function like this
 (define (package-input-rewriting/spec/recursive replacements
                                                 extra-func)
@@ -226,9 +215,16 @@
   (given package?
          (package-mapping rewrite #:deep? #t)))
 
+;; Is this the same as 'transform-package-inputs/graft'?
+(define (graft-package replacement)
+  (lambda (p)
+    (package
+      (inherit p)
+      (replacement replacement))))
+
 (define-public transformations
   (package-input-rewriting/spec/recursive
-   `(("xdg-utils" . ,(const xdg-utils-grafted))
+   `(("xdg-utils" . ,(graft-package xdg-utils-next))
      ,@(map (lambda (pkg)
               (cons pkg (const emacs-custom)))
             (list
