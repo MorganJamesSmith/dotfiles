@@ -164,8 +164,6 @@
     (packages
      (specifications->packages-with-transformations
       (list
-       "adwaita-icon-theme"
-       "hicolor-icon-theme"
        "cryptsetup"
        "bluez-alsa" ;; bluetooth audio
        "intel-vaapi-driver")
