@@ -12,7 +12,7 @@
  (gnu packages linux)
  (gnu packages security-token)
  (gnu packages video)
- (gnu packages wm)
+ (gnu packages window-management)
  (gnu services admin)
  (gnu services audio)
  (gnu services avahi)
