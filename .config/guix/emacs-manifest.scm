@@ -1,14 +1,10 @@
 (define-module (emacs-manifest))
 
-(use-modules
- (guix profiles))
-
-(when (current-filename)
-  (add-to-load-path (dirname (current-filename))))
-(use-modules (transformations))
+(use-modules (gnu packages)
+             (guix profiles))
 
 (define-public emacs-manifest-packages
-  (specifications->packages-with-transformations
+  (specifications->packages
    (cons*
     "emacs-next-pgtk"
     "emacs-next-pgtk:src"

@@ -3,6 +3,7 @@
   #:use-module ((guix build utils) #:select (with-directory-excursion))
   #:use-module ((guix build-system) #:select (build-system-name))
   #:use-module ((guix cpu) #:select (cpu->gcc-architecture current-cpu))
+  #:use-module ((guix combinators) #:select (given))
   #:use-module (guix git)
   #:use-module (guix packages)
   #:use-module ((guix transformations) #:select (tuned-package))
@@ -222,9 +223,10 @@
             (package/inherit new
               (properties `((,replacement-property . #t)
                             ,@(package-properties new))))))))
-  (package-mapping rewrite #:deep? #t))
+  (given package?
+         (package-mapping rewrite #:deep? #t)))
 
-(define transformations
+(define-public transformations
   (package-input-rewriting/spec/recursive
    `(("xdg-utils" . ,(const xdg-utils-grafted))
      ,@(map (lambda (pkg)
@@ -334,13 +336,3 @@
               (replacement (tuned-package p micro-architecture))))
           p)))))
 
-(define-public specifications->packages-with-transformations
-  (lambda* (specifications #:optional (packages '()))
-    (map
-     (lambda* (package #:optional (output "out"))
-       (list (transformations package) output))
-     (append!
-      (map
-       specification->package+output
-       specifications)
-      packages))))

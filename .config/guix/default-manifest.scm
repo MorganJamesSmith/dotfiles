@@ -1,11 +1,7 @@
 (define-module (default-manifest))
 
-(use-modules
- (guix profiles))
-
-(when (current-filename)
-  (add-to-load-path (dirname (current-filename))))
-(use-modules (transformations))
+(use-modules (gnu packages)
+             (guix profiles))
 
 (define audio
   '("alsa-utils" ; alsamixer
@@ -49,7 +45,7 @@
     "ungoogled-chromium-wayland"))
 
 (define-public default-manifest-packages
-  (specifications->packages-with-transformations
+  (specifications->packages
    (append!
     audio
     downloaders

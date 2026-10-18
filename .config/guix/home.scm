@@ -14,6 +14,7 @@
  (gnu home services syncthing)
  (gnu home services xdg)
  (gnu home services)
+ (gnu packages)
  (gnu packages gnupg)
  (gnu packages linux)
  (gnu services)
@@ -29,9 +30,10 @@
 
 (define-public my-home-environment
   (home-environment
+    (transformation transformations)
     (packages
      (append
-      (specifications->packages-with-transformations
+      (specifications->packages
        (list
         "sway"
         "swaylock"

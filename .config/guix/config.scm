@@ -89,6 +89,8 @@
       (locale-definition
         (name "en_US.utf8") (source "en_US"))))
 
+    (transformation transformations)
+
     (privileged-programs
      (cons* (privileged-program
               (program (file-append kbd "/bin/chvt"))
@@ -162,11 +164,12 @@
 
     ;; This is where we specify system-wide packages.
     (packages
-     (specifications->packages-with-transformations
-      (list
-       "cryptsetup"
-       "bluez-alsa" ;; bluetooth audio
-       "intel-vaapi-driver")
+     (append
+      (specifications->packages
+       (list
+        "cryptsetup"
+        "bluez-alsa" ;; bluetooth audio
+        "intel-vaapi-driver"))
       %base-packages))
     (services
      (cons*
@@ -376,7 +379,7 @@
          (inherit my-operating-system)
          (packages
           (append
-           (specifications->packages-with-transformations
+           (specifications->packages
             (list "intel-media-driver-nonfree"))
            (operating-system-packages my-operating-system))))))
     (begin
