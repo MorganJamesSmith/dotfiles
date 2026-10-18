@@ -176,11 +176,7 @@
       (service mingetty-service-type
                (mingetty-configuration
                  (tty "tty7")
-                 (auto-login username)
-                 ;; bug#68384: Work around to fix "Error in service module"
-                 (shepherd-requirement '(dbus-system
-                                         user-processes host-name
-                                         udev virtual-terminal))))
+                 (auto-login username)))
 
       (service guix-home-service-type
                `((,username ,my-home-environment)))
