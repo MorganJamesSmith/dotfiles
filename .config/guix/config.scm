@@ -299,9 +299,6 @@
       ;; https://raw.githubusercontent.com/hagezi/dns-blocklists/main/dnsmasq/ultimate.txt
       (extra-special-file "/etc/NetworkManager/dnsmasq.d/adblock.conf" (local-file "./dnsmasq2"))
 
-      ;; bug#78040 - suspend-then-hibernate issue
-      (service kernel-module-loader-service-type '("dmi-sysfs"))
-
       (modify-services
           (remove (lambda (service)
                     (let ((type (service-kind service)))
