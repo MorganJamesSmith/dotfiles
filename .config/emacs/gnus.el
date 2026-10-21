@@ -268,7 +268,7 @@
         (let ((unread (gnus-group-unread "nnvirtual:INBOX")))
           (when (and unread (numberp unread) (> unread 0))
             (setq gnus-mode-line-string
-                  (concat "[Unread email: " (number-to-string unread) "] "))
+                  (concat "[📧: " (number-to-string unread) "] "))
             (or (memq 'gnus-mode-line-string global-mode-string)
                 (setq global-mode-string
                       (append global-mode-string '(gnus-mode-line-string)))))))
