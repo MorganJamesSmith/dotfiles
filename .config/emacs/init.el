@@ -211,6 +211,48 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
 (setopt mm-uu-hide-markers nil)
 (setopt mml-attach-file-at-the-end t)
 
+;;; Hard Newlines experiments
+;; I've submitted these functions upstream:
+;;   https://debbugs.gnu.org/cgi/bugreport.cgi?bug=82070
+;; By running `use-hard-newlines' in a mail buffer, it gets sent using
+;; format=flowed and looks pretty nice.  But there does seem to be some
+;; features missing
+
+;; It would be nice to have a feature like `ispell-skip-region-alist' but it
+;; makes all newlines in a region hard.  Would be useful for codeblocks and
+;; such
+(defun make-region-hard (start end)
+  "Make all newlines from START to END hard."
+  (interactive "r")
+  (save-excursion
+    (goto-char start)
+    (while (search-forward "\n" end t)
+      (let ((pos (point)))
+        (set-hard-newline-properties (1- pos) pos)))))
+
+(defun font-lock-hard-newlines (limit)
+  "Find next hard newline before LIMIT."
+  (unless (get-text-property (point) 'hard)
+    (goto-char
+     (next-single-property-change (point) 'hard nil limit)))
+  (and (get-text-property (point) 'hard)
+       (let ((return
+              (list (point)
+                    (next-single-property-change (point) 'hard nil limit))))
+         (goto-char (cadr return))
+         (set-match-data return)
+         return)))
+
+(add-hook 'use-hard-newlines-hook
+          (lambda ()
+            (let ((keywords
+                   '((font-lock-hard-newlines
+                      (0 '(:weight thin :underline (:style wave)) prepend)))))
+              (if use-hard-newlines
+                  (font-lock-add-keywords nil keywords)
+                (font-lock-remove-keywords nil keywords)))
+            (font-lock-update)))
+
 (use-package imenu
   :custom
   (imenu-flatten 'prefix)
