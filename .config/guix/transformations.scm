@@ -268,6 +268,7 @@
                    "auth-source-pass"
                    "cc-mode"
                    "compat"
+                   "cond-star"
                    "csharp-mode"
                    "editorconfig"
                    "eglot"
@@ -284,6 +285,7 @@
                    "ntlm"
                    "peg"
                    "project"
+                   "seq"
                    "so-long"
                    "soap-client"
                    "track-changes"
@@ -317,7 +319,9 @@
                      (prepend (apply specification->package additional-inputs))))))))
          (else
           (when (and (string-prefix? "emacs-" name)
-                     (not (member name '("emacs-next-pgtk" "emacs-emms-print-metadata"))))
+                     (not (member name '("emacs-next-pgtk"
+                                         "emacs-emms-print-metadata"
+                                         "emacs-org-texlive-collection"))))
               ;; So I'll notice if anything slips through
               (format (current-error-port) "WARNING: not performing Emacs unvendoring on ~a~%"
                       (package-full-name p)))
