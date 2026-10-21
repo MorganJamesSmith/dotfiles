@@ -234,6 +234,10 @@
              "emacs-no-x"
              "emacs-no-x-toolkit"))
 
+     ;; Some of the files where causing collisions as both where in the same
+     ;; profile.  Might as well just pick one of them
+     ("libjpeg" . ,(const (@ (gnu packages image) libjpeg-turbo)))
+
      ,(package-rewrite-eliminate-package "geoclue")
 
      ;; mad about missing geoclue
