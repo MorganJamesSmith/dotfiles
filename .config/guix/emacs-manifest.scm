@@ -60,8 +60,7 @@
        "transmission"
        "tup-mode"
        "vterm"
-       "ws-butler"
-       "yasnippet")))))
+       "yasnippet"))))))
 
 (define-public emacs-manifest
   (packages->manifest emacs-manifest-packages))

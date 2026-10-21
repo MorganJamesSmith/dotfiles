@@ -1458,11 +1458,6 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 (setq-default indent-tabs-mode nil)
 (setopt require-final-newline t)
 
-(use-package ws-butler
-  :if EXTERNAL-PACKAGES?
-  :delight
-  :hook (prog-mode conf-mode text-mode))
-
 (setopt diff-whitespace-style '(face trailing tabs missing-newline-at-eof tab-mark))
 (add-hook 'diff-mode-hook #'whitespace-mode)
 
