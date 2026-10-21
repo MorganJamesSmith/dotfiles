@@ -415,6 +415,8 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
 
 
 ;;; Org Section Begins
+(require 'org-loaddefs)
+
 (setopt org-fast-tag-selection-single-key t)
 
 (use-package ox-html
@@ -508,7 +510,6 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
   (org-inside-unhide-delay nil))
 
 ;; For when I use org-babel to create images
-(autoload 'org-link-preview-refresh "ol")
 (add-hook 'org-babel-after-execute-hook #'org-link-preview-refresh)
 
 (use-package holidays
@@ -677,8 +678,8 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
 (autoload 'org-entry-blocked-p "org")
 (autoload 'org-timestamp-to-time "org")
 (autoload 'outline-next-heading "outline")
-(autoload 'org-element-property "org-element-ast")
 (autoload 'org-element--property "org-element-ast")
+(autoload 'org-element-type "org-element-ast")
 (defun org-agenda-todo-blocked-count ()
   "Return the number of blocked TODO entries."
   (let* ((level (org-element-property :level (org-element-at-point)))
@@ -890,7 +891,6 @@ Ignore any files in directories in EXCLUDED-DIRECTORIES."
       (member (file-name-nondirectory directory)
               (append '(".stversions" "school") excluded-directories))))))
 
-(autoload 'org-lint "org-lint")
 (defvar org-lint-all-remaining nil)
 (defun org-lint-all ()
   "Lint all my org files in my `org-directory'."
