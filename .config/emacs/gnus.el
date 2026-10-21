@@ -144,7 +144,7 @@
   "Get mail from the org mode mailing list."
   (interactive)
   (assert-network-connectivity)
-  (let ((location "/home/pancake/.local/share/public-inbox/orgmode"))
+  (let ((location (expand-file-name "~/.local/share/public-inbox/orgmode")))
     (set-process-sentinel
      (start-process "orglist-update" "*orglist*" "sh" "-c"
                     (concat "set -e\n"
@@ -196,6 +196,7 @@
                            (gnus-refer-thread-limit t)
                            (gnus-article-save-directory
                             "~/src/emacs/org-mode/")
+                           (gcc-self . "nnimap+morganjsmith:INBOX")
                            (gnus-rmail-save-name
                             ,(lambda (&rest _)
                                "Save to file \"email\"."
