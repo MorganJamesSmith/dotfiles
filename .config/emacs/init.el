@@ -262,11 +262,6 @@ This is supposed to mimic `text-scale-adjust' so I can remap that in
 
 (setopt Man-notify-method 'aggressive)
 
-;; Use only encrypted authinfo
-(setopt auth-sources `((:source ,(expand-file-name "authinfo.gpg" user-emacs-directory)))
-        auth-source-save-behavior t
-        auth-source-gpg-encrypt-to (list user-mail-address))
-
 (setopt browse-url-default-scheme "https")
 
 ;; save after every modification
@@ -1582,6 +1577,11 @@ Checkdoc nonsense: COMMAND FILE-OR-LIST FLAGS."
 
 
 ;;; auth Section Begins
+
+;; Use only encrypted authinfo
+(setopt auth-sources (list (expand-file-name "authinfo.gpg" user-emacs-directory))
+        auth-source-save-behavior t
+        auth-source-gpg-encrypt-to (list user-mail-address))
 
 (setopt epg-user-id user-mail-address)
 (setopt epg-pinentry-mode 'loopback)
